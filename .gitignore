@@ -1,0 +1,108 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+.env
+.env.*
+*.sqlite3
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+static/
+
+# PHP
+vendor/
+composer.phar
+*.log
+.env
+.env.*
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.env.*
+.next
+dist/
+build/
+
+# Ruby
+*.gem
+*.rbc
+/.config
+/coverage/
+/InstalledFiles
+/pkg/
+/spec/reports/
+/spec/examples.txt
+/test/tmp/
+/test/version_tmp/
+/tmp/
+.env
+.env.*
+
+# .NET
+bin/
+obj/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# IDE and Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Database
+*.sqlite
+*.db
+*.sql
+
+# PHPMyAdmin specific
+phpmyadmin/config.inc.php
+phpmyadmin/tmp/
+phpmyadmin/config/
+phpmyadmin/upload/
+
+# Logs and temporary files
+*.log
+*.tmp
+tmp/
+temp/
+logs/
+
+# Environment specific
+.env
+.env.*
+!.env.example
+
+# System Files
+.DS_Store
+Thumbs.db 
