@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}{{ name }}'s Resume{% endblock %}
+
+{% block content %}
+    <p>Mobile no: {{ mobileno }}</p>
+
+    <h3>Qualifications</h3>
+    <ul>
+        {% for qualification in qualifications %}
+            <li>{{ qualification.title }} from {{ qualification.university }} ({{ qualification.date_completed }})</li>
+        {% empty %}
+            <li>No qualifications found.</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Work Experience</h3>
+    <ul>
+        {% for job in work_experience %}
+            <li>{{ job.job_title }} at {{ job.company }} ({{ job.start_date }} - {{ job.end_date|default:"Present" }})</li>
+        {% empty %}
+            <li>No work experience found.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
