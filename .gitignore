@@ -86,10 +86,20 @@ bld/
 *.sql
 
 # PHPMyAdmin specific
+phpmyadmin/
 phpmyadmin/config.inc.php
 phpmyadmin/tmp/
 phpmyadmin/config/
 phpmyadmin/upload/
+
+# System directories
+ROOT/
+host-manager/
+manager/
+uwsgi/env/
+
+# Empty files
+htdocs/lab4_bootstrapui/screens/resumebuilder.png
 
 # Logs and temporary files
 *.log
