@@ -115,4 +115,10 @@ logs/
 
 # System Files
 .DS_Store
-Thumbs.db 
+Thumbs.db
+
+# Additional system files
+ROOT
+host-manager
+manager
+puma/ 
