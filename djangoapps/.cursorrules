@@ -1,0 +1,64 @@
+# Django Coding Standards
+
+## Python/Django Specific Rules
+- Line length: 120 chars
+- Use 4-space indentation
+- Use double quotes for strings
+- Follow PEP 8 for Python code
+- Follow Django's coding style for Django-specific code
+
+## Django Project Structure
+- Keep apps modular and focused on single responsibilities
+- Use Django's recommended project structure
+- Separate business logic from views
+- Use class-based views when appropriate
+- Follow Django's template organization patterns
+
+## Database
+- Use migrations for all database changes
+- Never modify database schema directly
+- Use Django's ORM for database operations
+- Avoid raw SQL unless absolutely necessary
+- Use select_related and prefetch_related for performance
+
+## Security
+- Always use Django's built-in security features
+- Never store sensitive data in code
+- Use environment variables for secrets
+- Implement proper authentication and authorization
+- Sanitize all user inputs
+
+## Testing
+- Write tests for all new functionality
+- Use Django's test framework
+- Include both unit tests and integration tests
+- Maintain test coverage above 80%
+- Use fixtures for test data
+
+## Documentation
+- Document all models, views, and complex functions
+- Use docstrings following Google style
+- Keep README.md updated
+- Document API endpoints
+- Include setup instructions
+
+## Performance
+- Use Django's caching framework
+- Optimize database queries
+- Use pagination for large datasets
+- Implement proper indexing
+- Monitor and optimize performance
+
+## Environment Specific
+- Use different settings for dev, test, and prod
+- Keep environment-specific configurations separate
+- Use .env files for environment variables
+- Never commit sensitive data
+- Use appropriate logging levels
+
+## Git Workflow
+- Keep commits focused and atomic
+- Write descriptive commit messages
+- Use feature branches
+- Review code before merging
+- Keep the main branch deployable 
