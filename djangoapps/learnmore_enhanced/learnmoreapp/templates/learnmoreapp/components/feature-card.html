@@ -1,0 +1,63 @@
+{% comment %}
+Feature Card Component
+Usage: {% include 'learnmoreapp/components/feature-card.html' with icon=icon title=title description=description %}
+Required context:
+- icon: Bootstrap icon class (e.g., 'bi-book')
+- title: Feature title
+- description: Feature description
+{% endcomment %}
+
+<div class="feature-card">
+    <div class="feature-icon">
+        <i class="bi {{ icon }}"></i>
+    </div>
+    <h3 class="feature-title">{{ title }}</h3>
+    <p class="feature-description">{{ description }}</p>
+</div>
+
+{% comment %}
+Required CSS:
+.feature-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 2rem;
+    height: 100%;
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+    width: 70px;
+    height: 70px;
+    background-color: rgba(37, 99, 235, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.feature-icon i {
+    font-size: 2rem;
+    color: var(--primary);
+}
+
+.feature-title {
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+.feature-description {
+    color: var(--secondary);
+    margin-bottom: 0;
+    line-height: 1.6;
+}
+{% endcomment %} 

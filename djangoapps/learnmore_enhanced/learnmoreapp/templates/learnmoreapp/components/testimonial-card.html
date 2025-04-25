@@ -1,0 +1,138 @@
+{% comment %}
+Testimonial Card Component
+Usage: {% include 'learnmoreapp/components/testimonial-card.html' with testimonial=testimonial %}
+Required context:
+- testimonial: Dictionary with 'name', 'role', 'avatar', 'quote', and 'rating' keys
+Example:
+testimonial = {
+    'name': 'John Doe',
+    'role': 'Software Engineer',
+    'avatar': 'path/to/avatar.jpg',
+    'quote': 'This platform has transformed my learning experience...',
+    'rating': 5
+}
+{% endcomment %}
+
+<div class="testimonial-card">
+    <div class="testimonial-content">
+        <div class="testimonial-quote">
+            <i class="bi bi-quote"></i>
+            <p>{{ testimonial.quote }}</p>
+        </div>
+        <div class="testimonial-rating">
+            {% for i in "12345" %}
+                <i class="bi bi-star-fill {% if forloop.counter <= testimonial.rating %}text-warning{% else %}text-muted{% endif %}"></i>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="testimonial-author">
+        <div class="testimonial-avatar">
+            {% if testimonial.avatar %}
+                <img src="{{ testimonial.avatar }}" alt="{{ testimonial.name }}">
+            {% else %}
+                <div class="avatar-placeholder">
+                    {{ testimonial.name|first|upper }}
+                </div>
+            {% endif %}
+        </div>
+        <div class="testimonial-info">
+            <h4>{{ testimonial.name }}</h4>
+            <p>{{ testimonial.role }}</p>
+        </div>
+    </div>
+</div>
+
+{% comment %}
+Required CSS:
+.testimonial-card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--box-shadow);
+    transition: transform 0.3s ease;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--box-shadow-hover);
+}
+
+.testimonial-content {
+    margin-bottom: 1.5rem;
+}
+
+.testimonial-quote {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.testimonial-quote i {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 1.5rem;
+    color: var(--primary);
+    opacity: 0.2;
+}
+
+.testimonial-quote p {
+    color: var(--secondary);
+    font-style: italic;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.testimonial-rating {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.25rem;
+}
+
+.testimonial-rating i {
+    font-size: 1.25rem;
+}
+
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.testimonial-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.testimonial-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: var(--primary-light);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: var(--font-weight-bold);
+}
+
+.testimonial-info h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: var(--font-weight-semibold);
+    color: var(--dark);
+}
+
+.testimonial-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--secondary);
+}
+{% endcomment %} 

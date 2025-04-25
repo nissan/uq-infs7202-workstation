@@ -1,0 +1,101 @@
+{% comment %}
+User Profile Component
+Usage: {% include 'learnmoreapp/components/user-profile.html' with user=user stats=stats %}
+Required context:
+- user: User object with the following attributes:
+  - first_name: User's first name
+  - last_name: User's last name
+  - email: User's email
+  - avatar: User's avatar image URL (optional)
+  - role: User's role (e.g., Student, Instructor)
+- stats: Dictionary with user statistics (optional)
+  - courses_enrolled: Number of courses enrolled
+  - courses_completed: Number of courses completed
+  - certificates: Number of certificates earned
+{% endcomment %}
+
+<div class="user-profile-container">
+    <div class="profile-header">
+        <div class="profile-avatar">
+            {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" alt="{{ user.get_full_name }}">
+            {% else %}
+            {{ user.first_name|first }}{{ user.last_name|first }}
+            {% endif %}
+            <div class="avatar-upload">
+                <i class="bi bi-camera"></i> Change Photo
+            </div>
+        </div>
+        <div class="profile-info">
+            <h1 class="profile-name">{{ user.get_full_name }}</h1>
+            <div class="profile-email">{{ user.email }}</div>
+            <div class="profile-role">{{ user.role }}</div>
+        </div>
+    </div>
+    
+    {% if stats %}
+    <div class="profile-stats">
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.courses_enrolled }}</div>
+            <div class="stat-label">Courses Enrolled</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.courses_completed }}</div>
+            <div class="stat-label">Courses Completed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.certificates }}</div>
+            <div class="stat-label">Certificates Earned</div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="profile-actions">
+        <a href="{% url 'profile_edit' %}" class="btn btn-primary">
+            <i class="bi bi-pencil"></i> Edit Profile
+        </a>
+        <a href="{% url 'password_change' %}" class="btn btn-outline-primary">
+            <i class="bi bi-key"></i> Change Password
+        </a>
+    </div>
+</div>
+
+{% comment %}
+Required CSS:
+<link rel="stylesheet" href="{% static 'learnmoreapp/css/components/user-profile.css' %}">
+
+Required JavaScript:
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarUpload = document.querySelector('.avatar-upload');
+    const avatarInput = document.createElement('input');
+    avatarInput.type = 'file';
+    avatarInput.accept = 'image/*';
+    
+    avatarUpload.addEventListener('click', function() {
+        avatarInput.click();
+    });
+    
+    avatarInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const formData = new FormData();
+            formData.append('avatar', this.files[0]);
+            
+            fetch('{% url "profile_avatar_upload" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                }
+            });
+        }
+    });
+});
+</script>
+{% endcomment %} 

@@ -1,0 +1,58 @@
+{% comment %}
+Navbar Component
+Usage: {% include 'learnmoreapp/components/navbar.html' with user=user notification_count=notification_count %}
+Required context:
+- user: User object with the following attributes:
+  - first_name: User's first name
+  - last_name: User's last name
+  - avatar: User's avatar image URL (optional)
+- notification_count: Number of unread notifications (optional)
+{% endcomment %}
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'index' %}">Enhanced LearnMore</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                {% block navigation %}{% endblock %}
+                
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'notifications' %}">
+                        {% include 'learnmoreapp/components/notification-bell.html' with notification_count=notification_count %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'profile' %}">
+                        <div class="user-profile">
+                            <div class="user-avatar">
+                                {% if user.avatar %}
+                                <img src="{{ user.avatar.url }}" alt="{{ user.get_full_name }}">
+                                {% else %}
+                                {{ user.first_name|first }}{{ user.last_name|first }}
+                                {% endif %}
+                            </div>
+                            <span class="user-name">{{ user.get_full_name }}</span>
+                        </div>
+                    </a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'register' %}">Register</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+{% comment %}
+Required CSS:
+<link rel="stylesheet" href="{% static 'learnmoreapp/css/components/navbar.css' %}">
+{% endcomment %} 

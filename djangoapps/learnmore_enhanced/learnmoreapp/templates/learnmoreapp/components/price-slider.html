@@ -1,0 +1,91 @@
+{% comment %}
+Price Slider Component
+Usage: {% include 'learnmoreapp/components/price-slider.html' with min_price=min_price max_price=max_price %}
+Required context:
+- min_price: Minimum price value
+- max_price: Maximum price value
+- step: Step value for the slider (optional, default: 1)
+- currency: Currency symbol (optional, default: $)
+{% endcomment %}
+
+<div class="price-slider-container">
+    <div id="price-slider" class="price-slider"></div>
+    <div class="price-range">
+        <input type="number" class="price-input" id="min-price" value="{{ min_price }}" min="{{ min_price }}" max="{{ max_price }}">
+        <span class="price-separator">-</span>
+        <input type="number" class="price-input" id="max-price" value="{{ max_price }}" min="{{ min_price }}" max="{{ max_price }}">
+    </div>
+</div>
+
+{% comment %}
+Required CSS:
+<link rel="stylesheet" href="{% static 'learnmoreapp/css/components/price-slider.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.6.1/nouislider.min.css">
+
+Required JavaScript:
+<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.6.1/nouislider.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const minPrice = {{ min_price }};
+    const maxPrice = {{ max_price }};
+    const step = {{ step|default:1 }};
+    const currency = '{{ currency|default:"$" }}';
+    
+    const priceSlider = document.getElementById('price-slider');
+    const minPriceInput = document.getElementById('min-price');
+    const maxPriceInput = document.getElementById('max-price');
+    
+    noUiSlider.create(priceSlider, {
+        start: [minPrice, maxPrice],
+        connect: true,
+        step: step,
+        range: {
+            'min': minPrice,
+            'max': maxPrice
+        },
+        format: {
+            to: function(value) {
+                return Math.round(value);
+            },
+            from: function(value) {
+                return Number(value);
+            }
+        }
+    });
+    
+    // Update input values when slider changes
+    priceSlider.noUiSlider.on('update', function(values, handle) {
+        const value = values[handle];
+        if (handle === 0) {
+            minPriceInput.value = value;
+        } else {
+            maxPriceInput.value = value;
+        }
+    });
+    
+    // Update slider when input values change
+    minPriceInput.addEventListener('change', function() {
+        priceSlider.noUiSlider.set([this.value, null]);
+    });
+    
+    maxPriceInput.addEventListener('change', function() {
+        priceSlider.noUiSlider.set([null, this.value]);
+    });
+    
+    // Validate input values
+    function validateInput(input) {
+        const value = Number(input.value);
+        if (value < minPrice) input.value = minPrice;
+        if (value > maxPrice) input.value = maxPrice;
+    }
+    
+    minPriceInput.addEventListener('blur', function() {
+        validateInput(this);
+    });
+    
+    maxPriceInput.addEventListener('blur', function() {
+        validateInput(this);
+    });
+});
+</script>
+{% endcomment %} 

@@ -1,0 +1,157 @@
+{% comment %}
+Course Card Component
+Usage: {% include 'learnmoreapp/components/course-card.html' with course=course %}
+Required context:
+- course: Course object with the following attributes:
+  - image: Course image URL
+  - title: Course title
+  - level: Course level (Beginner, Intermediate, Advanced)
+  - category: Course category
+  - description: Course description
+  - duration: Course duration in hours
+  - students: Number of enrolled students
+  - price: Course price
+  - original_price: Original price (optional)
+  - rating: Course rating
+{% endcomment %}
+
+<div class="course-card">
+    <div class="course-image">
+        <img src="{{ course.image.url }}" alt="{{ course.title }}">
+        <span class="course-level">{{ course.level }}</span>
+    </div>
+    <div class="course-content">
+        <div class="course-category">{{ course.category }}</div>
+        <h3 class="course-title">{{ course.title }}</h3>
+        <p class="course-description">{{ course.description }}</p>
+        <div class="course-meta">
+            <span><i class="bi bi-clock"></i> {{ course.duration }} hours</span>
+            <span><i class="bi bi-people"></i> {{ course.students }} students</span>
+        </div>
+        <div class="course-footer">
+            <div class="course-price">
+                {% if course.original_price %}
+                <span class="original">${{ course.original_price }}</span>
+                {% endif %}
+                ${{ course.price }}
+            </div>
+            <div class="course-rating">
+                <i class="bi bi-star-fill"></i>
+                <span>{{ course.rating }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% comment %}
+Required CSS:
+.course-card {
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.course-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.course-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.course-level {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.course-content {
+    padding: 1.5rem;
+}
+
+.course-category {
+    color: var(--primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.course-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.course-description {
+    color: var(--secondary);
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.course-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: var(--secondary);
+}
+
+.course-meta i {
+    font-size: 1rem;
+}
+
+.course-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.course-price {
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.course-price .original {
+    text-decoration: line-through;
+    color: var(--secondary);
+    font-size: 0.875rem;
+    margin-right: 0.5rem;
+}
+
+.course-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.course-rating i {
+    color: #f59e0b;
+}
+
+.course-rating span {
+    font-weight: 600;
+}
+{% endcomment %} 
