@@ -1,0 +1,79 @@
+{% comment %}
+Activity Feed Component
+Usage: {% include 'components/organisms/dashboard/activity-feed.html' with activities=activities %}
+
+Required context:
+activities = [
+    {
+        'id': 'unique_id',
+        'type': 'course_progress'|'achievement'|'comment'|'enrollment',
+        'user': {
+            'name': 'John Doe',
+            'avatar_url': 'path/to/avatar.jpg'
+        },
+        'content': 'Activity description',
+        'time': '2 hours ago',
+        'link': '/path/to/activity' (optional),
+        'metadata': {
+            'course_name': 'Course Name' (for course_progress),
+            'achievement_name': 'Achievement Name' (for achievement),
+            'comment_text': 'Comment text' (for comment),
+            'course_name': 'Course Name' (for enrollment)
+        }
+    }
+]
+{% endcomment %}
+
+<div class="bg-white rounded-lg shadow">
+    <div class="p-4 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900">Recent Activity</h3>
+    </div>
+    
+    <div class="divide-y divide-gray-200">
+        {% for activity in activities %}
+            <div class="p-4 hover:bg-gray-50 transition-colors">
+                <div class="flex items-start gap-3">
+                    <!-- User Avatar -->
+                    {% include 'components/atoms/ui/avatar.html' with image_url=activity.user.avatar_url name=activity.user.name size='sm' %}
+                    
+                    <!-- Activity Content -->
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm text-gray-900">
+                                <span class="font-medium">{{ activity.user.name }}</span>
+                                {% if activity.type == 'course_progress' %}
+                                    completed a lesson in
+                                    <a href="{{ activity.link }}" class="text-blue-600 hover:underline">{{ activity.metadata.course_name }}</a>
+                                {% elif activity.type == 'achievement' %}
+                                    earned the
+                                    <a href="{{ activity.link }}" class="text-blue-600 hover:underline">{{ activity.metadata.achievement_name }}</a>
+                                    achievement
+                                {% elif activity.type == 'comment' %}
+                                    commented on
+                                    <a href="{{ activity.link }}" class="text-blue-600 hover:underline">{{ activity.metadata.course_name }}</a>
+                                {% elif activity.type == 'enrollment' %}
+                                    enrolled in
+                                    <a href="{{ activity.link }}" class="text-blue-600 hover:underline">{{ activity.metadata.course_name }}</a>
+                                {% endif %}
+                            </p>
+                            <span class="text-xs text-gray-500">{{ activity.time }}</span>
+                        </div>
+                        
+                        {% if activity.type == 'comment' %}
+                            <p class="mt-1 text-sm text-gray-600">{{ activity.metadata.comment_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    {% if activities|length > 5 %}
+        <div class="p-4 border-t border-gray-200">
+            <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-500">
+                View all activity
+                <i class="bi bi-arrow-right ml-1"></i>
+            </a>
+        </div>
+    {% endif %}
+</div> 

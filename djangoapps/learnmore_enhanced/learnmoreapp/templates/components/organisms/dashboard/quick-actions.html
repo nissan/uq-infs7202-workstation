@@ -1,0 +1,66 @@
+{% comment %}
+Quick Actions Component
+Usage: {% include 'components/organisms/dashboard/quick-actions.html' with actions=actions %}
+
+Required context:
+actions = [
+    {
+        'id': 'unique_id',
+        'title': 'Action Title',
+        'description': 'Action description',
+        'icon': 'bi-icon-name',
+        'link': '/path/to/action',
+        'color': 'blue'|'green'|'purple'|'orange' (optional)
+    }
+]
+{% endcomment %}
+
+<div class="bg-white rounded-lg shadow">
+    <div class="p-4 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900">Quick Actions</h3>
+    </div>
+    
+    <div class="p-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {% for action in actions %}
+                <a href="{{ action.link }}" class="
+                    block p-4 rounded-lg
+                    {% if action.color == 'green' %}
+                        bg-green-50 hover:bg-green-100
+                    {% elif action.color == 'purple' %}
+                        bg-purple-50 hover:bg-purple-100
+                    {% elif action.color == 'orange' %}
+                        bg-orange-50 hover:bg-orange-100
+                    {% else %}
+                        bg-blue-50 hover:bg-blue-100
+                    {% endif %}
+                    transition-colors
+                ">
+                    <div class="flex items-center gap-3">
+                        <div class="
+                            flex-shrink-0
+                            w-10 h-10
+                            rounded-lg
+                            flex items-center justify-center
+                            {% if action.color == 'green' %}
+                                bg-green-100 text-green-600
+                            {% elif action.color == 'purple' %}
+                                bg-purple-100 text-purple-600
+                            {% elif action.color == 'orange' %}
+                                bg-orange-100 text-orange-600
+                            {% else %}
+                                bg-blue-100 text-blue-600
+                            {% endif %}
+                        ">
+                            <i class="{{ action.icon }} text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900">{{ action.title }}</h4>
+                            <p class="text-xs text-gray-600">{{ action.description }}</p>
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</div> 
