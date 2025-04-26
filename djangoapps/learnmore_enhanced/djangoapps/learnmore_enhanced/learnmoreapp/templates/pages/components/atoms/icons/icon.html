@@ -1,0 +1,18 @@
+{% comment %}
+  Icon Component
+  Usage: {% include 'learnmoreapp/components/atoms/icons/icon.html' with icon="menu" class="w-6 h-6" %}
+  Parameters:
+    - icon: The name of the icon to display
+    - class: Additional classes for the icon (optional)
+    - aria_label: Accessibility label (optional)
+{% endcomment %}
+
+<span 
+  class="inline-flex items-center justify-center {{ class|default:'w-5 h-5' }}"
+  {% if aria_label %}aria-label="{{ aria_label }}"{% endif %}
+  role="img"
+>
+  {% with icon_template_name="learnmoreapp/components/atoms/icons/"|add:icon|add:".html" %}
+    {% include icon_template_name %}
+  {% endwith %}
+</span> 

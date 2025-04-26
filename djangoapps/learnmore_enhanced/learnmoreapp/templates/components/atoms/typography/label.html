@@ -1,0 +1,11 @@
+{% comment %}
+  Label Component
+  Usage: {% include 'components/atoms/typography/label.html' with text="Label text" %}
+  Parameters:
+    - text: The label text
+    - class: Additional classes (optional)
+{% endcomment %}
+
+<label class="text-sm font-medium text-gray-700 dark:text-gray-300 {{ class|default:'' }}">
+  {{ text }}
+</label> 

@@ -1,0 +1,89 @@
+{% comment %}
+  Main Navigation Component
+  Usage: {% include 'learnmoreapp/components/molecules/navigation/main-nav.html' %}
+  Parameters:
+    - class: Additional classes for the navigation (optional)
+{% endcomment %}
+
+<nav class="relative z-50 w-full bg-white dark:bg-gray-900 {{ class|default:'' }}">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 items-center justify-between">
+      <!-- Logo and Brand -->
+      <div class="flex items-center">
+        <a href="/" class="flex items-center space-x-2">
+          {% include 'learnmoreapp/components/atoms/icons/icon.html' with 
+            icon="book" 
+            class="w-8 h-8 text-primary dark:text-primary-light"
+            aria_label="LearnMore Logo" 
+          %}
+          <span class="text-xl font-bold text-gray-900 dark:text-white">LearnMore</span>
+        </a>
+      </div>
+
+      <!-- Desktop Navigation -->
+      <div class="hidden md:block">
+        <div class="ml-10 flex items-center space-x-4">
+          <a href="/courses" class="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white px-3 py-2 text-sm font-medium">Courses</a>
+          <a href="/about" class="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white px-3 py-2 text-sm font-medium">About</a>
+          <a href="/contact" class="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white px-3 py-2 text-sm font-medium">Contact</a>
+        </div>
+      </div>
+
+      <!-- Right Side Actions -->
+      <div class="hidden md:flex md:items-center md:space-x-4">
+        {% include 'learnmoreapp/components/atoms/buttons/theme-toggle.html' %}
+        {% include 'learnmoreapp/components/atoms/buttons/primary.html' with 
+          text="Sign In" 
+          href="/login"
+          class="ml-4" 
+        %}
+      </div>
+
+      <!-- Mobile menu button -->
+      <div class="flex md:hidden">
+        <button
+          type="button"
+          class="inline-flex items-center justify-center rounded-md p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800"
+          aria-controls="mobile-menu"
+          aria-expanded="false"
+          x-data="{ open: false }"
+          @click="open = !open"
+        >
+          <span class="sr-only">Open main menu</span>
+          {% include 'learnmoreapp/components/atoms/icons/icon.html' with 
+            icon="menu" 
+            class="h-6 w-6"
+            aria_label="Menu" 
+          %}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <div
+    class="md:hidden"
+    id="mobile-menu"
+    x-show="open"
+    x-transition:enter="transition ease-out duration-100"
+    x-transition:enter-start="transform opacity-0 scale-95"
+    x-transition:enter-end="transform opacity-100 scale-100"
+    x-transition:leave="transition ease-in duration-75"
+    x-transition:leave-start="transform opacity-100 scale-100"
+    x-transition:leave-end="transform opacity-0 scale-95"
+  >
+    <div class="space-y-1 px-2 pb-3 pt-2">
+      <a href="/courses" class="block rounded-md px-3 py-2 text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white">Courses</a>
+      <a href="/about" class="block rounded-md px-3 py-2 text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white">About</a>
+      <a href="/contact" class="block rounded-md px-3 py-2 text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white">Contact</a>
+      <div class="mt-4 flex items-center justify-between px-3">
+        {% include 'learnmoreapp/components/atoms/buttons/theme-toggle.html' %}
+        {% include 'learnmoreapp/components/atoms/buttons/primary.html' with 
+          text="Sign In" 
+          href="/login"
+          class="ml-4" 
+        %}
+      </div>
+    </div>
+  </div>
+</nav> 

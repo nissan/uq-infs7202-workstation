@@ -16,22 +16,22 @@ def index(request):
     # Features Section Data
     features = [
         {
-            'icon': 'bi-pencil-square',
+            'icon': 'pencil-square',
             'title': 'Intuitive Course Creation',
             'description': 'Build engaging courses with our drag-and-drop editor. Add videos, quizzes, and interactive elements in minutes.'
         },
         {
-            'icon': 'bi-qr-code',
+            'icon': 'qr-code',
             'title': 'QR Code Sharing',
             'description': 'Share your courses instantly with QR codes. Students can access materials with a simple scan.'
         },
         {
-            'icon': 'bi-robot',
+            'icon': 'robot',
             'title': 'AI Tutoring',
             'description': 'Provide 24/7 personalized support with our AI tutoring system that adapts to each student\'s learning style.'
         },
         {
-            'icon': 'bi-graph-up',
+            'icon': 'graph-up',
             'title': 'Advanced Analytics',
             'description': 'Track student progress and engagement with detailed analytics and actionable insights.'
         }
@@ -158,7 +158,7 @@ def index(request):
         }
     }
 
-    return render(request, 'learnmoreapp/index.html', {
+    return render(request, 'pages/index.html', {
         'hero': hero,
         'features': features,
         'steps': steps,
@@ -179,7 +179,7 @@ def register(request):
             return redirect('index')
     else:
         form = UserCreationForm()
-    return render(request, 'learnmoreapp/register.html', {'form': form})
+    return render(request, 'pages/register.html', {'form': form})
 
 @require_POST
 def newsletter_subscribe(request):
@@ -198,8 +198,7 @@ def course_catalog(request):
             'image': 'https://via.placeholder.com/400x200',
             'duration': '8 weeks',
             'students': '1.2k',
-            'level': 'Beginner',
-            'price': '$99'
+            'rating': 4.8
         },
         {
             'title': 'Web Development',
@@ -207,8 +206,7 @@ def course_catalog(request):
             'image': 'https://via.placeholder.com/400x200',
             'duration': '12 weeks',
             'students': '2.5k',
-            'level': 'Intermediate',
-            'price': '$149'
+            'rating': 4.9
         },
         {
             'title': 'Data Science',
@@ -216,13 +214,11 @@ def course_catalog(request):
             'image': 'https://via.placeholder.com/400x200',
             'duration': '10 weeks',
             'students': '1.8k',
-            'level': 'Advanced',
-            'price': '$199'
+            'rating': 4.7
         }
     ]
-    
-    return render(request, 'learnmoreapp/course_catalog.html', {
-        'courses': courses,
-        'user': request.user,
-        'notification_count': 0  # We'll implement this later
-    }) 
+    return render(request, 'pages/course-catalog.html', {'courses': courses})
+
+def navigation_test(request):
+    """View for testing the navigation component."""
+    return render(request, 'components/test/navigation-test.html') 

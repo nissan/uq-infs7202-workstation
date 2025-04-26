@@ -1,0 +1,80 @@
+{% extends 'learnmoreapp/base.html' %}
+
+{% block title %}Navigation Component Test{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <!-- Main Navigation -->
+  {% include 'learnmoreapp/components/molecules/navigation/main-nav.html' %}
+
+  <!-- Test Content -->
+  <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+    <div class="space-y-8">
+      <!-- Test Header -->
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Navigation Component Test</h1>
+        <p class="mt-2 text-gray-600 dark:text-gray-300">
+          This page tests the navigation component's functionality and responsiveness.
+        </p>
+      </div>
+
+      <!-- Test Scenarios -->
+      <div class="space-y-6">
+        <!-- Responsive Test -->
+        <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Responsive Test</h2>
+          <p class="mt-2 text-gray-600 dark:text-gray-300">
+            Resize your browser window to test the responsive behavior:
+          </p>
+          <ul class="mt-4 list-disc list-inside text-gray-600 dark:text-gray-300">
+            <li>Desktop: Full navigation with all items visible</li>
+            <li>Tablet: Hamburger menu appears, navigation items in dropdown</li>
+            <li>Mobile: Compact layout with mobile menu</li>
+          </ul>
+        </div>
+
+        <!-- Dark Mode Test -->
+        <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Dark Mode Test</h2>
+          <p class="mt-2 text-gray-600 dark:text-gray-300">
+            Click the theme toggle button to test dark mode:
+          </p>
+          <ul class="mt-4 list-disc list-inside text-gray-600 dark:text-gray-300">
+            <li>Light mode: White background, dark text</li>
+            <li>Dark mode: Dark background, light text</li>
+            <li>Hover states should work in both modes</li>
+          </ul>
+        </div>
+
+        <!-- Interaction Test -->
+        <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Interaction Test</h2>
+          <p class="mt-2 text-gray-600 dark:text-gray-300">
+            Test the following interactions:
+          </p>
+          <ul class="mt-4 list-disc list-inside text-gray-600 dark:text-gray-300">
+            <li>Click the hamburger menu to open/close mobile navigation</li>
+            <li>Hover over navigation links to see hover states</li>
+            <li>Click the Sign In button to verify link behavior</li>
+            <li>Test keyboard navigation (Tab key)</li>
+          </ul>
+        </div>
+
+        <!-- Accessibility Test -->
+        <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Accessibility Test</h2>
+          <p class="mt-2 text-gray-600 dark:text-gray-300">
+            Verify the following accessibility features:
+          </p>
+          <ul class="mt-4 list-disc list-inside text-gray-600 dark:text-gray-300">
+            <li>Proper ARIA labels on all interactive elements</li>
+            <li>Keyboard navigation works correctly</li>
+            <li>Focus states are visible</li>
+            <li>Screen reader friendly structure</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %} 

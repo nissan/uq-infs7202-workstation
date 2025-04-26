@@ -1,6 +1,6 @@
 {% comment %}
 Footer Section Component
-Usage: {% include 'learnmoreapp/components/footer-section.html' with footer=footer %}
+Usage: {% include 'components/footer-section.html' with footer=footer %}
 Required context:
 - footer: Dictionary with 'company', 'links', 'social', and 'newsletter' keys
 Example:
@@ -88,12 +88,12 @@ footer = {
             </div>
 
             <!-- Newsletter -->
-            {% include 'learnmoreapp/components/newsletter-signup.html' with newsletter=footer.newsletter %}
+            {% include 'components/newsletter-signup.html' with newsletter=footer.newsletter %}
         </div>
 
         <!-- Footer Bottom -->
         <div class="footer-bottom">
-            {% include 'learnmoreapp/components/social-links.html' with social_links=footer.social variant='light' %}
+            {% include 'components/social-links.html' with social_links=footer.social variant='light' %}
             <p class="copyright">&copy; {% now "Y" %} {{ footer.company.name }}. All rights reserved.</p>
         </div>
     </div>

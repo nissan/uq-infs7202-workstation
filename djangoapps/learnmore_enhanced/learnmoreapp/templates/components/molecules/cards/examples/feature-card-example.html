@@ -1,0 +1,53 @@
+{% comment %}
+  Feature Card Example
+  Shows how to use the feature card component
+{% endcomment %}
+
+<div class="bg-gray-50 dark:bg-gray-900 py-12">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">Powerful Features</h2>
+      <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+        Our platform combines cutting-edge technology with intuitive design
+      </p>
+    </div>
+
+    <div class="flex flex-wrap -mx-4">
+      <!-- Book Feature -->
+      {% include 'learnmoreapp/components/molecules/cards/feature-card.html' with 
+        feature={
+          'icon': 'book',
+          'title': 'Comprehensive Learning',
+          'description': 'Access a vast library of courses and resources designed to help you master new skills.'
+        }
+      %}
+
+      <!-- Graduation Cap Feature -->
+      {% include 'learnmoreapp/components/molecules/cards/feature-card.html' with 
+        feature={
+          'icon': 'graduation-cap',
+          'title': 'Expert-Led Courses',
+          'description': 'Learn from industry experts and experienced educators who are passionate about teaching.'
+        }
+      %}
+
+      <!-- Users Feature -->
+      {% include 'learnmoreapp/components/molecules/cards/feature-card.html' with 
+        feature={
+          'icon': 'users',
+          'title': 'Community Learning',
+          'description': 'Connect with peers, share insights, and collaborate on projects in a supportive environment.'
+        }
+      %}
+
+      <!-- Rocket Feature -->
+      {% include 'learnmoreapp/components/molecules/cards/feature-card.html' with 
+        feature={
+          'icon': 'rocket',
+          'title': 'Quick Start',
+          'description': 'Get started in minutes with our intuitive platform and personalized learning paths.'
+        }
+      %}
+    </div>
+  </div>
+</div> 

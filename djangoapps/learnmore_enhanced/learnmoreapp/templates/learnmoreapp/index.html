@@ -11,31 +11,26 @@
 {% endblock %}
 
 {% block navigation %}
-<li class="nav-item">
-    <a class="nav-link" href="{% url 'login' %}">Login</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link" href="{% url 'register' %}">Register</a>
-</li>
+{% include 'components/molecules/navigation/main-nav.html' %}
 {% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
-{% include 'learnmoreapp/components/hero-section.html' with hero=hero %}
+{% include 'components/hero-section.html' with hero=hero %}
 
 <!-- Features Section -->
-<section class="py-16 bg-gray-50" id="features">
-    <div class="container mx-auto px-4">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">Powerful Features for Modern Education</h2>
-            <p class="text-lg text-gray-600 max-w-2xl mx-auto">Our platform combines cutting-edge technology with intuitive design to create the ultimate learning experience for educators and students alike.</p>
-        </div>
-        <div class="flex flex-wrap -mx-4">
-            {% for feature in features %}
-            {% include 'learnmoreapp/components/feature-card.html' with feature=feature %}
-            {% endfor %}
-        </div>
+<section class="py-24 bg-gray-50 dark:bg-gray-900" id="features">
+  <div class="container mx-auto px-6">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">Powerful Features for Modern Education</h2>
+      <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Our platform combines cutting-edge technology with intuitive design to create the ultimate learning experience for educators and students alike.</p>
     </div>
+    <div class="flex flex-wrap -mx-4">
+      {% for feature in features %}
+      {% include 'components/molecules/cards/feature-card.html' with feature=feature %}
+      {% endfor %}
+    </div>
+  </div>
 </section>
 
 <!-- How It Works Section -->
@@ -47,7 +42,7 @@
         </div>
         <div class="flex flex-wrap -mx-4 relative">
             {% for step in steps %}
-            {% include 'learnmoreapp/components/step-indicator.html' with step=step %}
+            {% include 'components/step-indicator.html' with step=step %}
             {% endfor %}
         </div>
     </div>
@@ -62,7 +57,7 @@
         </div>
         <div class="flex flex-wrap -mx-4">
             {% for course in featured_courses %}
-            {% include 'learnmoreapp/components/course-card.html' with course=course %}
+            {% include 'components/course-card.html' with course=course %}
             {% endfor %}
         </div>
     </div>
@@ -77,12 +72,12 @@
         </div>
         <div class="flex flex-wrap -mx-4">
             {% for testimonial in testimonials %}
-            {% include 'learnmoreapp/components/testimonial-card.html' with testimonial=testimonial %}
+            {% include 'components/testimonial-card.html' with testimonial=testimonial %}
             {% endfor %}
         </div>
     </div>
 </section>
 
 <!-- CTA Section -->
-{% include 'learnmoreapp/components/cta-section.html' with cta=cta %}
+{% include 'components/cta-section.html' with cta=cta %}
 {% endblock %} 

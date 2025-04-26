@@ -1,0 +1,64 @@
+{% comment %}
+  Icon Examples
+  Shows different ways to use the icon component
+{% endcomment %}
+
+<div class="space-y-8">
+  <!-- Navigation Icons -->
+  <div class="flex items-center space-x-4">
+    <!-- Menu Icon -->
+    {% include 'learnmoreapp/components/atoms/icons/icon.html' with 
+      icon="menu" 
+      class="w-6 h-6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+      aria_label="Menu" 
+    %}
+    
+    <!-- Close Icon -->
+    {% include 'learnmoreapp/components/atoms/icons/icon.html' with 
+      icon="close" 
+      class="w-6 h-6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+      aria_label="Close" 
+    %}
+  </div>
+
+  <!-- Feature Icons -->
+  <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+    <!-- Book Icon -->
+    {% include 'learnmoreapp/components/atoms/icons/icon.html' with 
+      icon="book" 
+      class="w-8 h-8 text-primary hover:text-primary-dark dark:text-primary-light dark:hover:text-primary"
+      aria_label="Learning Resources" 
+    %}
+    
+    <!-- Graduation Cap Icon -->
+    {% include 'learnmoreapp/components/atoms/icons/icon.html' with 
+      icon="graduation-cap" 
+      class="w-8 h-8 text-primary hover:text-primary-dark dark:text-primary-light dark:hover:text-primary"
+      aria_label="Education" 
+    %}
+    
+    <!-- Users Icon -->
+    {% include 'learnmoreapp/components/atoms/icons/icon.html' with 
+      icon="users" 
+      class="w-8 h-8 text-primary hover:text-primary-dark dark:text-primary-light dark:hover:text-primary"
+      aria_label="Community Learning" 
+    %}
+    
+    <!-- Rocket Icon -->
+    {% include 'learnmoreapp/components/atoms/icons/icon.html' with 
+      icon="rocket" 
+      class="w-8 h-8 text-primary hover:text-primary-dark dark:text-primary-light dark:hover:text-primary"
+      aria_label="Quick Start" 
+    %}
+  </div>
+
+  <!-- Social Icons -->
+  <div class="flex items-center space-x-4">
+    <!-- GitHub Icon -->
+    {% include 'learnmoreapp/components/atoms/icons/icon.html' with 
+      icon="github" 
+      class="w-5 h-5 text-gray-800 hover:text-gray-900 dark:text-gray-200 dark:hover:text-white"
+      aria_label="GitHub" 
+    %}
+  </div>
+</div> 

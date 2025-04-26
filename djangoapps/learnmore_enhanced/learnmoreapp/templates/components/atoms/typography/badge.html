@@ -1,0 +1,12 @@
+{% comment %}
+  Badge Component
+  Usage: {% include 'components/atoms/typography/badge.html' with text="Badge text" %}
+  Parameters:
+    - text: The badge text
+    - variant: primary, secondary, outline (default: primary)
+    - class: Additional classes (optional)
+{% endcomment %}
+
+<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {% if variant == 'secondary' %}bg-secondary text-secondary-foreground{% elif variant == 'outline' %}border border-input bg-background text-foreground{% else %}bg-primary text-primary-foreground{% endif %} {{ class|default:'' }}">
+  {{ text }}
+</span> 

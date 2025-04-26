@@ -1,0 +1,12 @@
+{% comment %}
+  Link Component
+  Usage: {% include 'components/atoms/typography/link.html' with text="Link text" href="#" %}
+  Parameters:
+    - text: The link text
+    - href: The link URL
+    - class: Additional classes (optional)
+{% endcomment %}
+
+<a href="{{ href }}" class="text-primary hover:text-primary/80 transition-colors duration-200 {{ class|default:'' }}">
+  {{ text }}
+</a> 
