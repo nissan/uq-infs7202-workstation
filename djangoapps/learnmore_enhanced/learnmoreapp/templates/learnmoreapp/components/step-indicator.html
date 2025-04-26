@@ -23,115 +23,78 @@ steps = [
 ]
 {% endcomment %}
 
-<section class="steps-section">
-    <div class="container">
-        <div class="steps-container">
-            {% for step in steps %}
-            <div class="step-item">
-                <div class="step-number">{{ forloop.counter }}</div>
-                <div class="step-icon">
-                    <i class="bi {{ step.icon }}"></i>
-                </div>
-                <div class="step-content">
-                    <h3>{{ step.title }}</h3>
-                    <p>{{ step.description }}</p>
-                </div>
-                {% if not forloop.last %}
-                <div class="step-connector"></div>
-                {% endif %}
-            </div>
-            {% endfor %}
+<div class="w-full md:w-1/3 px-4 relative">
+    <div class="text-center">
+        <!-- Step Number -->
+        <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center font-bold mx-auto mb-4 relative z-10">
+            {{ forloop.counter }}
         </div>
+        
+        <!-- Step Content -->
+        <div class="relative">
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ step.title }}</h3>
+            <p class="text-gray-600">{{ step.description }}</p>
+        </div>
+        
+        <!-- Connector Line -->
+        {% if not forloop.last %}
+        <div class="hidden md:block absolute top-6 left-1/2 w-full h-0.5 bg-primary/20"></div>
+        {% endif %}
     </div>
-</section>
+</div>
 
 {% comment %}
 Required CSS:
-.steps-section {
-    padding: 5rem 0;
-    background-color: var(--light);
-}
-
-.steps-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+.step-indicator {
     position: relative;
-    margin: 2rem 0;
-}
-
-.step-item {
-    flex: 1;
     text-align: center;
-    position: relative;
     padding: 0 1rem;
 }
 
 .step-number {
-    width: 40px;
-    height: 40px;
+    width: 3rem;
+    height: 3rem;
     background-color: var(--primary);
     color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
+    font-weight: 600;
     margin: 0 auto 1rem;
     position: relative;
     z-index: 2;
 }
 
-.step-icon {
-    width: 80px;
-    height: 80px;
-    background-color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1rem;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+.step-content {
+    position: relative;
+    z-index: 1;
 }
 
-.step-icon i {
-    font-size: 2rem;
-    color: var(--primary);
-}
-
-.step-content h3 {
+.step-title {
     font-size: 1.25rem;
     font-weight: 600;
+    color: var(--dark);
     margin-bottom: 0.5rem;
-    color: var(--primary-dark);
 }
 
-.step-content p {
+.step-description {
     color: var(--secondary);
-    font-size: 0.9rem;
-    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
 }
 
 .step-connector {
     position: absolute;
-    top: 20px;
-    right: -50%;
+    top: 1.5rem;
+    left: 50%;
     width: 100%;
     height: 2px;
-    background-color: var(--primary);
+    background-color: var(--primary-light);
     z-index: 1;
 }
 
 @media (max-width: 768px) {
-    .steps-container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .step-item {
-        margin-bottom: 2rem;
-    }
-
     .step-connector {
         display: none;
     }

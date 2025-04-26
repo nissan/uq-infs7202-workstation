@@ -1,0 +1,52 @@
+{% comment %}
+Card Component
+Usage: 
+{% include 'learnmoreapp/components/ui/card.html' %}
+    {% block card_header %}Header content{% endblock %}
+    {% block card_content %}Main content{% endblock %}
+    {% block card_footer %}Footer content{% endblock %}
+{% endinclude %}
+
+Required blocks:
+- card_header: Card header content (optional)
+- card_content: Main card content
+- card_footer: Card footer content (optional)
+{% endcomment %}
+
+<div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+    {% block card_header %}
+    <div class="flex flex-col space-y-1.5 p-6">
+        {{ block.super }}
+    </div>
+    {% endblock %}
+
+    {% block card_content %}
+    <div class="p-6 pt-0">
+        {{ block.super }}
+    </div>
+    {% endblock %}
+
+    {% block card_footer %}
+    <div class="flex items-center p-6 pt-0">
+        {{ block.super }}
+    </div>
+    {% endblock %}
+</div>
+
+{% comment %}
+Example usage:
+{% include 'learnmoreapp/components/ui/card.html' %}
+    {% block card_header %}
+        <h3 class="text-2xl font-semibold leading-none tracking-tight">Card Title</h3>
+        <p class="text-sm text-muted-foreground">Card description</p>
+    {% endblock %}
+    
+    {% block card_content %}
+        <p>Card content goes here...</p>
+    {% endblock %}
+    
+    {% block card_footer %}
+        <button class="btn btn-primary">Action</button>
+    {% endblock %}
+{% endinclude %}
+{% endcomment %} 

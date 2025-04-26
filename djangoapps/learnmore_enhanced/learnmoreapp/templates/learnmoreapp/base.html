@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Enhanced LearnMore{% endblock %}</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" href="{% static 'learnmoreapp/css/tailwind/output.css' %}">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <!-- Base CSS -->
@@ -19,29 +19,17 @@
     <link rel="stylesheet" href="{% static 'learnmoreapp/css/components/course-meta.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="min-h-screen bg-background font-sans antialiased">
     <!-- Navigation -->
     {% include 'learnmoreapp/components/navbar.html' with user=user notification_count=notification_count %}
 
     <!-- Main Content -->
-    <main>
+    <main class="flex-1">
         {% block content %}{% endblock %}
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-light py-4 mt-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5>Enhanced LearnMore</h5>
-                    <p>Revolutionizing online learning with AI</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <p>&copy; {% now "Y" %} Enhanced LearnMore. All rights reserved.</p>
-                </div>
-            </div>
-        </div>
-    </footer>
+    {% include 'learnmoreapp/components/footer-section.html' with footer=footer %}
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

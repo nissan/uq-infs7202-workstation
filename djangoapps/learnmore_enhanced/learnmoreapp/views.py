@@ -1,53 +1,171 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.http import require_POST
 
 def index(request):
-    steps = [
+    # Hero Section Data
+    hero = {
+        'title': 'Revolutionizing Online Learning with AI',
+        'description': 'Experience personalized learning paths, interactive content, and real-time feedback powered by cutting-edge artificial intelligence.',
+        'primary_button_text': 'Get Started',
+        'secondary_button_text': 'Learn More'
+    }
+
+    # Features Section Data
+    features = [
         {
-            'title': 'Sign Up',
-            'description': 'Create your account in minutes',
-            'icon': 'bi-person-plus'
+            'icon': 'bi-pencil-square',
+            'title': 'Intuitive Course Creation',
+            'description': 'Build engaging courses with our drag-and-drop editor. Add videos, quizzes, and interactive elements in minutes.'
         },
         {
-            'title': 'Choose Courses',
-            'description': 'Select from our curated course catalog',
-            'icon': 'bi-book'
+            'icon': 'bi-qr-code',
+            'title': 'QR Code Sharing',
+            'description': 'Share your courses instantly with QR codes. Students can access materials with a simple scan.'
         },
         {
-            'title': 'Start Learning',
-            'description': 'Begin your personalized learning journey',
-            'icon': 'bi-rocket-takeoff'
+            'icon': 'bi-robot',
+            'title': 'AI Tutoring',
+            'description': 'Provide 24/7 personalized support with our AI tutoring system that adapts to each student\'s learning style.'
+        },
+        {
+            'icon': 'bi-graph-up',
+            'title': 'Advanced Analytics',
+            'description': 'Track student progress and engagement with detailed analytics and actionable insights.'
         }
     ]
 
+    # Steps Section Data
+    steps = [
+        {
+            'number': 1,
+            'title': 'Create Your Account',
+            'description': 'Sign up for free and set up your learning profile'
+        },
+        {
+            'number': 2,
+            'title': 'Choose Your Path',
+            'description': 'Select from our curated courses or get a personalized recommendation'
+        },
+        {
+            'number': 3,
+            'title': 'Start Learning',
+            'description': 'Begin your journey with interactive lessons and real-time feedback'
+        }
+    ]
+
+    # Featured Courses Data
+    featured_courses = [
+        {
+            'title': 'AI Fundamentals',
+            'description': 'Master the basics of artificial intelligence and machine learning',
+            'image_url': 'https://via.placeholder.com/400x200',
+            'duration': '8 weeks',
+            'student_count': '1.2k students'
+        },
+        {
+            'title': 'Web Development',
+            'description': 'Learn modern web development with HTML, CSS, and JavaScript',
+            'image_url': 'https://via.placeholder.com/400x200',
+            'duration': '12 weeks',
+            'student_count': '2.5k students'
+        },
+        {
+            'title': 'Data Science',
+            'description': 'Dive into data analysis, visualization, and machine learning',
+            'image_url': 'https://via.placeholder.com/400x200',
+            'duration': '10 weeks',
+            'student_count': '1.8k students'
+        }
+    ]
+
+    # Testimonials Data
     testimonials = [
         {
             'name': 'Sarah Johnson',
             'role': 'Software Developer',
-            'avatar': None,
-            'quote': 'The AI-powered learning paths have helped me master new technologies faster than I ever thought possible. The personalized feedback is invaluable!',
-            'rating': 5
+            'avatar_url': 'https://via.placeholder.com/50',
+            'content': 'The AI-powered learning paths have helped me master new technologies faster than I ever thought possible. The personalized feedback is invaluable!'
         },
         {
             'name': 'Michael Chen',
             'role': 'Data Scientist',
-            'avatar': None,
-            'quote': 'As someone who learns best through practical examples, the interactive content and real-time feedback have been game-changers for my learning journey.',
-            'rating': 5
+            'avatar_url': 'https://via.placeholder.com/50',
+            'content': 'As someone who learns best through practical examples, the interactive content and real-time feedback have been game-changers for my learning journey.'
         },
         {
             'name': 'Emily Rodriguez',
             'role': 'UX Designer',
-            'quote': 'The community features and collaborative learning opportunities have made the experience so much more engaging. I\'ve learned as much from my peers as from the courses!',
-            'rating': 5
+            'avatar_url': 'https://via.placeholder.com/50',
+            'content': 'The community features and collaborative learning opportunities have made the experience so much more engaging. I\'ve learned as much from my peers as from the courses!'
         }
     ]
 
+    # CTA Section Data
+    cta = {
+        'title': 'Ready to Start Your Learning Journey?',
+        'description': 'Join thousands of learners who are already transforming their careers with Enhanced LearnMore.',
+        'primary_button': {
+            'text': 'Get Started Now',
+            'url': '/register/',
+            'icon': 'bi-rocket-takeoff'
+        },
+        'secondary_button': {
+            'text': 'View Courses',
+            'url': '/courses/',
+            'icon': 'bi-book'
+        }
+    }
+
+    # Footer Data
+    footer = {
+        'company': {
+            'name': 'Enhanced LearnMore',
+            'description': 'Revolutionizing online learning with AI',
+            'logo': None
+        },
+        'links': {
+            'platform': [
+                {'text': 'Courses', 'url': '/courses/'},
+                {'text': 'Features', 'url': '/features/'},
+                {'text': 'Pricing', 'url': '/pricing/'},
+                {'text': 'Testimonials', 'url': '/testimonials/'}
+            ],
+            'company': [
+                {'text': 'About Us', 'url': '/about/'},
+                {'text': 'Careers', 'url': '/careers/'},
+                {'text': 'Blog', 'url': '/blog/'},
+                {'text': 'Press', 'url': '/press/'}
+            ],
+            'support': [
+                {'text': 'Help Center', 'url': '/help/'},
+                {'text': 'Contact Us', 'url': '/contact/'},
+                {'text': 'Privacy Policy', 'url': '/privacy/'},
+                {'text': 'Terms of Service', 'url': '/terms/'}
+            ]
+        },
+        'social': [
+            {'icon': 'bi-facebook', 'url': 'https://facebook.com'},
+            {'icon': 'bi-twitter', 'url': 'https://twitter.com'},
+            {'icon': 'bi-linkedin', 'url': 'https://linkedin.com'},
+            {'icon': 'bi-instagram', 'url': 'https://instagram.com'}
+        ],
+        'newsletter': {
+            'title': 'Subscribe to our newsletter',
+            'description': 'Get the latest updates on new courses and features'
+        }
+    }
+
     return render(request, 'learnmoreapp/index.html', {
+        'hero': hero,
+        'features': features,
         'steps': steps,
+        'featured_courses': featured_courses,
         'testimonials': testimonials,
+        'cta': cta,
+        'footer': footer,
         'user': request.user,
         'notification_count': 0  # We'll implement this later
     })
@@ -61,4 +179,50 @@ def register(request):
             return redirect('index')
     else:
         form = UserCreationForm()
-    return render(request, 'learnmoreapp/register.html', {'form': form}) 
+    return render(request, 'learnmoreapp/register.html', {'form': form})
+
+@require_POST
+def newsletter_subscribe(request):
+    email = request.POST.get('email')
+    if email:
+        # TODO: Implement newsletter subscription logic
+        return JsonResponse({'status': 'success', 'message': 'Thank you for subscribing!'})
+    return JsonResponse({'status': 'error', 'message': 'Please provide a valid email address.'}, status=400)
+
+def course_catalog(request):
+    # TODO: Implement course catalog logic
+    courses = [
+        {
+            'title': 'AI Fundamentals',
+            'description': 'Master the basics of artificial intelligence and machine learning',
+            'image': 'https://via.placeholder.com/400x200',
+            'duration': '8 weeks',
+            'students': '1.2k',
+            'level': 'Beginner',
+            'price': '$99'
+        },
+        {
+            'title': 'Web Development',
+            'description': 'Learn modern web development with HTML, CSS, and JavaScript',
+            'image': 'https://via.placeholder.com/400x200',
+            'duration': '12 weeks',
+            'students': '2.5k',
+            'level': 'Intermediate',
+            'price': '$149'
+        },
+        {
+            'title': 'Data Science',
+            'description': 'Dive into data analysis, visualization, and machine learning',
+            'image': 'https://via.placeholder.com/400x200',
+            'duration': '10 weeks',
+            'students': '1.8k',
+            'level': 'Advanced',
+            'price': '$199'
+        }
+    ]
+    
+    return render(request, 'learnmoreapp/course_catalog.html', {
+        'courses': courses,
+        'user': request.user,
+        'notification_count': 0  # We'll implement this later
+    }) 

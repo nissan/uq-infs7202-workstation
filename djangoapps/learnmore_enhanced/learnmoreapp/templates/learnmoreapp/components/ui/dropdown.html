@@ -1,0 +1,42 @@
+{% comment %}
+Dropdown Component
+Usage: {% include 'learnmoreapp/components/ui/dropdown.html' %}
+Required context:
+- trigger_content: Content for the trigger button (HTML)
+- align: Dropdown alignment (left, right, default: right)
+Block content:
+{% block dropdown_content %}
+    Dropdown menu items go here
+{% endblock %}
+{% endcomment %}
+
+{% with align=align|default:"right" %}
+<div class="relative inline-block text-left" x-data="{ open: false }" @click.away="open = false" @keydown.escape.window="open = false">
+    <!-- Trigger -->
+    <div>
+        <button type="button" @click="open = !open" class="inline-flex w-full justify-center items-center">
+            {{ trigger_content }}
+        </button>
+    </div>
+
+    <!-- Dropdown menu -->
+    <div x-show="open"
+         x-transition:enter="transition ease-out duration-100"
+         x-transition:enter-start="transform opacity-0 scale-95"
+         x-transition:enter-end="transform opacity-100 scale-100"
+         x-transition:leave="transition ease-in duration-75"
+         x-transition:leave-start="transform opacity-100 scale-100"
+         x-transition:leave-end="transform opacity-0 scale-95"
+         class="absolute {% if align == 'right' %}right-0{% else %}left-0{% endif %} z-10 mt-2 w-56 origin-top-right rounded-md bg-popover text-popover-foreground shadow-md ring-1 ring-black ring-opacity-5 focus:outline-none"
+         style="display: none;">
+        <div class="p-1">
+            {% block dropdown_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endwith %}
+
+{% comment %}
+Required JavaScript:
+<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+{% endcomment %} 
