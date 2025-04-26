@@ -1,0 +1,40 @@
+{% comment %}
+Thumbnail Component
+Usage: {% include 'components/atoms/ui/thumbnail.html' with image_url='path/to/image.jpg' alt='Description' size='sm'|'md'|'lg' aspect_ratio='square'|'video'|'portrait' %}
+
+Parameters:
+- image_url: URL of the thumbnail image (required)
+- alt: Alt text for the image (required)
+- size: Size of the thumbnail (sm, md, lg)
+- aspect_ratio: Aspect ratio of the thumbnail (square, video, portrait)
+{% endcomment %}
+
+{% with size=size|default:'md' aspect_ratio=aspect_ratio|default:'square' %}
+<div class="
+    relative
+    {% if size == 'sm' %}
+        w-16
+    {% elif size == 'lg' %}
+        w-64
+    {% else %}
+        w-32
+    {% endif %}
+    {% if aspect_ratio == 'video' %}
+        aspect-video
+    {% elif aspect_ratio == 'portrait' %}
+        aspect-[3/4]
+    {% else %}
+        aspect-square
+    {% endif %}
+    rounded-lg
+    overflow-hidden
+    bg-gray-100
+">
+    <img 
+        src="{{ image_url }}" 
+        alt="{{ alt }}" 
+        class="w-full h-full object-cover"
+        loading="lazy"
+    >
+</div>
+{% endwith %} 

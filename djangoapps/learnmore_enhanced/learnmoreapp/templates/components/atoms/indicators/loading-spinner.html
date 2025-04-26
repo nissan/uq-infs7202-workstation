@@ -1,0 +1,34 @@
+{% comment %}
+Loading Spinner Component
+Usage: {% include 'components/atoms/indicators/loading-spinner.html' with size='sm'|'md'|'lg' variant='primary'|'secondary'|'light'|'dark' %}
+
+Parameters:
+- size: Size of the spinner (sm, md, lg)
+- variant: Color variant of the spinner (primary, secondary, light, dark)
+{% endcomment %}
+
+{% with size=size|default:'md' variant=variant|default:'primary' %}
+<div class="inline-flex items-center justify-center">
+    <div class="
+        {% if size == 'sm' %}
+            w-4 h-4
+        {% elif size == 'lg' %}
+            w-8 h-8
+        {% else %}
+            w-6 h-6
+        {% endif %}
+        border-2
+        {% if variant == 'primary' %}
+            border-blue-500 border-t-transparent
+        {% elif variant == 'secondary' %}
+            border-gray-500 border-t-transparent
+        {% elif variant == 'light' %}
+            border-white border-t-transparent
+        {% else %}
+            border-gray-900 border-t-transparent
+        {% endif %}
+        rounded-full
+        animate-spin
+    "></div>
+</div>
+{% endwith %} 

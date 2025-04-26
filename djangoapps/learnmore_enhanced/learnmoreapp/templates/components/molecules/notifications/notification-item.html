@@ -1,0 +1,73 @@
+{% comment %}
+Notification Item Component
+Usage: {% include 'components/molecules/notifications/notification-item.html' with notification=notification %}
+
+Required context:
+notification = {
+    'id': 'unique_id',
+    'type': 'info'|'success'|'warning'|'error',
+    'title': 'Notification Title',
+    'message': 'Notification message',
+    'time': '2 hours ago',
+    'read': False,
+    'link': '/path/to/action' (optional)
+}
+{% endcomment %}
+
+<div class="
+    p-4
+    {% if not notification.read %}
+        bg-blue-50
+    {% else %}
+        bg-white
+    {% endif %}
+    border-b border-gray-200
+    hover:bg-gray-50
+    transition-colors
+    {% if notification.link %}
+        cursor-pointer
+    {% endif %}
+">
+    <div class="flex items-start gap-3">
+        <!-- Icon -->
+        <div class="
+            flex-shrink-0
+            w-8 h-8
+            rounded-full
+            flex items-center justify-center
+            {% if notification.type == 'success' %}
+                bg-green-100 text-green-600
+            {% elif notification.type == 'warning' %}
+                bg-yellow-100 text-yellow-600
+            {% elif notification.type == 'error' %}
+                bg-red-100 text-red-600
+            {% else %}
+                bg-blue-100 text-blue-600
+            {% endif %}
+        ">
+            {% if notification.type == 'success' %}
+                <i class="bi bi-check-lg"></i>
+            {% elif notification.type == 'warning' %}
+                <i class="bi bi-exclamation-triangle"></i>
+            {% elif notification.type == 'error' %}
+                <i class="bi bi-x-lg"></i>
+            {% else %}
+                <i class="bi bi-info-lg"></i>
+            {% endif %}
+        </div>
+
+        <!-- Content -->
+        <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between">
+                <h4 class="text-sm font-medium text-gray-900">{{ notification.title }}</h4>
+                <span class="text-xs text-gray-500">{{ notification.time }}</span>
+            </div>
+            <p class="mt-1 text-sm text-gray-600">{{ notification.message }}</p>
+        </div>
+
+        <!-- Unread Indicator -->
+        {% if not notification.read %}
+            <div class="flex-shrink-0 w-2 h-2 rounded-full bg-blue-500"></div>
+        {% endif %}
+    </div>
+</div> 
