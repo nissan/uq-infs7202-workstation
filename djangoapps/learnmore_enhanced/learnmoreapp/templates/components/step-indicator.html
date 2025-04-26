@@ -1,46 +1,30 @@
 {% comment %}
 Step Indicator Component
-Usage: {% include 'learnmoreapp/components/step-indicator.html' with steps=steps %}
+Usage: {% include 'components/step-indicator.html' with step=step %}
 Required context:
-- steps: List of dictionaries with 'title', 'description', and 'icon' keys
-Example:
-steps = [
-    {
-        'title': 'Sign Up',
-        'description': 'Create your account in minutes',
-        'icon': 'bi-person-plus'
-    },
-    {
-        'title': 'Choose Courses',
-        'description': 'Select from our curated course catalog',
-        'icon': 'bi-book'
-    },
-    {
-        'title': 'Start Learning',
-        'description': 'Begin your personalized learning journey',
-        'icon': 'bi-rocket-takeoff'
-    }
-]
+step = {
+    'number': 1,
+    'title': 'Step Title',
+    'description': 'Step description'
+}
 {% endcomment %}
 
-<div class="w-full md:w-1/3 px-4 relative">
-    <div class="text-center">
-        <!-- Step Number -->
-        <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center font-bold mx-auto mb-4 relative z-10">
-            {{ forloop.counter }}
-        </div>
-        
-        <!-- Step Content -->
-        <div class="relative">
-            <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ step.title }}</h3>
-            <p class="text-gray-600">{{ step.description }}</p>
-        </div>
-        
-        <!-- Connector Line -->
-        {% if not forloop.last %}
-        <div class="hidden md:block absolute top-6 left-1/2 w-full h-0.5 bg-primary/20"></div>
-        {% endif %}
+<div class="relative text-center">
+    <!-- Step Number -->
+    <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mx-auto mb-4 relative z-10">
+        {{ step.number }}
     </div>
+    
+    <!-- Step Content -->
+    <div class="relative">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ step.title }}</h3>
+        <p class="text-gray-600">{{ step.description }}</p>
+    </div>
+    
+    <!-- Connector Line -->
+    {% if not forloop.last %}
+    <div class="hidden md:block absolute top-5 left-1/2 w-full h-0.5 bg-blue-200"></div>
+    {% endif %}
 </div>
 
 {% comment %}

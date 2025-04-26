@@ -1,29 +1,30 @@
 {% comment %}
 Testimonial Card Component
-Usage: {% include 'learnmoreapp/components/testimonial-card.html' with testimonial=testimonial %}
+Usage: {% include 'components/testimonial-card.html' with testimonial=testimonial %}
 Required context:
-- testimonial: Dictionary with 'name', 'role', 'avatar_url', 'content' keys
+testimonial = {
+    'name': 'John Doe',
+    'role': 'Software Developer',
+    'avatar_url': 'path/to/avatar.jpg',
+    'content': 'Testimonial content'
+}
 {% endcomment %}
 
-<div class="w-full md:w-1/3 px-4 mb-8">
-    <div class="bg-white rounded-2xl p-8 shadow-sm hover:shadow-lg transition-all duration-300">
-        <!-- Quote Icon -->
-        <div class="mb-6">
-            <svg class="w-12 h-12 text-primary/10" fill="currentColor" viewBox="0 0 32 32">
-                <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z"/>
-            </svg>
-        </div>
-        
-        <!-- Testimonial Content -->
+<div class="bg-white rounded-xl p-8 shadow-sm hover:shadow-lg transition-all duration-300 relative">
+    <!-- Quote Icon -->
+    <div class="absolute top-6 left-6 text-6xl text-blue-100 font-serif leading-none">"</div>
+    
+    <!-- Testimonial Content -->
+    <div class="relative z-10">
         <p class="text-gray-600 text-lg leading-relaxed mb-8">{{ testimonial.content }}</p>
         
         <!-- Author Info -->
         <div class="flex items-center">
-            <div class="w-12 h-12 rounded-full overflow-hidden mr-4 border-2 border-primary/10">
+            <div class="w-12 h-12 rounded-full overflow-hidden mr-4">
                 {% if testimonial.avatar_url %}
                     <img src="{{ testimonial.avatar_url }}" alt="{{ testimonial.name }}" class="w-full h-full object-cover">
                 {% else %}
-                    <div class="w-full h-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
+                    <div class="w-full h-full bg-blue-50 flex items-center justify-center text-blue-600 font-semibold">
                         {{ testimonial.name|make_list|first|upper }}
                     </div>
                 {% endif %}
