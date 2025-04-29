@@ -31,4 +31,6 @@ urlpatterns = [
     path("register/", account_views.register, name="register"),
     path("logout/", account_views.logout_view, name="logout"),
     path('admin-dashboard/', include('dashboard.urls')),  # Changed from 'dashboard/' to 'admin-dashboard/'
+    path('courses/', include('courses.urls')),
+    path('', include('core.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

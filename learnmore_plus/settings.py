@@ -8,8 +8,12 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",  # Required for allauth
-    "accounts",
-    "dashboard",  # Add the dashboard app
+    
+    # Local apps
+    "accounts.apps.AccountsConfig",
+    "core.apps.CoreConfig",
+    "dashboard.apps.DashboardConfig",
+    "courses.apps.CoursesConfig",
     
     # allauth
     "allauth",

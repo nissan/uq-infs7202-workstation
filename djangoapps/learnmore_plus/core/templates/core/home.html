@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home - Enhanced LearnMore{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12">
+    <div class="text-center">
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Welcome to Enhanced LearnMore
+        </h1>
+        <p class="text-xl text-gray-600 dark:text-gray-300 mb-8">
+            Revolutionizing education with AI-powered learning tools
+        </p>
+        <div class="flex justify-center space-x-4">
+            <a href="{% url 'courses:catalog' %}" class="bg-primary text-white px-8 py-3 rounded-full hover:bg-primary-dark transition-colors">
+                Browse Courses
+            </a>
+            {% if not user.is_authenticated %}
+            <a href="{% url 'register' %}" class="bg-white text-primary border-2 border-primary px-8 py-3 rounded-full hover:bg-primary hover:text-white transition-colors">
+                Get Started
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="mt-24" id="features">
+        <h2 class="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
+            Why Choose Enhanced LearnMore?
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <div class="text-primary text-4xl mb-4">
+                    <i class="bi bi-book"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Comprehensive Courses</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Access a wide range of courses taught by expert instructors.
+                </p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <div class="text-primary text-4xl mb-4">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">AI-Powered Learning</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Get personalized learning experiences with our AI tutor.
+                </p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <div class="text-primary text-4xl mb-4">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Track Progress</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Monitor your learning journey with detailed analytics.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="mt-24" id="how-it-works">
+        <h2 class="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
+            How It Works
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="text-center">
+                <div class="bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                    1
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Sign Up</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Create your account in minutes
+                </p>
+            </div>
+            <div class="text-center">
+                <div class="bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                    2
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Browse Courses</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Find the perfect course for you
+                </p>
+            </div>
+            <div class="text-center">
+                <div class="bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                    3
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Start Learning</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Begin your learning journey
+                </p>
+            </div>
+            <div class="text-center">
+                <div class="bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                    4
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Track Progress</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Monitor your achievements
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonials Section -->
+    <div class="mt-24" id="testimonials">
+        <h2 class="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
+            What Our Students Say
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center mr-4">
+                        J
+                    </div>
+                    <div>
+                        <h4 class="font-semibold">John Doe</h4>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm">Student</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300">
+                    "The AI tutor feature is amazing! It helps me understand concepts better than traditional learning methods."
+                </p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center mr-4">
+                        S
+                    </div>
+                    <div>
+                        <h4 class="font-semibold">Sarah Smith</h4>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm">Student</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300">
+                    "The course content is well-structured and the progress tracking feature keeps me motivated."
+                </p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center mr-4">
+                        M
+                    </div>
+                    <div>
+                        <h4 class="font-semibold">Mike Johnson</h4>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm">Student</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300">
+                    "I love how I can learn at my own pace and get instant feedback on my progress."
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

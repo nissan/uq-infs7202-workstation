@@ -38,7 +38,7 @@
                     <a href="#features" class="text-gray-600 dark:text-gray-300 hover:text-primary">Features</a>
                     <a href="#how-it-works" class="text-gray-600 dark:text-gray-300 hover:text-primary">How It Works</a>
                     <a href="#testimonials" class="text-gray-600 dark:text-gray-300 hover:text-primary">Testimonials</a>
-                    <a href="#courses" class="text-gray-600 dark:text-gray-300 hover:text-primary">Courses</a>
+                    <a href="{% url 'courses:catalog' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Courses</a>
                     {% if user.is_authenticated %}
                         {% if user.is_staff %}
                             <a href="{% url 'dashboard:home' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Admin Dashboard</a>
@@ -62,7 +62,7 @@
                     <a href="#features" class="text-gray-600 dark:text-gray-300 hover:text-primary">Features</a>
                     <a href="#how-it-works" class="text-gray-600 dark:text-gray-300 hover:text-primary">How It Works</a>
                     <a href="#testimonials" class="text-gray-600 dark:text-gray-300 hover:text-primary">Testimonials</a>
-                    <a href="#courses" class="text-gray-600 dark:text-gray-300 hover:text-primary">Courses</a>
+                    <a href="{% url 'courses:catalog' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Courses</a>
                     {% if user.is_authenticated %}
                         {% if user.is_staff %}
                             <a href="{% url 'dashboard:home' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Admin Dashboard</a>

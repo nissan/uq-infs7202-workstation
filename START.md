@@ -2,23 +2,24 @@ I'm working on a Django-based learning management system called Enhanced LearnMo
 
 1. Project Structure:
 - Main Django project: `djangoapps/learnmore_plus`
-- Key apps: accounts, dashboard, core
+- Key apps: accounts, dashboard, core, courses
 - Using Tailwind CSS for styling
 - Dark mode support implemented
 - Secure session handling in place
 
 2. Recent Progress:
-- Fixed login button text color for better readability
-- Added admin dashboard template with key metrics
-- Implemented secure session and cookie handling
+- Implemented course management system
+- Created course catalog with search and filtering
+- Added course models and admin interface
+- Implemented file upload support
 - Updated documentation (TODO.md, NOTES.md, CHECKPOINT.md)
 
 3. Current Focus:
-- Admin dashboard functionality
-- Metrics data processing
-- Course management features
-- Content management system
-- Assessment and grading features
+- Course detail page implementation
+- Course enrollment functionality
+- Course content preview
+- Course module display
+- User dashboard development
 
 4. Security Considerations:
 - Using Django's session framework instead of localStorage
@@ -26,11 +27,14 @@ I'm working on a Django-based learning management system called Enhanced LearnMo
 - CSRF protection
 - XSS prevention
 - SQL injection protection
+- File upload validation
+- Input sanitization
 
 5. Documentation:
 - TODO.md: Tracks all planned features and progress
 - NOTES.md: Contains implementation details and troubleshooting
 - CHECKPOINT.md: Session continuity and prompt engineering patterns
+- README.md: Project overview and setup instructions
 
 6. Effective Prompting Patterns:
 For UI Changes:
@@ -51,21 +55,23 @@ For Troubleshooting:
 - Checking responsive design
 - Verifying dark mode functionality
 - Testing user authentication flow
-- Validating admin dashboard access
+- Validating course management features
+- Testing file upload functionality
+- Verifying search and filtering
 
 8. Known Issues:
 None currently pending - all recent issues have been resolved:
-- Fixed login button readability
-- Fixed missing admin dashboard template
-- Implemented secure session handling
-- Fixed message persistence issues
+- Fixed migration order issues
+- Implemented proper file upload handling
+- Added search across multiple fields
+- Fixed filter persistence
 
 9. Next Steps:
-1. Continue implementing admin dashboard functionality
-2. Add metrics data processing
-3. Implement course management features
-4. Add content management system
-5. Implement assessment and grading features
+1. Create course detail template
+2. Implement course enrollment
+3. Add course content preview
+4. Display course modules
+5. Create user dashboard
 
 10. Environment:
 - Working Directory: `/Users/nissan/code/uq-infs7202-workstation`
@@ -75,11 +81,14 @@ None currently pending - all recent issues have been resolved:
 - Git Branch: `main`
 
 11. Active Files:
-- `djangoapps/learnmore_plus/templates/accounts/login.html`
-- `djangoapps/learnmore_plus/templates/dashboard/home.html`
+- `djangoapps/learnmore_plus/courses/models.py`
+- `djangoapps/learnmore_plus/courses/views.py`
+- `djangoapps/learnmore_plus/courses/templates/courses/catalog.html`
+- `djangoapps/learnmore_plus/core/templates/core/home.html`
 - `TODO.md`
 - `NOTES.md`
 - `CHECKPOINT.md`
+- `README.md`
 
 12. Project Structure:
 djangoapps/learnmore_plus/
@@ -87,15 +96,30 @@ djangoapps/learnmore_plus/
 │ ├── views.py
 │ ├── models.py
 │ └── middleware.py
+├── core/
+│ ├── views.py
+│ ├── urls.py
+│ └── templates/
+│     └── core/
+│         └── home.html
+├── courses/
+│ ├── models.py
+│ ├── views.py
+│ ├── urls.py
+│ └── templates/
+│     └── courses/
+│         └── catalog.html
+├── dashboard/
+│ ├── views.py
+│ ├── models.py
+│ └── templates/
+│     └── dashboard/
+│         └── home.html
 ├── templates/
-│ ├── accounts/
-│ │ └── login.html
-│ ├── dashboard/
-│ │ └── home.html
 │ └── base.html
 └── learnmore_plus/
-├── settings.py
-└── urls.py
+    ├── settings.py
+    └── urls.py
 
 13. Response Patterns:
 The LLM has been most effective when:
@@ -120,6 +144,8 @@ The LLM has been most effective when:
 - Input validation
 - XSS/CSRF protection
 - SQL injection prevention
+- File upload validation
+- Input sanitization
 
 16. Development Guidelines:
 - Follow Django best practices
@@ -143,6 +169,8 @@ The LLM has been most effective when:
 - Use caching where appropriate
 - Optimize static files
 - Monitor resource usage
+- Implement pagination
+- Add proper indexing
 
 19. Documentation Requirements:
 - Keep TODO.md updated
@@ -150,6 +178,7 @@ The LLM has been most effective when:
 - Maintain CHECKPOINT.md for session continuity
 - Comment complex code
 - Document security measures
+- Update README.md
 
 20. Testing Requirements:
 - Test all new features
@@ -157,5 +186,7 @@ The LLM has been most effective when:
 - Check responsive design
 - Validate user flows
 - Test error handling
+- Test file uploads
+- Verify search functionality
 
 Please help me continue development following these guidelines and patterns. Let's start by reviewing our current state and determining the next immediate task to tackle.

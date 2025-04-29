@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "accounts",
     "core",
     "dashboard",  # Add the dashboard app
+    "courses",  # Add the courses app
     
     # allauth
     "allauth",
