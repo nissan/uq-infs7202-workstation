@@ -1,0 +1,161 @@
+I'm working on a Django-based learning management system called Enhanced LearnMore. We've made significant progress and I'd like to continue development. Here's our current state:
+
+1. Project Structure:
+- Main Django project: `djangoapps/learnmore_plus`
+- Key apps: accounts, dashboard, core
+- Using Tailwind CSS for styling
+- Dark mode support implemented
+- Secure session handling in place
+
+2. Recent Progress:
+- Fixed login button text color for better readability
+- Added admin dashboard template with key metrics
+- Implemented secure session and cookie handling
+- Updated documentation (TODO.md, NOTES.md, CHECKPOINT.md)
+
+3. Current Focus:
+- Admin dashboard functionality
+- Metrics data processing
+- Course management features
+- Content management system
+- Assessment and grading features
+
+4. Security Considerations:
+- Using Django's session framework instead of localStorage
+- Secure cookie handling
+- CSRF protection
+- XSS prevention
+- SQL injection protection
+
+5. Documentation:
+- TODO.md: Tracks all planned features and progress
+- NOTES.md: Contains implementation details and troubleshooting
+- CHECKPOINT.md: Session continuity and prompt engineering patterns
+
+6. Effective Prompting Patterns:
+For UI Changes:
+"Can you [improve/fix/update] the [component] in [file] to [desired outcome]?"
+
+For Feature Implementation:
+"Let's implement [feature] in [component/file]. We need:
+- [requirement 1]
+- [requirement 2]
+- [requirement 3]"
+
+For Troubleshooting:
+"I'm seeing [issue] when [action]. Here's the error:
+[error message/behavior]"
+
+7. Testing Approach:
+- Manual testing of UI changes
+- Checking responsive design
+- Verifying dark mode functionality
+- Testing user authentication flow
+- Validating admin dashboard access
+
+8. Known Issues:
+None currently pending - all recent issues have been resolved:
+- Fixed login button readability
+- Fixed missing admin dashboard template
+- Implemented secure session handling
+- Fixed message persistence issues
+
+9. Next Steps:
+1. Continue implementing admin dashboard functionality
+2. Add metrics data processing
+3. Implement course management features
+4. Add content management system
+5. Implement assessment and grading features
+
+10. Environment:
+- Working Directory: `/Users/nissan/code/uq-infs7202-workstation`
+- Django Project: `djangoapps/learnmore_plus`
+- Python Virtual Environment: Active in `djangoapps/learnmore_plus/venv`
+- Database: SQLite3 (`db.sqlite3`)
+- Git Branch: `main`
+
+11. Active Files:
+- `djangoapps/learnmore_plus/templates/accounts/login.html`
+- `djangoapps/learnmore_plus/templates/dashboard/home.html`
+- `TODO.md`
+- `NOTES.md`
+- `CHECKPOINT.md`
+
+12. Project Structure:
+djangoapps/learnmore_plus/
+├── accounts/
+│ ├── views.py
+│ ├── models.py
+│ └── middleware.py
+├── templates/
+│ ├── accounts/
+│ │ └── login.html
+│ ├── dashboard/
+│ │ └── home.html
+│ └── base.html
+└── learnmore_plus/
+├── settings.py
+└── urls.py
+
+13. Response Patterns:
+The LLM has been most effective when:
+1. Explaining changes before making them
+2. Breaking down complex tasks into steps
+3. Providing context for security implications
+4. Checking file contents before modifications
+5. Verifying directory locations before commands
+6. Using conventional commit formats
+7. Updating documentation alongside changes
+
+14. Git Workflow:
+- Using conventional commit format
+- Committing changes with descriptive messages
+- Pushing to remote repository regularly
+- Maintaining clean commit history
+
+15. Security Best Practices:
+- No sensitive data in version control
+- Secure session handling
+- Proper authentication/authorization
+- Input validation
+- XSS/CSRF protection
+- SQL injection prevention
+
+16. Development Guidelines:
+- Follow Django best practices
+- Maintain clean code structure
+- Document all changes
+- Test thoroughly
+- Consider security implications
+- Keep dependencies updated
+
+17. UI/UX Standards:
+- Responsive design
+- Dark mode support
+- Accessibility compliance
+- Consistent styling
+- User-friendly interfaces
+- Clear error messages
+
+18. Performance Considerations:
+- Optimize database queries
+- Minimize HTTP requests
+- Use caching where appropriate
+- Optimize static files
+- Monitor resource usage
+
+19. Documentation Requirements:
+- Keep TODO.md updated
+- Document all changes in NOTES.md
+- Maintain CHECKPOINT.md for session continuity
+- Comment complex code
+- Document security measures
+
+20. Testing Requirements:
+- Test all new features
+- Verify security measures
+- Check responsive design
+- Validate user flows
+- Test error handling
+
+Please help me continue development following these guidelines and patterns. Let's start by reviewing our current state and determining the next immediate task to tackle.
