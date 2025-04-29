@@ -35,4 +35,4 @@ def settings(request):
 @login_required
 def profile(request):
     """User profile view."""
-    return render(request, 'dashboard/profile.html')
+    return render(request, 'dashboard/profile.html') 

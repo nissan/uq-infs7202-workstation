@@ -1,36 +1,41 @@
+{% load static %}
+
 {% comment %}
 Testimonial Card Component
-Usage: {% include 'components/testimonial-card.html' with testimonial=testimonial %}
 Required context:
-testimonial = {
-    'name': 'John Doe',
-    'role': 'Software Developer',
-    'avatar_url': 'path/to/avatar.jpg',
-    'content': 'Testimonial content'
-}
+- testimonial: Dictionary containing:
+  - name: String (required)
+  - role: String (required)
+  - content: String (required)
+  - avatar: String (optional) - path to avatar image relative to static/learnmoreapp/images/
 {% endcomment %}
 
-<div class="bg-white rounded-xl p-8 shadow-sm hover:shadow-lg transition-all duration-300 relative">
+<div class="bg-white rounded-lg shadow-sm p-6 relative">
     <!-- Quote Icon -->
-    <div class="absolute top-6 left-6 text-6xl text-blue-100 font-serif leading-none">"</div>
-    
+    <div class="absolute top-6 left-6 text-primary/10">
+        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+        </svg>
+    </div>
+
     <!-- Testimonial Content -->
     <div class="relative z-10">
-        <p class="text-gray-600 text-lg leading-relaxed mb-8">{{ testimonial.content }}</p>
+        <p class="text-gray-600 mb-6">{{ testimonial.content }}</p>
         
         <!-- Author Info -->
-        <div class="flex items-center">
-            <div class="w-12 h-12 rounded-full overflow-hidden mr-4">
-                {% if testimonial.avatar_url %}
-                    <img src="{{ testimonial.avatar_url }}" alt="{{ testimonial.name }}" class="w-full h-full object-cover">
-                {% else %}
-                    <div class="w-full h-full bg-blue-50 flex items-center justify-center text-blue-600 font-semibold">
-                        {{ testimonial.name|make_list|first|upper }}
-                    </div>
-                {% endif %}
-            </div>
+        <div class="flex items-center gap-4">
+            {% if testimonial.avatar %}
+                <img src="{% static 'learnmoreapp/images/'|add:testimonial.avatar %}" 
+                     alt="{{ testimonial.name }}"
+                     class="w-12 h-12 rounded-full object-cover"
+                     onerror="this.onerror=null; this.src='https://placehold.co/48x48/2563eb/ffffff?text=' + '{{ testimonial.name|slice:':2'|upper }}'">
+            {% else %}
+                <img src="https://placehold.co/48x48/2563eb/ffffff?text={{ testimonial.name|slice:':2'|upper }}" 
+                     alt="{{ testimonial.name }}"
+                     class="w-12 h-12 rounded-full">
+            {% endif %}
             <div>
-                <h5 class="font-semibold text-gray-900">{{ testimonial.name }}</h5>
+                <h4 class="font-semibold text-gray-900">{{ testimonial.name }}</h4>
                 <p class="text-sm text-gray-500">{{ testimonial.role }}</p>
             </div>
         </div>

@@ -1,0 +1,187 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Enhanced LearnMore{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- shadcn-ui -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shadcn/ui@latest/dist/shadcn-ui.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="min-h-screen bg-white dark:bg-gray-900">
+    <!-- Navigation -->
+    <nav class="bg-white dark:bg-gray-800 shadow-sm py-3">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center">
+                <a href="{% url 'home' %}" class="text-primary font-bold text-xl">
+                    Enhanced LearnMore
+                </a>
+                
+                <!-- Mobile menu button -->
+                <button class="md:hidden" id="mobile-menu-button">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#features" class="text-gray-600 dark:text-gray-300 hover:text-primary">Features</a>
+                    <a href="#how-it-works" class="text-gray-600 dark:text-gray-300 hover:text-primary">How It Works</a>
+                    <a href="#testimonials" class="text-gray-600 dark:text-gray-300 hover:text-primary">Testimonials</a>
+                    <a href="#courses" class="text-gray-600 dark:text-gray-300 hover:text-primary">Courses</a>
+                    {% if user.is_authenticated %}
+                        {% if user.is_staff %}
+                            <a href="{% url 'dashboard:home' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Admin Dashboard</a>
+                        {% endif %}
+                        <form method="post" action="{% url 'logout' %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="text-gray-600 dark:text-gray-300 hover:text-primary">Log Out</button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Log In</a>
+                        <a href="{% url 'register' %}" class="bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors">
+                            Sign Up
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Mobile Navigation -->
+            <div class="hidden md:hidden" id="mobile-menu">
+                <div class="flex flex-col space-y-4 mt-4">
+                    <a href="#features" class="text-gray-600 dark:text-gray-300 hover:text-primary">Features</a>
+                    <a href="#how-it-works" class="text-gray-600 dark:text-gray-300 hover:text-primary">How It Works</a>
+                    <a href="#testimonials" class="text-gray-600 dark:text-gray-300 hover:text-primary">Testimonials</a>
+                    <a href="#courses" class="text-gray-600 dark:text-gray-300 hover:text-primary">Courses</a>
+                    {% if user.is_authenticated %}
+                        {% if user.is_staff %}
+                            <a href="{% url 'dashboard:home' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Admin Dashboard</a>
+                        {% endif %}
+                        <form method="post" action="{% url 'logout' %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="text-gray-600 dark:text-gray-300 hover:text-primary">Log Out</button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Log In</a>
+                        <a href="{% url 'register' %}" class="bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors">
+                            Sign Up
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Enhanced LearnMore</h3>
+                    <p class="text-gray-400">Revolutionizing education with AI-powered learning tools for educators and students worldwide.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Platform</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Features</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Pricing</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Integrations</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Updates</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Documentation</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Tutorials</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Community</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Contact</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Press</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 Enhanced LearnMore. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Theme handling
+        function getThemePreference() {
+            const cookieValue = document.cookie.split('; ').find(row => row.startsWith('theme='));
+            return cookieValue ? cookieValue.split('=')[1] : null;
+        }
+
+        function setThemePreference(isDark) {
+            const theme = isDark ? 'dark' : 'light';
+            // Set secure cookie with HttpOnly and SameSite flags
+            document.cookie = `theme=${theme}; path=/; secure; samesite=Strict; max-age=31536000`; // 1 year
+            
+            // Apply theme
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
+        // Initialize theme
+        function initializeTheme() {
+            const savedTheme = getThemePreference();
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (savedTheme === 'dark' || (savedTheme === null && prefersDark)) {
+                setThemePreference(true);
+            } else {
+                setThemePreference(false);
+            }
+        }
+
+        // Call initialize on page load
+        initializeTheme();
+
+        // Add theme toggle functionality to any elements with data-theme-toggle attribute
+        document.querySelectorAll('[data-theme-toggle]').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.contains('dark');
+                setThemePreference(!isDark);
+            });
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

@@ -3,44 +3,80 @@ Course Card Component
 Usage: {% include 'learnmoreapp/components/course-card.html' with course=course %}
 Required context:
 - course: Course object with the following attributes:
-  - image: Course image URL
+  - image_url: Course image URL
   - title: Course title
   - level: Course level (Beginner, Intermediate, Advanced)
   - category: Course category
   - description: Course description
   - duration: Course duration in hours
-  - students: Number of enrolled students
+  - student_count: Number of enrolled students
   - price: Course price
   - original_price: Original price (optional)
   - rating: Course rating
 {% endcomment %}
 
-<div class="w-full md:w-1/3 px-4 mb-8">
-    <div class="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-2">
-        <div class="relative h-40 overflow-hidden">
-            <img src="{{ course.image_url }}" alt="{{ course.title }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
-            {% if course.level %}
-            <div class="absolute top-2 right-2">
-                {% include 'learnmoreapp/components/ui/badge.html' with text=course.level variant="secondary" %}
-            </div>
-            {% endif %}
+<div class="group relative bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+    <div class="aspect-video relative overflow-hidden">
+        <img 
+            src="{{ course.image_url }}" 
+            alt="{{ course.title }}" 
+            class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            onerror="this.src='{% static 'learnmoreapp/images/course-placeholder.jpg' %}'"
+        >
+        {% if course.level %}
+        <div class="absolute top-2 right-2">
+            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-primary/10 text-primary">
+                {{ course.level }}
+            </span>
         </div>
-        <div class="p-4">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">{{ course.title }}</h3>
-            <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ course.description }}</p>
-            <div class="flex justify-between text-sm text-gray-500">
-                <span class="flex items-center">
-                    <i class="bi bi-clock mr-1"></i>
-                    {{ course.duration }}
-                </span>
-                <span class="flex items-center">
-                    <i class="bi bi-people mr-1"></i>
-                    {{ course.student_count }}
-                </span>
+        {% endif %}
+    </div>
+    
+    <div class="p-4">
+        <h3 class="text-lg font-semibold text-foreground mb-2 line-clamp-2">{{ course.title }}</h3>
+        <p class="text-sm text-muted-foreground mb-4 line-clamp-2">{{ course.description }}</p>
+        
+        <div class="flex items-center justify-between text-sm text-muted-foreground">
+            <span class="flex items-center gap-1.5">
+                {% include 'components/atoms/icons/lucide.html' with icon='Clock' %}
+                {{ course.duration }}
+            </span>
+            <span class="flex items-center gap-1.5">
+                {% include 'components/atoms/icons/lucide.html' with icon='Users' %}
+                {{ course.student_count }}
+            </span>
+        </div>
+        
+        {% if course.rating %}
+        <div class="mt-4 pt-4 border-t flex items-center justify-between">
+            <div class="flex items-center gap-1">
+                {% include 'components/atoms/icons/lucide.html' with icon='Star' class="text-yellow-500 fill-yellow-500" %}
+                <span class="font-medium">{{ course.rating }}</span>
+            </div>
+            <div class="text-right">
+                {% if course.original_price %}
+                <span class="text-sm text-muted-foreground line-through mr-2">${{ course.original_price }}</span>
+                {% endif %}
+                <span class="text-lg font-semibold text-foreground">${{ course.price }}</span>
             </div>
         </div>
+        {% endif %}
     </div>
 </div>
+
+{% comment %}
+Note: This component uses shadcn/ui color tokens and styling principles:
+- bg-card: Card background
+- text-foreground: Primary text color
+- text-muted-foreground: Secondary text color
+- text-primary: Primary brand color
+- bg-primary/10: Primary color with 10% opacity
+
+Required icons:
+- Clock
+- Users
+- Star
+{% endcomment %}
 
 {% comment %}
 Required CSS:

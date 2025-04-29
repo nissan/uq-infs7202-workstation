@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Dashboard - Enhanced LearnMore{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --primary-light: #dbeafe;
+            --secondary: #64748b;
+            --light: #f8fafc;
+            --dark: #0f172a;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #06b6d4;
+            --admin-bg: #f1f5f9;
+            --admin-sidebar: #1e293b;
+            --admin-sidebar-hover: #334155;
+            --admin-card: #ffffff;
+            --border-color: #e2e8f0;
+            --text-muted: #94a3b8;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark);
+            background-color: var(--admin-bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header Styles */
+        .admin-header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 0.75rem 1.5rem;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 1030;
+            height: 70px;
+        }
+        
+        .header-logo {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.25rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo-icon {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .admin-badge {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .action-icon {
+            position: relative;
+            color: var(--secondary);
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .action-icon:hover {
+            color: var(--primary);
+            background-color: var(--primary-light);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-profile:hover {
+            background-color: var(--primary-light);
+        }
+        
+        .admin-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .admin-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .admin-info {
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .admin-info {
+                display: block;
+            }
+        }
+        
+        .admin-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin: 0;
+            font-size: 0.875rem;
+        }
+        
+        .admin-role {
+            color: var(--secondary);
+            font-size: 0.75rem;
+            margin: 0;
+        }
+        
+        /* Sidebar Styles */
+        .admin-sidebar {
+            background-color: var(--admin-sidebar);
+            width: 260px;
+            position: fixed;
+            top: 70px;
+            left: 0;
+            bottom: 0;
+            z-index: 1020;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-collapsed .admin-sidebar {
+            width: 70px;
+        }
+        
+        .sidebar-nav {
+            padding: 1.5rem 0;
+        }
+        
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .nav-section-title {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 0.75rem 1.5rem;
+            margin: 0;
+        }
+        
+        .sidebar-collapsed .nav-section-title {
+            display: none;
+        }
+        
+        .nav-item {
+            margin-bottom: 0.25rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-link:hover {
+            background-color: var(--admin-sidebar-hover);
+            color: white;
+        }
+        
+        .nav-link.active {
+            background-color: var(--admin-sidebar-hover);
+            color: white;
+            border-left-color: var(--primary);
+        }
+        
+        .nav-icon {
+            font-size: 1.25rem;
+            width: 24px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        .nav-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .sidebar-collapsed .nav-text {
+            display: none;
+        }
+        
+        .sidebar-collapsed .nav-link {
+            padding: 0.75rem;
+            justify-content: center;
+        }
+        
+        .sidebar-toggle {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1030;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-toggle:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.05);
+        }
+        
+        .sidebar-collapsed .sidebar-toggle {
+            left: 1.5rem;
+        }
+        
+        /* Main Content Styles */
+        .admin-main {
+            margin-left: 260px;
+            margin-top: 70px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .sidebar-collapsed .admin-main {
+            margin-left: 70px;
+        }
+        
+        .page-title {
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        /* Metrics Cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .metric-card {
+            background-color: var(--admin-card);
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+        
+        .metric-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            flex-shrink: 0;
+        }
+        
+        .metric-users .metric-icon {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+        }
+        
+        .metric-registrations .metric-icon {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+        
+        .metric-subscriptions .metric-icon {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+        
+        .metric-revenue .metric-icon {
+            background-color: rgba(6, 182, 212, 0.1);
+            color: var(--info);
+        }
+        
+        .metric-health .metric-icon {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        
+        .metric-content {
+            flex: 1;
+        }
+        
+        .metric-value {
+            font-weight: 700;
+            color: var(--dark);
+            font-size: 1.75rem;
+            line-height: 1.2;
+            margin-bottom: 0.25rem;
+        }
+        
+        .metric-label {
+            color: var(--secondary);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .trend-up {
+            color: var(--success);
+        }
+        
+        .trend-down {
+            color: var(--danger);
+        }
+        
+        .trend-neutral {
+            color: var(--secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="{% url 'dashboard:home' %}" class="header-logo">
+                    <i class="bi bi-book logo-icon"></i>
+                    Enhanced LearnMore
+                    <span class="admin-badge">Admin</span>
+                </a>
+                <div class="header-actions">
+                    <a href="#" class="action-icon">
+                        <i class="bi bi-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </a>
+                    <a href="#" class="action-icon">
+                        <i class="bi bi-gear"></i>
+                    </a>
+                    <div class="admin-profile">
+                        <div class="admin-avatar">
+                            {% if user.profile_picture %}
+                                <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}">
+                            {% else %}
+                                {{ user.username|first|upper }}
+                            {% endif %}
+                        </div>
+                        <div class="admin-info">
+                            <h6 class="admin-name">{{ user.get_full_name|default:user.username }}</h6>
+                            <p class="admin-role">Administrator</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <h6 class="nav-section-title">Main</h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a href="{% url 'dashboard:home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                            <i class="bi bi-house nav-icon"></i>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'dashboard:users' %}" class="nav-link {% if request.resolver_match.url_name == 'users' %}active{% endif %}">
+                            <i class="bi bi-people nav-icon"></i>
+                            <span class="nav-text">Users</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'dashboard:courses' %}" class="nav-link {% if request.resolver_match.url_name == 'courses' %}active{% endif %}">
+                            <i class="bi bi-book nav-icon"></i>
+                            <span class="nav-text">Courses</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="nav-section">
+                <h6 class="nav-section-title">Settings</h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a href="{% url 'dashboard:settings' %}" class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+                            <i class="bi bi-gear nav-icon"></i>
+                            <span class="nav-text">Settings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'dashboard:profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                            <i class="bi bi-person nav-icon"></i>
+                            <span class="nav-text">Profile</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Sidebar Toggle -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script>
+        // Sidebar toggle functionality
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            document.body.classList.toggle('sidebar-collapsed');
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 
