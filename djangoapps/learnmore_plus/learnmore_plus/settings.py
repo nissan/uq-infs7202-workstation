@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sites",  # Required for allauth
     "accounts",
+    "core",
+    "dashboard",  # Add the dashboard app
     
     # allauth
     "allauth",
