@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CourseCategory, Course, CourseEnrollment, CourseModule, CourseContent
+from .models import CourseCategory, Course, CourseEnrollment, Module, CourseContent
 
 @admin.register(CourseCategory)
 class CourseCategoryAdmin(admin.ModelAdmin):
@@ -24,8 +24,8 @@ class CourseEnrollmentAdmin(admin.ModelAdmin):
     raw_id_fields = ('course', 'student')
     date_hierarchy = 'enrolled_at'
 
-@admin.register(CourseModule)
-class CourseModuleAdmin(admin.ModelAdmin):
+@admin.register(Module)
+class ModuleAdmin(admin.ModelAdmin):
     list_display = ('course', 'title', 'order', 'created_at', 'updated_at')
     list_filter = ('course',)
     search_fields = ('title', 'description')

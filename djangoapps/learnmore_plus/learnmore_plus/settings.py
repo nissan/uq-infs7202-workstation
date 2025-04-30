@@ -38,10 +38,12 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",  # Required for allauth
-    "accounts",
-    "core",
-    "dashboard",  # Add the dashboard app
-    "courses",  # Add the courses app
+    
+    # Local apps
+    "accounts.apps.AccountsConfig",
+    "core.apps.CoreConfig",
+    "dashboard.apps.DashboardConfig",
+    "courses.apps.CoursesConfig",
     
     # allauth
     "allauth",
@@ -182,9 +184,6 @@ ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
 ACCOUNT_EMAIL_SUBJECT_PREFIX = 'Enhanced LearnMore - '
-
-# Custom user model
-AUTH_USER_MODEL = 'accounts.User'
 
 # Session Settings
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
