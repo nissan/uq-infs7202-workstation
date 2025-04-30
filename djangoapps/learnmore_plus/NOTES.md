@@ -234,4 +234,57 @@
    - Added django-filter for course filtering
    - Added django-taggit for course tagging
    - Maintained existing dependencies
-   - Note: All dependencies are version-pinned for stability 
+   - Note: All dependencies are version-pinned for stability
+
+# Development Notes
+
+## April 30, 2025 - Enrollment and Progress Tracking
+
+### Enrollment System Architecture
+- Using two enrollment models for different purposes:
+  1. `CourseEnrollment`: Basic enrollment tracking
+  2. `Enrollment`: Detailed progress tracking with module-level granularity
+
+### Progress Tracking Implementation
+- Progress is calculated at multiple levels:
+  1. Course level: Overall completion percentage
+  2. Module level: Individual module completion
+  3. Content level: Progress through course materials
+
+### Time Tracking
+- Course duration calculation:
+  ```python
+  total_duration = sum(
+      content.estimated_time or 0
+      for module in course.modules.all()
+      for content in module.contents.all()
+  )
+  ```
+- Time spent calculation:
+  ```python
+  time_spent = int(total_duration * (enrollment.progress / 100))
+  ```
+- Time remaining calculation:
+  ```python
+  time_remaining = total_duration - time_spent
+  ```
+
+### Database Optimizations
+- Using `select_related` and `prefetch_related` for efficient queries
+- Prefetching course modules and contents to reduce database hits
+- Caching calculated values on course objects
+
+### Known Issues and Solutions
+1. Enrollment Duplication
+   - Solution: Check both enrollment models before creating new records
+   - Implementation: Added checks in `course_enroll` view
+
+2. Progress Synchronization
+   - Solution: Update both enrollment models when progress changes
+   - Implementation: Added synchronization in `course_learn` view
+
+3. Time Calculation
+   - Solution: Calculate time based on content estimated_time
+   - Implementation: Added time calculations in learning progress view
+
+## Previous Notes 
