@@ -31,6 +31,12 @@ class Course(models.Model):
         ('archived', 'Archived'),
     ]
 
+    LEVEL_CHOICES = [
+        ('beginner', 'Beginner'),
+        ('intermediate', 'Intermediate'),
+        ('advanced', 'Advanced'),
+    ]
+
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
     description = models.TextField()
@@ -38,6 +44,7 @@ class Course(models.Model):
     instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='courses_teaching')
     students = models.ManyToManyField(User, through='CourseEnrollment', related_name='courses_enrolled')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='beginner')
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
