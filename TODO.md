@@ -143,6 +143,12 @@
 - [x] Add localization
 - [x] Add custom themes
 - [x] Add custom layouts
+- [x] Fix broken image links
+- [x] Implement SVG icons
+- [x] Improve course card design
+- [x] Enhance filter sidebar
+- [x] Add proper hover states
+- [x] Add proper focus states
 - [ ] Add advanced search
 - [ ] Add advanced filtering
 - [ ] Add advanced sorting
