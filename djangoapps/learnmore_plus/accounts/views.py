@@ -3,6 +3,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
 from django.contrib.messages.storage.fallback import FallbackStorage
+from django.contrib.auth.backends import ModelBackend
 
 # Create your views here.
 
@@ -14,9 +15,17 @@ def register(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
-            messages.success(request, 'Registration successful!')
-            return redirect('home')
+            # Authenticate the user with the default backend
+            user = authenticate(
+                request,
+                username=form.cleaned_data.get('username'),
+                password=form.cleaned_data.get('password1'),
+                backend='django.contrib.auth.backends.ModelBackend'
+            )
+            if user is not None:
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                messages.success(request, 'Registration successful!')
+                return redirect('home')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:

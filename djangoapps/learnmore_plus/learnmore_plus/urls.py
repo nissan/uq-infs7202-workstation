@@ -33,4 +33,4 @@ urlpatterns = [
     path('admin-dashboard/', include('dashboard.urls')),  # Changed from 'dashboard/' to 'admin-dashboard/'
     path('courses/', include('courses.urls')),
     path('', include('core.urls')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
