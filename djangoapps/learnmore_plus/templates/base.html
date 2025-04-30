@@ -40,6 +40,8 @@
                     <a href="#testimonials" class="text-gray-600 dark:text-gray-300 hover:text-primary">Testimonials</a>
                     <a href="{% url 'courses:catalog' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Courses</a>
                     {% if user.is_authenticated %}
+                        <a href="{% url 'courses:student_dashboard' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">My Dashboard</a>
+                        <a href="{% url 'courses:learning_progress' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Learning Progress</a>
                         {% if user.is_staff %}
                             <a href="{% url 'dashboard:home' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Admin Dashboard</a>
                         {% endif %}
@@ -64,6 +66,8 @@
                     <a href="#testimonials" class="text-gray-600 dark:text-gray-300 hover:text-primary">Testimonials</a>
                     <a href="{% url 'courses:catalog' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Courses</a>
                     {% if user.is_authenticated %}
+                        <a href="{% url 'courses:student_dashboard' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">My Dashboard</a>
+                        <a href="{% url 'courses:learning_progress' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Learning Progress</a>
                         {% if user.is_staff %}
                             <a href="{% url 'dashboard:home' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Admin Dashboard</a>
                         {% endif %}
