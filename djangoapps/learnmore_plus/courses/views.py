@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from .models import Course, CourseCategory
 
@@ -7,17 +7,16 @@ def catalog(request):
     categories = CourseCategory.objects.all()
     
     # Get the search query
-    query = request.GET.get('q', '')
+    query = request.GET.get('search', '')
     
     # Get the selected categories
     selected_categories = request.GET.getlist('category')
     
-    # Get the price range
-    min_price = request.GET.get('min_price', 0)
-    max_price = request.GET.get('max_price', 200)
+    # Get the selected level
+    selected_level = request.GET.get('level')
     
-    # Get the selected levels
-    selected_levels = request.GET.getlist('level')
+    # Get the price filter
+    price_filter = request.GET.get('price')
     
     # Start with all published courses
     courses = Course.objects.filter(status='published')
@@ -34,13 +33,15 @@ def catalog(request):
     if selected_categories:
         courses = courses.filter(category_id__in=selected_categories)
     
-    # Apply price range filter
-    if min_price and max_price:
-        courses = courses.filter(price__gte=min_price, price__lte=max_price)
+    # Apply level filter
+    if selected_level:
+        courses = courses.filter(level=selected_level)
     
-    # Apply level filter (if we add a level field to the Course model)
-    # if selected_levels:
-    #     courses = courses.filter(level__in=selected_levels)
+    # Apply price filter
+    if price_filter == 'free':
+        courses = courses.filter(price=0)
+    elif price_filter == 'paid':
+        courses = courses.filter(price__gt=0)
     
     # Order by featured first, then by creation date
     courses = courses.order_by('-is_featured', '-created_at')
@@ -50,9 +51,29 @@ def catalog(request):
         'categories': categories,
         'query': query,
         'selected_categories': selected_categories,
-        'min_price': min_price,
-        'max_price': max_price,
-        'selected_levels': selected_levels,
+        'selected_level': selected_level,
+        'price_filter': price_filter,
+        'levels': Course.LEVEL_CHOICES,
     }
     
     return render(request, 'courses/catalog.html', context)
+
+def course_detail(request, slug):
+    course = get_object_or_404(Course, slug=slug, status='published')
+    modules = course.modules.all().prefetch_related('contents')
+    
+    # Check if user is enrolled
+    is_enrolled = False
+    enrollment = None
+    if request.user.is_authenticated:
+        enrollment = course.courseenrollment_set.filter(student=request.user).first()
+        is_enrolled = enrollment is not None
+    
+    context = {
+        'course': course,
+        'modules': modules,
+        'is_enrolled': is_enrolled,
+        'enrollment': enrollment,
+    }
+    
+    return render(request, 'courses/detail.html', context)
