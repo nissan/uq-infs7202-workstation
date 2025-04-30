@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.text import slugify
+from django.core.validators import RegexValidator
 
 User = get_user_model()
 
@@ -9,6 +10,17 @@ class CourseCategory(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     slug = models.SlugField(unique=True)
+    icon = models.CharField(
+        max_length=50,
+        help_text="Heroicon name (e.g., 'academic-cap', 'code', 'beaker')",
+        default='academic-cap'
+    )
+    color = models.CharField(
+        max_length=7,
+        validators=[RegexValidator(r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$')],
+        help_text="Hex color code (e.g., '#3B82F6')",
+        default='#3B82F6'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -24,6 +36,14 @@ class CourseCategory(models.Model):
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
+    @property
+    def courses_count(self):
+        return self.courses.count()
+
+    @property
+    def active_courses_count(self):
+        return self.courses.filter(status='published').count()
+
 class Course(models.Model):
     STATUS_CHOICES = [
         ('draft', 'Draft'),
@@ -36,6 +56,24 @@ class Course(models.Model):
         ('intermediate', 'Intermediate'),
         ('advanced', 'Advanced'),
     ]
+
+    LEVEL_METADATA = {
+        'beginner': {
+            'icon': 'sparkles',
+            'color': '#10B981',  # Emerald 500
+            'description': 'Perfect for those just starting out. No prior experience needed.',
+        },
+        'intermediate': {
+            'icon': 'fire',
+            'color': '#F59E0B',  # Amber 500
+            'description': 'For learners with basic knowledge seeking to expand their skills.',
+        },
+        'advanced': {
+            'icon': 'star',
+            'color': '#EF4444',  # Red 500
+            'description': 'Deep dive into complex topics. Prior experience required.',
+        }
+    }
 
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
@@ -81,6 +119,26 @@ class Course(models.Model):
         if self.max_students == 0:
             return False
         return self.enrollment_count >= self.max_students
+
+    @property
+    def is_free(self):
+        return self.price == 0
+
+    @property
+    def level_metadata(self):
+        return self.LEVEL_METADATA.get(self.level, {})
+
+    @property
+    def level_icon(self):
+        return self.level_metadata.get('icon', 'academic-cap')
+
+    @property
+    def level_color(self):
+        return self.level_metadata.get('color', '#3B82F6')
+
+    @property
+    def level_description(self):
+        return self.level_metadata.get('description', '')
 
 class CourseEnrollment(models.Model):
     STATUS_CHOICES = [
