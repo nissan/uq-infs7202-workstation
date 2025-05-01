@@ -288,3 +288,178 @@
    - Implementation: Added time calculations in learning progress view
 
 ## Previous Notes 
+
+## UI/UX Improvements (May 1, 2024)
+
+### Dark Mode Enhancements
+1. Fixed contrast issues in light/dark modes
+   - Updated hero section text colors
+   - Fixed CTA section text visibility
+   - Improved button contrast
+   - Added consistent hover states
+
+2. Button Visibility Improvements
+   - Added borders to CTA buttons
+   - Enhanced button contrast in both modes
+   - Implemented consistent hover states
+   - Fixed text visibility on buttons
+
+3. Mobile Responsiveness
+   - Enhanced mobile menu styling
+   - Improved responsive grid layouts
+   - Added proper spacing for mobile views
+   - Implemented touch-friendly interactions
+
+## Issues and Solutions
+
+1. Dark Mode Text Visibility
+   - Problem: Text was unreadable in light mode
+   - Solution: Added proper text colors for both modes
+   - Changes:
+     - Updated hero section text colors
+     - Fixed CTA section text visibility
+     - Improved button text contrast
+   - Impact: Better readability in both modes
+
+2. Button Visibility
+   - Problem: CTA buttons were hard to see
+   - Solution: Added borders and improved contrast
+   - Changes:
+     - Added border-2 to CTA buttons
+     - Updated hover states
+     - Improved text contrast
+   - Impact: Better button visibility and interaction
+
+3. Mobile Menu
+   - Problem: Dropdown menu disappeared too quickly
+   - Solution: Added transition delay and improved interaction
+   - Changes:
+     - Added transition-all duration-200
+     - Improved hover states
+     - Enhanced mobile menu styling
+   - Impact: Better mobile navigation experience
+
+## Next Steps
+
+1. UI/UX Improvements
+   - Add more interactive elements
+   - Implement loading states
+   - Add micro-interactions
+   - Enhance mobile responsiveness
+
+2. Course Features
+   - Implement quiz system
+   - Add discussion features
+   - Create file upload system
+   - Enhance progress tracking
+
+3. Technical Improvements
+   - API development
+   - Caching system
+   - Background tasks
+   - Performance optimization
+
+### Lessons Learned
+
+1. Always activate virtual environment before running commands
+2. Keep track of all dependencies in requirements.txt
+3. Plan template structure before implementation
+4. Consider future scalability when making architectural decisions
+5. Check for indirect dependencies of installed packages
+6. Some packages may have dependencies that aren't automatically installed
+7. Security-related packages often have additional dependencies
+8. Check for deprecated settings when using third-party packages
+9. Plan migration strategy when adding custom user model
+10. Course Management
+    - Plan content structure before implementation
+    - Consider scalability in enrollment system
+    - Design for progressive content delivery
+    - Implement proper access control
+
+### Revision History
+
+1. Initial template structure
+   - Original: Flat structure
+   - Revised: Proper directory structure
+   - Reason: Better organization and maintainability
+
+2. Authentication approach
+   - Original: Basic Django auth
+   - Revised: django-allauth with social login
+   - Reason: More comprehensive solution
+
+3. Styling framework
+   - Original: Bootstrap
+   - Revised: Tailwind CSS
+   - Reason: More flexible and modern approach
+
+4. Course Management
+   - Original: Basic course listing
+   - Revised: Full course management system
+   - Reason: Better learning experience
+
+### Dependency Management
+
+1. Updated base.txt (2024-03-XX)
+   - Added django-allauth>=0.65.0 for social authentication
+   - Added Pillow>=10.2.0 for image handling
+   - Added requests>=2.31.0 for OAuth authentication
+   - Added PyJWT>=2.8.0 for JWT handling
+   - Added cryptography>=42.0.0 for security features
+   - Added django-filter for course filtering
+   - Added django-taggit for course tagging
+   - Maintained existing dependencies
+   - Note: All dependencies are version-pinned for stability
+
+# Development Notes
+
+## April 30, 2025 - Enrollment and Progress Tracking
+
+### Enrollment System Architecture
+- Using two enrollment models for different purposes:
+  1. `CourseEnrollment`: Basic enrollment tracking
+  2. `Enrollment`: Detailed progress tracking with module-level granularity
+
+### Progress Tracking Implementation
+- Progress is calculated at multiple levels:
+  1. Course level: Overall completion percentage
+  2. Module level: Individual module completion
+  3. Content level: Progress through course materials
+
+### Time Tracking
+- Course duration calculation:
+  ```python
+  total_duration = sum(
+      content.estimated_time or 0
+      for module in course.modules.all()
+      for content in module.contents.all()
+  )
+  ```
+- Time spent calculation:
+  ```python
+  time_spent = int(total_duration * (enrollment.progress / 100))
+  ```
+- Time remaining calculation:
+  ```python
+  time_remaining = total_duration - time_spent
+  ```
+
+### Database Optimizations
+- Using `select_related` and `prefetch_related` for efficient queries
+- Prefetching course modules and contents to reduce database hits
+- Caching calculated values on course objects
+
+### Known Issues and Solutions
+1. Enrollment Duplication
+   - Solution: Check both enrollment models before creating new records
+   - Implementation: Added checks in `course_enroll` view
+
+2. Progress Synchronization
+   - Solution: Update both enrollment models when progress changes
+   - Implementation: Added synchronization in `course_learn` view
+
+3. Time Calculation
+   - Solution: Calculate time based on content estimated_time
+   - Implementation: Added time calculations in learning progress view
+
+## Previous Notes 

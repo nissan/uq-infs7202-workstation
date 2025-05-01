@@ -4,10 +4,10 @@ This guide will help you set up the development environment for LearnMore Plus.
 
 ## Initial Setup
 
-1. Create a new directory for the project:
+1. Clone the repository:
    ```bash
-   mkdir learnmore-plus
-   cd learnmore-plus
+   git clone https://github.com/nissan/uq-infs7202-workstation.git
+   cd uq-infs7202-workstation/djangoapps/learnmore_plus
    ```
 
 2. Create and activate a virtual environment:
@@ -16,21 +16,52 @@ This guide will help you set up the development environment for LearnMore Plus.
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-3. Install Django and other dependencies:
+3. Install dependencies:
    ```bash
-   pip install -r requirements/base.txt
+   pip install -r requirements.txt
    ```
 
-4. Create a new Django project:
+4. Set up the database:
    ```bash
-   django-admin startproject learnmore_plus .
+   python manage.py migrate
    ```
 
-5. Create the necessary apps:
+5. Create test users (optional):
    ```bash
-   python manage.py startapp accounts
-   python manage.py startapp courses
+   python manage.py createsuperuser  # Create admin user
    ```
+
+6. Run the development server:
+   ```bash
+   python manage.py runserver
+   ```
+
+## Test Users
+
+The system comes with several pre-configured test users:
+
+### Admin User
+- Username: `admin`
+- Password: `admin123`
+- Role: Superuser with full access
+
+### Instructors
+- Username: `instructor1`
+- Password: `instructor123`
+- Role: Course instructor
+
+- Username: `instructor2`
+- Password: `instructor123`
+- Role: Course instructor
+
+### Students
+- Username: `john`
+- Password: `john123`
+- Role: Test student
+
+- Username: `jane`
+- Password: `jane123`
+- Role: Test student
 
 ## Project Structure
 
@@ -104,7 +135,7 @@ learnmore_plus/
 
 ## Project Status and Next Steps
 
-## Current Status (April 30, 2025)
+## Current Status (May 1, 2024)
 
 ### Completed Features
 1. Core Course Management
@@ -112,6 +143,8 @@ learnmore_plus/
    - Module and content organization
    - Course catalog with filtering
    - Course enrollment system
+   - Progress tracking
+   - Time tracking
 
 2. User Management
    - User authentication
@@ -119,12 +152,12 @@ learnmore_plus/
    - User profiles
    - Test user accounts
 
-3. Learning Features
-   - Course enrollment
-   - Progress tracking
-   - Module completion
-   - Time tracking
-   - Learning interface
+3. UI/UX Features
+   - Dark mode support
+   - Mobile responsiveness
+   - Enhanced button visibility
+   - Consistent hover states
+   - Fixed text contrast issues
 
 ### Current Focus
 - Course ratings and reviews
@@ -252,4 +285,5 @@ python manage.py collectstatic
 - [Django Documentation](https://docs.djangoproject.com/)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
-- [django-allauth Documentation](https://django-allauth.readthedocs.io/) 
+- [django-allauth Documentation](https://django-allauth.readthedocs.io/)
+- [shadcn/ui Documentation](https://ui.shadcn.com/) 

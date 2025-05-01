@@ -10,6 +10,7 @@ A comprehensive learning management system built with Django and modern web tech
 - Course enrollment system
 - Progress tracking at course and module levels
 - Time tracking for course completion
+- Module-based content organization
 
 ### User Features
 - User authentication and profiles
@@ -17,6 +18,16 @@ A comprehensive learning management system built with Django and modern web tech
 - Detailed learning progress tracking
 - Course enrollment management
 - Module-level progress tracking
+- Dark mode support
+- Mobile-responsive design
+
+### UI/UX Features
+- Dark mode support with smooth transitions
+- Mobile-first responsive design
+- Enhanced button visibility
+- Consistent hover states
+- Improved text contrast
+- Modern and clean interface
 
 ### Test Users
 For testing purposes, the following users are available:
@@ -52,20 +63,33 @@ For testing purposes, the following users are available:
 - PostgreSQL 15+
 
 ### Installation
-1. Clone the repository
-2. Create a virtual environment
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/nissan/uq-infs7202-workstation.git
+   cd uq-infs7202-workstation/djangoapps/learnmore_plus
+   ```
+
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
 3. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
+
 4. Set up the database:
    ```bash
    python manage.py migrate
    ```
+
 5. Create a superuser:
    ```bash
    python manage.py createsuperuser
    ```
+
 6. Run the development server:
    ```bash
    python manage.py runserver
@@ -98,20 +122,17 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Development
 
 ### Running Tests
-
 ```bash
 python manage.py test
 ```
 
 ### Code Style
-
 We use:
 - Black for Python code formatting
 - isort for import sorting
 - flake8 for linting
 
 ### Contributing
-
 1. Fork the repository
 2. Create a feature branch
 3. Commit your changes
@@ -125,29 +146,8 @@ We use:
 - shadcn/ui
 - django-allauth
 
-## Test Users
-
-The system comes with several pre-configured test users:
-
-### Admin User
-- Username: `admin`
-- Password: `admin123`
-- Role: Superuser with full access
-
-### Instructors
-- Username: `dr.smith`
-- Password: `smith123`
-- Role: Course instructor for Python Programming
-
-- Username: `dr.johnson`
-- Password: `johnson123`
-- Role: Course instructor for Machine Learning Fundamentals
-
-### Students
-- Username: `john`
-- Password: `john123`
-- Role: Test student with active enrollments
-
-- Username: `jane`
-- Password: `jane123`
-- Role: Test student with completed courses 
+## Documentation
+- [START.md](START.md) - Getting started guide
+- [TODO.md](TODO.md) - Project roadmap and tasks
+- [CHECKPOINT.md](CHECKPOINT.md) - Project milestones
+- [NOTES.md](NOTES.md) - Implementation notes 
