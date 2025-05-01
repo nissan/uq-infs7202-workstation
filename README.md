@@ -24,10 +24,13 @@ A Django-based learning management system with AI-powered learning tools for edu
   - Version control
 
 - Assessment System
-  - Quiz creation
+  - Quiz creation with multiple question types
+  - Pre-requisite surveys and knowledge checks
   - Assignment management
-  - Grading system
-  - Progress tracking
+  - Grading system with detailed feedback
+  - Progress tracking and scoring
+  - Time limits and attempt tracking
+  - Modern results display
 
 - UI/UX
   - Responsive design

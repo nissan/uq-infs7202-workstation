@@ -14,6 +14,7 @@ I'm working on a Django-based learning management system called Enhanced LearnMo
 - Implemented file upload support
 - Fixed broken avatar image with SVG icon
 - Improved course card design and filter sidebar
+- Enhanced quiz system with pre-requisite surveys and results page
 - Updated documentation (TODO.md, NOTES.md, CHECKPOINT.md)
 
 3. Current Focus:

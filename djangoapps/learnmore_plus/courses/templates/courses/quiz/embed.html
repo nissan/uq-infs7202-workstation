@@ -1,0 +1,268 @@
+{% if quiz.time_limit %}
+<div class="timer" id="quizTimer">
+    Time Remaining: <span id="timeRemaining"></span>
+</div>
+{% endif %}
+
+<div class="bg-white dark:bg-gray-700 rounded-lg shadow-lg overflow-hidden">
+    <div class="bg-primary text-white p-6">
+        <h4 class="text-xl font-bold mb-2">{{ quiz.title }}</h4>
+        {% if quiz.description %}
+        <p class="text-white/80">{{ quiz.description }}</p>
+        {% endif %}
+    </div>
+    <div class="p-6">
+        {% if attempt.status == 'submitted' %}
+            <!-- Show submitted answers -->
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h5 class="text-lg font-semibold text-gray-900 dark:text-white">
+                        {% if quiz.is_pre_check %}
+                            Survey Responses
+                        {% else %}
+                            Your Results
+                        {% endif %}
+                    </h5>
+                    {% if not quiz.is_pre_check %}
+                    <span class="px-4 py-2 bg-primary text-white rounded-lg">
+                        Score: {{ attempt.score|floatformat:1 }}%
+                    </span>
+                    {% endif %}
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                    {% if quiz.is_pre_check %}
+                        Thank you for completing the survey. Your responses have been recorded.
+                    {% else %}
+                        {% if attempt.score >= 70 %}
+                            Congratulations! You've passed the quiz.
+                        {% else %}
+                            You need 70% to pass. Consider reviewing the material and trying again.
+                        {% endif %}
+                    {% endif %}
+                </p>
+            </div>
+
+            {% for answer in attempt.answers.all %}
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-8 last:mb-0">
+                <h5 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                    Question {{ forloop.counter }}
+                    {% if not quiz.is_pre_check %}
+                    <span class="text-sm text-gray-500 dark:text-gray-400">({{ answer.question.points }} points)</span>
+                    {% endif %}
+                </h5>
+                <p class="text-gray-700 dark:text-gray-300 mb-6">{{ answer.question.question_text }}</p>
+
+                {% if answer.question.question_type == 'multiple_choice' %}
+                <div class="space-y-3">
+                    {% for choice in answer.question.choices.all %}
+                    <div class="flex items-center p-4 {% if choice.choice_text == answer.answer_text %}bg-green-50 dark:bg-green-900/30{% elif not quiz.is_pre_check and choice.is_correct %}bg-yellow-50 dark:bg-yellow-900/30{% else %}bg-gray-50 dark:bg-gray-700{% endif %} rounded-lg">
+                        <input type="radio" 
+                               disabled
+                               {% if choice.choice_text == answer.answer_text %}checked{% endif %}
+                               class="w-4 h-4 text-primary border-gray-300 focus:ring-primary">
+                        <span class="ml-3 text-gray-700 dark:text-gray-300">
+                            {{ choice.choice_text }}
+                            {% if not quiz.is_pre_check and choice.is_correct %}
+                                <span class="ml-2 text-green-600 dark:text-green-400">✓</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% elif answer.question.question_type == 'true_false' %}
+                <div class="space-y-3">
+                    <div class="flex items-center p-4 {% if 'True' == answer.answer_text %}bg-green-50 dark:bg-green-900/30{% elif not quiz.is_pre_check and 'True' == answer.question.choices.first.choice_text %}bg-yellow-50 dark:bg-yellow-900/30{% else %}bg-gray-50 dark:bg-gray-700{% endif %} rounded-lg">
+                        <input type="radio" 
+                               disabled
+                               {% if 'True' == answer.answer_text %}checked{% endif %}
+                               class="w-4 h-4 text-primary border-gray-300 focus:ring-primary">
+                        <span class="ml-3 text-gray-700 dark:text-gray-300">
+                            True
+                            {% if not quiz.is_pre_check and 'True' == answer.question.choices.first.choice_text %}
+                                <span class="ml-2 text-green-600 dark:text-green-400">✓</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="flex items-center p-4 {% if 'False' == answer.answer_text %}bg-green-50 dark:bg-green-900/30{% elif not quiz.is_pre_check and 'False' == answer.question.choices.first.choice_text %}bg-yellow-50 dark:bg-yellow-900/30{% else %}bg-gray-50 dark:bg-gray-700{% endif %} rounded-lg">
+                        <input type="radio" 
+                               disabled
+                               {% if 'False' == answer.answer_text %}checked{% endif %}
+                               class="w-4 h-4 text-primary border-gray-300 focus:ring-primary">
+                        <span class="ml-3 text-gray-700 dark:text-gray-300">
+                            False
+                            {% if not quiz.is_pre_check and 'False' == answer.question.choices.first.choice_text %}
+                                <span class="ml-2 text-green-600 dark:text-green-400">✓</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                {% elif answer.question.question_type == 'short_answer' %}
+                <div class="mt-4">
+                    <input type="text" 
+                           value="{{ answer.answer_text }}"
+                           disabled
+                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                </div>
+
+                {% elif answer.question.question_type == 'essay' %}
+                <div class="mt-4">
+                    <textarea disabled
+                              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                              rows="4">{{ answer.answer_text }}</textarea>
+                </div>
+                {% endif %}
+
+                {% if not quiz.is_pre_check %}
+                    {% if answer.is_correct %}
+                    <div class="mt-4 text-green-600 dark:text-green-400">
+                        <span class="font-medium">Correct!</span> You earned {{ answer.points_earned }} points.
+                    </div>
+                    {% else %}
+                    <div class="mt-4 text-red-600 dark:text-red-400">
+                        <span class="font-medium">Incorrect.</span> The correct answer is highlighted in yellow.
+                    </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-200 dark:border-gray-600">
+                <a href="{% url 'courses:detail' course.slug %}" 
+                   class="px-6 py-3 bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors">
+                    Back to Course
+                </a>
+                {% if not quiz.is_pre_check and quiz.attempts_allowed == 0 or attempt.quiz.attempts.filter.count < quiz.attempts_allowed %}
+                <a href="{% url 'courses:quiz_take' course.slug quiz.id %}" 
+                   class="px-6 py-3 bg-primary text-gray-900 dark:text-white border-2 border-primary dark:border-white rounded-lg hover:bg-primary-dark hover:text-white transition-colors">
+                    Retake Quiz
+                </a>
+                {% endif %}
+            </div>
+
+        {% else %}
+            <!-- Show quiz form for in-progress attempt -->
+            <form method="post" action="{% url 'courses:quiz_submit' course.slug attempt.id %}" id="quizForm" onsubmit="window.onbeforeunload = null;">
+                {% csrf_token %}
+                
+                {% for question in questions %}
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-8 last:mb-0">
+                    <h5 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        Question {{ forloop.counter }}
+                        {% if not quiz.is_pre_check %}
+                        <span class="text-sm text-gray-500 dark:text-gray-400">({{ question.points }} points)</span>
+                        {% endif %}
+                    </h5>
+                    <p class="text-gray-700 dark:text-gray-300 mb-6">{{ question.question_text }}</p>
+
+                    {% if question.question_type == 'multiple_choice' %}
+                    <div class="space-y-3">
+                        {% for choice in question.choices.all %}
+                        <label class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                            <input type="radio" 
+                                   name="question_{{ question.id }}" 
+                                   value="{{ choice.choice_text }}"
+                                   class="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
+                                   required>
+                            <span class="ml-3 text-gray-700 dark:text-gray-300">{{ choice.choice_text }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+
+                    {% elif question.question_type == 'true_false' %}
+                    <div class="space-y-3">
+                        <label class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                            <input type="radio" 
+                                   name="question_{{ question.id }}" 
+                                   value="True"
+                                   class="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
+                                   required>
+                            <span class="ml-3 text-gray-700 dark:text-gray-300">True</span>
+                        </label>
+                        <label class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                            <input type="radio" 
+                                   name="question_{{ question.id }}" 
+                                   value="False"
+                                   class="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
+                                   required>
+                            <span class="ml-3 text-gray-700 dark:text-gray-300">False</span>
+                        </label>
+                    </div>
+
+                    {% elif question.question_type == 'short_answer' %}
+                    <div class="mt-4">
+                        <input type="text" 
+                               name="question_{{ question.id }}" 
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
+                               required>
+                    </div>
+
+                    {% elif question.question_type == 'essay' %}
+                    <div class="mt-4">
+                        <textarea name="question_{{ question.id }}" 
+                                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
+                                  rows="4"
+                                  required></textarea>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-200 dark:border-gray-600">
+                    <a href="{% url 'courses:detail' course.slug %}" 
+                       class="px-6 py-3 bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="px-6 py-3 bg-primary text-gray-900 dark:text-white border-2 border-primary dark:border-white rounded-lg hover:bg-primary-dark hover:text-white transition-colors">
+                        {% if quiz.is_pre_check %}
+                            Submit Survey
+                        {% else %}
+                            Submit Quiz
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+{% if quiz.time_limit and attempt.status != 'submitted' %}
+<script>
+    // Timer functionality
+    const timeLimit = {{ quiz.time_limit }} * 60; // Convert to seconds
+    let timeRemaining = timeLimit;
+    
+    function updateTimer() {
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+        document.getElementById('timeRemaining').textContent = 
+            `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        
+        // Add warning classes
+        const timer = document.getElementById('quizTimer');
+        if (timeRemaining <= 300) { // 5 minutes
+            timer.classList.add('danger');
+        } else if (timeRemaining <= 600) { // 10 minutes
+            timer.classList.add('warning');
+        }
+        
+        if (timeRemaining <= 0) {
+            document.getElementById('quizForm').submit();
+        } else {
+            timeRemaining--;
+            setTimeout(updateTimer, 1000);
+        }
+    }
+    
+    updateTimer();
+    
+    // Warn before leaving page, but not when submitting the form
+    window.onbeforeunload = function(e) {
+        if (!document.getElementById('quizForm').checkValidity()) {
+            return "Are you sure you want to leave? Your progress will be lost.";
+        }
+    };
+</script>
+{% endif %} 

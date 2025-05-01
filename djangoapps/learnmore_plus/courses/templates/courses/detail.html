@@ -63,7 +63,7 @@
                                 {% if course.price > 0 %}
                                 <form method="post" action="{% url 'courses:enroll' course.slug %}" class="mb-4">
                                     {% csrf_token %}
-                                    <button type="submit" class="w-full bg-primary text-gray-900 px-6 py-3 rounded-lg hover:bg-primary-dark transition-colors">
+                                    <button type="submit" class="w-full bg-primary text-gray-900 dark:text-white border-2 border-primary dark:border-white px-6 py-3 rounded-lg hover:bg-primary-dark hover:text-white transition-colors">
                                         Purchase & Enroll Now
                                     </button>
                                 </form>
@@ -74,7 +74,7 @@
                                 {% else %}
                                 <form method="post" action="{% url 'courses:enroll' course.slug %}" class="mb-4">
                                     {% csrf_token %}
-                                    <button type="submit" class="w-full bg-primary text-gray-900 px-6 py-3 rounded-lg hover:bg-primary-dark transition-colors">
+                                    <button type="submit" class="w-full bg-primary text-gray-900 dark:text-white border-2 border-primary dark:border-white px-6 py-3 rounded-lg hover:bg-primary-dark hover:text-white transition-colors">
                                         Enroll Now
                                     </button>
                                 </form>
@@ -92,7 +92,7 @@
                                 </div>
                                 <div class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ enrollment.progress }}% Complete</div>
                             </div>
-                            <a href="{% url 'courses:learn' course.slug %}" class="block w-full bg-primary text-gray-900 px-6 py-3 rounded-lg hover:bg-primary-dark transition-colors text-center">
+                            <a href="{% url 'courses:learn' course.slug %}" class="block w-full bg-primary text-gray-900 dark:text-white border-2 border-primary dark:border-white px-6 py-3 rounded-lg hover:bg-primary-dark hover:text-white transition-colors text-center">
                                 Continue Learning
                             </a>
                         {% endif %}

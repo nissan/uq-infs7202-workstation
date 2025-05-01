@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q, Sum, Count, Avg
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Course, CourseCategory, CourseEnrollment, CourseContent, Enrollment, Module, ModuleProgress
+from .models import Course, CourseCategory, CourseEnrollment, CourseContent, Enrollment, Module, ModuleProgress, QuizAttempt
 from django.utils import timezone
 
 def course_catalog(request):
@@ -214,6 +214,22 @@ def course_learn(request, slug, module_order=None, content_order=None):
             module_progress.last_accessed = timezone.now()
             module_progress.save()
     
+    # Handle quiz content
+    attempt = None
+    if current_content and current_content.content_type == 'quiz' and current_content.quiz:
+        # Check if user has remaining attempts
+        attempts = current_content.quiz.attempts.filter(student=request.user)
+        if current_content.quiz.attempts_allowed > 0 and attempts.count() >= current_content.quiz.attempts_allowed:
+            # User has used all attempts, get their last attempt
+            attempt = attempts.latest('started_at')
+        else:
+            # Create new attempt
+            attempt = QuizAttempt.objects.create(
+                student=request.user,
+                quiz=current_content.quiz,
+                status='in_progress'
+            )
+    
     context = {
         'course': course,
         'enrollment': course_enrollment,  # Use CourseEnrollment for the template
@@ -222,6 +238,7 @@ def course_learn(request, slug, module_order=None, content_order=None):
         'next_content': next_content,
         'prev_content': prev_content,
         'modules': course.modules.all(),  # All modules for navigation
+        'attempt': attempt,  # Add attempt to context for quiz content
     }
     return render(request, 'courses/learn.html', context)
 

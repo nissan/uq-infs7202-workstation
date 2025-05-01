@@ -36,6 +36,29 @@ This guide will help you set up the development environment for LearnMore Plus.
    python manage.py runserver
    ```
 
+### Resetting the Database
+If you need to reset the database to a clean state with fresh test data, follow these steps:
+
+1. Clear all data from the database:
+   ```bash
+   python manage.py flush --no-input
+   ```
+
+2. Generate test data (courses, modules, content):
+   ```bash
+   python manage.py generate_test_data
+   ```
+
+3. Create test users:
+   ```bash
+   python manage.py create_test_users
+   ```
+
+This will give you a fresh database with:
+- Sample courses and content
+- Test users (admin, students, instructors)
+- Course enrollments and progress data
+
 ## Test Users
 
 The system comes with several pre-configured test users:

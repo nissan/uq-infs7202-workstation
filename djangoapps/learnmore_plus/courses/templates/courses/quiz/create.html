@@ -1,0 +1,64 @@
+{% extends "courses/base.html" %}
+{% load static %}
+
+{% block title %}Create Quiz - {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Create New Quiz</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">
+                                {{ field.label }}
+                            </label>
+                            {{ field }}
+                            {% if field.help_text %}
+                            <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                            {% if field.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ field.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'course_detail' course.slug %}" class="btn btn-secondary">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                Create Quiz
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add Bootstrap classes to form fields
+    document.querySelectorAll('input, select, textarea').forEach(element => {
+        element.classList.add('form-control');
+    });
+    
+    // Add Bootstrap classes to checkboxes
+    document.querySelectorAll('input[type="checkbox"]').forEach(element => {
+        element.classList.remove('form-control');
+        element.classList.add('form-check-input');
+    });
+</script>
+{% endblock %} 

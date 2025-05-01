@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.text import slugify
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
 
 User = get_user_model()
 
@@ -275,3 +275,130 @@ class CourseContent(models.Model):
 
     def __str__(self):
         return f"{self.module.title} - {self.title}"
+
+class Quiz(models.Model):
+    """Model representing a quiz in a course"""
+    content = models.OneToOneField(CourseContent, on_delete=models.CASCADE, related_name='quiz')
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    is_pre_check = models.BooleanField(
+        default=False,
+        help_text="If True, this is a pre-requisite survey with no right/wrong answers"
+    )
+    passing_score = models.PositiveIntegerField(
+        default=70,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        help_text="Minimum score required to pass (0-100)"
+    )
+    time_limit = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="Time limit in minutes (leave empty for no limit)"
+    )
+    attempts_allowed = models.PositiveIntegerField(
+        default=3,
+        help_text="Number of attempts allowed (0 for unlimited)"
+    )
+    shuffle_questions = models.BooleanField(default=True)
+    show_correct_answers = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Quizzes"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.content.module.title} - {self.title}"
+
+class Question(models.Model):
+    """Model representing a question in a quiz"""
+    QUESTION_TYPES = [
+        ('multiple_choice', 'Multiple Choice'),
+        ('true_false', 'True/False'),
+        ('short_answer', 'Short Answer'),
+        ('essay', 'Essay'),
+    ]
+
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
+    question_text = models.TextField()
+    question_type = models.CharField(max_length=20, choices=QUESTION_TYPES)
+    points = models.PositiveIntegerField(default=1)
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', 'created_at']
+
+    def __str__(self):
+        return f"{self.quiz.title} - Question {self.order}"
+
+class Choice(models.Model):
+    """Model representing a choice for a multiple choice question"""
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='choices')
+    choice_text = models.CharField(max_length=500)
+    is_correct = models.BooleanField(default=False)
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', 'created_at']
+
+    def __str__(self):
+        return f"{self.question.question_text[:50]} - Choice {self.order}"
+
+class QuizAttempt(models.Model):
+    """Model representing a student's attempt at a quiz"""
+    STATUS_CHOICES = [
+        ('in_progress', 'In Progress'),
+        ('submitted', 'Submitted'),
+        ('graded', 'Graded'),
+    ]
+
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quiz_attempts')
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='attempts')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='in_progress')
+    score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    started_at = models.DateTimeField(auto_now_add=True)
+    submitted_at = models.DateTimeField(null=True, blank=True)
+    graded_at = models.DateTimeField(null=True, blank=True)
+    time_taken = models.PositiveIntegerField(null=True, blank=True, help_text="Time taken in minutes")
+
+    class Meta:
+        ordering = ['-started_at']
+
+    def __str__(self):
+        return f"{self.student.username} - {self.quiz.title} - Attempt {self.id}"
+
+    @property
+    def is_passed(self):
+        if self.score is None:
+            return False
+        return self.score >= self.quiz.passing_score
+
+    @property
+    def remaining_attempts(self):
+        if self.quiz.attempts_allowed == 0:
+            return float('inf')
+        attempts_made = self.quiz.attempts.filter(student=self.student).count()
+        return max(0, self.quiz.attempts_allowed - attempts_made)
+
+class Answer(models.Model):
+    """Model representing a student's answer to a question"""
+    attempt = models.ForeignKey(QuizAttempt, on_delete=models.CASCADE, related_name='answers')
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
+    answer_text = models.TextField()
+    is_correct = models.BooleanField(null=True)
+    points_earned = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    feedback = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['question__order', 'created_at']
+        unique_together = ['attempt', 'question']
+
+    def __str__(self):
+        return f"{self.attempt.student.username} - {self.question.question_text[:50]}"

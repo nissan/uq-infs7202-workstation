@@ -30,30 +30,55 @@ A comprehensive learning management system built with Django and modern web tech
 - Modern and clean interface
 
 ### Test Users
-For testing purposes, the following users are available:
+For testing purposes, the following users are automatically created during database migration:
 
 #### Admin User
-- Username: admin
-- Password: admin123
-- Role: Administrator
+- Username: `admin`
+- Password: `admin123`
+- Email: admin@example.com
+- Role: Superuser with full administrative access
+- Features: Can access admin interface, manage all users, courses, and content
 
 #### Instructors
-- Username: instructor1
-- Password: instructor123
-- Role: Course Instructor
+1. Dr. Smith
+   - Username: `dr.smith`
+   - Password: `smith123`
+   - Email: smith@example.com
+   - Role: Course Instructor
+   - Features: Can create and manage courses, view student progress
 
-- Username: instructor2
-- Password: instructor123
-- Role: Course Instructor
+2. Dr. Johnson
+   - Username: `dr.johnson`
+   - Password: `johnson123`
+   - Email: johnson@example.com
+   - Role: Course Instructor
+   - Features: Can create and manage courses, view student progress
+
+3. General Instructor
+   - Username: `instructor`
+   - Password: `instructor123`
+   - Email: instructor@example.com
+   - Role: Course Instructor
+   - Features: Can create and manage courses, view student progress
 
 #### Students
-- Username: john
-- Password: john123
-- Role: Student
+1. John Doe
+   - Username: `john`
+   - Password: `john123`
+   - Email: john@example.com
+   - Role: Student
+   - Features: Has sample enrollments in Python and Machine Learning courses
+   - Progress: Various course progress records
 
-- Username: jane
-- Password: jane123
-- Role: Student
+2. Jane Smith
+   - Username: `jane`
+   - Password: `jane123`
+   - Email: jane@example.com
+   - Role: Student
+   - Features: Has sample enrollments in Python, Machine Learning, and Data Structures courses
+   - Progress: Various course progress records
+
+Note: These test users are automatically created when you run `python manage.py migrate`. You can use these accounts to test different aspects of the system without creating new users.
 
 ## Getting Started
 
@@ -94,6 +119,66 @@ For testing purposes, the following users are available:
    ```bash
    python manage.py runserver
    ```
+
+### Resetting the Database
+If you need to reset the database to a clean state with fresh test data, follow these steps:
+
+1. Clear all data from the database:
+   ```bash
+   python manage.py flush --no-input
+   ```
+
+2. Generate test data (courses, modules, content):
+   ```bash
+   python manage.py generate_test_data
+   ```
+
+3. Create test users:
+   ```bash
+   python manage.py create_test_users
+   ```
+
+This will give you a fresh database with:
+- Sample courses and content
+- Test users (admin, students, instructors)
+- Course enrollments and progress data
+
+### Testing Quiz Functionality
+The test data includes quizzes in various courses. Here's how to test the quiz features:
+
+1. Log in as a test student:
+   - Username: `john`
+   - Password: `john123`
+
+2. Navigate to any course (they all have quizzes). For example, the "Complete Web Development Bootcamp" course has:
+   - "Pre-Knowledge Check" in the "Course Introduction" module
+   - "Core Concepts Quiz" in the "Core Concepts" module
+   - "Final Assessment" in the "Advanced Topics" module
+
+3. To take a quiz:
+   - Go to the course page
+   - Click on the module containing the quiz
+   - Click on the quiz content item
+   - Answer the questions (multiple choice, true/false, essay)
+   - Submit your answers
+   - View your score and correct answers
+
+Quiz Features:
+- Passing score: 70%
+- Time limit: 30 minutes for pre-checks, 60 minutes for regular quizzes
+- Attempts allowed: 3 for pre-checks, 2 for regular quizzes
+- Questions are shuffled
+- Correct answers are shown after submission
+
+To test as an instructor:
+- Username: `instructor`
+- Password: `instructor123`
+
+Instructors can:
+- Create new quizzes
+- Edit existing quizzes
+- Add/remove questions
+- View student attempts and scores
 
 ## Project Structure
 ```
