@@ -1,21 +1,28 @@
 # Project Checkpoints
 
-## Latest Checkpoint - April 30, 2025
+## Latest Checkpoint - May 1, 2024
 
 ### Completed Features
-1. Course Enrollment System
+1. UI/UX Improvements
+   - Enhanced dark mode support
+   - Fixed contrast issues in light/dark modes
+   - Improved button visibility and interactions
+   - Added consistent hover states
+   - Fixed text visibility in hero and CTA sections
+
+2. Course Enrollment System
    - Implemented dual enrollment tracking (CourseEnrollment and Enrollment models)
    - Added progress tracking at course and module levels
    - Fixed enrollment status synchronization between models
    - Added time tracking for course completion
 
-2. Learning Progress Dashboard
+3. Learning Progress Dashboard
    - Implemented detailed progress view
    - Added time spent and remaining calculations
    - Added module completion tracking
    - Added last accessed module information
 
-3. Course Learning Interface
+4. Course Learning Interface
    - Fixed progress calculation in course learning view
    - Added module progress tracking
    - Synchronized progress between enrollment models
@@ -25,12 +32,16 @@
 - Progress tracking is accurate
 - Time calculations are implemented
 - Enrollment system is stable
+- UI is consistent across light and dark modes
+- All text and buttons have proper contrast
 
 ### Next Steps
 1. Add more test data for courses
 2. Implement course ratings and reviews
 3. Add course completion certificates
 4. Enhance progress analytics
+5. Add more interactive elements
+6. Implement loading states
 
 ## Previous Checkpoints
 

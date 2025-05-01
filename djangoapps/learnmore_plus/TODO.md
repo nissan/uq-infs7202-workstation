@@ -243,10 +243,27 @@
 
 ### Enhanced User Experience
 - [x] Dark mode support
+  - [x] Implemented dark mode toggle
+  - [x] Added dark mode styles for all components
+  - [x] Fixed contrast issues in light/dark modes
+  - [x] Improved button visibility in both modes
 - [x] Mobile responsiveness
 - [x] Social authentication
 - [ ] Email notifications
 - [ ] Real-time updates
+
+### UI Improvements
+- [x] Enhanced button visibility
+  - [x] Added borders to CTA buttons
+  - [x] Improved contrast in both modes
+  - [x] Consistent hover states
+- [x] Fixed text contrast issues
+  - [x] Hero section text visibility
+  - [x] CTA section text visibility
+  - [x] Button text visibility
+- [ ] Add more interactive elements
+- [ ] Implement loading states
+- [ ] Add micro-interactions
 
 ### Progress Tracking Enhancements
 - [x] Dual enrollment tracking (CourseEnrollment and Enrollment models)

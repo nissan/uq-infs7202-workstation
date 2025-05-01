@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +8,30 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                            950: '#082f49',
+                        },
+                    },
+                },
+            },
+        }
+    </script>
     
     <!-- shadcn-ui -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shadcn/ui@latest/dist/shadcn-ui.min.css">
@@ -17,41 +41,65 @@
     
     {% block extra_css %}{% endblock %}
 </head>
-<body class="min-h-screen bg-white dark:bg-gray-900">
+<body class="h-full bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
     <!-- Navigation -->
-    <nav class="bg-white dark:bg-gray-800 shadow-sm py-3">
+    <nav class="bg-white dark:bg-gray-800 shadow-sm py-3 sticky top-0 z-50">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center">
-                <a href="{% url 'home' %}" class="text-primary font-bold text-xl">
+                <a href="{% url 'home' %}" class="text-primary-600 dark:text-primary-400 font-bold text-xl">
                     Enhanced LearnMore
                 </a>
                 
-                <!-- Mobile menu button -->
-                <button class="md:hidden" id="mobile-menu-button">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
+                <div class="flex items-center space-x-4">
+                    <!-- Theme Toggle -->
+                    <button data-theme-toggle class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <!-- Sun icon -->
+                        <svg class="w-6 h-6 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        <!-- Moon icon -->
+                        <svg class="w-6 h-6 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                        </svg>
+                    </button>
+                    
+                    <!-- Mobile menu button -->
+                    <button class="md:hidden" id="mobile-menu-button">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
                 
                 <!-- Desktop Navigation -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="#features" class="text-gray-600 dark:text-gray-300 hover:text-primary">Features</a>
-                    <a href="#how-it-works" class="text-gray-600 dark:text-gray-300 hover:text-primary">How It Works</a>
-                    <a href="#testimonials" class="text-gray-600 dark:text-gray-300 hover:text-primary">Testimonials</a>
-                    <a href="{% url 'courses:catalog' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Courses</a>
+                    <a href="#features" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Features</a>
+                    <a href="#how-it-works" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">How It Works</a>
+                    <a href="#testimonials" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Testimonials</a>
+                    <a href="{% url 'courses:catalog' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Courses</a>
                     {% if user.is_authenticated %}
-                        <a href="{% url 'courses:student_dashboard' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">My Dashboard</a>
-                        <a href="{% url 'courses:learning_progress' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Learning Progress</a>
-                        {% if user.is_staff %}
-                            <a href="{% url 'dashboard:home' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Admin Dashboard</a>
-                        {% endif %}
+                        <div class="relative group">
+                            <button class="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                                <span>My Learning</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-in-out transform origin-top-right">
+                                <a href="{% url 'courses:student_dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Dashboard</a>
+                                <a href="{% url 'courses:learning_progress' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Progress</a>
+                                {% if user.is_staff %}
+                                    <a href="{% url 'dashboard:home' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Admin</a>
+                                {% endif %}
+                            </div>
+                        </div>
                         <form method="post" action="{% url 'logout' %}" class="inline">
                             {% csrf_token %}
-                            <button type="submit" class="text-gray-600 dark:text-gray-300 hover:text-primary">Log Out</button>
+                            <button type="submit" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Log Out</button>
                         </form>
                     {% else %}
-                        <a href="{% url 'login' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Log In</a>
-                        <a href="{% url 'register' %}" class="bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors">
+                        <a href="{% url 'login' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Log In</a>
+                        <a href="{% url 'register' %}" class="bg-primary-600 text-white px-6 py-2 rounded-full hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 transition-colors">
                             Sign Up
                         </a>
                     {% endif %}
@@ -59,27 +107,32 @@
             </div>
             
             <!-- Mobile Navigation -->
-            <div class="hidden md:hidden" id="mobile-menu">
-                <div class="flex flex-col space-y-4 mt-4">
-                    <a href="#features" class="text-gray-600 dark:text-gray-300 hover:text-primary">Features</a>
-                    <a href="#how-it-works" class="text-gray-600 dark:text-gray-300 hover:text-primary">How It Works</a>
-                    <a href="#testimonials" class="text-gray-600 dark:text-gray-300 hover:text-primary">Testimonials</a>
-                    <a href="{% url 'courses:catalog' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Courses</a>
+            <div class="hidden md:hidden absolute left-0 right-0 bg-white dark:bg-gray-800 shadow-lg mt-3 py-2 px-4" id="mobile-menu">
+                <div class="flex flex-col space-y-4">
+                    <a href="#features" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Features</a>
+                    <a href="#how-it-works" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">How It Works</a>
+                    <a href="#testimonials" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Testimonials</a>
+                    <a href="{% url 'courses:catalog' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Courses</a>
                     {% if user.is_authenticated %}
-                        <a href="{% url 'courses:student_dashboard' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">My Dashboard</a>
-                        <a href="{% url 'courses:learning_progress' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Learning Progress</a>
-                        {% if user.is_staff %}
-                            <a href="{% url 'dashboard:home' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Admin Dashboard</a>
-                        {% endif %}
-                        <form method="post" action="{% url 'logout' %}" class="inline">
+                        <div class="border-t dark:border-gray-700 pt-4">
+                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">My Learning</p>
+                            <a href="{% url 'courses:student_dashboard' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Dashboard</a>
+                            <a href="{% url 'courses:learning_progress' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Progress</a>
+                            {% if user.is_staff %}
+                                <a href="{% url 'dashboard:home' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Admin</a>
+                            {% endif %}
+                        </div>
+                        <form method="post" action="{% url 'logout' %}" class="border-t dark:border-gray-700 pt-4">
                             {% csrf_token %}
-                            <button type="submit" class="text-gray-600 dark:text-gray-300 hover:text-primary">Log Out</button>
+                            <button type="submit" class="w-full text-left py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Log Out</button>
                         </form>
                     {% else %}
-                        <a href="{% url 'login' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary">Log In</a>
-                        <a href="{% url 'register' %}" class="bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors">
-                            Sign Up
-                        </a>
+                        <div class="border-t dark:border-gray-700 pt-4 flex flex-col space-y-2">
+                            <a href="{% url 'login' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Log In</a>
+                            <a href="{% url 'register' %}" class="bg-primary-600 text-white px-6 py-2 rounded-full hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 transition-colors text-center">
+                                Sign Up
+                            </a>
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -87,7 +140,17 @@
     </nav>
 
     <!-- Main Content -->
-    <main>
+    <main class="min-h-[calc(100vh-theme(spacing.32))]">
+        {% if messages %}
+        <div class="container mx-auto px-4 mt-4">
+            {% for message in messages %}
+            <div class="rounded-md p-4 mb-4 {% if message.tags == 'error' %}bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-200{% elif message.tags == 'success' %}bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-200{% else %}bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-200{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
         {% block content %}{% endblock %}
     </main>
 
@@ -102,28 +165,28 @@
                 <div>
                     <h4 class="font-semibold mb-4">Platform</h4>
                     <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white">Features</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Pricing</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Integrations</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Updates</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Features</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Pricing</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Integrations</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Updates</a></li>
                     </ul>
                 </div>
                 <div>
                     <h4 class="font-semibold mb-4">Resources</h4>
                     <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white">Documentation</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Tutorials</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Blog</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Community</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Documentation</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Tutorials</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Community</a></li>
                     </ul>
                 </div>
                 <div>
                     <h4 class="font-semibold mb-4">Company</h4>
                     <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white">About Us</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Careers</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Contact</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Press</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contact</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Press</a></li>
                     </ul>
                 </div>
             </div>
@@ -143,18 +206,25 @@
             mobileMenu.classList.toggle('hidden');
         });
 
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+
         // Theme handling
         function getThemePreference() {
-            const cookieValue = document.cookie.split('; ').find(row => row.startsWith('theme='));
-            return cookieValue ? cookieValue.split('=')[1] : null;
+            if (localStorage.getItem('theme')) {
+                return localStorage.getItem('theme');
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
 
         function setThemePreference(isDark) {
             const theme = isDark ? 'dark' : 'light';
-            // Set secure cookie with HttpOnly and SameSite flags
-            document.cookie = `theme=${theme}; path=/; secure; samesite=Strict; max-age=31536000`; // 1 year
+            localStorage.setItem('theme', theme);
             
-            // Apply theme
             if (isDark) {
                 document.documentElement.classList.add('dark');
             } else {
@@ -164,25 +234,24 @@
 
         // Initialize theme
         function initializeTheme() {
-            const savedTheme = getThemePreference();
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            
-            if (savedTheme === 'dark' || (savedTheme === null && prefersDark)) {
-                setThemePreference(true);
-            } else {
-                setThemePreference(false);
-            }
+            const isDark = getThemePreference() === 'dark';
+            setThemePreference(isDark);
         }
 
         // Call initialize on page load
         initializeTheme();
 
-        // Add theme toggle functionality to any elements with data-theme-toggle attribute
+        // Add theme toggle functionality
         document.querySelectorAll('[data-theme-toggle]').forEach(toggle => {
             toggle.addEventListener('click', () => {
                 const isDark = document.documentElement.classList.contains('dark');
                 setThemePreference(!isDark);
             });
+        });
+
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            setThemePreference(e.matches);
         });
     </script>
     
