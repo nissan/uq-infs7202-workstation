@@ -7,7 +7,7 @@ A Django-based learning management system with AI-powered learning tools for edu
 1. Clone the repository:
 ```bash
 git clone https://github.com/yourusername/enhanced-learnmore.git
-cd enhanced-learnmore
+cd enhanced-learnmore/djangoapps/learnmore_plus
 ```
 
 2. Create and activate a virtual environment:
@@ -19,10 +19,10 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 3. Install dependencies:
 ```bash
 # For development environment
-pip install -r djangoapps/learnmore_plus/requirements/dev.txt
+pip install -r requirements/dev.txt
 
 # For production environment
-pip install -r djangoapps/learnmore_plus/requirements/prod.txt
+pip install -r requirements/prod.txt
 ```
 
 4. Set up the database:
@@ -250,6 +250,10 @@ djangoapps/learnmore_plus/
 ├── dashboard/        # Admin dashboard
 ├── templates/        # Base templates
 ├── static/          # Static files
+├── requirements/    # Environment-specific requirements
+│   ├── base.txt    # Base requirements
+│   ├── dev.txt     # Development requirements
+│   └── prod.txt    # Production requirements
 └── learnmore_plus/  # Project settings
 ```
 
