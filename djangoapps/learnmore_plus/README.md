@@ -49,49 +49,58 @@ After running `python manage.py reset_db`, the following demo users are availabl
    - Username: `admin`
    - Password: `admin123`
    - Email: admin@example.com
+   - Full access to all features and settings
 
 ### Course Coordinators
 1. Coordinator
    - Username: `coordinator`
    - Password: `coordinator123`
    - Email: coordinator@example.com
+   - Can manage course assignments and enrollments
 
 ### Instructors
 1. Dr. John Smith
    - Username: `dr.smith`
    - Password: `dr.smith123`
    - Email: dr.smith@example.com
+   - Can create and manage courses
 
 2. Dr. Sarah Johnson
    - Username: `dr.johnson`
    - Password: `dr.johnson123`
    - Email: dr.johnson@example.com
+   - Can create and manage courses
 
 3. Prof. Michael Williams
    - Username: `prof.williams`
    - Password: `prof.williams123`
    - Email: prof.williams@example.com
+   - Can create and manage courses
 
 ### Students
 1. John Doe
    - Username: `john.doe`
    - Password: `john.doe123`
    - Email: john@example.com
+   - Can enroll in courses and take quizzes
 
 2. Jane Smith
    - Username: `jane.smith`
    - Password: `jane.smith123`
    - Email: jane@example.com
+   - Can enroll in courses and take quizzes
 
 3. Bob Wilson
    - Username: `bob.wilson`
    - Password: `bob.wilson123`
    - Email: bob@example.com
+   - Can enroll in courses and take quizzes
 
 4. Alice Johnson
    - Username: `alice.johnson`
    - Password: `alice.johnson123`
    - Email: alice@example.com
+   - Can enroll in courses and take quizzes
 
 ### Demo Scenarios
 
