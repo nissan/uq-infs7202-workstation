@@ -2,6 +2,239 @@
 
 A Django-based learning management system with AI-powered learning tools for educators and students worldwide.
 
+## Quick Start
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/enhanced-learnmore.git
+cd enhanced-learnmore
+```
+
+2. Create and activate a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Set up the database:
+```bash
+python manage.py migrate
+```
+
+5. Create a superuser:
+```bash
+python manage.py createsuperuser
+```
+
+6. Run the development server:
+```bash
+python manage.py runserver
+```
+
+## Demo Users
+
+After running `python manage.py reset_db`, the following demo users are available:
+
+### Admins
+1. Alice Morgan
+   - Username: `amorgan`
+   - Password: `admin123`
+   - Email: alice.morgan@example.com
+
+2. Brian Lee
+   - Username: `blee`
+   - Password: `admin123`
+   - Email: brian.lee@example.com
+
+### Course Coordinators
+1. Emily Brown
+   - Username: `ebrown`
+   - Password: `coord123`
+   - Email: emily.brown@example.com
+
+2. Michael Green
+   - Username: `mgreen`
+   - Password: `coord123`
+   - Email: michael.green@example.com
+
+### Instructors
+1. John Smith
+   - Username: `jsmith`
+   - Password: `inst123`
+   - Email: john.smith@example.com
+
+2. Sarah Johnson
+   - Username: `sjohnson`
+   - Password: `inst123`
+   - Email: sarah.johnson@example.com
+
+3. Lisa White
+   - Username: `lwhite`
+   - Password: `inst123`
+   - Email: lisa.white@example.com
+
+4. David Kim
+   - Username: `dkim`
+   - Password: `inst123`
+   - Email: david.kim@example.com
+
+### Students
+1. Jane Smith
+   - Username: `jsmith2`
+   - Password: `stud123`
+   - Email: jane.smith@example.com
+
+2. Bob Wilson
+   - Username: `bwilson`
+   - Password: `stud123`
+   - Email: bob.wilson@example.com
+
+3. Alice Johnson
+   - Username: `ajohnson`
+   - Password: `stud123`
+   - Email: alice.johnson@example.com
+
+4. John Doe
+   - Username: `jdoe`
+   - Password: `stud123`
+   - Email: john.doe@example.com
+
+5. Maria Garcia
+   - Username: `mgarcia`
+   - Password: `stud123`
+   - Email: maria.garcia@example.com
+
+6. David Lee
+   - Username: `dlee`
+   - Password: `stud123`
+   - Email: david.lee@example.com
+
+7. Emma Martinez
+   - Username: `emartinez`
+   - Password: `stud123`
+   - Email: emma.martinez@example.com
+
+8. William Brown
+   - Username: `wbrown`
+   - Password: `stud123`
+   - Email: william.brown@example.com
+
+### Demo Scenarios
+
+The seeded data includes several pre-configured scenarios that you can explore:
+
+#### Course Management
+1. **Course Creation and Editing**
+   - Log in as John Smith (Instructor)
+   - Create a new course or edit existing courses
+   - Add modules and content
+   - Create quizzes with different question types
+
+2. **Course Coordination**
+   - Log in as Emily Brown (Coordinator)
+   - Assign instructors to courses
+   - Manage student enrollments
+   - Review course analytics
+
+#### Quiz System
+1. **Quiz Creation and Management**
+   - Log in as Sarah Johnson (Instructor)
+   - Create quizzes with multiple question types
+   - Set time limits and attempt limits
+   - Preview quiz layout and functionality
+   - Configure question randomization
+   - Set up pre-check surveys
+
+2. **Quiz Taking Experience**
+   - Log in as Jane Smith (Student)
+   - Take pre-configured quizzes
+   - Experience time-limited quizzes with countdown timer
+   - View per-question time tracking
+   - See auto-submission on timeout
+   - Review detailed quiz results with time spent per question
+
+3. **Quiz Analytics Dashboard**
+   - Log in as Lisa White (Instructor)
+   - View comprehensive quiz statistics:
+     - Overall attempt rates and completion times
+     - Question-level performance metrics
+     - Time tracking analytics (average, fastest, slowest times)
+     - Timeout statistics
+   - Analyze student performance patterns
+   - Track question effectiveness
+   - Monitor time usage patterns
+
+#### Analytics and Reporting
+1. **Instructor Analytics**
+   - Log in as Lisa White (Instructor)
+   - View student performance metrics
+   - Analyze quiz results
+   - Track course completion rates
+
+2. **Coordinator Analytics**
+   - Log in as Michael Green (Coordinator)
+   - View course-wide statistics
+   - Monitor instructor performance
+   - Track enrollment trends
+
+#### Student Experience
+1. **Course Enrollment**
+   - Log in as Bob Wilson (Student)
+   - Browse available courses
+   - Enroll in courses
+   - Track learning progress
+
+2. **Quiz Attempts**
+   - Log in as Alice Johnson (Student)
+   - Take quizzes with different formats
+   - View attempt history
+   - Review performance analytics
+
+#### Administrative Tasks
+1. **User Management**
+   - Log in as Alice Morgan (Admin)
+   - Manage user accounts
+   - Assign roles and permissions
+   - View system-wide analytics
+
+2. **System Configuration**
+   - Log in as Brian Lee (Admin)
+   - Configure system settings
+   - Manage course categories
+   - Monitor system performance
+
+Each scenario demonstrates different aspects of the system's functionality and can be explored without creating new records.
+
+### Role-Based Access
+The system uses Django's built-in groups and permissions system:
+
+- **Administrator Group**
+  - Full system access
+  - All permissions granted
+  - Can manage all users, courses, and system settings
+
+- **Course Coordinator Group**
+  - Can manage course assignments, enrollments, and instructor assignments
+  - Has permissions to create, edit, and delete courses
+  - Can manage course content and quizzes
+
+- **Instructor Group**
+  - Can create/edit courses, modules, and quizzes
+  - Can view student progress and quiz results
+  - Has permissions to manage their assigned courses
+
+- **Student Group**
+  - Can browse courses and enroll
+  - Can take quizzes and track progress
+  - Has basic view permissions for course content
+
+Each group has specific Django permissions assigned to it, controlling access to different features and functionality throughout the system.
+
 ## Features
 
 - Course Management
@@ -49,40 +282,6 @@ djangoapps/learnmore_plus/
 ├── templates/        # Base templates
 ├── static/          # Static files
 └── learnmore_plus/  # Project settings
-```
-
-## Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/enhanced-learnmore.git
-cd enhanced-learnmore
-```
-
-2. Create and activate a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-4. Set up the database:
-```bash
-python manage.py migrate
-```
-
-5. Create a superuser:
-```bash
-python manage.py createsuperuser
-```
-
-6. Run the development server:
-```bash
-python manage.py runserver
 ```
 
 ## Configuration
@@ -154,121 +353,4 @@ This project is licensed under the MIT License - see the `LICENSE` file for deta
 
 ### Note on Dashboards
 - `/admin-dashboard/` is for platform-wide admin tasks and analytics (dashboard app).
-- `/courses/admin/dashboard/` is for course-specific management (courses app).
-- Coordinators and instructors have their own dashboards for their scope of courses.
-
-## Overview
-This LMS now features a fully API-driven seeder that creates a rich, realistic dataset for demoing all features, user roles, and workflows.
-
-## Getting Started
-1. Install dependencies: `pip install -r requirements.txt`
-2. Reset and seed the database: `python manage.py reset_db`
-3. Run the development server: `python manage.py runserver`
-4. Log in as any demo user (see output after seeding)
-
-## Showcase Script
-To demo the system, use the following script as a guide:
-
-1. **Admin**
-   - Log in as Alice Morgan or Brian Lee
-   - View/manage all users, courses, and system settings
-2. **Coordinator**
-   - Log in as Emily Brown or Michael Green
-   - Manage course assignments, enrollments, and instructor assignments
-   - View analytics and enrollment statuses
-3. **Instructor**
-   - Log in as John Smith, Sarah Johnson, Lisa White, or David Kim
-   - Create/edit courses, modules, and quizzes
-   - View student progress and quiz results
-4. **Student**
-   - Log in as any student (e.g., Jane Smith, Bob Wilson, etc.)
-   - Browse and enroll in courses (pagination visible)
-   - Complete modules, take quizzes (pre-check and knowledge-check)
-   - View progress, quiz attempts, and course completion
-
-## Demo Data
-- 2 Admins, 2 Coordinators, 4 Instructors, 8+ Students
-- 12+ Courses across multiple categories
-- Each course has modules, content, quizzes, and enrollments
-- All workflows and features are demo-ready
-
-## TODO
-- [ ] Continue to expand demo data as new features are added
-- [ ] Add more advanced analytics and reporting
-- [ ] Polish UI/UX for all dashboards 
-
-## Recent UI/UX Improvements (2024-06)
-- Improved button contrast and accessibility for homepage CTAs and 'Browse All Courses'.
-- 'Browse All Courses' is now a prominent button, visible and accessible in both light and dark modes.
-- Fixed number circle contrast in 'How Enhanced LearnMore Works'.
-- Removed duplicate 'Or continue with' on login page.
-- All changes follow accessibility and usability best practices.
-
-### Quiz System
-- **Comprehensive Quiz Management**
-  - Multiple question types (multiple choice, true/false, short answer)
-  - Time limits and auto-submission
-  - Question randomization
-  - Pre-check surveys
-  - Prerequisite quizzes
-
-- **Advanced Analytics**
-  - Overview statistics (attempts, scores, pass rates)
-  - Question-level performance metrics
-  - Time tracking and analysis
-  - Detailed attempt history
-  - Modern, responsive dashboard
-
-- **Time Tracking**
-  - Real-time countdown timer
-  - Per-question time tracking
-  - Time limit enforcement
-  - Auto-submission on timeout
-  - Time statistics in analytics
-
-### Course Management
-- Course creation and management
-- Module and content organization
-- Student enrollment and progress tracking
-- File uploads and management
-- Rich text content editor
-
-### User Management
-- Role-based access control
-- Student and instructor dashboards
-- Progress tracking
-- Course enrollment management
-
-## Technical Stack
-- Django 4.2
-- Tailwind CSS
-- PostgreSQL
-- Redis (for caching)
-- Celery (for background tasks)
-
-## Development
-
-### Running Tests
-```bash
-python manage.py test
-```
-
-### Code Style
-We use Black for Python code formatting and ESLint for JavaScript:
-```bash
-# Format Python code
-black .
-
-# Format JavaScript code
-npm run lint
-```
-
-### Contributing
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## License
-This project is licensed under the MIT License - see the LICENSE file for details. 
+- `/courses/admin/dashboard/`
