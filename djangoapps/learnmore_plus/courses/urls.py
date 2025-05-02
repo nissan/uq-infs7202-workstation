@@ -35,4 +35,5 @@ urlpatterns = [
     path('enrollments/', views.manage_enrollments, name='manage_enrollments'),
     path('enrollments/<int:enrollment_id>/update/', views.update_enrollment_status, name='update_enrollment_status'),
     path('enrollments/<int:enrollment_id>/detail/', views.enrollment_detail, name='enrollment_detail'),
+    path('quiz/<int:quiz_id>/analytics/', quiz_views.quiz_analytics, name='quiz_analytics'),
 ] 

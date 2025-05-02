@@ -4,7 +4,7 @@ from django.contrib.auth.models import Group
 from django.utils import timezone
 from courses.models import (
     Category, Course, Module, Content, Quiz, Question, Choice,
-    CourseEnrollment, ModuleProgress, QuizAttempt
+    CourseEnrollment, ModuleProgress, QuizAttempt, Answer
 )
 from datetime import timedelta
 import random
@@ -23,16 +23,18 @@ class Command(BaseCommand):
             time_limit=30,
             attempts_allowed=3,
             is_prerequisite=is_prerequisite,
-            is_pre_check=is_pre_check
+            is_pre_check=is_pre_check,
+            shuffle_questions=True,
+            show_correct_answers=True
         )
         self.stdout.write(f'Created quiz: {quiz.title}')
 
-        # Create questions
+        # Create questions with varying difficulty and time requirements
         questions = [
             {
                 'text': 'What is the main purpose of this topic?',
                 'type': 'multiple_choice',
-                'points': 1,
+                'points': 2,
                 'choices': [
                     {'text': 'Correct answer', 'is_correct': True},
                     {'text': 'Wrong answer 1', 'is_correct': False},
@@ -43,7 +45,7 @@ class Command(BaseCommand):
             {
                 'text': 'Which of these is NOT a key concept?',
                 'type': 'multiple_choice',
-                'points': 1,
+                'points': 3,
                 'choices': [
                     {'text': 'Wrong answer 1', 'is_correct': False},
                     {'text': 'Correct answer', 'is_correct': True},
@@ -54,7 +56,7 @@ class Command(BaseCommand):
             {
                 'text': 'What is the correct sequence of steps?',
                 'type': 'multiple_choice',
-                'points': 1,
+                'points': 4,
                 'choices': [
                     {'text': 'Correct sequence', 'is_correct': True},
                     {'text': 'Wrong sequence 1', 'is_correct': False},
@@ -115,15 +117,41 @@ class Command(BaseCommand):
         )
 
     def create_quiz_attempt(self, student, quiz, status='submitted', score=None):
+        # Generate realistic time spent data
+        time_spent = random.randint(quiz.time_limit * 30, quiz.time_limit * 60)  # 30-60% of time limit
+        if status == 'timeout':
+            time_spent = quiz.time_limit * 60  # Full time limit
+        elif status == 'in_progress':
+            time_spent = random.randint(0, quiz.time_limit * 30)  # Less than 30% of time limit
+
         attempt = QuizAttempt.objects.create(
             student=student,
             quiz=quiz,
             status=status,
             score=score,
+            time_spent=time_spent,
             started_at=timezone.now() - timedelta(minutes=random.randint(5, 30)),
             submitted_at=timezone.now() if status != 'in_progress' else None,
-            graded_at=timezone.now() if status == 'graded' else None
+            graded_at=timezone.now() if status == 'graded' else None,
+            last_activity=timezone.now()
         )
+
+        # Create answers with time spent data
+        for question in quiz.questions.all():
+            time_spent = random.randint(30, 180)  # 30 seconds to 3 minutes per question
+            is_correct = random.choice([True, False])
+            points_earned = question.points if is_correct else 0
+            
+            Answer.objects.create(
+                attempt=attempt,
+                question=question,
+                answer_text=random.choice(['A', 'B', 'C', 'D']) if question.question_type == 'multiple_choice' else str(is_correct),
+                is_correct=is_correct,
+                points_earned=points_earned,
+                time_spent=time_spent,
+                last_modified=timezone.now()
+            )
+
         return attempt
 
     def handle(self, *args, **kwargs):

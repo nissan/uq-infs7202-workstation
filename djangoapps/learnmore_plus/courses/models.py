@@ -204,6 +204,8 @@ class QuizAttempt(models.Model):
     started_at = models.DateTimeField(auto_now_add=True)
     submitted_at = models.DateTimeField(null=True, blank=True)
     graded_at = models.DateTimeField(null=True, blank=True)
+    time_spent = models.IntegerField(default=0, help_text="Total time spent in seconds")
+    last_activity = models.DateTimeField(auto_now=True, help_text="Last activity timestamp")
 
     def __str__(self):
         return f"{self.student.username} - {self.quiz.title}"
@@ -216,6 +218,8 @@ class Answer(models.Model):
     points_earned = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    time_spent = models.IntegerField(default=0, help_text="Time spent on this question in seconds")
+    last_modified = models.DateTimeField(auto_now=True, help_text="Last modification timestamp")
 
     class Meta:
         unique_together = ('attempt', 'question')

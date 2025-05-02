@@ -23,7 +23,7 @@
                 {% else %}
                 <div class="mb-8 bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
                     <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Your Results</h2>
-                    <div class="flex items-center justify-between">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <p class="text-gray-600 dark:text-gray-300">Score: <span class="font-semibold">{{ attempt.score|floatformat:1 }}%</span></p>
                             <p class="text-gray-600 dark:text-gray-300">Status: 
@@ -32,7 +32,15 @@
                                 </span>
                             </p>
                         </div>
-                        {% if attempt.remaining_attempts > 0 %}
+                        <div>
+                            <p class="text-gray-600 dark:text-gray-300">Time Spent: <span class="font-semibold">{{ attempt.time_spent|default:"0" }} seconds</span></p>
+                            {% if quiz.time_limit %}
+                            <p class="text-gray-600 dark:text-gray-300">Time Limit: <span class="font-semibold">{{ quiz.time_limit }} minutes</span></p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if attempt.remaining_attempts > 0 %}
+                    <div class="mt-4 flex justify-end">
                         <a href="{% url 'courses:quiz_take' course.slug quiz.id %}" 
                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                             Try Again
@@ -40,20 +48,27 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                             </svg>
                         </a>
-                        {% endif %}
                     </div>
+                    {% endif %}
                 </div>
                 {% endif %}
 
                 <div class="space-y-8">
                     {% for answer in answers %}
                     <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                            Question {{ forloop.counter }}
-                            {% if not quiz.is_pre_check %}
-                            <span class="text-sm text-gray-500 dark:text-gray-400">({{ answer.question.points }} points)</span>
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                Question {{ forloop.counter }}
+                                {% if not quiz.is_pre_check %}
+                                <span class="text-sm text-gray-500 dark:text-gray-400">({{ answer.question.points }} points)</span>
+                                {% endif %}
+                            </h3>
+                            {% if answer.time_spent %}
+                            <div class="text-sm text-gray-500 dark:text-gray-400">
+                                Time spent: {{ answer.time_spent }} seconds
+                            </div>
                             {% endif %}
-                        </h3>
+                        </div>
                         <p class="text-gray-700 dark:text-gray-300 mb-4">{{ answer.question.question_text }}</p>
 
                         <div class="space-y-4">

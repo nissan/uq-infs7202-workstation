@@ -1,133 +1,126 @@
-{% extends "courses/base.html" %}
+{% extends "base.html" %}
 {% load static %}
 
-{% block title %}Take Quiz - {{ course.title }}{% endblock %}
-
-{% block extra_css %}
-<style>
-    .timer {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #fff;
-        padding: 10px 20px;
-        border-radius: 5px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        z-index: 1000;
-    }
-    .timer.warning {
-        background: #fff3cd;
-        color: #856404;
-    }
-    .timer.danger {
-        background: #f8d7da;
-        color: #721c24;
-    }
-</style>
-{% endblock %}
+{% block title %}Take Quiz - {{ quiz.title }}{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="row">
-        <div class="col-md-8 mx-auto">
-            {% if quiz.time_limit %}
-            <div class="timer" id="quizTimer">
-                Time Remaining: <span id="timeRemaining"></span>
+<div class="container mx-auto px-4 py-8">
+    {% if quiz.time_limit %}
+    <div class="fixed top-4 right-4 z-50">
+        <div id="quizTimer" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 transition-colors duration-300">
+            <div class="flex items-center space-x-2">
+                <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="text-lg font-semibold text-gray-900 dark:text-white">Time Remaining: <span id="timeRemaining"></span></span>
             </div>
-            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">{{ quiz.title }}</h4>
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">{{ quiz.title }}</h1>
+                {% if quiz.description %}
+                <p class="text-gray-600 dark:text-gray-300">{{ quiz.description }}</p>
+                {% endif %}
+            </div>
+
+            <div class="p-6">
+                {% if quiz.is_pre_check %}
+                <div class="mb-8 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Survey Information</h2>
+                    <p class="text-gray-600 dark:text-gray-300">This is a survey for information only. There are no right or wrong answers, and your responses will not be graded.</p>
                 </div>
-                <div class="card-body">
-                    {% if quiz.description %}
-                    <div class="alert alert-info">
-                        {{ quiz.description }}
-                    </div>
-                    {% endif %}
-                    {% if quiz.is_pre_check %}
-                    <div class="alert alert-warning mb-4">
-                        <strong>Survey:</strong> This quiz is for information only. There are no right or wrong answers, and your responses will not be graded.
-                    </div>
-                    {% endif %}
+                {% endif %}
 
-                    <form method="post" action="{% url 'courses:quiz_submit' course.slug attempt.id %}" id="quizForm">
-                        {% csrf_token %}
-                        
-                        {% for question in questions %}
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    Question {{ forloop.counter }}
-                                    {% if not quiz.is_pre_check %}<small class="text-muted">({{ question.points }} points)</small>{% endif %}
-                                </h5>
-                                <p class="card-text">{{ question.question_text }}</p>
-
-                                {% if question.question_type == 'multiple_choice' %}
-                                <div class="list-group">
-                                    {% for choice in question.choices.all %}
-                                    <label class="list-group-item">
-                                        <input type="radio" 
-                                               name="question_{{ question.id }}" 
-                                               value="{{ choice.choice_text }}"
-                                               class="form-check-input me-2"
-                                               required>
-                                        {{ choice.choice_text }}
-                                    </label>
-                                    {% endfor %}
-                                </div>
-
-                                {% elif question.question_type == 'true_false' %}
-                                <div class="list-group">
-                                    <label class="list-group-item">
-                                        <input type="radio" 
-                                               name="question_{{ question.id }}" 
-                                               value="True"
-                                               class="form-check-input me-2"
-                                               required>
-                                        True
-                                    </label>
-                                    <label class="list-group-item">
-                                        <input type="radio" 
-                                               name="question_{{ question.id }}" 
-                                               value="False"
-                                               class="form-check-input me-2"
-                                               required>
-                                        False
-                                    </label>
-                                </div>
-
-                                {% elif question.question_type == 'short_answer' %}
-                                <div class="form-group">
-                                    <input type="text" 
-                                           name="question_{{ question.id }}" 
-                                           class="form-control"
-                                           required>
-                                </div>
-
-                                {% elif question.question_type == 'essay' %}
-                                <div class="form-group">
-                                    <textarea name="question_{{ question.id }}" 
-                                              class="form-control"
-                                              rows="4"
-                                              required></textarea>
-                                </div>
+                <form method="post" action="{% url 'courses:quiz_submit' course.slug attempt.id %}" id="quizForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="total_time_spent" id="totalTimeSpent" value="0">
+                    
+                    {% for question in questions %}
+                    <div class="mb-8 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                Question {{ forloop.counter }}
+                                {% if not quiz.is_pre_check %}
+                                <span class="text-sm text-gray-500 dark:text-gray-400">({{ question.points }} points)</span>
                                 {% endif %}
+                            </h3>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">
+                                Time spent: <span class="question-time" data-question-id="{{ question.id }}">0</span>s
                             </div>
                         </div>
-                        {% endfor %}
+                        
+                        <p class="text-gray-700 dark:text-gray-300 mb-6">{{ question.question_text }}</p>
+                        
+                        <div class="question-content" data-question-id="{{ question.id }}">
+                            {% if question.question_type == 'multiple_choice' %}
+                            <div class="space-y-3">
+                                {% for choice in question.choices.all %}
+                                <label class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                                    <input type="radio" 
+                                           name="question_{{ question.id }}" 
+                                           value="{{ choice.choice_text }}"
+                                           class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                           required>
+                                    <span class="ml-3 text-gray-700 dark:text-gray-300">{{ choice.choice_text }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
 
-                        <div class="d-flex justify-content-between">
-                            <a href="{% url 'courses:course_detail' course.slug %}" class="btn btn-secondary">
-                                Cancel
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                Submit Quiz
-                            </button>
+                            {% elif question.question_type == 'true_false' %}
+                            <div class="space-y-3">
+                                <label class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                                    <input type="radio" 
+                                           name="question_{{ question.id }}" 
+                                           value="True"
+                                           class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                           required>
+                                    <span class="ml-3 text-gray-700 dark:text-gray-300">True</span>
+                                </label>
+                                <label class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                                    <input type="radio" 
+                                           name="question_{{ question.id }}" 
+                                           value="False"
+                                           class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                           required>
+                                    <span class="ml-3 text-gray-700 dark:text-gray-300">False</span>
+                                </label>
+                            </div>
+
+                            {% elif question.question_type == 'short_answer' %}
+                            <div class="mt-4">
+                                <input type="text" 
+                                       name="question_{{ question.id }}" 
+                                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                                       required>
+                            </div>
+
+                            {% elif question.question_type == 'essay' %}
+                            <div class="mt-4">
+                                <textarea name="question_{{ question.id }}" 
+                                          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                                          rows="4"
+                                          required></textarea>
+                            </div>
+                            {% endif %}
                         </div>
-                    </form>
-                </div>
+                    </div>
+                    {% endfor %}
+
+                    <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                        <a href="{% url 'courses:course_detail' course.slug %}" 
+                           class="px-6 py-3 bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors">
+                            Cancel
+                        </a>
+                        <button type="submit" 
+                                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Submit Quiz
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -140,6 +133,9 @@
     // Timer functionality
     const timeLimit = {{ quiz.time_limit }} * 60; // Convert to seconds
     let timeRemaining = timeLimit;
+    let questionTimers = {};
+    let totalTimeSpent = 0;
+    let isSubmitting = false;
     
     function updateTimer() {
         const minutes = Math.floor(timeRemaining / 60);
@@ -150,12 +146,15 @@
         // Add warning classes
         const timer = document.getElementById('quizTimer');
         if (timeRemaining <= 300) { // 5 minutes
-            timer.classList.add('danger');
+            timer.classList.add('bg-red-100', 'dark:bg-red-900/20');
+            timer.classList.remove('bg-yellow-100', 'dark:bg-yellow-900/20');
         } else if (timeRemaining <= 600) { // 10 minutes
-            timer.classList.add('warning');
+            timer.classList.add('bg-yellow-100', 'dark:bg-yellow-900/20');
         }
         
-        if (timeRemaining <= 0) {
+        if (timeRemaining <= 0 && !isSubmitting) {
+            isSubmitting = true;
+            document.getElementById('totalTimeSpent').value = totalTimeSpent;
             document.getElementById('quizForm').submit();
         } else {
             timeRemaining--;
@@ -163,11 +162,56 @@
         }
     }
     
+    // Track time spent per question
+    function startQuestionTimer(questionId) {
+        if (!questionTimers[questionId]) {
+            questionTimers[questionId] = 0;
+        }
+        
+        const timer = setInterval(() => {
+            questionTimers[questionId]++;
+            totalTimeSpent++;
+            document.querySelector(`.question-time[data-question-id="${questionId}"]`).textContent = 
+                questionTimers[questionId];
+        }, 1000);
+        
+        return timer;
+    }
+    
+    // Initialize question timers
+    document.querySelectorAll('.question-content').forEach(questionDiv => {
+        const questionId = questionDiv.dataset.questionId;
+        let timer = startQuestionTimer(questionId);
+        
+        // Pause timer when question is not visible
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    timer = startQuestionTimer(questionId);
+                } else {
+                    clearInterval(timer);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        observer.observe(questionDiv);
+    });
+    
+    // Update total time spent before form submission
+    document.getElementById('quizForm').addEventListener('submit', function(e) {
+        if (!isSubmitting) {
+            document.getElementById('totalTimeSpent').value = totalTimeSpent;
+        }
+    });
+    
+    // Start the main timer
     updateTimer();
     
     // Warn before leaving page
     window.onbeforeunload = function() {
-        return "Are you sure you want to leave? Your progress will be lost.";
+        if (!isSubmitting) {
+            return "Are you sure you want to leave? Your progress will be lost.";
+        }
     };
 </script>
 {% endif %}

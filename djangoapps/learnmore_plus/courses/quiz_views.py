@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.contrib import messages
 from .models import Course, Content, Quiz, Question, Choice, QuizAttempt, Answer
 from .forms import QuizForm, QuestionForm, ChoiceFormSet
+from django.db import models
 
 @login_required
 def quiz_create(request, course_slug, content_id):
@@ -148,6 +149,10 @@ def quiz_submit(request, course_slug, attempt_id):
         earned_points = 0
         is_pre_check = attempt.quiz.is_pre_check
         
+        # Update total time spent
+        total_time_spent = int(request.POST.get('total_time_spent', 0))
+        attempt.time_spent = total_time_spent
+        
         for question in attempt.quiz.questions.all():
             answer_text = request.POST.get(f'question_{question.id}')
             if answer_text:
@@ -173,14 +178,17 @@ def quiz_submit(request, course_slug, attempt_id):
                     total_points += question.points
                     if answer.is_correct:
                         earned_points += answer.points_earned
+        
         # Calculate score only for non-pre-check quizzes
         if not is_pre_check and total_points > 0:
             attempt.score = (earned_points / total_points) * 100
         else:
             attempt.score = None
+            
         attempt.status = 'submitted'
         attempt.submitted_at = timezone.now()
         attempt.save()
+        
         messages.success(request, 'Quiz submitted successfully')
         # Redirect to the quiz result page
         return redirect('courses:quiz_result', course_slug=course_slug, attempt_id=attempt.id)
@@ -200,4 +208,73 @@ def quiz_result(request, course_slug, attempt_id):
         'course': course,
         'attempt': attempt,
         'answers': attempt.answers.all()
-    }) 
+    })
+
+@login_required
+def quiz_analytics(request, course_slug, quiz_id):
+    """View quiz analytics and statistics for instructors"""
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    course = get_object_or_404(Course, slug=course_slug)
+    
+    # Check if user is the course instructor
+    if not course.instructors.filter(id=request.user.id).exists():
+        return HttpResponseForbidden("Only course instructors can view quiz analytics")
+    
+    # Get all attempts for this quiz
+    attempts = quiz.attempts.all()
+    total_attempts = attempts.count()
+    completed_attempts = attempts.filter(status__in=['submitted', 'graded']).count()
+    
+    # Calculate average score
+    scores = [attempt.score for attempt in attempts if attempt.score is not None]
+    average_score = sum(scores) / len(scores) if scores else 0
+    
+    # Calculate pass rate
+    passing_attempts = sum(1 for attempt in attempts if attempt.score and attempt.score >= quiz.passing_score)
+    pass_rate = (passing_attempts / total_attempts * 100) if total_attempts > 0 else 0
+    
+    # Question statistics
+    question_stats = []
+    for question in quiz.questions.all():
+        answers = Answer.objects.filter(question=question, attempt__quiz=quiz)
+        total_answers = answers.count()
+        correct_answers = answers.filter(is_correct=True).count()
+        correct_rate = (correct_answers / total_answers * 100) if total_answers > 0 else 0
+        
+        # Calculate average time spent per question
+        avg_time = answers.aggregate(avg_time=models.Avg('time_spent'))['avg_time'] or 0
+        
+        question_stats.append({
+            'question': question,
+            'total_answers': total_answers,
+            'correct_answers': correct_answers,
+            'correct_rate': correct_rate,
+            'average_points': sum(answer.points_earned for answer in answers) / total_answers if total_answers > 0 else 0,
+            'average_time': avg_time
+        })
+    
+    # Time statistics
+    time_stats = {
+        'average_time': sum(attempt.time_spent for attempt in attempts) / completed_attempts 
+                      if completed_attempts > 0 else 0,
+        'fastest_time': min(attempt.time_spent for attempt in attempts if attempt.time_spent > 0) 
+                      if completed_attempts > 0 else 0,
+        'slowest_time': max(attempt.time_spent for attempt in attempts) 
+                      if completed_attempts > 0 else 0,
+        'time_limit': quiz.time_limit * 60 if quiz.time_limit else None,  # Convert to seconds
+        'timeout_count': sum(1 for attempt in attempts if attempt.time_spent >= (quiz.time_limit * 60 if quiz.time_limit else float('inf')))
+    }
+    
+    context = {
+        'quiz': quiz,
+        'course': course,
+        'total_attempts': total_attempts,
+        'completed_attempts': completed_attempts,
+        'average_score': average_score,
+        'pass_rate': pass_rate,
+        'question_stats': question_stats,
+        'time_stats': time_stats,
+        'attempts': attempts.order_by('-submitted_at')[:10]  # Show last 10 attempts
+    }
+    
+    return render(request, 'courses/quiz/analytics.html', context) 
