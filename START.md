@@ -234,3 +234,94 @@ Please help me continue development following these guidelines and patterns. Let
 - The system is seeded with realistic users, courses, modules, content, quizzes, enrollments, and progress.
 - All user types and workflows are demo-ready.
 - Use the Showcase Script in the README to walk through all features and dashboards.
+
+# Getting Started with LearnMore+
+
+## Quick Start
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/learnmore-plus.git
+cd learnmore-plus
+```
+
+2. Set up the development environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+3. Configure the environment:
+```bash
+cp .env.example .env
+# Edit .env with your settings
+```
+
+4. Initialize the database:
+```bash
+python manage.py migrate
+python manage.py createsuperuser
+```
+
+5. Run the development server:
+```bash
+python manage.py runserver
+```
+
+## Key Features
+
+### Quiz System
+- **Quiz Creation and Management**
+  - Create quizzes with multiple question types
+  - Set time limits and passing scores
+  - Enable question randomization
+  - Configure attempt limits
+
+- **Quiz Analytics**
+  - View comprehensive statistics
+  - Track student performance
+  - Monitor time usage
+  - Analyze question effectiveness
+
+- **Time Tracking**
+  - Real-time countdown timer
+  - Per-question time tracking
+  - Automatic submission
+  - Time statistics
+
+### Course Management
+- Create and organize courses
+- Manage modules and content
+- Track student progress
+- Handle enrollments
+
+## Development Guidelines
+
+### Code Style
+- Python: Follow PEP 8, use Black for formatting
+- JavaScript: Follow ESLint rules
+- HTML/CSS: Use Tailwind CSS classes
+
+### Testing
+- Write tests for new features
+- Run tests before committing:
+```bash
+python manage.py test
+```
+
+### Documentation
+- Update relevant documentation
+- Add comments for complex logic
+- Document API endpoints
+
+## Contributing
+1. Create a feature branch
+2. Make your changes
+3. Run tests
+4. Submit a pull request
+
+## Support
+- Check the documentation
+- Open an issue
+- Contact the maintainers

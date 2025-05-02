@@ -202,4 +202,73 @@ To demo the system, use the following script as a guide:
 - 'Browse All Courses' is now a prominent button, visible and accessible in both light and dark modes.
 - Fixed number circle contrast in 'How Enhanced LearnMore Works'.
 - Removed duplicate 'Or continue with' on login page.
-- All changes follow accessibility and usability best practices. 
+- All changes follow accessibility and usability best practices.
+
+### Quiz System
+- **Comprehensive Quiz Management**
+  - Multiple question types (multiple choice, true/false, short answer)
+  - Time limits and auto-submission
+  - Question randomization
+  - Pre-check surveys
+  - Prerequisite quizzes
+
+- **Advanced Analytics**
+  - Overview statistics (attempts, scores, pass rates)
+  - Question-level performance metrics
+  - Time tracking and analysis
+  - Detailed attempt history
+  - Modern, responsive dashboard
+
+- **Time Tracking**
+  - Real-time countdown timer
+  - Per-question time tracking
+  - Time limit enforcement
+  - Auto-submission on timeout
+  - Time statistics in analytics
+
+### Course Management
+- Course creation and management
+- Module and content organization
+- Student enrollment and progress tracking
+- File uploads and management
+- Rich text content editor
+
+### User Management
+- Role-based access control
+- Student and instructor dashboards
+- Progress tracking
+- Course enrollment management
+
+## Technical Stack
+- Django 4.2
+- Tailwind CSS
+- PostgreSQL
+- Redis (for caching)
+- Celery (for background tasks)
+
+## Development
+
+### Running Tests
+```bash
+python manage.py test
+```
+
+### Code Style
+We use Black for Python code formatting and ESLint for JavaScript:
+```bash
+# Format Python code
+black .
+
+# Format JavaScript code
+npm run lint
+```
+
+### Contributing
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## License
+This project is licensed under the MIT License - see the LICENSE file for details. 

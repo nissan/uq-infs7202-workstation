@@ -204,20 +204,67 @@
    - Retry options
    - Clear instructions
 
-### Course Management
-1. Content Organization
-   - Module-based structure
-   - Content type support
-   - Required content tracking
-   - Time estimates
-   - Progress tracking
+### Quiz Analytics Implementation
+- **Overview Statistics**
+  - Total attempts and completion rates tracked in `QuizAttempt` model
+  - Average score calculated from completed attempts
+  - Pass rate computed against quiz's passing score threshold
+  - Time statistics include average, fastest, and slowest completion times
 
-2. User Interface
-   - Responsive design
-   - Dark mode support
-   - Progress indicators
-   - Navigation controls
-   - Error handling
+- **Question Statistics**
+  - Per-question correct rates calculated from `Answer` model
+  - Average points earned tracked per question
+  - Time spent per question stored in `Answer.time_spent`
+  - Statistics aggregated in `quiz_analytics` view
+
+- **Time Tracking**
+  - Real-time countdown implemented in JavaScript
+  - Timer pauses when question not visible (using IntersectionObserver)
+  - Time limits enforced server-side and client-side
+  - Auto-submission triggers when time expires
+  - Timeout detection and statistics in analytics
+
+### Database Schema Updates
+- Added to `QuizAttempt` model:
+  ```python
+  time_spent = models.IntegerField(default=0)
+  last_activity = models.DateTimeField(auto_now=True)
+  ```
+- Added to `Answer` model:
+  ```python
+  time_spent = models.IntegerField(default=0)
+  last_modified = models.DateTimeField(auto_now=True)
+  ```
+
+### UI/UX Considerations
+- Timer color changes based on remaining time:
+  - Normal: White background
+  - Warning (10 min): Yellow background
+  - Danger (5 min): Red background
+- Question time tracking displayed per question
+- Analytics dashboard uses Tailwind CSS for responsive design
+- Dark mode support implemented throughout
+
+### Security Measures
+- Time tracking data validated server-side
+- Quiz submission protected against time manipulation
+- Access control for analytics limited to course instructors
+- CSRF protection on all forms
+
+### Performance Optimizations
+- Analytics queries optimized using Django's aggregation functions
+- Time tracking updates batched to reduce database writes
+- IntersectionObserver used for efficient visibility tracking
+- Caching implemented for analytics data
+
+## Future Improvements
+- Add support for question feedback
+- Implement enhanced quiz navigation
+- Add quiz progress saving
+- Support for question pools and categories
+- Quiz scheduling and deadline features
+- Mobile responsiveness improvements
+- Accessibility enhancements
 
 ## Known Issues
 None currently pending - all recent issues have been resolved.
