@@ -1,327 +1,145 @@
-I'm working on a Django-based learning management system called Enhanced LearnMore. We've made significant progress and I'd like to continue development. Here's our current state:
+# Getting Started with Enhanced LearnMore
 
-1. Project Structure:
-- Main Django project: `djangoapps/learnmore_plus`
-- Key apps: accounts, dashboard, core, courses
-- Using Tailwind CSS for styling
-- Dark mode support implemented
-- Secure session handling in place
+## Prerequisites
+- Python 3.8 or higher
+- PostgreSQL 12 or higher
+- Redis (for caching)
+- Git
 
-2. Recent Progress:
-- Implemented course management system
-- Created course catalog with search and filtering
-- Added course models and admin interface
-- Implemented file upload support
-- Fixed broken avatar image with SVG icon
-- Improved course card design and filter sidebar
-- Enhanced quiz system with pre-requisite surveys and results page
-- Combined student dashboard and learning progress
-- Updated documentation (TODO.md, NOTES.md, CHECKPOINT.md)
-- Improved homepage button contrast and accessibility
-- Made 'Browse All Courses' a prominent button
-- Fixed number circle contrast in 'How Enhanced LearnMore Works'
-
-3. Current Focus:
-- Complete quiz system implementation
-  - Add quiz analytics for instructors
-  - Implement quiz time tracking
-  - Add support for question feedback
-  - Enhance quiz navigation between questions
-- Assignment submission system
-- Discussion forum implementation
-
-4. Security Considerations:
-- Using Django's session framework instead of localStorage
-- Secure cookie handling
-- CSRF protection
-- XSS prevention
-- SQL injection protection
-- File upload validation
-- Input sanitization
-
-5. Documentation:
-- TODO.md: Updated with recent changes and next steps
-- NOTES.md: Added dashboard consolidation and quiz improvements
-- CHECKPOINT.md: Updated current state and achievements
-- README.md: Project overview and setup instructions
-
-6. Effective Prompting Patterns:
-For UI Changes:
-"Can you [improve/fix/update] the [component] in [file] to [desired outcome]?"
-
-For Feature Implementation:
-"Let's implement [feature] in [component/file]. We need:
-- [requirement 1]
-- [requirement 2]
-- [requirement 3]"
-
-For Troubleshooting:
-"I'm seeing [issue] when [action]. Here's the error:
-[error message/behavior]"
-
-7. Testing Approach:
-- Manual testing of UI changes
-- Checking responsive design
-- Verifying dark mode functionality
-- Testing user authentication flow
-- Validating course management features
-- Testing file upload functionality
-- Verifying search and filtering
-
-8. Known Issues:
-None currently pending - all recent issues have been resolved:
-- Fixed migration order issues
-- Implemented proper file upload handling
-- Added search across multiple fields
-- Fixed filter persistence
-- Replaced broken avatar image with SVG icon
-
-9. Next Steps:
-1. Create course detail template
-2. Implement course enrollment
-3. Add course content preview
-4. Display course modules
-5. Create user dashboard
-
-10. Environment:
-- Working Directory: `/Users/nissan/code/uq-infs7202-workstation`
-- Django Project: `djangoapps/learnmore_plus`
-- Python Virtual Environment: Active in `djangoapps/learnmore_plus/venv`
-- Database: SQLite3 (`db.sqlite3`)
-- Git Branch: `main`
-
-11. Active Files:
-- `djangoapps/learnmore_plus/courses/models.py`
-- `djangoapps/learnmore_plus/courses/views.py`
-- `djangoapps/learnmore_plus/courses/templates/courses/student_dashboard.html`
-- `djangoapps/learnmore_plus/courses/templates/courses/quiz/result.html`
-- `djangoapps/learnmore_plus/templates/base.html`
-- `TODO.md`
-- `NOTES.md`
-- `CHECKPOINT.md`
-- `README.md`
-
-12. Project Structure:
-djangoapps/learnmore_plus/
-├── accounts/
-│ ├── views.py
-│ ├── models.py
-│ └── middleware.py
-├── core/
-│ ├── views.py
-│ ├── urls.py
-│ └── templates/
-│     └── core/
-│         └── home.html
-├── courses/
-│ ├── models.py
-│ ├── views.py
-│ ├── urls.py
-│ └── templates/
-│     └── courses/
-│         ├── catalog.html
-│         └── detail.html (to be created)
-├── dashboard/
-│ ├── views.py
-│ ├── models.py
-│ └── templates/
-│     └── dashboard/
-│         └── home.html
-├── templates/
-│ └── base.html
-└── learnmore_plus/
-    ├── settings.py
-    └── urls.py
-
-13. Response Patterns:
-The LLM has been most effective when:
-1. Explaining changes before making them
-2. Breaking down complex tasks into steps
-3. Providing context for security implications
-4. Checking file contents before modifications
-5. Verifying directory locations before commands
-6. Using conventional commit formats
-7. Updating documentation alongside changes
-
-14. Git Workflow:
-- Using conventional commit format
-- Committing changes with descriptive messages
-- Pushing to remote repository regularly
-- Maintaining clean commit history
-
-15. Security Best Practices:
-- No sensitive data in version control
-- Secure session handling
-- Proper authentication/authorization
-- Input validation
-- XSS/CSRF protection
-- SQL injection prevention
-- File upload validation
-- Input sanitization
-
-16. Development Guidelines:
-- Follow Django best practices
-- Maintain clean code structure
-- Document all changes
-- Test thoroughly
-- Consider security implications
-- Keep dependencies updated
-
-17. UI/UX Standards:
-- Responsive design
-- Dark mode support
-- Accessibility compliance
-- Consistent styling
-- User-friendly interfaces
-- Clear error messages
-- Use SVG icons for better scaling
-- Proper hover and focus states
-
-18. Performance Considerations:
-- Optimize database queries
-- Minimize HTTP requests
-- Use caching where appropriate
-- Optimize static files
-- Monitor resource usage
-- Implement pagination
-- Add proper indexing
-
-19. Documentation Requirements:
-- Keep TODO.md updated
-- Document all changes in NOTES.md
-- Maintain CHECKPOINT.md for session continuity
-- Comment complex code
-- Document security measures
-- Update README.md
-
-20. Testing Requirements:
-- Test all new features
-- Verify security measures
-- Check responsive design
-- Validate user flows
-- Test error handling
-- Test file uploads
-- Verify search functionality
-
-Tomorrow's Focus:
-1. Complete quiz system implementation
-   - Add quiz analytics for instructors
-   - Implement quiz time tracking
-   - Add support for question feedback
-   - Enhance quiz navigation between questions
-2. Begin assignment system implementation
-3. Start discussion forum development
-
-Please help me continue development following these guidelines and patterns. Let's start by reviewing our current state and determining the next immediate task to tackle.
-
-## Quickstart for Demo
-
-1. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. Reset and seed the database:
-   ```bash
-   python manage.py reset_db
-   ```
-3. Run the development server:
-   ```bash
-   python manage.py runserver
-   ```
-4. Log in as any demo user (see output after seeding)
-
-## Demo Data & Showcase
-- The system is seeded with realistic users, courses, modules, content, quizzes, enrollments, and progress.
-- All user types and workflows are demo-ready.
-- Use the Showcase Script in the README to walk through all features and dashboards.
-
-# Getting Started with LearnMore+
-
-## Quick Start
+## Initial Setup
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/learnmore-plus.git
-cd learnmore-plus
+git clone https://github.com/yourusername/enhanced-learnmore.git
+cd enhanced-learnmore/djangoapps/learnmore_plus
 ```
 
-2. Set up the development environment:
+2. Create and activate a virtual environment:
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
 ```
 
-3. Configure the environment:
+3. Install dependencies:
+```bash
+# For development environment
+pip install -r requirements/dev.txt
+
+# For production environment
+pip install -r requirements/prod.txt
+```
+
+4. Set up environment variables:
 ```bash
 cp .env.example .env
-# Edit .env with your settings
+# Edit .env with your configuration
 ```
 
-4. Initialize the database:
+5. Set up the database:
 ```bash
 python manage.py migrate
+```
+
+6. Create a superuser:
+```bash
 python manage.py createsuperuser
 ```
 
-5. Run the development server:
+7. Seed demo data (optional):
+```bash
+python manage.py seed_demo_data
+```
+
+8. Run the development server:
 ```bash
 python manage.py runserver
 ```
 
-## Key Features
+## Accessing the System
 
-### Quiz System
-- **Quiz Creation and Management**
-  - Create quizzes with multiple question types
-  - Set time limits and passing scores
-  - Enable question randomization
-  - Configure attempt limits
+### Admin Interfaces
+1. System Admin Dashboard: `http://localhost:8000/dashboard/`
+   - Overview of system statistics
+   - Quick access to user management
+   - Recent activity monitoring
+   - Direct links to Django admin interface
 
-- **Quiz Analytics**
-  - View comprehensive statistics
-  - Track student performance
-  - Monitor time usage
-  - Analyze question effectiveness
+2. Django Admin Interface: `http://localhost:8000/admin/`
+   - Detailed user management
+   - Database-level operations
+   - Advanced system configuration
+   - Complete model management
 
-- **Time Tracking**
-  - Real-time countdown timer
-  - Per-question time tracking
-  - Automatic submission
-  - Time statistics
+### Demo Users
+After running `python manage.py seed_demo_data`, you can use these accounts:
 
-### Course Management
-- Create and organize courses
-- Manage modules and content
-- Track student progress
-- Handle enrollments
+#### Admins
+- Username: `admin`
+- Password: `admin123`
+- Email: admin@example.com
+
+#### Course Coordinators
+- Username: `coordinator`
+- Password: `coordinator123`
+- Email: coordinator@example.com
+
+#### Instructors
+- Username: `dr.smith`
+- Password: `dr.smith123`
+- Email: dr.smith@example.com
+
+#### Students
+- Username: `john.doe`
+- Password: `john.doe123`
+- Email: john@example.com
 
 ## Development Guidelines
 
 ### Code Style
-- Python: Follow PEP 8, use Black for formatting
-- JavaScript: Follow ESLint rules
-- HTML/CSS: Use Tailwind CSS classes
+- Follow PEP 8 guidelines
+- Use meaningful variable and function names
+- Add docstrings to functions and classes
+- Keep functions small and focused
+
+### Git Workflow
+1. Create a new branch for each feature
+2. Make small, focused commits
+3. Write clear commit messages
+4. Submit pull requests for review
 
 ### Testing
 - Write tests for new features
-- Run tests before committing:
-```bash
-python manage.py test
-```
+- Run tests before committing
+- Maintain test coverage
+- Document test cases
 
 ### Documentation
-- Update relevant documentation
-- Add comments for complex logic
-- Document API endpoints
+- Keep README.md updated
+- Document API changes
+- Update user guides
+- Maintain development notes
 
-## Contributing
-1. Create a feature branch
-2. Make your changes
-3. Run tests
-4. Submit a pull request
+## Common Issues
+
+### Database Connection
+- Ensure PostgreSQL is running
+- Check database credentials in .env
+- Verify database exists
+
+### Static Files
+- Run `python manage.py collectstatic`
+- Check STATIC_ROOT setting
+- Verify static files directory
+
+### Admin Access
+- Ensure user is in admin group
+- Check user permissions
+- Verify login credentials
 
 ## Support
-- Check the documentation
-- Open an issue
-- Contact the maintainers
+
+For issues and questions:
+1. Check the documentation
+2. Search existing issues
+3. Create a new issue
+4. Contact the development team
