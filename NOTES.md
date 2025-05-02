@@ -2,6 +2,18 @@
 
 ## Recent Changes
 
+### Dashboard Consolidation (Latest)
+- Combined student dashboard and learning progress into a single view
+- Enhanced dashboard layout with course cards and detailed progress
+- Improved module progress display with status badges
+- Added progress bars for both course and module progress
+- Removed redundant navigation links
+- Updated base template to reflect consolidated navigation
+- Fixed template inheritance and styling issues
+- Enhanced responsive design for all screen sizes
+- Improved dark mode support
+- Added better error handling
+
 ### Quiz System Improvements (Latest)
 - Enhanced quiz submission handling with proper redirects
 - Added support for pre-requisite surveys vs regular quizzes
@@ -101,6 +113,18 @@
    - Detailed feedback
 
 ## Implementation Details
+
+### Dashboard Consolidation
+- Combined student_dashboard and learning_progress views
+- Enhanced template with two-column layout
+- Improved progress visualization
+- Added module-level progress tracking
+- Enhanced course card design
+- Improved navigation structure
+- Fixed template inheritance
+- Enhanced responsive design
+- Improved dark mode support
+- Added better error handling
 
 ### Course Learning Interface
 - Uses Django's ORM for efficient querying
@@ -622,4 +646,23 @@ These should be updated to use the new settings format:
    - Track completion
 
 ## Previous Notes
-[Previous notes remain unchanged...] 
+[Previous notes remain unchanged...]
+
+## Demo Data & Seeder Notes
+
+- The new API-driven seeder creates a rich, realistic dataset for demoing the LMS.
+- All user roles (admin, coordinator, instructor, student) are represented with real names and emails.
+- Courses, modules, content, quizzes, enrollments, progress, and quiz attempts are all created via the API.
+- The data supports demoing:
+  - Pagination in the course catalog
+  - Role-based dashboards and permissions
+  - Enrollment management, progress tracking, and analytics
+  - Quiz workflows (pre-check, knowledge-check, attempts, grading)
+- The system is now ready for end-to-end workflow demos for every user type.
+
+## Recent UI/UX Improvements (2024-06)
+- Improved button contrast and accessibility for homepage CTAs and 'Browse All Courses'.
+- 'Browse All Courses' is now a prominent button, visible and accessible in both light and dark modes.
+- Fixed number circle contrast in 'How Enhanced LearnMore Works'.
+- Removed duplicate 'Or continue with' on login page.
+- All changes follow accessibility and usability best practices. 
