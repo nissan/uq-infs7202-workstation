@@ -41,88 +41,53 @@ python manage.py runserver
 After running `python manage.py reset_db`, the following demo users are available:
 
 ### Admins
-1. Alice Morgan
-   - Username: `amorgan`
+1. Admin User
+   - Username: `admin`
    - Password: `admin123`
-   - Email: alice.morgan@example.com
-
-2. Brian Lee
-   - Username: `blee`
-   - Password: `admin123`
-   - Email: brian.lee@example.com
+   - Email: admin@example.com
 
 ### Course Coordinators
-1. Emily Brown
-   - Username: `ebrown`
-   - Password: `coord123`
-   - Email: emily.brown@example.com
-
-2. Michael Green
-   - Username: `mgreen`
-   - Password: `coord123`
-   - Email: michael.green@example.com
+1. Coordinator
+   - Username: `coordinator`
+   - Password: `coordinator123`
+   - Email: coordinator@example.com
 
 ### Instructors
-1. John Smith
-   - Username: `jsmith`
-   - Password: `inst123`
-   - Email: john.smith@example.com
+1. Dr. John Smith
+   - Username: `dr.smith`
+   - Password: `dr.smith123`
+   - Email: dr.smith@example.com
 
-2. Sarah Johnson
-   - Username: `sjohnson`
-   - Password: `inst123`
-   - Email: sarah.johnson@example.com
+2. Dr. Sarah Johnson
+   - Username: `dr.johnson`
+   - Password: `dr.johnson123`
+   - Email: dr.johnson@example.com
 
-3. Lisa White
-   - Username: `lwhite`
-   - Password: `inst123`
-   - Email: lisa.white@example.com
-
-4. David Kim
-   - Username: `dkim`
-   - Password: `inst123`
-   - Email: david.kim@example.com
+3. Prof. Michael Williams
+   - Username: `prof.williams`
+   - Password: `prof.williams123`
+   - Email: prof.williams@example.com
 
 ### Students
-1. Jane Smith
-   - Username: `jsmith2`
-   - Password: `stud123`
-   - Email: jane.smith@example.com
+1. John Doe
+   - Username: `john.doe`
+   - Password: `john.doe123`
+   - Email: john@example.com
 
-2. Bob Wilson
-   - Username: `bwilson`
-   - Password: `stud123`
-   - Email: bob.wilson@example.com
+2. Jane Smith
+   - Username: `jane.smith`
+   - Password: `jane.smith123`
+   - Email: jane@example.com
 
-3. Alice Johnson
-   - Username: `ajohnson`
-   - Password: `stud123`
-   - Email: alice.johnson@example.com
+3. Bob Wilson
+   - Username: `bob.wilson`
+   - Password: `bob.wilson123`
+   - Email: bob@example.com
 
-4. John Doe
-   - Username: `jdoe`
-   - Password: `stud123`
-   - Email: john.doe@example.com
-
-5. Maria Garcia
-   - Username: `mgarcia`
-   - Password: `stud123`
-   - Email: maria.garcia@example.com
-
-6. David Lee
-   - Username: `dlee`
-   - Password: `stud123`
-   - Email: david.lee@example.com
-
-7. Emma Martinez
-   - Username: `emartinez`
-   - Password: `stud123`
-   - Email: emma.martinez@example.com
-
-8. William Brown
-   - Username: `wbrown`
-   - Password: `stud123`
-   - Email: william.brown@example.com
+4. Alice Johnson
+   - Username: `alice.johnson`
+   - Password: `alice.johnson123`
+   - Email: alice@example.com
 
 ### Demo Scenarios
 
