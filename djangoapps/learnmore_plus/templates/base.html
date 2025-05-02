@@ -78,9 +78,17 @@
                     <a href="#testimonials" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Testimonials</a>
                     <a href="{% url 'courses:course_catalog' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Courses</a>
                     {% if user.is_authenticated %}
-                        <a href="{% url 'courses:student_dashboard' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Dashboard</a>
+                        {% if user.is_superuser %}
+                            <a href="{% url 'courses:admin_dashboard' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Dashboard</a>
+                        {% elif 'Course Coordinator' in user.groups.all|stringformat:'s' %}
+                            <a href="{% url 'courses:coordinator_dashboard' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Dashboard</a>
+                        {% elif 'Instructor' in user.groups.all|stringformat:'s' %}
+                            <a href="{% url 'courses:instructor_dashboard' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Dashboard</a>
+                        {% else %}
+                            <a href="{% url 'courses:student_dashboard' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Dashboard</a>
+                        {% endif %}
                         {% if user.is_staff %}
-                            <a href="{% url 'dashboard:home' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Admin</a>
+                            <a href="{% url 'dashboard:home' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">System Admin</a>
                         {% endif %}
                         <form method="post" action="{% url 'logout' %}" class="inline">
                             {% csrf_token %}
@@ -103,9 +111,17 @@
                     <a href="#testimonials" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Testimonials</a>
                     <a href="{% url 'courses:course_catalog' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Courses</a>
                     {% if user.is_authenticated %}
-                        <a href="{% url 'courses:student_dashboard' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Dashboard</a>
+                        {% if user.is_superuser %}
+                            <a href="{% url 'courses:admin_dashboard' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Dashboard</a>
+                        {% elif 'Course Coordinator' in user.groups.all|stringformat:'s' %}
+                            <a href="{% url 'courses:coordinator_dashboard' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Dashboard</a>
+                        {% elif 'Instructor' in user.groups.all|stringformat:'s' %}
+                            <a href="{% url 'courses:instructor_dashboard' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Dashboard</a>
+                        {% else %}
+                            <a href="{% url 'courses:student_dashboard' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Dashboard</a>
+                        {% endif %}
                         {% if user.is_staff %}
-                            <a href="{% url 'dashboard:home' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Admin</a>
+                            <a href="{% url 'dashboard:home' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">System Admin</a>
                         {% endif %}
                         <form method="post" action="{% url 'logout' %}" class="border-t dark:border-gray-700 pt-4">
                             {% csrf_token %}

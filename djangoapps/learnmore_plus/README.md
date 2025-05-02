@@ -176,15 +176,30 @@ The seeded data includes several pre-configured scenarios that you can explore:
 #### Administrative Tasks
 1. **User Management**
    - Log in as Admin (Administrator)
-   - Manage user accounts
+   - Access the system admin dashboard at `/dashboard/`
+   - Use the Django admin interface at `/admin/` for detailed user management
    - Assign roles and permissions
    - View system-wide analytics
 
 2. **System Configuration**
    - Log in as Admin (Administrator)
-   - Configure system settings
+   - Access the system admin dashboard for high-level management
+   - Use the Django admin interface for detailed system configuration
    - Manage course categories
    - Monitor system performance
+
+3. **Admin Interfaces**
+   - **System Admin Dashboard** (`/dashboard/`)
+     - Overview of system statistics
+     - Quick access to user management
+     - Recent activity monitoring
+     - Direct links to Django admin interface
+   
+   - **Django Admin Interface** (`/admin/`)
+     - Detailed user management
+     - Database-level operations
+     - Advanced system configuration
+     - Complete model management
 
 Each scenario demonstrates different aspects of the system's functionality and can be explored without creating new records.
 
