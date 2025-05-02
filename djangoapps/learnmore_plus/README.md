@@ -99,20 +99,20 @@ The seeded data includes several pre-configured scenarios that you can explore:
 
 #### Course Management
 1. **Course Creation and Editing**
-   - Log in as John Smith (Instructor)
+   - Log in as Dr. Smith (Instructor)
    - Create a new course or edit existing courses
    - Add modules and content
    - Create quizzes with different question types
 
 2. **Course Coordination**
-   - Log in as Emily Brown (Coordinator)
+   - Log in as Coordinator (Course Coordinator)
    - Assign instructors to courses
    - Manage student enrollments
    - Review course analytics
 
 #### Quiz System
 1. **Quiz Creation and Management**
-   - Log in as Sarah Johnson (Instructor)
+   - Log in as Dr. Johnson (Instructor)
    - Create quizzes with multiple question types
    - Set time limits and attempt limits
    - Preview quiz layout and functionality
@@ -120,7 +120,7 @@ The seeded data includes several pre-configured scenarios that you can explore:
    - Set up pre-check surveys
 
 2. **Quiz Taking Experience**
-   - Log in as Jane Smith (Student)
+   - Log in as John Doe (Student)
    - Take pre-configured quizzes
    - Experience time-limited quizzes with countdown timer
    - View per-question time tracking
@@ -128,7 +128,7 @@ The seeded data includes several pre-configured scenarios that you can explore:
    - Review detailed quiz results with time spent per question
 
 3. **Quiz Analytics Dashboard**
-   - Log in as Lisa White (Instructor)
+   - Log in as Prof. Williams (Instructor)
    - View comprehensive quiz statistics:
      - Overall attempt rates and completion times
      - Question-level performance metrics
@@ -140,39 +140,39 @@ The seeded data includes several pre-configured scenarios that you can explore:
 
 #### Analytics and Reporting
 1. **Instructor Analytics**
-   - Log in as Lisa White (Instructor)
+   - Log in as Dr. Smith (Instructor)
    - View student performance metrics
    - Analyze quiz results
    - Track course completion rates
 
 2. **Coordinator Analytics**
-   - Log in as Michael Green (Coordinator)
+   - Log in as Coordinator (Course Coordinator)
    - View course-wide statistics
    - Monitor instructor performance
    - Track enrollment trends
 
 #### Student Experience
 1. **Course Enrollment**
-   - Log in as Bob Wilson (Student)
+   - Log in as Jane Smith (Student)
    - Browse available courses
    - Enroll in courses
    - Track learning progress
 
 2. **Quiz Attempts**
-   - Log in as Alice Johnson (Student)
+   - Log in as Bob Wilson (Student)
    - Take quizzes with different formats
    - View attempt history
    - Review performance analytics
 
 #### Administrative Tasks
 1. **User Management**
-   - Log in as Alice Morgan (Admin)
+   - Log in as Admin (Administrator)
    - Manage user accounts
    - Assign roles and permissions
    - View system-wide analytics
 
 2. **System Configuration**
-   - Log in as Brian Lee (Admin)
+   - Log in as Admin (Administrator)
    - Configure system settings
    - Manage course categories
    - Monitor system performance
