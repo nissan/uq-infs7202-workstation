@@ -1,4 +1,7 @@
 from django.conf import settings
+from django.shortcuts import redirect
+from django.contrib import messages
+from django.urls import resolve
 
 class AdminPreferencesMiddleware:
     def __init__(self, get_response):
@@ -26,3 +29,34 @@ class AdminPreferencesMiddleware:
 
         response = self.get_response(request)
         return response 
+
+class RoleBasedAccessMiddleware:
+    """
+    Middleware to handle role-based access to admin pages.
+    This ensures that even if is_staff is True, the user must have the correct role.
+    """
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Check if this is an admin page
+        if request.path.startswith('/admin/'):
+            # Allow superusers
+            if request.user.is_superuser:
+                return self.get_response(request)
+
+            # Check if user is authenticated and has a profile
+            if not request.user.is_authenticated:
+                messages.error(request, 'You must be logged in to access this page.')
+                return redirect('login')
+
+            try:
+                # Check if user has admin or coordinator role
+                if request.user.profile.role.name not in ['admin', 'course_coordinator']:
+                    messages.error(request, 'You do not have permission to access the admin interface.')
+                    return redirect('home')
+            except:
+                messages.error(request, 'You do not have permission to access the admin interface.')
+                return redirect('home')
+
+        return self.get_response(request) 

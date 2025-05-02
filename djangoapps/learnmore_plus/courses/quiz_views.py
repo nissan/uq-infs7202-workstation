@@ -4,13 +4,13 @@ from django.http import JsonResponse, HttpResponseForbidden
 from django.utils import timezone
 from django.db.models import Q
 from django.contrib import messages
-from .models import Course, CourseContent, Quiz, Question, Choice, QuizAttempt, Answer
+from .models import Course, Content, Quiz, Question, Choice, QuizAttempt, Answer
 from .forms import QuizForm, QuestionForm, ChoiceFormSet
 
 @login_required
 def quiz_create(request, course_slug, content_id):
     """Create a new quiz for a course content"""
-    content = get_object_or_404(CourseContent, id=content_id, content_type='quiz')
+    content = get_object_or_404(Content, id=content_id, content_type='quiz')
     course = get_object_or_404(Course, slug=course_slug)
     
     # Check if user is the course instructor
@@ -146,6 +146,7 @@ def quiz_submit(request, course_slug, attempt_id):
         # Process answers
         total_points = 0
         earned_points = 0
+        is_pre_check = attempt.quiz.is_pre_check
         
         for question in attempt.quiz.questions.all():
             answer_text = request.POST.get(f'question_{question.id}')
@@ -156,42 +157,33 @@ def quiz_submit(request, course_slug, attempt_id):
                     question=question,
                     defaults={'answer_text': answer_text}
                 )
-                
                 if not created:
                     answer.answer_text = answer_text
-                
-                # Only auto-grade if it's not a pre-check quiz
-                if not attempt.quiz.is_pre_check:
+                if not is_pre_check:
                     answer.is_correct = False  # Reset correctness
                     answer.points_earned = 0   # Reset points
-                    
                     # Auto-grade if possible
                     if question.question_type in ['multiple_choice', 'true_false']:
                         correct_choice = question.choices.filter(is_correct=True).first()
                         if correct_choice and answer_text == correct_choice.choice_text:
                             answer.is_correct = True
                             answer.points_earned = question.points
-                
                 answer.save()
-                
-                if not attempt.quiz.is_pre_check:
+                if not is_pre_check:
                     total_points += question.points
                     if answer.is_correct:
                         earned_points += answer.points_earned
-        
         # Calculate score only for non-pre-check quizzes
-        if not attempt.quiz.is_pre_check and total_points > 0:
+        if not is_pre_check and total_points > 0:
             attempt.score = (earned_points / total_points) * 100
-        
+        else:
+            attempt.score = None
         attempt.status = 'submitted'
         attempt.submitted_at = timezone.now()
         attempt.save()
-        
         messages.success(request, 'Quiz submitted successfully')
-        
         # Redirect to the quiz result page
         return redirect('courses:quiz_result', course_slug=course_slug, attempt_id=attempt.id)
-    
     return redirect('courses:learn', slug=course_slug)
 
 @login_required

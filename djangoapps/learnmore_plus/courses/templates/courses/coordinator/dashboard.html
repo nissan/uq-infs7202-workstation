@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Course Coordinator Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-8">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Course Overview</h1>
+        
+        <!-- Metrics Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Total Courses</p>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ course_stats|length }}</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                        <i class="fas fa-book text-blue-600 dark:text-blue-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Active Students</p>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ total_active_students }}</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                        <i class="fas fa-users text-green-600 dark:text-green-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Active Instructors</p>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ instructor_stats|length }}</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
+                        <i class="fas fa-chalkboard-teacher text-purple-600 dark:text-purple-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course List -->
+        {% if course_stats %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {% for course in course_stats %}
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-6 flex flex-col h-full">
+                <div class="flex items-center mb-4">
+                    {% if course.cover_image %}
+                        <img src="{{ course.cover_image.url }}" alt="{{ course.title }}" class="w-16 h-16 object-cover rounded-lg mr-4">
+                    {% else %}
+                        <div class="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center text-gray-400 dark:text-gray-500 font-bold mr-4">
+                            <i class="fas fa-book text-2xl"></i>
+                        </div>
+                    {% endif %}
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ course.title }}</h2>
+                        <span class="inline-block {% if course.status == 'published' %}bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100{% else %}bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100{% endif %} text-xs font-semibold px-3 py-1 rounded-full mt-1">
+                            {{ course.status|title }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Active Students</span>
+                        <span class="text-sm text-gray-900 dark:text-white font-semibold">{{ course.enrollment_count }}</span>
+                    </div>
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Completion Rate</span>
+                        <span class="text-sm text-gray-900 dark:text-white font-semibold">{{ course.avg_progress|default:0|floatformat:1 }}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mt-2">
+                        <div class="bg-primary h-2 rounded-full" style="width: {{ course.avg_progress|default:0 }}%"></div>
+                    </div>
+                </div>
+
+                <div class="mt-auto flex space-x-2">
+                    <a href="{% url 'courses:manage_course_content' course.slug %}" class="flex-1 bg-primary text-white px-4 py-2 rounded-lg text-center hover:bg-primary-dark transition-colors">Content</a>
+                    <a href="{% url 'courses:manage_course_instructors' course.slug %}" class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg text-center hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Instructors</a>
+                    <a href="{% url 'courses:course_analytics' course.slug %}" class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg text-center hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Analytics</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <p class="text-gray-500 dark:text-gray-400 mb-4">No courses assigned yet.</p>
+            <a href="{% url 'courses:course_create' %}" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors">Create a Course</a>
+        </div>
+        {% endif %}
+
+        <!-- Recent Activity -->
+        <div class="mt-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Enrollments</h2>
+                <a href="{% url 'courses:manage_enrollments' %}" class="text-primary hover:text-primary-dark text-sm">
+                    View All <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
+                {% if recent_enrollments %}
+                <div class="space-y-4">
+                    {% for enrollment in recent_enrollments %}
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-900 dark:text-white">{{ enrollment.student.get_full_name }}</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ enrollment.course.title }}</p>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm text-gray-500 dark:text-gray-400">{{ enrollment.enrolled_at|timesince }} ago</span>
+                            <span class="inline-block {% if enrollment.status == 'active' %}bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100{% else %}bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100{% endif %} text-xs font-semibold px-2 py-1 rounded-full">
+                                {{ enrollment.status|title }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-center text-gray-500 dark:text-gray-400">No recent enrollments</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Instructor Overview -->
+        <div class="mt-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Instructor Overview</h2>
+                <a href="{% url 'accounts:group_list' %}" class="text-sm text-primary hover:text-primary-dark">Manage All</a>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
+                {% if instructor_stats %}
+                <div class="space-y-4">
+                    {% for instructor in instructor_stats %}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-user text-gray-500 dark:text-gray-400"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-900 dark:text-white">{{ instructor.get_full_name }}</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ instructor.course_count }} courses</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-sm text-gray-500 dark:text-gray-400">{{ instructor.student_count }} active students</span>
+                            <div class="mt-1">
+                                <a href="{% url 'courses:manage_course_instructors' instructor.teaching_courses.first.slug %}" class="text-sm text-primary hover:text-primary-dark">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-center text-gray-500 dark:text-gray-400">No instructors assigned</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="mt-8">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <a href="{% url 'courses:manage_courses' %}" class="bg-primary text-white px-4 py-3 rounded-lg text-center hover:bg-primary-dark transition-colors">
+                    Manage Courses
+                </a>
+                <a href="{% url 'accounts:group_list' %}" class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-4 py-3 rounded-lg text-center hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                    Manage Instructors
+                </a>
+                <a href="{% url 'courses:course_catalog' %}" class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-4 py-3 rounded-lg text-center hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                    View Catalog
+                </a>
+                <a href="{% url 'accounts:profile' %}" class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-4 py-3 rounded-lg text-center hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                    View Profile
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,372 +1,464 @@
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.utils import timezone
-from courses.models import (
-    CourseCategory, Course, Module, CourseContent,
-    CourseEnrollment, Quiz, Question, Choice
-)
+from courses.models import Category, Course, Module, Content, Quiz, Question, Choice, CourseEnrollment
+from django.contrib.auth.models import Group
 from datetime import timedelta
 import random
 
-class Command(BaseCommand):
-    help = 'Generates test data for courses and related models'
+User = get_user_model()
 
-    def create_quiz(self, content, title, description, is_pre_check=False):
-        """Helper function to create a quiz with sample questions"""
+class Command(BaseCommand):
+    help = 'Generate test data for courses'
+
+    def create_quiz(self, content, title, description, is_prerequisite=False):
         quiz = Quiz.objects.create(
             content=content,
             title=title,
             description=description,
-            is_pre_check=is_pre_check,
-            passing_score=70 if not is_pre_check else 0,
-            time_limit=30 if is_pre_check else 60,
-            attempts_allowed=3 if is_pre_check else 2,
-            shuffle_questions=True,
-            show_correct_answers=True
+            passing_score=70,
+            time_limit=30,
+            is_prerequisite=is_prerequisite
         )
+        self.stdout.write(f'Created quiz: {quiz.title}')
 
-        # Create questions based on quiz type
-        if is_pre_check:
-            # Pre-knowledge check questions
-            questions_data = [
-                {
-                    'text': 'What is your current experience level with web development?',
-                    'type': 'multiple_choice',
-                    'points': 1,
-                    'choices': [
-                        ('Complete beginner', False),
-                        ('Some basic knowledge', False),
-                        ('Intermediate level', False),
-                        ('Advanced level', False)
-                    ]
-                },
-                {
-                    'text': 'Have you taken any web development courses before?',
-                    'type': 'true_false',
-                    'points': 1,
-                    'choices': [
-                        ('Yes', False),
-                        ('No', False)
-                    ]
-                },
-                {
-                    'text': 'What programming languages are you familiar with?',
-                    'type': 'multiple_choice',
-                    'points': 1,
-                    'choices': [
-                        ('None', False),
-                        ('HTML/CSS only', False),
-                        ('JavaScript', False),
-                        ('Multiple languages', False)
-                    ]
-                },
-                {
-                    'text': 'What are your main learning goals for this course?',
-                    'type': 'essay',
-                    'points': 2,
-                    'choices': []
-                },
-                {
-                    'text': 'How much time can you dedicate to this course per week?',
-                    'type': 'multiple_choice',
-                    'points': 1,
-                    'choices': [
-                        ('Less than 5 hours', False),
-                        ('5-10 hours', False),
-                        ('10-15 hours', False),
-                        ('More than 15 hours', False)
-                    ]
-                }
-            ]
-        else:
-            # Knowledge check quiz questions
-            questions_data = [
-                {
-                    'text': 'Which of the following is NOT a valid HTML5 semantic element?',
-                    'type': 'multiple_choice',
-                    'points': 2,
-                    'choices': [
-                        ('<header>', False),
-                        ('<nav>', False),
-                        ('<content>', True),
-                        ('<footer>', False)
-                    ]
-                },
-                {
-                    'text': 'CSS Grid and Flexbox are mutually exclusive layout systems.',
-                    'type': 'true_false',
-                    'points': 1,
-                    'choices': [
-                        ('True', False),
-                        ('False', True)
-                    ]
-                },
-                {
-                    'text': 'Which JavaScript framework uses a virtual DOM for efficient rendering?',
-                    'type': 'multiple_choice',
-                    'points': 2,
-                    'choices': [
-                        ('Angular', False),
-                        ('React', True),
-                        ('Vue', False),
-                        ('jQuery', False)
-                    ]
-                },
-                {
-                    'text': 'REST APIs must always return data in JSON format.',
-                    'type': 'true_false',
-                    'points': 1,
-                    'choices': [
-                        ('True', False),
-                        ('False', True)
-                    ]
-                },
-                {
-                    'text': 'Explain the difference between let, const, and var in JavaScript.',
-                    'type': 'essay',
-                    'points': 3,
-                    'choices': []
-                }
-            ]
+        # Create questions
+        questions = [
+            {
+                'text': 'What is the main purpose of this topic?',
+                'type': 'multiple_choice',
+                'choices': [
+                    {'text': 'Correct answer', 'is_correct': True},
+                    {'text': 'Wrong answer 1', 'is_correct': False},
+                    {'text': 'Wrong answer 2', 'is_correct': False},
+                    {'text': 'Wrong answer 3', 'is_correct': False},
+                ]
+            },
+            {
+                'text': 'Which of these is NOT a key concept?',
+                'type': 'multiple_choice',
+                'choices': [
+                    {'text': 'Wrong answer 1', 'is_correct': False},
+                    {'text': 'Correct answer', 'is_correct': True},
+                    {'text': 'Wrong answer 2', 'is_correct': False},
+                    {'text': 'Wrong answer 3', 'is_correct': False},
+                ]
+            },
+            {
+                'text': 'What is the correct sequence of steps?',
+                'type': 'multiple_choice',
+                'choices': [
+                    {'text': 'Correct sequence', 'is_correct': True},
+                    {'text': 'Wrong sequence 1', 'is_correct': False},
+                    {'text': 'Wrong sequence 2', 'is_correct': False},
+                    {'text': 'Wrong sequence 3', 'is_correct': False},
+                ]
+            },
+        ]
 
-        # Create questions and choices
-        for order, q_data in enumerate(questions_data, 1):
+        for question_data in questions:
             question = Question.objects.create(
                 quiz=quiz,
-                question_text=q_data['text'],
-                question_type=q_data['type'],
-                points=q_data['points'],
-                order=order
+                question_text=question_data['text'],
+                question_type=question_data['type'],
+                points=1,
             )
+            self.stdout.write(f'Created question: {question.question_text}')
 
-            for choice_order, (choice_text, is_correct) in enumerate(q_data['choices'], 1):
+            # Create choices
+            for choice_data in question_data['choices']:
                 Choice.objects.create(
                     question=question,
-                    choice_text=choice_text,
-                    is_correct=is_correct,
-                    order=choice_order
+                    choice_text=choice_data['text'],
+                    is_correct=choice_data['is_correct'],
                 )
+                self.stdout.write(f'Created choice: {choice_data["text"]}')
 
         return quiz
 
     def handle(self, *args, **kwargs):
-        self.stdout.write('Generating test data...')
+        # Create test users
+        test_users = [
+            {"username": "admin", "email": "admin@example.com", "password": "admin123", "group": "Administrator"},
+            {"username": "coordinator", "email": "coordinator@example.com", "password": "coordinator123", "group": "Course Coordinator"},
+            {"username": "instructor", "email": "instructor@example.com", "password": "instructor123", "group": "Instructor"},
+            {"username": "student", "email": "student@example.com", "password": "student123", "group": "Student"},
+        ]
+
+        for user_info in test_users:
+            user, created = User.objects.get_or_create(username=user_info["username"], defaults={
+                "email": user_info["email"]
+            })
+            if created:
+                user.set_password(user_info["password"])
+                user.save()
+            group, _ = Group.objects.get_or_create(name=user_info["group"])
+            user.groups.add(group)
+            user.save()
 
         # Create categories
-        categories = [
-            ('Web Development', 'Learn modern web development technologies and frameworks'),
-            ('Data Science', 'Master data analysis, machine learning, and AI'),
-            ('Mobile Development', 'Build mobile applications for iOS and Android'),
-            ('DevOps', 'Learn about deployment, automation, and infrastructure'),
-            ('Design', 'Master UI/UX design and graphic design principles'),
+        categories_data = [
+            {
+                'name': 'Programming',
+                'description': 'Learn programming languages and software development',
+            },
+            {
+                'name': 'Data Science',
+                'description': 'Explore data analysis, machine learning, and statistics',
+            },
+            {
+                'name': 'Web Development',
+                'description': 'Build modern web applications and websites',
+            },
+            {
+                'name': 'Mobile Development',
+                'description': 'Create mobile applications for iOS and Android',
+            },
+            {
+                'name': 'Database Management',
+                'description': 'Learn database design, implementation, and management',
+            },
         ]
 
-        created_categories = []
-        for name, description in categories:
-            category, created = CourseCategory.objects.get_or_create(
-                name=name,
-                defaults={'description': description}
+        for category_data in categories_data:
+            category, created = Category.objects.get_or_create(
+                name=category_data['name'],
+                defaults={
+                    'description': category_data['description'],
+                    'slug': category_data['name'].lower().replace(' ', '-'),
+                }
             )
-            created_categories.append(category)
-            self.stdout.write(f'Created category: {name}')
+            if created:
+                self.stdout.write(f'Created category: {category.name}')
 
-        # Create instructor
-        instructor, created = User.objects.get_or_create(
-            username='instructor',
-            defaults={
-                'email': 'instructor@example.com',
-                'first_name': 'John',
-                'last_name': 'Doe',
-                'is_staff': True
-            }
-        )
-        if created:
-            instructor.set_password('instructor123')
-            instructor.save()
-            self.stdout.write('Created instructor account')
+        # Get instructor user for course creation
+        instructor = User.objects.get(username='instructor')
+        student = User.objects.get(username='student')
 
-        # Create sample courses
+        # Create courses
         courses_data = [
             {
-                'title': 'Complete Web Development Bootcamp',
-                'description': 'Learn HTML, CSS, JavaScript, React, Node.js, and more in this comprehensive web development course.',
-                'category': 'Web Development',
-                'level': 'beginner',
-                'price': 99.99,
-                'max_students': 100,
-                'is_featured': True,
-            },
-            {
-                'title': 'Data Science with Python',
-                'description': 'Master data analysis, visualization, and machine learning using Python and popular data science libraries.',
-                'category': 'Data Science',
-                'level': 'intermediate',
-                'price': 149.99,
+                'title': 'Python Programming',
+                'description': 'Learn Python programming from scratch. This course covers basic syntax, data structures, and object-oriented programming.',
+                'category': 'Programming',
+                'status': 'published',
                 'max_students': 50,
-                'is_featured': True,
+                'modules': [
+                    {
+                        'title': 'Getting Started with Python',
+                        'description': 'Introduction to Python and basic concepts',
+                        'contents': [
+                            {
+                                'title': 'Prerequisite Knowledge Check',
+                                'content_type': 'quiz',
+                                'content': 'Test your basic programming knowledge',
+                                'estimated_time': 20,
+                                'is_prerequisite': True,
+                            },
+                            {
+                                'title': 'Introduction to Python',
+                                'content_type': 'text',
+                                'content': 'Python is a high-level, interpreted programming language...',
+                                'estimated_time': 30,
+                            },
+                            {
+                                'title': 'Setting Up Your Environment',
+                                'content_type': 'video',
+                                'content': 'Learn how to set up Python and your development environment...',
+                                'estimated_time': 45,
+                            },
+                            {
+                                'title': 'Basic Syntax Quiz',
+                                'content_type': 'quiz',
+                                'content': 'Test your understanding of Python basics',
+                                'estimated_time': 20,
+                                'is_prerequisite': False,
+                            },
+                        ]
+                    },
+                    {
+                        'title': 'Data Structures',
+                        'description': 'Learn about Python data structures',
+                        'contents': [
+                            {
+                                'title': 'Lists and Tuples',
+                                'content_type': 'text',
+                                'content': 'Understanding Python lists and tuples...',
+                                'estimated_time': 40,
+                            },
+                            {
+                                'title': 'Dictionaries and Sets',
+                                'content_type': 'video',
+                                'content': 'Working with dictionaries and sets in Python...',
+                                'estimated_time': 35,
+                            },
+                            {
+                                'title': 'Data Structures Quiz',
+                                'content_type': 'quiz',
+                                'content': 'Test your knowledge of Python data structures',
+                                'estimated_time': 25,
+                                'is_prerequisite': False,
+                            },
+                        ]
+                    },
+                    {
+                        'title': 'Object-Oriented Programming',
+                        'description': 'Learn OOP concepts in Python',
+                        'contents': [
+                            {
+                                'title': 'Classes and Objects',
+                                'content_type': 'text',
+                                'content': 'Understanding classes and objects in Python...',
+                                'estimated_time': 45,
+                            },
+                            {
+                                'title': 'Inheritance and Polymorphism',
+                                'content_type': 'video',
+                                'content': 'Advanced OOP concepts in Python...',
+                                'estimated_time': 50,
+                            },
+                            {
+                                'title': 'OOP Quiz',
+                                'content_type': 'quiz',
+                                'content': 'Test your OOP knowledge',
+                                'estimated_time': 30,
+                                'is_prerequisite': False,
+                            },
+                        ]
+                    },
+                ]
             },
             {
-                'title': 'iOS App Development with Swift',
-                'description': 'Learn to build professional iOS applications using Swift and SwiftUI.',
-                'category': 'Mobile Development',
-                'level': 'intermediate',
-                'price': 129.99,
-                'max_students': 75,
-                'is_featured': False,
-            },
-            {
-                'title': 'DevOps Engineering',
-                'description': 'Master CI/CD, Docker, Kubernetes, and cloud infrastructure.',
-                'category': 'DevOps',
-                'level': 'advanced',
-                'price': 199.99,
+                'title': 'Full Stack Development',
+                'description': 'Build web applications with modern technologies. Learn frontend and backend development.',
+                'category': 'Web Development',
+                'status': 'published',
                 'max_students': 30,
-                'is_featured': True,
+                'modules': [
+                    {
+                        'title': 'Frontend Fundamentals',
+                        'description': 'Learn HTML, CSS, and JavaScript basics',
+                        'contents': [
+                            {
+                                'title': 'Prerequisite Knowledge Check',
+                                'content_type': 'quiz',
+                                'content': 'Test your basic web knowledge',
+                                'estimated_time': 20,
+                                'is_prerequisite': True,
+                            },
+                            {
+                                'title': 'HTML5 Essentials',
+                                'content_type': 'text',
+                                'content': 'Learn the fundamentals of HTML5...',
+                                'estimated_time': 45,
+                            },
+                            {
+                                'title': 'CSS Styling',
+                                'content_type': 'video',
+                                'content': 'Master CSS styling and layouts...',
+                                'estimated_time': 60,
+                            },
+                            {
+                                'title': 'JavaScript Basics',
+                                'content_type': 'text',
+                                'content': 'Introduction to JavaScript programming...',
+                                'estimated_time': 50,
+                            },
+                            {
+                                'title': 'Frontend Quiz',
+                                'content_type': 'quiz',
+                                'content': 'Test your frontend knowledge',
+                                'estimated_time': 30,
+                                'is_prerequisite': False,
+                            },
+                        ]
+                    },
+                    {
+                        'title': 'Backend Development',
+                        'description': 'Learn server-side programming',
+                        'contents': [
+                            {
+                                'title': 'Introduction to Django',
+                                'content_type': 'text',
+                                'content': 'Learn Django framework basics...',
+                                'estimated_time': 55,
+                            },
+                            {
+                                'title': 'Database Design',
+                                'content_type': 'video',
+                                'content': 'Understanding database design and relationships...',
+                                'estimated_time': 40,
+                            },
+                            {
+                                'title': 'API Development',
+                                'content_type': 'text',
+                                'content': 'Building RESTful APIs with Django...',
+                                'estimated_time': 45,
+                            },
+                            {
+                                'title': 'Backend Quiz',
+                                'content_type': 'quiz',
+                                'content': 'Test your backend knowledge',
+                                'estimated_time': 35,
+                                'is_prerequisite': False,
+                            },
+                        ]
+                    },
+                    {
+                        'title': 'Full Stack Integration',
+                        'description': 'Combine frontend and backend technologies',
+                        'contents': [
+                            {
+                                'title': 'API Integration',
+                                'content_type': 'text',
+                                'content': 'Connecting frontend with backend APIs...',
+                                'estimated_time': 50,
+                            },
+                            {
+                                'title': 'Authentication and Authorization',
+                                'content_type': 'video',
+                                'content': 'Implementing secure user authentication...',
+                                'estimated_time': 45,
+                            },
+                            {
+                                'title': 'Final Project Quiz',
+                                'content_type': 'quiz',
+                                'content': 'Test your full stack knowledge',
+                                'estimated_time': 40,
+                                'is_prerequisite': False,
+                            },
+                        ]
+                    },
+                ]
             },
             {
-                'title': 'UI/UX Design Masterclass',
-                'description': 'Learn modern UI/UX design principles, tools, and best practices.',
-                'category': 'Design',
-                'level': 'beginner',
-                'price': 79.99,
-                'max_students': 0,
-                'is_featured': False,
+                'title': 'Machine Learning Fundamentals',
+                'description': 'Introduction to machine learning concepts and algorithms.',
+                'category': 'Data Science',
+                'status': 'published',
+                'max_students': 40,
+                'modules': [
+                    {
+                        'title': 'Introduction to Machine Learning',
+                        'description': 'Basic concepts and terminology',
+                        'contents': [
+                            {
+                                'title': 'Prerequisite Knowledge Check',
+                                'content_type': 'quiz',
+                                'content': 'Test your basic statistics and programming knowledge',
+                                'estimated_time': 25,
+                                'is_prerequisite': True,
+                            },
+                            {
+                                'title': 'What is Machine Learning?',
+                                'content_type': 'text',
+                                'content': 'Understanding the basics of machine learning...',
+                                'estimated_time': 40,
+                            },
+                            {
+                                'title': 'Types of Machine Learning',
+                                'content_type': 'video',
+                                'content': 'Supervised, unsupervised, and reinforcement learning...',
+                                'estimated_time': 50,
+                            },
+                            {
+                                'title': 'ML Basics Quiz',
+                                'content_type': 'quiz',
+                                'content': 'Test your understanding of ML concepts',
+                                'estimated_time': 30,
+                                'is_prerequisite': False,
+                            },
+                        ]
+                    },
+                    {
+                        'title': 'Data Preprocessing',
+                        'description': 'Prepare data for machine learning',
+                        'contents': [
+                            {
+                                'title': 'Data Cleaning',
+                                'content_type': 'text',
+                                'content': 'Techniques for cleaning and preparing data...',
+                                'estimated_time': 45,
+                            },
+                            {
+                                'title': 'Feature Engineering',
+                                'content_type': 'video',
+                                'content': 'Creating and selecting features for ML models...',
+                                'estimated_time': 55,
+                            },
+                            {
+                                'title': 'Data Preprocessing Quiz',
+                                'content_type': 'quiz',
+                                'content': 'Test your data preprocessing knowledge',
+                                'estimated_time': 35,
+                                'is_prerequisite': False,
+                            },
+                        ]
+                    },
+                ]
             },
         ]
 
-        # Create courses with modules and content
         for course_data in courses_data:
-            category = CourseCategory.objects.get(name=course_data['category'])
-            course = Course.objects.create(
+            category = Category.objects.get(name=course_data['category'])
+            course, created = Course.objects.get_or_create(
                 title=course_data['title'],
-                description=course_data['description'],
-                category=category,
-                instructor=instructor,
-                level=course_data['level'],
-                price=course_data['price'],
-                max_students=course_data['max_students'],
-                is_featured=course_data['is_featured'],
-                status='published',
-                start_date=timezone.now(),
-                end_date=timezone.now() + timedelta(days=365)
-            )
-            self.stdout.write(f'Created course: {course.title}')
-
-            # Create modules for each course
-            modules_data = [
-                {
-                    'title': 'Course Introduction',
-                    'description': 'Get started with the course and assess your current knowledge.',
-                    'estimated_time': 45,  # 15 min welcome + 30 min pre-check
-                    'contents': [
-                        {
-                            'title': 'Welcome to the Course',
-                            'content_type': 'text',
-                            'content': 'Welcome to this comprehensive course! In this module, we\'ll cover the basics and set up your development environment.',
-                            'estimated_time': 15
-                        },
-                        {
-                            'title': 'Pre-Knowledge Check',
-                            'content_type': 'quiz',
-                            'content': 'Take this quiz to assess your current knowledge and help us personalize your learning experience.',
-                            'estimated_time': 30,
-                            'is_pre_check': True
-                        }
-                    ]
-                },
-                {
-                    'title': 'Getting Started',
-                    'description': 'Set up your development environment and learn the fundamentals.',
-                    'estimated_time': 75,  # 30 min installation + 45 min first project
-                    'contents': [
-                        {
-                            'title': 'Installation Guide',
-                            'content_type': 'text',
-                            'content': 'Follow these steps to set up your development environment...',
-                            'estimated_time': 30
-                        },
-                        {
-                            'title': 'First Project',
-                            'content_type': 'text',
-                            'content': 'Let\'s create your first project and understand the basic concepts...',
-                            'estimated_time': 45
-                        }
-                    ]
-                },
-                {
-                    'title': 'Core Concepts',
-                    'description': 'Learn the essential concepts and techniques.',
-                    'estimated_time': 105,  # 60 min concepts + 45 min quiz
-                    'contents': [
-                        {
-                            'title': 'Key Concepts',
-                            'content_type': 'text',
-                            'content': 'Understanding the core concepts is crucial for your success...',
-                            'estimated_time': 60
-                        },
-                        {
-                            'title': 'Core Concepts Quiz',
-                            'content_type': 'quiz',
-                            'content': 'Test your understanding of the core concepts covered in this module.',
-                            'estimated_time': 45,
-                            'is_pre_check': False
-                        }
-                    ]
-                },
-                {
-                    'title': 'Advanced Topics',
-                    'description': 'Dive deep into advanced concepts and techniques.',
-                    'estimated_time': 150,  # 90 min techniques + 60 min final assessment
-                    'contents': [
-                        {
-                            'title': 'Advanced Techniques',
-                            'content_type': 'text',
-                            'content': 'Now that you understand the basics, let\'s explore advanced techniques...',
-                            'estimated_time': 90
-                        },
-                        {
-                            'title': 'Final Assessment',
-                            'content_type': 'quiz',
-                            'content': 'Comprehensive quiz covering all the advanced topics in this module.',
-                            'estimated_time': 60,
-                            'is_pre_check': False
-                        }
-                    ]
+                defaults={
+                    'description': course_data['description'],
+                    'category': category,
+                    'status': course_data['status'],
+                    'max_students': course_data['max_students'],
+                    'slug': course_data['title'].lower().replace(' ', '-'),
+                    'start_date': timezone.now().date(),
+                    'end_date': (timezone.now() + timedelta(days=90)).date(),
                 }
-            ]
+            )
+            
+            if created:
+                course.instructors.add(instructor)
+                self.stdout.write(f'Created course: {course.title}')
 
-            # Create modules and content
-            for order, module_data in enumerate(modules_data, 1):
-                module = Module.objects.create(
-                    course=course,
-                    title=module_data['title'],
-                    description=module_data['description'],
-                    order=order,
-                    estimated_time=module_data['estimated_time']
-                )
-                self.stdout.write(f'Created module: {module.title}')
-
-                # Create content for each module
-                for content_order, content_data in enumerate(module_data['contents'], 1):
-                    content = CourseContent.objects.create(
-                        module=module,
-                        title=content_data['title'],
-                        content_type=content_data['content_type'],
-                        content=content_data['content'],
-                        order=content_order,
-                        estimated_time=content_data['estimated_time']
+                # Create modules and content
+                for module_index, module_data in enumerate(course_data['modules'], 1):
+                    module = Module.objects.create(
+                        course=course,
+                        title=module_data['title'],
+                        description=module_data['description'],
+                        order=module_index,
                     )
-                    self.stdout.write(f'Created content: {content.title}')
+                    self.stdout.write(f'Created module: {module.title}')
 
-                    # Create quiz if content type is quiz
-                    if content_data['content_type'] == 'quiz':
-                        is_pre_check = content_data.get('is_pre_check', False)
-                        quiz = self.create_quiz(
-                            content=content,
+                    # Create content
+                    for content_index, content_data in enumerate(module_data['contents'], 1):
+                        content = Content.objects.create(
+                            module=module,
                             title=content_data['title'],
-                            description=content_data['content'],
-                            is_pre_check=is_pre_check
+                            content_type=content_data['content_type'],
+                            content=content_data['content'],
+                            estimated_time=content_data['estimated_time'],
+                            order=content_index,
                         )
-                        self.stdout.write(f'Created quiz: {quiz.title}')
+                        self.stdout.write(f'Created content: {content.title}')
+
+                        # Create quiz if content type is quiz
+                        if content_data['content_type'] == 'quiz':
+                            quiz_title = f"{'Prerequisite: ' if content_data.get('is_prerequisite', False) else ''}{content.title}"
+                            quiz_description = f"{'Prerequisite knowledge check: ' if content_data.get('is_prerequisite', False) else 'Knowledge check: '}{content_data['content']}"
+                            self.create_quiz(
+                                content=content,
+                                title=quiz_title,
+                                description=quiz_description,
+                                is_prerequisite=content_data.get('is_prerequisite', False)
+                            )
+
+                # Create some enrollments for the student
+                if random.random() < 0.7:  # 70% chance to enroll in each course
+                    enrollment = CourseEnrollment.objects.create(
+                        student=student,
+                        course=course,
+                        status='active',
+                        enrolled_at=timezone.now()
+                    )
+                    self.stdout.write(f'Enrolled student in course: {course.title}')
 
         self.stdout.write(self.style.SUCCESS('Successfully generated test data')) 

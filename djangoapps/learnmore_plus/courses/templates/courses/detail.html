@@ -11,7 +11,7 @@
             <!-- Course Info -->
             <div class="lg:col-span-2">
                 <div class="flex items-center space-x-2 mb-4">
-                    <a href="{% url 'courses:catalog' %}" class="text-primary hover:text-primary-dark">
+                    <a href="{% url 'courses:course_catalog' %}" class="text-primary hover:text-primary-dark">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                         </svg>
@@ -20,12 +20,17 @@
                 </div>
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">{{ course.title }}</h1>
                 <div class="flex flex-wrap items-center gap-4 mb-6">
+                    {% for instructor in course.instructors.all %}
                     <div class="flex items-center space-x-2">
-                        <img src="{% if course.instructor.profile.avatar %}{{ course.instructor.profile.avatar.url }}{% else %}{% static 'images/default-avatar.svg' %}{% endif %}" 
-                             alt="{{ course.instructor.get_full_name|default:course.instructor.username }}"
+                        <img src="{% if instructor.profile.avatar %}{{ instructor.profile.avatar.url }}{% else %}{% static 'images/default-avatar.svg' %}{% endif %}" 
+                             alt="{{ instructor.get_full_name|default:instructor.username }}"
                              class="w-8 h-8 rounded-full">
-                        <span class="text-sm text-gray-600 dark:text-gray-400">By {{ course.instructor.get_full_name|default:course.instructor.username }}</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400">By {{ instructor.get_full_name|default:instructor.username }}</span>
                     </div>
+                    {% if not forloop.last %}
+                    <span class="text-sm text-gray-600 dark:text-gray-400">•</span>
+                    {% endif %}
+                    {% endfor %}
                     <span class="text-sm text-gray-600 dark:text-gray-400">•</span>
                     <span class="text-sm text-gray-600 dark:text-gray-400">{{ course.enrollment_count }} students enrolled</span>
                     {% if course.category %}
@@ -61,7 +66,7 @@
                         {% if not is_enrolled %}
                             {% if can_enroll %}
                                 {% if course.price > 0 %}
-                                <form method="post" action="{% url 'courses:enroll' course.slug %}" class="mb-4">
+                                <form method="post" action="{% url 'courses:course_enroll' course.slug %}" class="mb-4">
                                     {% csrf_token %}
                                     <button type="submit" class="w-full bg-primary text-gray-900 dark:text-white border-2 border-primary dark:border-white px-6 py-3 rounded-lg hover:bg-primary-dark hover:text-white transition-colors">
                                         Purchase & Enroll Now
@@ -72,7 +77,7 @@
                                     Secure payment processing
                                 </div>
                                 {% else %}
-                                <form method="post" action="{% url 'courses:enroll' course.slug %}" class="mb-4">
+                                <form method="post" action="{% url 'courses:course_enroll' course.slug %}" class="mb-4">
                                     {% csrf_token %}
                                     <button type="submit" class="w-full bg-primary text-gray-900 dark:text-white border-2 border-primary dark:border-white px-6 py-3 rounded-lg hover:bg-primary-dark hover:text-white transition-colors">
                                         Enroll Now
@@ -92,7 +97,7 @@
                                 </div>
                                 <div class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ enrollment.progress }}% Complete</div>
                             </div>
-                            <a href="{% url 'courses:learn' course.slug %}" class="block w-full bg-primary text-gray-900 dark:text-white border-2 border-primary dark:border-white px-6 py-3 rounded-lg hover:bg-primary-dark hover:text-white transition-colors text-center">
+                            <a href="{% url 'courses:course_learn' course.slug %}" class="block w-full bg-primary text-gray-900 dark:text-white border-2 border-primary dark:border-white px-6 py-3 rounded-lg hover:bg-primary-dark hover:text-white transition-colors text-center">
                                 Continue Learning
                             </a>
                         {% endif %}

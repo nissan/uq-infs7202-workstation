@@ -76,23 +76,12 @@
                     <a href="#features" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Features</a>
                     <a href="#how-it-works" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">How It Works</a>
                     <a href="#testimonials" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Testimonials</a>
-                    <a href="{% url 'courses:catalog' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Courses</a>
+                    <a href="{% url 'courses:course_catalog' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Courses</a>
                     {% if user.is_authenticated %}
-                        <div class="relative group">
-                            <button class="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                                <span>My Learning</span>
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                            </button>
-                            <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-in-out transform origin-top-right">
-                                <a href="{% url 'courses:student_dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Dashboard</a>
-                                <a href="{% url 'courses:learning_progress' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Progress</a>
-                                {% if user.is_staff %}
-                                    <a href="{% url 'dashboard:home' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Admin</a>
-                                {% endif %}
-                            </div>
-                        </div>
+                        <a href="{% url 'courses:student_dashboard' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Dashboard</a>
+                        {% if user.is_staff %}
+                            <a href="{% url 'dashboard:home' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Admin</a>
+                        {% endif %}
                         <form method="post" action="{% url 'logout' %}" class="inline">
                             {% csrf_token %}
                             <button type="submit" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Log Out</button>
@@ -112,16 +101,12 @@
                     <a href="#features" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Features</a>
                     <a href="#how-it-works" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">How It Works</a>
                     <a href="#testimonials" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Testimonials</a>
-                    <a href="{% url 'courses:catalog' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Courses</a>
+                    <a href="{% url 'courses:course_catalog' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Courses</a>
                     {% if user.is_authenticated %}
-                        <div class="border-t dark:border-gray-700 pt-4">
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">My Learning</p>
-                            <a href="{% url 'courses:student_dashboard' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Dashboard</a>
-                            <a href="{% url 'courses:learning_progress' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Progress</a>
-                            {% if user.is_staff %}
-                                <a href="{% url 'dashboard:home' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Admin</a>
-                            {% endif %}
-                        </div>
+                        <a href="{% url 'courses:student_dashboard' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Dashboard</a>
+                        {% if user.is_staff %}
+                            <a href="{% url 'dashboard:home' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Admin</a>
+                        {% endif %}
                         <form method="post" action="{% url 'logout' %}" class="border-t dark:border-gray-700 pt-4">
                             {% csrf_token %}
                             <button type="submit" class="w-full text-left py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Log Out</button>

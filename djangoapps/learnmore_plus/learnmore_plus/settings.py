@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +26,7 @@ SECRET_KEY = "django-insecure-scepzi1g3iit2-&utx$nwx^r5brz!k$77=b@)8tvj#hk=_(#de
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
 
 
 # Application definition
@@ -69,13 +70,15 @@ ROOT_URLCONF = "learnmore_plus.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [os.path.join(BASE_DIR, 'templates')],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
+                "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "accounts.context_processors.group_context",  # Add our group context processor
             ],
         },
     },
@@ -177,13 +180,23 @@ SOCIALACCOUNT_PROVIDERS = {
 
 # allauth settings
 ACCOUNT_LOGIN_METHODS = {'username', 'email'}
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_MIN_LENGTH = 4
+ACCOUNT_PASSWORD_MIN_LENGTH = 8
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_LOGOUT_ON_GET = True
-ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
-ACCOUNT_EMAIL_SUBJECT_PREFIX = 'Enhanced LearnMore - '
+ACCOUNT_SESSION_REMEMBER = True
+
+# Rate limiting settings
+ACCOUNT_RATE_LIMITS = {
+    'login_failed': '5/m',
+    'signup': '5/m',
+    'password_reset': '3/m',
+    'password_reset_from_key': '3/m',
+    'email_confirmation': '3/m',
+}
 
 # Session Settings
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
@@ -196,3 +209,11 @@ SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = 'Strict'
+
+# Email configuration
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 1025
+EMAIL_USE_TLS = False
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''

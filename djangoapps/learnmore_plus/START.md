@@ -26,9 +26,10 @@ This guide will help you set up the development environment for LearnMore Plus.
    python manage.py migrate
    ```
 
-5. Create test users (optional):
+5. Set up roles and test data:
    ```bash
-   python manage.py createsuperuser  # Create admin user
+   python manage.py setup_roles
+   python manage.py create_test_users
    ```
 
 6. Run the development server:
@@ -36,55 +37,76 @@ This guide will help you set up the development environment for LearnMore Plus.
    python manage.py runserver
    ```
 
-### Resetting the Database
-If you need to reset the database to a clean state with fresh test data, follow these steps:
+### Resetting the System
+If you need to reset the system to a clean state with fresh test data, you can use the provided reset script:
 
-1. Clear all data from the database:
-   ```bash
-   python manage.py flush --no-input
-   ```
+```bash
+./reset_system.sh
+```
 
-2. Generate test data (courses, modules, content):
-   ```bash
-   python manage.py generate_test_data
-   ```
+This script will:
+1. Clear all data from the database
+2. Run all migrations
+3. Set up roles and permissions
+4. Generate test data (courses, modules, content)
+5. Create test users with proper roles and assignments
 
-3. Create test users:
-   ```bash
-   python manage.py create_test_users
-   ```
-
-This will give you a fresh database with:
-- Sample courses and content
-- Test users (admin, students, instructors)
-- Course enrollments and progress data
+The script will provide a summary of all created test users at the end.
 
 ## Test Users
 
-The system comes with several pre-configured test users:
+The system includes pre-configured test users for each role:
 
-### Admin User
+### Admin
 - Username: `admin`
 - Password: `admin123`
-- Role: Superuser with full access
+- Role: Administrator with full system access
+
+### Course Coordinator
+- Username: `coordinator`
+- Password: `coord123`
+- Role: Course Coordinator
+- Can manage multiple courses and instructors
 
 ### Instructors
-- Username: `instructor1`
-- Password: `instructor123`
-- Role: Course instructor
+1. Dr. John Smith
+   - Username: `dr.smith`
+   - Password: `dr.smith123`
+   - Role: Instructor
+   - Assigned to first course
 
-- Username: `instructor2`
-- Password: `instructor123`
-- Role: Course instructor
+2. Dr. Sarah Johnson
+   - Username: `dr.johnson`
+   - Password: `dr.johnson123`
+   - Role: Instructor
+   - Assigned to second course
+
+3. Prof. Michael Williams
+   - Username: `prof.williams`
+   - Password: `prof.williams123`
+   - Role: Instructor
+   - Assigned to third course
 
 ### Students
-- Username: `john`
-- Password: `john123`
-- Role: Test student
+1. John Doe
+   - Username: `john.doe`
+   - Password: `john.doe123`
+   - Role: Student
 
-- Username: `jane`
-- Password: `jane123`
-- Role: Test student
+2. Jane Smith
+   - Username: `jane.smith`
+   - Password: `jane.smith123`
+   - Role: Student
+
+3. Bob Wilson
+   - Username: `bob.wilson`
+   - Password: `bob.wilson123`
+   - Role: Student
+
+4. Alice Johnson
+   - Username: `alice.johnson`
+   - Password: `alice.johnson123`
+   - Role: Student
 
 ## Project Structure
 
@@ -310,3 +332,87 @@ python manage.py collectstatic
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
 - [django-allauth Documentation](https://django-allauth.readthedocs.io/)
 - [shadcn/ui Documentation](https://ui.shadcn.com/) 
+
+# Enhanced LearnMore - Project Status
+
+## Project Structure
+- `accounts/`: User management and authentication
+  - Role-based permissions system
+  - User profiles with role assignments
+  - Course-specific permissions
+- `courses/`: Course management and content
+  - Course creation and management
+  - Module and content organization
+  - Quiz and assessment system
+- `dashboard/`: User dashboard and analytics
+- `core/`: Core functionality and utilities
+
+## Recent Progress
+- Implemented comprehensive role-based permissions system
+- Added test data generation with users for all roles
+- Enhanced quiz system with pre-requisite and knowledge check types
+- Improved course management interface
+- Added course assignment functionality
+
+## Current Focus
+- Testing and validating permissions system
+- Ensuring proper access control across all features
+- Documenting role-based workflows
+- Enhancing user experience for different roles
+
+## Security Considerations
+- Role-based access control implemented
+- Course-specific permissions enforced
+- Secure user authentication
+- Protected admin interfaces
+- Permission checks at view and model levels
+
+## Next Steps
+1. Test permissions system with different user roles
+2. Implement role-specific dashboards
+3. Add course enrollment workflow
+4. Enhance analytics for different roles
+5. Document role-based workflows
+
+## Getting Started
+1. Clone the repository
+2. Set up virtual environment
+3. Install dependencies
+4. Run migrations
+5. Create test data:
+   ```bash
+   python manage.py setup_roles
+   python manage.py create_test_users
+   ```
+6. Run development server
+
+## Test Users
+The system includes pre-configured test users for each role:
+
+### Admin
+- Username: admin
+- Password: admin123
+- Full system access
+
+### Course Coordinator
+- Username: coordinator
+- Password: coord123
+- Can manage multiple courses
+
+### Instructors
+- Dr. John Smith (dr.smith/dr.smith123)
+- Dr. Sarah Johnson (dr.johnson/dr.johnson123)
+- Prof. Michael Williams (prof.williams/prof.williams123)
+
+### Students
+- John Doe (john.doe/john.doe123)
+- Jane Smith (jane.smith/jane.smith123)
+- Bob Wilson (bob.wilson/bob.wilson123)
+- Alice Johnson (alice.johnson/alice.johnson123)
+
+## Development Guidelines
+1. Follow role-based access control patterns
+2. Test features with different user roles
+3. Document permission requirements
+4. Maintain security best practices
+5. Update test data as needed 

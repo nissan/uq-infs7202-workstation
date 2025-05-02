@@ -238,6 +238,89 @@
 
 # Development Notes
 
+## Recent Changes
+
+### Role-Based Permissions System
+- Implemented comprehensive role-based permissions system
+- Added Role model with predefined roles (Student, Instructor, Course Coordinator, Administrator)
+- Created UserProfile model with role-based access control
+- Implemented course-specific permissions (view, edit, manage, teach)
+- Added test data generation with users for each role
+- Set up default permissions and groups
+- Added course assignment functionality for instructors and coordinators
+
+### Test Data
+The following test users are created:
+
+1. **Admin User**
+   - Username: `admin`
+   - Password: `admin123`
+   - Role: Administrator (full system access)
+
+2. **Course Coordinator**
+   - Username: `coordinator`
+   - Password: `coord123`
+   - Role: Course Coordinator (manages multiple courses and instructors)
+
+3. **Instructors**
+   - Dr. John Smith (username: `dr.smith`, password: `dr.smith123`) - assigned to first course
+   - Dr. Sarah Johnson (username: `dr.johnson`, password: `dr.johnson123`) - assigned to second course
+   - Prof. Michael Williams (username: `prof.williams`, password: `prof.williams123`) - assigned to third course
+
+4. **Students**
+   - John Doe (username: `john.doe`, password: `john.doe123`)
+   - Jane Smith (username: `jane.smith`, password: `jane.smith123`)
+   - Bob Wilson (username: `bob.wilson`, password: `bob.wilson123`)
+   - Alice Johnson (username: `alice.johnson`, password: `alice.johnson123`)
+
+All users are automatically assigned to their respective groups and roles. Instructors and the coordinator are assigned to courses.
+
+### Quiz System Improvements
+// ... existing code ...
+
+## Implementation Details
+
+### Role-Based Permissions System
+The system now supports four distinct roles with specific permissions:
+
+1. **Student**
+   - Basic access to view courses and content
+   - Can only access enrolled courses
+   - Can take quizzes and view their own progress
+
+2. **Instructor**
+   - Can manage their assigned courses
+   - Can create and edit course content
+   - Can manage quizzes and assessments
+   - Can view student progress in their courses
+
+3. **Course Coordinator**
+   - Can manage multiple courses
+   - Can assign instructors to courses
+   - Can manage course structure and content
+   - Can view all course analytics
+
+4. **Administrator**
+   - Full system access
+   - Can manage all users and roles
+   - Can manage all courses and content
+   - Can access system-wide analytics
+
+### Test Data
+The system includes a comprehensive test data generation command that creates:
+- Admin user (admin/admin123)
+- Course coordinator (coordinator/coord123)
+- Three instructors with different course assignments
+- Four students with basic access
+- Automatic course assignments for instructors and coordinator
+
+### Security Considerations
+- Role-based access control implemented
+- Course-specific permissions enforced
+- Secure user authentication
+- Protected admin interfaces
+- Permission checks at view and model levels
+
 ## April 30, 2025 - Enrollment and Progress Tracking
 
 ### Enrollment System Architecture

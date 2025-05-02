@@ -1,100 +1,36 @@
-# LearnMore+ Learning Platform
+# Enhanced LearnMore
 
-A comprehensive learning management system built with Django and modern web technologies.
+A modern learning management system built with Django and Tailwind CSS.
 
 ## Features
 
+### User Management
+- Role-based access control
+- User profiles with role assignments
+- Course-specific permissions
+- Secure authentication
+
 ### Course Management
-- Course catalog with filtering and search
-- Course categories and levels
-- Course enrollment system
-- Progress tracking at course and module levels
-- Time tracking for course completion
-- Module-based content organization
+- Course creation and organization
+- Module and content management
+- Quiz and assessment system
+- Progress tracking
 
-### User Features
-- User authentication and profiles
-- Student dashboard with progress overview
-- Detailed learning progress tracking
-- Course enrollment management
-- Module-level progress tracking
-- Dark mode support
-- Mobile-responsive design
+### Role-Based Features
+- **Students**: Course access and learning
+- **Instructors**: Course management and teaching
+- **Course Coordinators**: Multi-course management
+- **Administrators**: System-wide control
 
-### UI/UX Features
-- Dark mode support with smooth transitions
-- Mobile-first responsive design
-- Enhanced button visibility
-- Consistent hover states
-- Improved text contrast
-- Modern and clean interface
+## Installation
 
-### Test Users
-For testing purposes, the following users are automatically created during database migration:
-
-#### Admin User
-- Username: `admin`
-- Password: `admin123`
-- Email: admin@example.com
-- Role: Superuser with full administrative access
-- Features: Can access admin interface, manage all users, courses, and content
-
-#### Instructors
-1. Dr. Smith
-   - Username: `dr.smith`
-   - Password: `smith123`
-   - Email: smith@example.com
-   - Role: Course Instructor
-   - Features: Can create and manage courses, view student progress
-
-2. Dr. Johnson
-   - Username: `dr.johnson`
-   - Password: `johnson123`
-   - Email: johnson@example.com
-   - Role: Course Instructor
-   - Features: Can create and manage courses, view student progress
-
-3. General Instructor
-   - Username: `instructor`
-   - Password: `instructor123`
-   - Email: instructor@example.com
-   - Role: Course Instructor
-   - Features: Can create and manage courses, view student progress
-
-#### Students
-1. John Doe
-   - Username: `john`
-   - Password: `john123`
-   - Email: john@example.com
-   - Role: Student
-   - Features: Has sample enrollments in Python and Machine Learning courses
-   - Progress: Various course progress records
-
-2. Jane Smith
-   - Username: `jane`
-   - Password: `jane123`
-   - Email: jane@example.com
-   - Role: Student
-   - Features: Has sample enrollments in Python, Machine Learning, and Data Structures courses
-   - Progress: Various course progress records
-
-Note: These test users are automatically created when you run `python manage.py migrate`. You can use these accounts to test different aspects of the system without creating new users.
-
-## Getting Started
-
-### Prerequisites
-- Python 3.11+
-- Django 5.2+
-- PostgreSQL 15+
-
-### Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/nissan/uq-infs7202-workstation.git
-   cd uq-infs7202-workstation/djangoapps/learnmore_plus
+   git clone https://github.com/yourusername/enhanced-learnmore.git
+   cd enhanced-learnmore
    ```
 
-2. Create and activate a virtual environment:
+2. Set up virtual environment:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -105,80 +41,84 @@ Note: These test users are automatically created when you run `python manage.py 
    pip install -r requirements.txt
    ```
 
-4. Set up the database:
+4. Run migrations:
    ```bash
    python manage.py migrate
    ```
 
-5. Create a superuser:
+5. Set up roles and test data:
    ```bash
-   python manage.py createsuperuser
+   python manage.py setup_roles
+   python manage.py create_test_users
    ```
 
-6. Run the development server:
+6. Run development server:
    ```bash
    python manage.py runserver
    ```
 
-### Resetting the Database
-If you need to reset the database to a clean state with fresh test data, follow these steps:
+## Test Users
 
-1. Clear all data from the database:
-   ```bash
-   python manage.py flush --no-input
-   ```
+The system includes pre-configured test users for each role:
 
-2. Generate test data (courses, modules, content):
-   ```bash
-   python manage.py generate_test_data
-   ```
+### Admin
+- Username: admin
+- Password: admin123
+- Full system access
 
-3. Create test users:
-   ```bash
-   python manage.py create_test_users
-   ```
+### Course Coordinator
+- Username: coordinator
+- Password: coord123
+- Can manage multiple courses
 
-This will give you a fresh database with:
-- Sample courses and content
-- Test users (admin, students, instructors)
-- Course enrollments and progress data
+### Instructors
+- Dr. John Smith (dr.smith/dr.smith123)
+- Dr. Sarah Johnson (dr.johnson/dr.johnson123)
+- Prof. Michael Williams (prof.williams/prof.williams123)
 
-### Testing Quiz Functionality
-The test data includes quizzes in various courses. Here's how to test the quiz features:
+### Students
+- John Doe (john.doe/john.doe123)
+- Jane Smith (jane.smith/jane.smith123)
+- Bob Wilson (bob.wilson/bob.wilson123)
+- Alice Johnson (alice.johnson/alice.johnson123)
 
-1. Log in as a test student:
-   - Username: `john`
-   - Password: `john123`
+## Development
 
-2. Navigate to any course (they all have quizzes). For example, the "Complete Web Development Bootcamp" course has:
-   - "Pre-Knowledge Check" in the "Course Introduction" module
-   - "Core Concepts Quiz" in the "Core Concepts" module
-   - "Final Assessment" in the "Advanced Topics" module
+### Role-Based Development
+1. Follow role-based access control patterns
+2. Test features with different user roles
+3. Document permission requirements
+4. Maintain security best practices
 
-3. To take a quiz:
-   - Go to the course page
-   - Click on the module containing the quiz
-   - Click on the quiz content item
-   - Answer the questions (multiple choice, true/false, essay)
-   - Submit your answers
-   - View your score and correct answers
+### Testing
+1. Test with different user roles
+2. Verify course-specific permissions
+3. Check access control boundaries
+4. Validate user workflows
 
-Quiz Features:
-- Passing score: 70%
-- Time limit: 30 minutes for pre-checks, 60 minutes for regular quizzes
-- Attempts allowed: 3 for pre-checks, 2 for regular quizzes
-- Questions are shuffled
-- Correct answers are shown after submission
+### Security
+- Role-based access control
+- Course-specific permissions
+- Secure authentication
+- Protected interfaces
+- Permission validation
 
-To test as an instructor:
-- Username: `instructor`
-- Password: `instructor123`
+## Documentation
+- [Development Notes](NOTES.md)
+- [Getting Started](START.md)
+- [API Documentation](docs/api.md)
+- [User Guide](docs/user-guide.md)
 
-Instructors can:
-- Create new quizzes
-- Edit existing quizzes
-- Add/remove questions
-- View student attempts and scores
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Tech Stack
+
+- Django 5.0
+- Tailwind CSS
+- PostgreSQL
+- django-allauth for authentication
+- shadcn/ui components (via CDN)
 
 ## Project Structure
 ```
@@ -192,37 +132,6 @@ learnmore_plus/
 
 ## Contributing
 Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
-
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Tech Stack
-
-- Django 5.0
-- Tailwind CSS
-- PostgreSQL
-- shadcn/ui components
-- django-allauth for authentication
-
-## Development
-
-### Running Tests
-```bash
-python manage.py test
-```
-
-### Code Style
-We use:
-- Black for Python code formatting
-- isort for import sorting
-- flake8 for linting
-
-### Contributing
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
 
 ## Acknowledgments
 

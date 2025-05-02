@@ -15,7 +15,12 @@
             </div>
 
             <div class="p-6">
-                {% if not quiz.is_pre_check %}
+                {% if quiz.is_pre_check %}
+                <div class="mb-8 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 text-center">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Thank you for completing this survey!</h2>
+                    <p class="text-gray-600 dark:text-gray-300">Your responses have been recorded. You may retake this survey if you wish.</p>
+                </div>
+                {% else %}
                 <div class="mb-8 bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
                     <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Your Results</h2>
                     <div class="flex items-center justify-between">
