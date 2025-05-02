@@ -1,418 +1,327 @@
-# Getting Started with LearnMore Plus
+I'm working on a Django-based learning management system called Enhanced LearnMore. We've made significant progress and I'd like to continue development. Here's our current state:
 
-This guide will help you set up the development environment for LearnMore Plus.
+1. Project Structure:
+- Main Django project: `djangoapps/learnmore_plus`
+- Key apps: accounts, dashboard, core, courses
+- Using Tailwind CSS for styling
+- Dark mode support implemented
+- Secure session handling in place
 
-## Initial Setup
+2. Recent Progress:
+- Implemented course management system
+- Created course catalog with search and filtering
+- Added course models and admin interface
+- Implemented file upload support
+- Fixed broken avatar image with SVG icon
+- Improved course card design and filter sidebar
+- Enhanced quiz system with pre-requisite surveys and results page
+- Combined student dashboard and learning progress
+- Updated documentation (TODO.md, NOTES.md, CHECKPOINT.md)
+- Improved homepage button contrast and accessibility
+- Made 'Browse All Courses' a prominent button
+- Fixed number circle contrast in 'How Enhanced LearnMore Works'
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/nissan/uq-infs7202-workstation.git
-   cd uq-infs7202-workstation/djangoapps/learnmore_plus
-   ```
+3. Current Focus:
+- Complete quiz system implementation
+  - Add quiz analytics for instructors
+  - Implement quiz time tracking
+  - Add support for question feedback
+  - Enhance quiz navigation between questions
+- Assignment submission system
+- Discussion forum implementation
 
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+4. Security Considerations:
+- Using Django's session framework instead of localStorage
+- Secure cookie handling
+- CSRF protection
+- XSS prevention
+- SQL injection protection
+- File upload validation
+- Input sanitization
 
-3. Install dependencies:
+5. Documentation:
+- TODO.md: Updated with recent changes and next steps
+- NOTES.md: Added dashboard consolidation and quiz improvements
+- CHECKPOINT.md: Updated current state and achievements
+- README.md: Project overview and setup instructions
+
+6. Effective Prompting Patterns:
+For UI Changes:
+"Can you [improve/fix/update] the [component] in [file] to [desired outcome]?"
+
+For Feature Implementation:
+"Let's implement [feature] in [component/file]. We need:
+- [requirement 1]
+- [requirement 2]
+- [requirement 3]"
+
+For Troubleshooting:
+"I'm seeing [issue] when [action]. Here's the error:
+[error message/behavior]"
+
+7. Testing Approach:
+- Manual testing of UI changes
+- Checking responsive design
+- Verifying dark mode functionality
+- Testing user authentication flow
+- Validating course management features
+- Testing file upload functionality
+- Verifying search and filtering
+
+8. Known Issues:
+None currently pending - all recent issues have been resolved:
+- Fixed migration order issues
+- Implemented proper file upload handling
+- Added search across multiple fields
+- Fixed filter persistence
+- Replaced broken avatar image with SVG icon
+
+9. Next Steps:
+1. Create course detail template
+2. Implement course enrollment
+3. Add course content preview
+4. Display course modules
+5. Create user dashboard
+
+10. Environment:
+- Working Directory: `/Users/nissan/code/uq-infs7202-workstation`
+- Django Project: `djangoapps/learnmore_plus`
+- Python Virtual Environment: Active in `djangoapps/learnmore_plus/venv`
+- Database: SQLite3 (`db.sqlite3`)
+- Git Branch: `main`
+
+11. Active Files:
+- `djangoapps/learnmore_plus/courses/models.py`
+- `djangoapps/learnmore_plus/courses/views.py`
+- `djangoapps/learnmore_plus/courses/templates/courses/student_dashboard.html`
+- `djangoapps/learnmore_plus/courses/templates/courses/quiz/result.html`
+- `djangoapps/learnmore_plus/templates/base.html`
+- `TODO.md`
+- `NOTES.md`
+- `CHECKPOINT.md`
+- `README.md`
+
+12. Project Structure:
+djangoapps/learnmore_plus/
+├── accounts/
+│ ├── views.py
+│ ├── models.py
+│ └── middleware.py
+├── core/
+│ ├── views.py
+│ ├── urls.py
+│ └── templates/
+│     └── core/
+│         └── home.html
+├── courses/
+│ ├── models.py
+│ ├── views.py
+│ ├── urls.py
+│ └── templates/
+│     └── courses/
+│         ├── catalog.html
+│         └── detail.html (to be created)
+├── dashboard/
+│ ├── views.py
+│ ├── models.py
+│ └── templates/
+│     └── dashboard/
+│         └── home.html
+├── templates/
+│ └── base.html
+└── learnmore_plus/
+    ├── settings.py
+    └── urls.py
+
+13. Response Patterns:
+The LLM has been most effective when:
+1. Explaining changes before making them
+2. Breaking down complex tasks into steps
+3. Providing context for security implications
+4. Checking file contents before modifications
+5. Verifying directory locations before commands
+6. Using conventional commit formats
+7. Updating documentation alongside changes
+
+14. Git Workflow:
+- Using conventional commit format
+- Committing changes with descriptive messages
+- Pushing to remote repository regularly
+- Maintaining clean commit history
+
+15. Security Best Practices:
+- No sensitive data in version control
+- Secure session handling
+- Proper authentication/authorization
+- Input validation
+- XSS/CSRF protection
+- SQL injection prevention
+- File upload validation
+- Input sanitization
+
+16. Development Guidelines:
+- Follow Django best practices
+- Maintain clean code structure
+- Document all changes
+- Test thoroughly
+- Consider security implications
+- Keep dependencies updated
+
+17. UI/UX Standards:
+- Responsive design
+- Dark mode support
+- Accessibility compliance
+- Consistent styling
+- User-friendly interfaces
+- Clear error messages
+- Use SVG icons for better scaling
+- Proper hover and focus states
+
+18. Performance Considerations:
+- Optimize database queries
+- Minimize HTTP requests
+- Use caching where appropriate
+- Optimize static files
+- Monitor resource usage
+- Implement pagination
+- Add proper indexing
+
+19. Documentation Requirements:
+- Keep TODO.md updated
+- Document all changes in NOTES.md
+- Maintain CHECKPOINT.md for session continuity
+- Comment complex code
+- Document security measures
+- Update README.md
+
+20. Testing Requirements:
+- Test all new features
+- Verify security measures
+- Check responsive design
+- Validate user flows
+- Test error handling
+- Test file uploads
+- Verify search functionality
+
+Tomorrow's Focus:
+1. Complete quiz system implementation
+   - Add quiz analytics for instructors
+   - Implement quiz time tracking
+   - Add support for question feedback
+   - Enhance quiz navigation between questions
+2. Begin assignment system implementation
+3. Start discussion forum development
+
+Please help me continue development following these guidelines and patterns. Let's start by reviewing our current state and determining the next immediate task to tackle.
+
+## Quickstart for Demo
+
+1. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-
-4. Set up the database:
+2. Reset and seed the database:
    ```bash
-   python manage.py migrate
+   python manage.py reset_db
    ```
-
-5. Set up roles and test data:
-   ```bash
-   python manage.py setup_roles
-   python manage.py create_test_users
-   ```
-
-6. Run the development server:
+3. Run the development server:
    ```bash
    python manage.py runserver
    ```
+4. Log in as any demo user (see output after seeding)
 
-### Resetting the System
-If you need to reset the system to a clean state with fresh test data, you can use the provided reset script:
+## Demo Data & Showcase
+- The system is seeded with realistic users, courses, modules, content, quizzes, enrollments, and progress.
+- All user types and workflows are demo-ready.
+- Use the Showcase Script in the README to walk through all features and dashboards.
 
+# Getting Started with LearnMore+
+
+## Quick Start
+
+1. Clone the repository:
 ```bash
-./reset_system.sh
+git clone https://github.com/yourusername/learnmore-plus.git
+cd learnmore-plus
 ```
 
-This script will:
-1. Clear all data from the database
-2. Run all migrations
-3. Set up roles and permissions
-4. Generate test data (courses, modules, content)
-5. Create test users with proper roles and assignments
-
-The script will provide a summary of all created test users at the end.
-
-## Test Users
-
-The system includes pre-configured test users for each role:
-
-### Admin
-- Username: `admin`
-- Password: `admin123`
-- Role: Administrator with full system access
-
-### Course Coordinator
-- Username: `coordinator`
-- Password: `coord123`
-- Role: Course Coordinator
-- Can manage multiple courses and instructors
-
-### Instructors
-1. Dr. John Smith
-   - Username: `dr.smith`
-   - Password: `dr.smith123`
-   - Role: Instructor
-   - Assigned to first course
-
-2. Dr. Sarah Johnson
-   - Username: `dr.johnson`
-   - Password: `dr.johnson123`
-   - Role: Instructor
-   - Assigned to second course
-
-3. Prof. Michael Williams
-   - Username: `prof.williams`
-   - Password: `prof.williams123`
-   - Role: Instructor
-   - Assigned to third course
-
-### Students
-1. John Doe
-   - Username: `john.doe`
-   - Password: `john.doe123`
-   - Role: Student
-
-2. Jane Smith
-   - Username: `jane.smith`
-   - Password: `jane.smith123`
-   - Role: Student
-
-3. Bob Wilson
-   - Username: `bob.wilson`
-   - Password: `bob.wilson123`
-   - Role: Student
-
-4. Alice Johnson
-   - Username: `alice.johnson`
-   - Password: `alice.johnson123`
-   - Role: Student
-
-## Project Structure
-
-Set up the following directory structure:
-```
-learnmore_plus/
-├── accounts/
-│   ├── migrations/
-│   ├── templates/
-│   │   └── accounts/
-│   ├── __init__.py
-│   ├── admin.py
-│   ├── apps.py
-│   ├── forms.py
-│   ├── models.py
-│   ├── urls.py
-│   └── views.py
-├── courses/
-│   ├── migrations/
-│   ├── templates/
-│   │   └── courses/
-│   ├── __init__.py
-│   ├── admin.py
-│   ├── apps.py
-│   ├── forms.py
-│   ├── models.py
-│   ├── urls.py
-│   └── views.py
-├── static/
-│   ├── css/
-│   ├── js/
-│   └── images/
-├── templates/
-│   ├── base.html
-│   └── components/
-├── learnmore_plus/
-│   ├── __init__.py
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-├── manage.py
-├── requirements/
-│   ├── base.txt
-│   ├── dev.txt
-│   └── prod.txt
-└── .env
+2. Set up the development environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
-## Configuration
+3. Configure the environment:
+```bash
+cp .env.example .env
+# Edit .env with your settings
+```
 
-1. Update settings.py:
-   - Add apps to INSTALLED_APPS
-   - Configure database
-   - Set up static files
-   - Configure templates
-   - Add authentication settings
+4. Initialize the database:
+```bash
+python manage.py migrate
+python manage.py createsuperuser
+```
 
-2. Create .env file:
-   ```
-   DEBUG=True
-   SECRET_KEY=your-secret-key
-   DATABASE_URL=postgresql://user:password@localhost:5432/learnmore
-   ```
+5. Run the development server:
+```bash
+python manage.py runserver
+```
 
-3. Set up Tailwind CSS:
-   ```bash
-   npm init -y
-   npm install -D tailwindcss
-   npx tailwindcss init
-   ```
+## Key Features
 
-## Project Status and Next Steps
+### Quiz System
+- **Quiz Creation and Management**
+  - Create quizzes with multiple question types
+  - Set time limits and passing scores
+  - Enable question randomization
+  - Configure attempt limits
 
-## Current Status (May 1, 2024)
+- **Quiz Analytics**
+  - View comprehensive statistics
+  - Track student performance
+  - Monitor time usage
+  - Analyze question effectiveness
 
-### Completed Features
-1. Core Course Management
-   - Course creation and management
-   - Module and content organization
-   - Course catalog with filtering
-   - Course enrollment system
-   - Progress tracking
-   - Time tracking
+- **Time Tracking**
+  - Real-time countdown timer
+  - Per-question time tracking
+  - Automatic submission
+  - Time statistics
 
-2. User Management
-   - User authentication
-   - Role-based access control
-   - User profiles
-   - Test user accounts
-
-3. UI/UX Features
-   - Dark mode support
-   - Mobile responsiveness
-   - Enhanced button visibility
-   - Consistent hover states
-   - Fixed text contrast issues
-
-### Current Focus
-- Course ratings and reviews
-- Course completion certificates
-- Additional test data
-- Progress analytics enhancements
-
-### Known Issues
-1. None critical - all core features are working
-2. Some UI improvements needed for mobile responsiveness
-3. Need to add more comprehensive error handling
-
-## Next Steps
-
-### Immediate Tasks
-1. Add course ratings and reviews system
-2. Implement course completion certificates
-3. Create more test data for courses
-4. Enhance progress analytics
-
-### Short-term Goals
-1. Add course discussion forums
-2. Implement advanced course search
-3. Create instructor dashboard
-4. Add course analytics
-
-### Long-term Vision
-1. Mobile app development
-2. Real-time features
-3. Advanced analytics
-4. API development
+### Course Management
+- Create and organize courses
+- Manage modules and content
+- Track student progress
+- Handle enrollments
 
 ## Development Guidelines
 
-### Code Organization
-- Follow Django best practices
-- Use class-based views where appropriate
-- Maintain consistent code style
-- Document all major features
+### Code Style
+- Python: Follow PEP 8, use Black for formatting
+- JavaScript: Follow ESLint rules
+- HTML/CSS: Use Tailwind CSS classes
 
 ### Testing
-- Write unit tests for new features
-- Test edge cases
-- Maintain test coverage
-- Document test scenarios
-
-### Documentation
-- Keep README up to date
-- Document API endpoints
-- Maintain changelog
-- Update user guides
-
-## Getting Started for New Developers
-
-1. Clone the repository
-2. Set up development environment
-3. Install dependencies
-4. Run migrations
-5. Create test user accounts
-6. Start development server
-
-## Resources
-
-### Documentation
-- Django documentation
-- Project documentation
-- API documentation
-- User guides
-
-### Tools
-- Development environment setup
-- Testing tools
-- Deployment guides
-- Monitoring tools
-
-## Development Workflow
-
-1. Create a new branch for each feature
-2. Write tests before implementation
-3. Follow PEP 8 style guide
-4. Document changes
-5. Create pull requests for review
-
-## Common Commands
-
+- Write tests for new features
+- Run tests before committing:
 ```bash
-# Run development server
-python manage.py runserver
-
-# Create migrations
-python manage.py makemigrations
-
-# Apply migrations
-python manage.py migrate
-
-# Create superuser
-python manage.py createsuperuser
-
-# Run tests
 python manage.py test
-
-# Collect static files
-python manage.py collectstatic
 ```
 
-## Troubleshooting
+### Documentation
+- Update relevant documentation
+- Add comments for complex logic
+- Document API endpoints
 
-1. Database issues:
-   - Check database connection settings
-   - Verify migrations are applied
-   - Check for conflicting migrations
+## Contributing
+1. Create a feature branch
+2. Make your changes
+3. Run tests
+4. Submit a pull request
 
-2. Static files not loading:
-   - Verify STATIC_URL and STATIC_ROOT settings
-   - Run collectstatic
-   - Check file permissions
-
-3. Template issues:
-   - Verify template directories in settings
-   - Check template inheritance
-   - Verify template tags
-
-## Resources
-
-- [Django Documentation](https://docs.djangoproject.com/)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
-- [django-allauth Documentation](https://django-allauth.readthedocs.io/)
-- [shadcn/ui Documentation](https://ui.shadcn.com/) 
-
-# Enhanced LearnMore - Project Status
-
-## Project Structure
-- `accounts/`: User management and authentication
-  - Role-based permissions system
-  - User profiles with role assignments
-  - Course-specific permissions
-- `courses/`: Course management and content
-  - Course creation and management
-  - Module and content organization
-  - Quiz and assessment system
-- `dashboard/`: User dashboard and analytics
-- `core/`: Core functionality and utilities
-
-## Recent Progress
-- Implemented comprehensive role-based permissions system
-- Added test data generation with users for all roles
-- Enhanced quiz system with pre-requisite and knowledge check types
-- Improved course management interface
-- Added course assignment functionality
-
-## Current Focus
-- Testing and validating permissions system
-- Ensuring proper access control across all features
-- Documenting role-based workflows
-- Enhancing user experience for different roles
-
-## Security Considerations
-- Role-based access control implemented
-- Course-specific permissions enforced
-- Secure user authentication
-- Protected admin interfaces
-- Permission checks at view and model levels
-
-## Next Steps
-1. Test permissions system with different user roles
-2. Implement role-specific dashboards
-3. Add course enrollment workflow
-4. Enhance analytics for different roles
-5. Document role-based workflows
-
-## Getting Started
-1. Clone the repository
-2. Set up virtual environment
-3. Install dependencies
-4. Run migrations
-5. Create test data:
-   ```bash
-   python manage.py setup_roles
-   python manage.py create_test_users
-   ```
-6. Run development server
-
-## Test Users
-The system includes pre-configured test users for each role:
-
-### Admin
-- Username: admin
-- Password: admin123
-- Full system access
-
-### Course Coordinator
-- Username: coordinator
-- Password: coord123
-- Can manage multiple courses
-
-### Instructors
-- Dr. John Smith (dr.smith/dr.smith123)
-- Dr. Sarah Johnson (dr.johnson/dr.johnson123)
-- Prof. Michael Williams (prof.williams/prof.williams123)
-
-### Students
-- John Doe (john.doe/john.doe123)
-- Jane Smith (jane.smith/jane.smith123)
-- Bob Wilson (bob.wilson/bob.wilson123)
-- Alice Johnson (alice.johnson/alice.johnson123)
-
-## Development Guidelines
-1. Follow role-based access control patterns
-2. Test features with different user roles
-3. Document permission requirements
-4. Maintain security best practices
-5. Update test data as needed 
+## Support
+- Check the documentation
+- Open an issue
+- Contact the maintainers

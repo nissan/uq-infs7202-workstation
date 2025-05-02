@@ -1,548 +1,715 @@
-# Implementation Notes
-
-## Authentication System Implementation
-
-### Initial Setup (2024-03-XX)
-1. Created base template with Tailwind CSS and shadcn-ui setup
-   - Used CDN for Tailwind CSS
-   - Added shadcn-ui for component styling
-   - Implemented dark mode support
-   - Created custom CSS variables for consistent theming
-
-2. Created home page template
-   - Implemented all sections from mockup
-   - Converted Bootstrap classes to Tailwind CSS
-   - Added responsive design
-   - Maintained all content and functionality
-
-3. Set up static files structure
-   - Created directories for CSS, JS, and images
-   - Added custom CSS for additional styling
-   - Configured static files in settings.py
-
-### Authentication Implementation (2024-03-XX)
-1. Created accounts app
-   - Used Django's built-in user management
-   - Added custom user model with additional fields
-   - Implemented email verification
-   - Added password reset functionality
-
-2. Added Google OAuth authentication
-   - Installed django-allauth
-   - Configured Google OAuth settings
-   - Created social login templates
-   - Added social login buttons to login/register pages
-
-3. Created authentication templates
-   - Login template with social login
-   - Registration template with social login
-   - Password reset templates
-   - Email verification templates
-
-### Course Management Implementation (2024-03-XX)
-1. Created courses app
-   - Implemented course models (Course, Module, Content)
-   - Added enrollment system
-   - Created course catalog view
-   - Implemented course detail view
-   - Added course enrollment functionality
-   - Created course learning interface
-
-2. Course Features
-   - Course catalog with filtering and search
-   - Detailed course information display
-   - Enrollment management
-   - Progress tracking
-   - Module-based content organization
-   - Learning interface with navigation
-
-3. Learning Experience
-   - Module navigation
-   - Content display
-   - Progress tracking
-   - Resource library
-   - Course completion status
-
-### Issues and Solutions
-
-1. Virtual Environment Issues
-   - Problem: Commands failing due to missing virtual environment activation
-   - Solution: Added proper virtual environment activation steps
-   - Note: Always ensure virtual environment is activated before running Django commands
-
-2. Package Installation
-   - Problem: Missing Pillow package for image handling
-   - Solution: Added Pillow to requirements
-   - Note: Need to update requirements.txt with all dependencies
-
-3. Template Structure
-   - Problem: Initial template structure was too flat
-   - Solution: Created proper directory structure for templates
-   - Note: Better organization for maintainability
-
-4. Missing Dependencies
-   - Problem: Server startup failed due to missing requests package
-   - Solution: Added requests>=2.31.0 to base.txt
-   - Note: django-allauth requires requests for OAuth authentication
-   - Impact: Server now starts successfully
-
-5. JWT Authentication
-   - Problem: Server startup failed due to missing PyJWT package
-   - Solution: Added PyJWT>=2.8.0 to base.txt
-   - Note: django-allauth requires PyJWT for Google OAuth authentication
-   - Impact: Server now starts successfully
-   - Lesson: Some packages have indirect dependencies that need to be explicitly installed
-
-6. Cryptography Requirements
-   - Problem: Server startup failed due to missing cryptography package
-   - Solution: Added cryptography>=42.0.0 to base.txt
-   - Note: django-allauth requires cryptography for JWT handling
-   - Impact: Server now starts successfully
-   - Lesson: Security-related packages often have additional dependencies
-
-7. Deprecated Settings
-   - Problem: Warnings about deprecated allauth settings
-   - Solution: Updated to new settings format
-   - Changes:
-     - ACCOUNT_AUTHENTICATION_METHOD → ACCOUNT_LOGIN_METHODS
-     - ACCOUNT_EMAIL_REQUIRED → ACCOUNT_SIGNUP_FIELDS
-     - ACCOUNT_USERNAME_REQUIRED → ACCOUNT_SIGNUP_FIELDS
-   - Impact: Removed deprecation warnings
-
-8. Migration Issues
-   - Problem: Inconsistent migration history
-   - Solution: Need to reset migrations and apply in correct order
-   - Steps:
-     1. Remove existing migrations
-     2. Create fresh migrations
-     3. Apply migrations in correct order
-   - Note: This is a common issue when adding custom user model after initial setup
-
-9. Course Enrollment
-   - Problem: Enrollment model naming inconsistency
-   - Solution: Standardized on CourseEnrollment model
-   - Changes:
-     - Removed duplicate Enrollment model
-     - Updated views to use CourseEnrollment
-     - Fixed template references
-   - Impact: Consistent enrollment handling
-
-10. Course Learning Interface
-    - Problem: Module navigation not working
-    - Solution: Implemented proper module and content retrieval
-    - Changes:
-      - Added first module/content retrieval
-      - Created module navigation
-      - Added progress tracking
-    - Impact: Functional learning interface
-
-### Decisions and Rationale
-
-1. Custom User Model
-   - Decision: Created custom user model instead of using Django's default
-   - Rationale: Needed additional fields for user profiles
-   - Impact: Allows for future expansion of user features
-
-2. Authentication Backend
-   - Decision: Used django-allauth for social authentication
-   - Rationale: Comprehensive solution with multiple providers
-   - Impact: Easy to add more social login providers in future
-
-3. Styling Approach
-   - Decision: Used Tailwind CSS instead of Bootstrap
-   - Rationale: More flexible and modern approach
-   - Impact: Better performance and easier customization
-
-4. Course Structure
-   - Decision: Used module-based course organization
-   - Rationale: Flexible and scalable content structure
-   - Impact: Easy to add and organize course content
-
-5. Learning Interface
-   - Decision: Implemented progressive content display
-   - Rationale: Better learning experience
-   - Impact: Clear content organization and navigation
-
-### Next Steps
-
-1. Database Migration
-   - Need to create and apply migrations for custom user model
-   - Need to set up PostgreSQL for production
-
-2. Email Configuration
-   - Need to configure email backend for verification
-   - Need to create email templates
-
-3. Profile Management
-   - Need to create profile views
-   - Need to implement profile picture upload
-   - Need to add profile editing functionality
-
-4. Course Features
-   - Need to implement quiz system
-   - Need to add discussion features
-   - Need to create file upload system
-   - Need to enhance progress tracking
-
-### Lessons Learned
-
-1. Always activate virtual environment before running commands
-2. Keep track of all dependencies in requirements.txt
-3. Plan template structure before implementation
-4. Consider future scalability when making architectural decisions
-5. Check for indirect dependencies of installed packages
-6. Some packages may have dependencies that aren't automatically installed
-7. Security-related packages often have additional dependencies
-8. Check for deprecated settings when using third-party packages
-9. Plan migration strategy when adding custom user model
-10. Course Management
-    - Plan content structure before implementation
-    - Consider scalability in enrollment system
-    - Design for progressive content delivery
-    - Implement proper access control
-
-### Revision History
-
-1. Initial template structure
-   - Original: Flat structure
-   - Revised: Proper directory structure
-   - Reason: Better organization and maintainability
-
-2. Authentication approach
-   - Original: Basic Django auth
-   - Revised: django-allauth with social login
-   - Reason: More comprehensive solution
-
-3. Styling framework
-   - Original: Bootstrap
-   - Revised: Tailwind CSS
-   - Reason: More flexible and modern approach
-
-4. Course Management
-   - Original: Basic course listing
-   - Revised: Full course management system
-   - Reason: Better learning experience
-
-### Dependency Management
-
-1. Updated base.txt (2024-03-XX)
-   - Added django-allauth>=0.65.0 for social authentication
-   - Added Pillow>=10.2.0 for image handling
-   - Added requests>=2.31.0 for OAuth authentication
-   - Added PyJWT>=2.8.0 for JWT handling
-   - Added cryptography>=42.0.0 for security features
-   - Added django-filter for course filtering
-   - Added django-taggit for course tagging
-   - Maintained existing dependencies
-   - Note: All dependencies are version-pinned for stability
-
-# Development Notes
+# Enhanced LearnMore - Implementation Notes
 
 ## Recent Changes
 
-### Role-Based Permissions System
-- Implemented comprehensive role-based permissions system
-- Added Role model with predefined roles (Student, Instructor, Course Coordinator, Administrator)
-- Created UserProfile model with role-based access control
-- Implemented course-specific permissions (view, edit, manage, teach)
-- Added test data generation with users for each role
-- Set up default permissions and groups
-- Added course assignment functionality for instructors and coordinators
+### Dashboard Consolidation (Latest)
+- Combined student dashboard and learning progress into a single view
+- Enhanced dashboard layout with course cards and detailed progress
+- Improved module progress display with status badges
+- Added progress bars for both course and module progress
+- Removed redundant navigation links
+- Updated base template to reflect consolidated navigation
+- Fixed template inheritance and styling issues
+- Enhanced responsive design for all screen sizes
+- Improved dark mode support
+- Added better error handling
 
-### Test Data
-The following test users are created:
+### Quiz System Improvements (Latest)
+- Enhanced quiz submission handling with proper redirects
+- Added support for pre-requisite surveys vs regular quizzes
+- Created new results template with modern UI
+- Implemented proper scoring and feedback display
+- Added navigation options (back to course, retry quiz)
+- Improved quiz UI/UX with Tailwind CSS
+- Added support for multiple question types
+- Implemented time limits and attempt tracking
+- Added detailed feedback and results display
+- Enhanced progress tracking and scoring
 
-1. **Admin User**
-   - Username: `admin`
-   - Password: `admin123`
-   - Role: Administrator (full system access)
+### Course Learning Interface Enhancement (Latest)
+- Added content type indicators with badges
+- Implemented required content indicators
+- Added time estimates for each content item
+- Enhanced progress visualization
+- Improved completion tracking
+- Added better navigation between content
+- Enhanced dark mode support
+- Improved responsive design
+- Added completion status indicators
+- Enhanced module navigation
+- Added content type badges in navigation
+- Improved progress tracking display
+- Added completion date display
+- Enhanced accessibility
 
-2. **Course Coordinator**
-   - Username: `coordinator`
-   - Password: `coord123`
-   - Role: Course Coordinator (manages multiple courses and instructors)
+### Course Detail Page Implementation (Latest)
+- Enhanced course detail view with optimized queries using `select_related` and `prefetch_related`
+- Added total duration calculation for course content
+- Improved UI with sticky course card
+- Added back to catalog navigation
+- Enhanced module display with lesson counts and required indicators
+- Improved course information sidebar
+- Added enrollment status and capacity information
+- Implemented responsive design for all screen sizes
+- Added SVG icons for different content types
+- Improved dark mode support
 
-3. **Instructors**
-   - Dr. John Smith (username: `dr.smith`, password: `dr.smith123`) - assigned to first course
-   - Dr. Sarah Johnson (username: `dr.johnson`, password: `dr.johnson123`) - assigned to second course
-   - Prof. Michael Williams (username: `prof.williams`, password: `prof.williams123`) - assigned to third course
+### Course Catalog Improvements
+- Implemented search across multiple fields
+- Added category and level filtering
+- Improved course card design
+- Added price filtering
+- Implemented responsive grid layout
+- Added dark mode support
+- Fixed filter persistence issues
 
-4. **Students**
-   - John Doe (username: `john.doe`, password: `john.doe123`)
-   - Jane Smith (username: `jane.smith`, password: `jane.smith123`)
-   - Bob Wilson (username: `bob.wilson`, password: `bob.wilson123`)
-   - Alice Johnson (username: `alice.johnson`, password: `alice.johnson123`)
+### Security Enhancements
+- Implemented secure session handling
+- Added CSRF protection
+- Implemented XSS prevention
+- Added SQL injection protection
+- Added file upload validation
+- Added input sanitization
+- Improved authentication flow
 
-All users are automatically assigned to their respective groups and roles. Instructors and the coordinator are assigned to courses.
+### UI/UX Improvements
+- Implemented Tailwind CSS styling
+- Added dark mode support
+- Improved responsive design
+- Enhanced accessibility
+- Added loading states
+- Improved error messages
+- Implemented consistent styling
+- Added SVG icons for better scaling
 
-### Quiz System Improvements
-// ... existing code ...
+### Quiz System Implementation
+1. Models
+   - `Quiz`: Core quiz model with settings and metadata
+   - `Question`: Question model with multiple types
+   - `Choice`: Choice model for multiple choice questions
+   - `QuizAttempt`: Tracks student attempts
+   - `Answer`: Stores student answers
+
+2. Views
+   - Quiz creation and editing
+   - Question management
+   - Quiz taking interface
+   - Auto-grading system
+   - Results display
+
+3. Templates
+   - Quiz creation form
+   - Quiz editing interface
+   - Question management
+   - Quiz taking interface
+   - Results display
+
+4. Features
+   - Multiple question types
+   - Time limits
+   - Attempt tracking
+   - Auto-grading
+   - Progress tracking
+   - Detailed feedback
 
 ## Implementation Details
 
-### Role-Based Permissions System
-The system now supports four distinct roles with specific permissions:
+### Dashboard Consolidation
+- Combined student_dashboard and learning_progress views
+- Enhanced template with two-column layout
+- Improved progress visualization
+- Added module-level progress tracking
+- Enhanced course card design
+- Improved navigation structure
+- Fixed template inheritance
+- Enhanced responsive design
+- Improved dark mode support
+- Added better error handling
 
-1. **Student**
-   - Basic access to view courses and content
-   - Can only access enrolled courses
-   - Can take quizzes and view their own progress
+### Course Learning Interface
+- Uses Django's ORM for efficient querying
+- Implements proper model relationships
+- Handles file uploads securely
+- Supports multiple content types
+- Tracks user progress
+- Manages enrollment status
+- Calculates course duration
+- Handles course capacity
+- Displays content type indicators
+- Shows required content markers
+- Displays time estimates
+- Tracks completion status
+- Manages navigation between content
+- Handles module progression
+- Supports dark mode
+- Implements responsive design
 
-2. **Instructor**
-   - Can manage their assigned courses
-   - Can create and edit course content
-   - Can manage quizzes and assessments
-   - Can view student progress in their courses
+### Course Detail Page
+- Uses Django's ORM for efficient querying
+- Implements proper model relationships
+- Handles file uploads securely
+- Supports multiple content types
+- Tracks user progress
+- Manages enrollment status
+- Calculates course duration
+- Handles course capacity
 
-3. **Course Coordinator**
-   - Can manage multiple courses
-   - Can assign instructors to courses
-   - Can manage course structure and content
-   - Can view all course analytics
+### Course Models
+- Course: Main course information
+- CourseCategory: Course categorization
+- CourseModule: Course structure
+- CourseContent: Learning materials
+- CourseEnrollment: Student progress
 
-4. **Administrator**
-   - Full system access
-   - Can manage all users and roles
-   - Can manage all courses and content
-   - Can access system-wide analytics
+### Security Measures
+- Session-based authentication
+- CSRF protection
+- XSS prevention
+- SQL injection protection
+- File upload validation
+- Input sanitization
+- Secure cookie handling
 
-### Test Data
-The system includes a comprehensive test data generation command that creates:
-- Admin user (admin/admin123)
-- Course coordinator (coordinator/coord123)
-- Three instructors with different course assignments
-- Four students with basic access
-- Automatic course assignments for instructors and coordinator
+### Performance Optimizations
+- Efficient database queries
+- Proper model relationships
+- Optimized template rendering
+- Responsive image handling
+- Static file optimization
+- Caching implementation
 
-### Security Considerations
-- Role-based access control implemented
-- Course-specific permissions enforced
-- Secure user authentication
-- Protected admin interfaces
-- Permission checks at view and model levels
+### Quiz System
+1. Question Types
+   - Multiple choice
+   - True/False
+   - Short answer
+   - Essay
 
-## April 30, 2025 - Enrollment and Progress Tracking
+2. Grading System
+   - Auto-grading for multiple choice and true/false
+   - Manual grading for short answer and essay
+   - Point-based scoring
+   - Passing score requirements
 
-### Enrollment System Architecture
-- Using two enrollment models for different purposes:
-  1. `CourseEnrollment`: Basic enrollment tracking
-  2. `Enrollment`: Detailed progress tracking with module-level granularity
+3. Security
+   - Access control for instructors
+   - Attempt tracking
+   - Time limit enforcement
+   - Answer validation
 
-### Progress Tracking Implementation
-- Progress is calculated at multiple levels:
-  1. Course level: Overall completion percentage
-  2. Module level: Individual module completion
-  3. Content level: Progress through course materials
+4. User Experience
+   - Timer display
+   - Progress tracking
+   - Detailed feedback
+   - Retry options
+   - Clear instructions
 
-### Time Tracking
-- Course duration calculation:
+### Quiz Analytics Implementation
+- **Overview Statistics**
+  - Total attempts and completion rates tracked in `QuizAttempt` model
+  - Average score calculated from completed attempts
+  - Pass rate computed against quiz's passing score threshold
+  - Time statistics include average, fastest, and slowest completion times
+
+- **Question Statistics**
+  - Per-question correct rates calculated from `Answer` model
+  - Average points earned tracked per question
+  - Time spent per question stored in `Answer.time_spent`
+  - Statistics aggregated in `quiz_analytics` view
+
+- **Time Tracking**
+  - Real-time countdown implemented in JavaScript
+  - Timer pauses when question not visible (using IntersectionObserver)
+  - Time limits enforced server-side and client-side
+  - Auto-submission triggers when time expires
+  - Timeout detection and statistics in analytics
+
+### Database Schema Updates
+- Added to `QuizAttempt` model:
   ```python
-  total_duration = sum(
-      content.estimated_time or 0
-      for module in course.modules.all()
-      for content in module.contents.all()
-  )
+  time_spent = models.IntegerField(default=0)
+  last_activity = models.DateTimeField(auto_now=True)
   ```
-- Time spent calculation:
+- Added to `Answer` model:
   ```python
-  time_spent = int(total_duration * (enrollment.progress / 100))
-  ```
-- Time remaining calculation:
-  ```python
-  time_remaining = total_duration - time_spent
+  time_spent = models.IntegerField(default=0)
+  last_modified = models.DateTimeField(auto_now=True)
   ```
 
-### Database Optimizations
-- Using `select_related` and `prefetch_related` for efficient queries
-- Prefetching course modules and contents to reduce database hits
-- Caching calculated values on course objects
+### UI/UX Considerations
+- Timer color changes based on remaining time:
+  - Normal: White background
+  - Warning (10 min): Yellow background
+  - Danger (5 min): Red background
+- Question time tracking displayed per question
+- Analytics dashboard uses Tailwind CSS for responsive design
+- Dark mode support implemented throughout
 
-### Known Issues and Solutions
-1. Enrollment Duplication
-   - Solution: Check both enrollment models before creating new records
-   - Implementation: Added checks in `course_enroll` view
+### Security Measures
+- Time tracking data validated server-side
+- Quiz submission protected against time manipulation
+- Access control for analytics limited to course instructors
+- CSRF protection on all forms
 
-2. Progress Synchronization
-   - Solution: Update both enrollment models when progress changes
-   - Implementation: Added synchronization in `course_learn` view
+### Performance Optimizations
+- Analytics queries optimized using Django's aggregation functions
+- Time tracking updates batched to reduce database writes
+- IntersectionObserver used for efficient visibility tracking
+- Caching implemented for analytics data
 
-3. Time Calculation
-   - Solution: Calculate time based on content estimated_time
-   - Implementation: Added time calculations in learning progress view
+## Future Improvements
+- Add support for question feedback
+- Implement enhanced quiz navigation
+- Add quiz progress saving
+- Support for question pools and categories
+- Quiz scheduling and deadline features
+- Mobile responsiveness improvements
+- Accessibility enhancements
 
-## Previous Notes 
-
-## UI/UX Improvements (May 1, 2024)
-
-### Dark Mode Enhancements
-1. Fixed contrast issues in light/dark modes
-   - Updated hero section text colors
-   - Fixed CTA section text visibility
-   - Improved button contrast
-   - Added consistent hover states
-
-2. Button Visibility Improvements
-   - Added borders to CTA buttons
-   - Enhanced button contrast in both modes
-   - Implemented consistent hover states
-   - Fixed text visibility on buttons
-
-3. Mobile Responsiveness
-   - Enhanced mobile menu styling
-   - Improved responsive grid layouts
-   - Added proper spacing for mobile views
-   - Implemented touch-friendly interactions
-
-## Issues and Solutions
-
-1. Dark Mode Text Visibility
-   - Problem: Text was unreadable in light mode
-   - Solution: Added proper text colors for both modes
-   - Changes:
-     - Updated hero section text colors
-     - Fixed CTA section text visibility
-     - Improved button text contrast
-   - Impact: Better readability in both modes
-
-2. Button Visibility
-   - Problem: CTA buttons were hard to see
-   - Solution: Added borders and improved contrast
-   - Changes:
-     - Added border-2 to CTA buttons
-     - Updated hover states
-     - Improved text contrast
-   - Impact: Better button visibility and interaction
-
-3. Mobile Menu
-   - Problem: Dropdown menu disappeared too quickly
-   - Solution: Added transition delay and improved interaction
-   - Changes:
-     - Added transition-all duration-200
-     - Improved hover states
-     - Enhanced mobile menu styling
-   - Impact: Better mobile navigation experience
+## Known Issues
+None currently pending - all recent issues have been resolved.
 
 ## Next Steps
+1. Assignment System
+   - File upload functionality
+   - Grading interface
+   - Feedback system
+   - Due date management
 
-1. UI/UX Improvements
-   - Add more interactive elements
-   - Implement loading states
-   - Add micro-interactions
-   - Enhance mobile responsiveness
+2. Discussion Forum
+   - Thread creation
+   - Comment system
+   - Rich text editor
+   - Notifications
 
-2. Course Features
-   - Implement quiz system
-   - Add discussion features
-   - Create file upload system
-   - Enhance progress tracking
+3. Testing
+   - Unit tests for models
+   - Integration tests for views
+   - UI testing
+   - Performance testing
 
-3. Technical Improvements
-   - API development
-   - Caching system
-   - Background tasks
-   - Performance optimization
+4. Documentation
+   - API documentation
+   - User guides
+   - Development guides
+   - Security documentation
 
-### Lessons Learned
+## Development Guidelines
+- Follow Django best practices
+- Maintain clean code structure
+- Document all changes
+- Test thoroughly
+- Consider security implications
+- Keep dependencies updated
+- Follow UI/UX standards
+- Optimize performance
 
-1. Always activate virtual environment before running commands
-2. Keep track of all dependencies in requirements.txt
-3. Plan template structure before implementation
-4. Consider future scalability when making architectural decisions
-5. Check for indirect dependencies of installed packages
-6. Some packages may have dependencies that aren't automatically installed
-7. Security-related packages often have additional dependencies
-8. Check for deprecated settings when using third-party packages
-9. Plan migration strategy when adding custom user model
-10. Course Management
-    - Plan content structure before implementation
-    - Consider scalability in enrollment system
-    - Design for progressive content delivery
-    - Implement proper access control
+## Server Startup Issue (2024-03-21)
 
-### Revision History
+### Error Description
+When attempting to start the Django development server with `python manage.py runserver`, we encountered the following error:
+```
+ValueError: Dependency on app with no migrations: accounts
+```
 
-1. Initial template structure
-   - Original: Flat structure
-   - Revised: Proper directory structure
-   - Reason: Better organization and maintainability
+### Root Cause
+The error indicates that there's a dependency on the `accounts` app, but this app doesn't have any migrations set up. This typically happens when:
+1. A new app is added to INSTALLED_APPS but migrations haven't been created
+2. There are dependencies between apps that reference the `accounts` app
 
-2. Authentication approach
-   - Original: Basic Django auth
-   - Revised: django-allauth with social login
-   - Reason: More comprehensive solution
+### Investigation Findings
+1. The `accounts` app is properly configured in `INSTALLED_APPS`
+2. The app has a migrations directory with an initial migration file (`0001_initial.py`)
+3. The app defines a custom User model that extends `AbstractUser`
+4. The custom User model is properly configured in settings.py with `AUTH_USER_MODEL = 'accounts.User'`
 
-3. Styling framework
-   - Original: Bootstrap
-   - Revised: Tailwind CSS
-   - Reason: More flexible and modern approach
+### Migration Error
+When attempting to run migrations, we encountered a new error:
+```
+django.db.migrations.exceptions.InconsistentMigrationHistory: Migration admin.0001_initial is applied before its dependency accounts.0001_initial on database 'default'
+```
 
-4. Course Management
-   - Original: Basic course listing
-   - Revised: Full course management system
-   - Reason: Better learning experience
+This error occurs because:
+1. The admin app's migrations were applied before the accounts app's migrations
+2. The admin app depends on the accounts app (since we're using a custom user model)
+3. This creates an inconsistent migration history
 
-### Dependency Management
+### Solution & Resolution
+To resolve this issue, we executed the following commands:
 
-1. Updated base.txt (2024-03-XX)
-   - Added django-allauth>=0.65.0 for social authentication
-   - Added Pillow>=10.2.0 for image handling
-   - Added requests>=2.31.0 for OAuth authentication
-   - Added PyJWT>=2.8.0 for JWT handling
-   - Added cryptography>=42.0.0 for security features
-   - Added django-filter for course filtering
-   - Added django-taggit for course tagging
-   - Maintained existing dependencies
-   - Note: All dependencies are version-pinned for stability
+1. First, we removed the existing database:
+```bash
+rm djangoapps/learnmore_plus/db.sqlite3
+```
 
-# Development Notes
+2. Navigated to the project directory:
+```bash
+cd djangoapps/learnmore_plus
+```
 
-## April 30, 2025 - Enrollment and Progress Tracking
+3. Activated the virtual environment:
+```bash
+source venv/bin/activate
+```
 
-### Enrollment System Architecture
-- Using two enrollment models for different purposes:
-  1. `CourseEnrollment`: Basic enrollment tracking
-  2. `Enrollment`: Detailed progress tracking with module-level granularity
+4. Created migrations:
+```bash
+python manage.py makemigrations
+# Output: No changes detected
+```
 
-### Progress Tracking Implementation
-- Progress is calculated at multiple levels:
-  1. Course level: Overall completion percentage
-  2. Module level: Individual module completion
-  3. Content level: Progress through course materials
+5. Applied migrations in the correct order:
+```bash
+python manage.py migrate
+# Output:
+# Operations to perform:
+#   Apply all migrations: account, accounts, admin, auth, contenttypes, sessions, sites, socialaccount
+# Running migrations:
+#   Applying contenttypes.0001_initial... OK
+#   Applying contenttypes.0002_remove_content_type_name... OK
+#   Applying auth.0001_initial... OK
+#   [Additional migrations applied successfully...]
+```
 
-### Time Tracking
-- Course duration calculation:
-  ```python
-  total_duration = sum(
-      content.estimated_time or 0
-      for module in course.modules.all()
-      for content in module.contents.all()
-  )
-  ```
-- Time spent calculation:
-  ```python
-  time_spent = int(total_duration * (enrollment.progress / 100))
-  ```
-- Time remaining calculation:
-  ```python
-  time_remaining = total_duration - time_spent
-  ```
+The server now starts successfully without any migration errors.
 
-### Database Optimizations
-- Using `select_related` and `prefetch_related` for efficient queries
-- Prefetching course modules and contents to reduce database hits
-- Caching calculated values on course objects
+### Additional Warnings
+The server also showed some deprecation warnings related to django-allauth settings:
+- `ACCOUNT_AUTHENTICATION_METHOD` is deprecated
+- `ACCOUNT_EMAIL_REQUIRED` is deprecated
+- `ACCOUNT_USERNAME_REQUIRED` is deprecated
 
-### Known Issues and Solutions
-1. Enrollment Duplication
-   - Solution: Check both enrollment models before creating new records
-   - Implementation: Added checks in `course_enroll` view
+These should be updated to use the new settings format:
+- `ACCOUNT_LOGIN_METHODS = {'username', 'email'}`
+- `ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']`
 
-2. Progress Synchronization
-   - Solution: Update both enrollment models when progress changes
-   - Implementation: Added synchronization in `course_learn` view
+## Admin Dashboard Implementation (2024-03-26)
 
-3. Time Calculation
-   - Solution: Calculate time based on content estimated_time
-   - Implementation: Added time calculations in learning progress view
+### Dashboard Models
+1. Created Subscription model
+   - Added subscription types (basic, premium, enterprise)
+   - Added status tracking (active, cancelled, expired)
+   - Added price and date fields
+   - Added relationship to User model
 
-## Previous Notes 
+2. Created Revenue model
+   - Added relationship to Subscription model
+   - Added amount and date tracking
+   - Added payment method tracking
+   - Added transaction ID for reference
+
+### Dashboard Views
+1. Implemented metrics processing
+   - Total users count
+   - New registrations tracking
+   - Active subscriptions count
+   - Total revenue calculation
+   - User growth trends
+   - Revenue growth trends
+
+2. Added chart data processing
+   - User growth over 6 months
+   - User distribution by role
+   - Dynamic data updates
+   - Trend calculations
+
+### Template Enhancements
+1. Added metrics cards
+   - Dynamic data display
+   - Trend indicators
+   - Color-coded status
+   - Responsive layout
+
+2. Implemented charts
+   - User growth line chart
+   - User distribution doughnut chart
+   - Dynamic data updates
+   - Responsive design
+
+### Migration Process
+1. Added dashboard app to INSTALLED_APPS
+2. Created initial migrations
+3. Applied migrations in correct order
+4. Verified model relationships
+
+### Issues and Solutions
+1. Migration Dependencies
+   - Problem: Migration order issues with dashboard app
+   - Solution: Added dashboard app to INSTALLED_APPS and recreated migrations
+   - Impact: Migrations now apply correctly
+
+2. Chart Data Processing
+   - Problem: Chart data not properly formatted for JavaScript
+   - Solution: Added proper data formatting in view
+   - Impact: Charts now display correctly
+
+3. Metric Calculations
+   - Problem: Growth calculations failing with zero values
+   - Solution: Added null checks and default values
+   - Impact: Metrics now handle edge cases properly
+
+### Next Steps
+1. Course Management
+   - Plan database schema
+   - Design UI components
+   - Implement CRUD operations
+   - Add enrollment tracking
+
+2. Content Management
+   - Design file storage system
+   - Plan versioning strategy
+   - Create upload interface
+   - Implement media handling
+
+3. Assessment System
+   - Design quiz structure
+   - Plan grading system
+   - Create assignment interface
+   - Implement progress tracking
+
+## Previous Next Steps
+1. ✅ Reset the database and apply migrations in the correct order
+2. Update deprecated allauth settings
+3. Document any additional issues or solutions as we proceed
+
+## Authentication & User Management
+- Implemented user registration with email verification
+- Implemented user login with social authentication (Google)
+- Implemented user logout with proper session handling
+- Added password reset functionality
+- Added user profile management
+- Added user roles (student, teacher, admin)
+- Added user permissions
+- Added user activity tracking
+- Added user session management
+- Added user preferences
+- Added user notifications
+- Added user messaging
+- Added user groups
+- Added user invitations
+- Added user export/import
+- Added user analytics
+- Added user reporting
+- Added user audit logs
+
+## UI/UX Improvements (2024-04-30)
+- Fixed broken default avatar image in course catalog
+- Replaced static image with inline SVG user icon
+- Improved course card design with consistent spacing
+- Enhanced filter sidebar with better organization
+- Added proper hover states and transitions
+- Improved accessibility with proper ARIA labels
+- Enhanced mobile responsiveness
+- Added proper focus states for interactive elements
+
+## Troubleshooting
+- Fixed login page text color for better readability
+- Fixed admin dashboard template missing error
+- Implemented secure session handling
+- Implemented proper message clearing on logout
+- Implemented secure cookie handling
+- Implemented proper CSRF protection
+- Implemented proper XSS protection
+- Implemented proper SQL injection protection
+- Implemented proper file upload security
+- Implemented proper password hashing
+- Implemented proper session management
+- Implemented proper user authentication
+- Implemented proper user authorization
+- Implemented proper user validation
+- Implemented proper form validation
+- Implemented proper error handling
+- Implemented proper logging
+- Implemented proper monitoring
+- Implemented proper backup
+- Implemented proper restore
+- Implemented proper security
+- Implemented proper performance
+- Implemented proper scalability
+- Implemented proper availability
+- Implemented proper disaster recovery
+- Implemented proper maintenance
+- Implemented proper updates
+- Implemented proper documentation
+- Implemented proper training
+- Implemented proper support
+- Implemented proper audit
+
+## Course Management Implementation (April 29, 2025)
+
+### Course Models
+1. Created CourseCategory model
+   - Added name and description fields
+   - Added slug field for URLs
+   - Added timestamps for tracking
+   - Added proper ordering
+
+2. Created Course model
+   - Added title and description fields
+   - Added slug field for URLs
+   - Added category relationship
+   - Added instructor relationship
+   - Added student relationships through CourseEnrollment
+   - Added status tracking (draft, published, archived)
+   - Added date fields (start, end, created, updated)
+   - Added price and max students fields
+   - Added featured flag
+   - Added thumbnail support
+   - Added proper ordering and slug generation
+
+3. Created CourseEnrollment model
+   - Added course and student relationships
+   - Added status tracking (active, completed, dropped)
+   - Added enrollment and completion dates
+   - Added progress tracking
+   - Added unique constraint for course-student pairs
+
+4. Created CourseModule model
+   - Added course relationship
+   - Added title and description fields
+   - Added order field for sequencing
+   - Added timestamps for tracking
+   - Added unique constraint for course-order pairs
+
+5. Created CourseContent model
+   - Added module relationship
+   - Added title and content fields
+   - Added content type tracking (text, video, file, quiz, assignment)
+   - Added file upload support
+   - Added order field for sequencing
+   - Added required flag
+   - Added estimated time field
+   - Added timestamps for tracking
+   - Added unique constraint for module-order pairs
+
+### Admin Interface
+1. Implemented CourseCategoryAdmin
+   - Added list display fields
+   - Added search fields
+   - Added slug generation
+
+2. Implemented CourseAdmin
+   - Added list display fields
+   - Added list filters
+   - Added search fields
+   - Added slug generation
+   - Added raw ID fields for relationships
+   - Added date hierarchy
+
+3. Implemented CourseEnrollmentAdmin
+   - Added list display fields
+   - Added list filters
+   - Added search fields
+   - Added raw ID fields for relationships
+   - Added date hierarchy
+
+4. Implemented CourseModuleAdmin
+   - Added list display fields
+   - Added list filters
+   - Added search fields
+   - Added raw ID fields for relationships
+   - Added proper ordering
+
+5. Implemented CourseContentAdmin
+   - Added list display fields
+   - Added list filters
+   - Added search fields
+   - Added raw ID fields for relationships
+   - Added proper ordering
+
+### Course Catalog
+1. Implemented catalog view
+   - Added search functionality
+   - Added category filtering
+   - Added price range filtering
+   - Added level filtering
+   - Added proper ordering
+
+2. Created catalog template
+   - Added responsive grid layout
+   - Added course cards with thumbnails
+   - Added course information display
+   - Added price and rating display
+   - Added featured badge
+   - Added placeholder image for missing thumbnails
+
+3. Added filtering sidebar
+   - Added category filters
+   - Added price range slider
+   - Added level filters
+   - Added mobile responsiveness
+   - Added filter persistence
+
+4. Implemented search functionality
+   - Added search form
+   - Added search results display
+   - Added empty state handling
+   - Added search persistence
+
+### Issues and Solutions
+1. Migration Order
+   - Problem: Migration order issues with new models
+   - Solution: Created migrations in correct order
+   - Impact: Migrations now apply correctly
+
+2. File Upload
+   - Problem: File upload handling for course thumbnails
+   - Solution: Added proper file field configuration
+   - Impact: File uploads now work correctly
+
+3. Search Implementation
+   - Problem: Search across multiple fields
+   - Solution: Used Q objects for complex queries
+   - Impact: Search now works across all relevant fields
+
+4. Filter Persistence
+   - Problem: Filter state not persisting
+   - Solution: Added proper form handling
+   - Impact: Filters now persist across page loads
+
+### Next Steps
+1. Course Detail Page
+   - Create detail template
+   - Implement enrollment
+   - Add content preview
+   - Display modules
+
+2. Course Creator
+   - Create creation form
+   - Implement module management
+   - Add file upload
+   - Add preview
+
+3. Course Editor
+   - Create editing interface
+   - Implement reordering
+   - Add content editing
+   - Add status management
+
+4. User Dashboard
+   - Create dashboard
+   - Show enrolled courses
+   - Display progress
+   - Track completion
+
+## Previous Notes
+[Previous notes remain unchanged...]
+
+## Demo Data & Seeder Notes
+
+- The new API-driven seeder creates a rich, realistic dataset for demoing the LMS.
+- All user roles (admin, coordinator, instructor, student) are represented with real names and emails.
+- Courses, modules, content, quizzes, enrollments, progress, and quiz attempts are all created via the API.
+- The data supports demoing:
+  - Pagination in the course catalog
+  - Role-based dashboards and permissions
+  - Enrollment management, progress tracking, and analytics
+  - Quiz workflows (pre-check, knowledge-check, attempts, grading)
+- The system is now ready for end-to-end workflow demos for every user type.
+
+## Recent UI/UX Improvements (2024-06)
+- Improved button contrast and accessibility for homepage CTAs and 'Browse All Courses'.
+- 'Browse All Courses' is now a prominent button, visible and accessible in both light and dark modes.
+- Fixed number circle contrast in 'How Enhanced LearnMore Works'.
+- Removed duplicate 'Or continue with' on login page.
+- All changes follow accessibility and usability best practices. 
