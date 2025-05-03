@@ -1,0 +1,374 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ course.title }} - Enhanced LearnMore{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 dark:bg-gray-800">
+    <!-- Course Header -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Course Info -->
+            <div class="lg:col-span-2">
+                <div class="flex items-center space-x-2 mb-4">
+                    <a href="{% url 'courses:course_catalog' %}" class="text-primary hover:text-primary-dark">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                    </a>
+                    <span class="text-gray-500 dark:text-gray-400">Back to Catalog</span>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">{{ course.title }}</h1>
+                <div class="flex flex-wrap items-center gap-4 mb-6">
+                    {% for instructor in course.instructors.all %}
+                    <div class="flex items-center space-x-2">
+                        <img src="{% if instructor.profile.avatar %}{{ instructor.profile.avatar.url }}{% else %}{% static 'images/default-avatar.svg' %}{% endif %}" 
+                             alt="{{ instructor.get_full_name|default:instructor.username }}"
+                             class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">By {{ instructor.get_full_name|default:instructor.username }}</span>
+                    </div>
+                    {% if not forloop.last %}
+                    <span class="text-sm text-gray-600 dark:text-gray-400">•</span>
+                    {% endif %}
+                    {% endfor %}
+                    <span class="text-sm text-gray-600 dark:text-gray-400">•</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">{{ course.enrollment_count }} students enrolled</span>
+                    {% if course.category %}
+                    <span class="text-sm text-gray-600 dark:text-gray-400">•</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">{{ course.category.name }}</span>
+                    {% endif %}
+                    <span class="text-sm text-gray-600 dark:text-gray-400">•</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">Last updated {{ course.updated_at|date:"M d, Y" }}</span>
+                </div>
+                <div class="prose dark:prose-invert max-w-none mb-8">
+                    {{ course.description|linebreaks }}
+                </div>
+            </div>
+
+            <!-- Course Card -->
+            <div class="lg:col-span-1">
+                <div class="bg-white dark:bg-gray-700 rounded-lg shadow-lg overflow-hidden sticky top-4">
+                    {% if course.thumbnail %}
+                    <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" class="w-full h-48 object-cover">
+                    {% else %}
+                    <div class="w-full h-48 bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+                        <span class="text-gray-400 dark:text-gray-500">No thumbnail</span>
+                    </div>
+                    {% endif %}
+                    <div class="p-6">
+                        <div class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                            {% if course.price > 0 %}
+                            ${{ course.price }}
+                            {% else %}
+                            Free
+                            {% endif %}
+                        </div>
+                        {% if not is_enrolled %}
+                            {% if can_enroll %}
+                                {% if course.price > 0 %}
+                                <form method="post" action="{% url 'courses:course_enroll' course.slug %}" class="mb-4">
+                                    {% csrf_token %}
+                                    <button type="submit" class="w-full bg-primary text-gray-900 dark:text-white border-2 border-primary dark:border-white px-6 py-3 rounded-lg hover:bg-primary-dark hover:text-white transition-colors">
+                                        Purchase & Enroll Now
+                                    </button>
+                                </form>
+                                <div class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                    <i class="bi bi-shield-check"></i>
+                                    Secure payment processing
+                                </div>
+                                {% else %}
+                                <form method="post" action="{% url 'courses:course_enroll' course.slug %}" class="mb-4">
+                                    {% csrf_token %}
+                                    <button type="submit" class="w-full bg-primary text-gray-900 dark:text-white border-2 border-primary dark:border-white px-6 py-3 rounded-lg hover:bg-primary-dark hover:text-white transition-colors">
+                                        Enroll Now
+                                    </button>
+                                </form>
+                                {% endif %}
+                            {% else %}
+                            <div class="bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 p-4 rounded-lg mb-4">
+                                This course is currently full.
+                            </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="mb-4">
+                                <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">Your Progress</div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                                    <div class="bg-primary h-2 rounded-full" style="width: {{ enrollment.progress }}%"></div>
+                                </div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ enrollment.progress }}% Complete</div>
+                            </div>
+                            <a href="{% url 'courses:course_learn' course.slug %}" class="block w-full bg-primary text-gray-900 dark:text-white border-2 border-primary dark:border-white px-6 py-3 rounded-lg hover:bg-primary-dark hover:text-white transition-colors text-center">
+                                Continue Learning
+                            </a>
+                        {% endif %}
+                        <div class="mt-6 space-y-4">
+                            <div class="flex items-center space-x-2">
+                                <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span class="text-sm text-gray-600 dark:text-gray-400">{{ total_duration }} minutes of content</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span class="text-sm text-gray-600 dark:text-gray-400">{{ course.modules.count }} modules</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                </svg>
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Level: {{ course.get_level_display }}</span>
+                            </div>
+                            <div class="flex items-center space-x-2 cursor-pointer" data-bs-toggle="modal" data-bs-target="#qrCodeModal">
+                                <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                                </svg>
+                                <span class="text-sm text-primary dark:text-primary-light">View QR Code</span>
+                            </div>
+                            {% if user.is_authenticated %}
+                            <div class="flex items-center space-x-2">
+                                <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                </svg>
+                                <a href="{% url 'ai_tutor:course_tutor' course.slug %}" class="text-sm text-primary dark:text-primary-light">Get AI Tutor Help</a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Content -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Course Modules -->
+            <div class="lg:col-span-2">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Course Content</h2>
+                <div class="space-y-4">
+                    {% for module in modules %}
+                    <div class="bg-white dark:bg-gray-700 rounded-lg shadow-sm overflow-hidden">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">{{ module.title }}</h3>
+                                <span class="text-sm text-gray-600 dark:text-gray-400">
+                                    {{ module.contents.count }} lessons
+                                </span>
+                            </div>
+                            {% if module.description %}
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">{{ module.description }}</p>
+                            {% endif %}
+                            <div class="space-y-2">
+                                {% for content in module.contents.all %}
+                                <div class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="w-6 h-6 flex items-center justify-center text-gray-600 dark:text-gray-400">
+                                            {% if content.content_type == 'video' %}
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            {% elif content.content_type == 'file' %}
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                            </svg>
+                                            {% elif content.content_type == 'quiz' %}
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                            </svg>
+                                            {% else %}
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                            </svg>
+                                            {% endif %}
+                                        </span>
+                                        <span class="text-gray-900 dark:text-white">{{ content.title }}</span>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        {% if content.estimated_time %}
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">{{ content.estimated_time }} min</span>
+                                        {% endif %}
+                                        {% if content.is_required %}
+                                        <span class="text-xs bg-primary/10 text-primary px-2 py-1 rounded">Required</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="bg-white dark:bg-gray-700 rounded-lg shadow-sm p-6">
+                        <p class="text-gray-600 dark:text-gray-400">No modules available yet.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Course Info Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="bg-white dark:bg-gray-700 rounded-lg shadow-sm p-6">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Course Information</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Duration</h4>
+                            <p class="text-gray-900 dark:text-white">{{ total_duration }} minutes</p>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Level</h4>
+                            <p class="text-gray-900 dark:text-white">{{ course.get_level_display }}</p>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Last Updated</h4>
+                            <p class="text-gray-900 dark:text-white">{{ course.updated_at|date:"F j, Y" }}</p>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Language</h4>
+                            <p class="text-gray-900 dark:text-white">English</p>
+                        </div>
+                        {% if course.max_students > 0 %}
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Enrollment</h4>
+                            <p class="text-gray-900 dark:text-white">{{ course.enrollment_count }} / {{ course.max_students }} students</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QR Code Modal -->
+<div class="modal fade" id="qrCodeModal" tabindex="-1" aria-labelledby="qrCodeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-white dark:bg-gray-800 border-0 rounded-lg shadow-lg">
+            <div class="modal-header border-b border-gray-200 dark:border-gray-700">
+                <h5 class="modal-title text-xl font-bold text-gray-900 dark:text-white" id="qrCodeModalLabel">
+                    QR Codes for {{ course.title }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Course QR Code -->
+                    <div class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-sm">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Course QR Code</h3>
+                        <div class="flex flex-col items-center space-y-4">
+                            {% if course_qr_code and course_qr_code.code %}
+                                <img src="{{ course_qr_code.code.url }}" alt="QR Code for {{ course.title }}" class="w-48 h-48">
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Scan this code to access the full course.
+                                </p>
+                                <div class="flex space-x-2">
+                                    <a href="{{ course_qr_code.code.url }}" download class="bg-primary text-white px-4 py-2 rounded-lg text-sm hover:bg-primary-dark transition-colors">
+                                        Download
+                                    </a>
+                                    <a href="{% url 'qr_codes:detail' course_qr_code.id %}" class="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
+                                        View Statistics
+                                    </a>
+                                </div>
+                            {% else %}
+                                <p class="text-gray-600 dark:text-gray-400">QR code not available.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Module QR Codes -->
+                    <div class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-sm">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Module QR Codes</h3>
+                        <div class="space-y-6">
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                Select a module to view and download its QR code.
+                            </p>
+                            <div class="space-y-2 max-h-60 overflow-y-auto pr-2">
+                                {% for module in modules %}
+                                    <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors cursor-pointer qr-module-item" data-module-id="{{ module.id }}">
+                                        <span class="text-gray-900 dark:text-white">{{ module.title }}</span>
+                                        <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                        </svg>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div id="moduleQrDisplay" class="hidden mt-4">
+                                <div class="flex flex-col items-center space-y-4">
+                                    <div id="selectedModuleTitle" class="text-center font-medium text-gray-900 dark:text-white"></div>
+                                    <img id="selectedModuleQr" src="" alt="Module QR Code" class="w-40 h-40">
+                                    <div class="flex space-x-2">
+                                        <a id="downloadModuleQr" href="" download class="bg-primary text-white px-4 py-2 rounded-lg text-sm hover:bg-primary-dark transition-colors">
+                                            Download
+                                        </a>
+                                        <a id="viewModuleStats" href="" class="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
+                                            View Statistics
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-8">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Print Options</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Generate a printable sheet with QR codes for this course and its modules.
+                    </p>
+                    <div class="flex justify-center">
+                        <a href="{% url 'qr_codes:print_course' course.id %}" class="bg-primary text-white px-6 py-3 rounded-lg text-sm hover:bg-primary-dark transition-colors">
+                            Generate Printable Sheet
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Module QR Codes -->
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Module QR codes
+    const moduleQrCodes = {
+        {% for module_id, qr_code in module_qr_codes.items %}
+            "{{ module_id }}": {
+                "title": "{{ modules|dictsort:'id'|dictsortreversed:'id'|first }}",
+                "imageUrl": "{{ qr_code.code.url }}",
+                "statsUrl": "{% url 'qr_codes:detail' qr_code.id %}"
+            }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
+    
+    // Handle module selection
+    const moduleItems = document.querySelectorAll('.qr-module-item');
+    const moduleQrDisplay = document.getElementById('moduleQrDisplay');
+    const selectedModuleTitle = document.getElementById('selectedModuleTitle');
+    const selectedModuleQr = document.getElementById('selectedModuleQr');
+    const downloadModuleQr = document.getElementById('downloadModuleQr');
+    const viewModuleStats = document.getElementById('viewModuleStats');
+    
+    moduleItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const moduleId = this.getAttribute('data-module-id');
+            const moduleData = moduleQrCodes[moduleId];
+            
+            if (moduleData) {
+                selectedModuleTitle.textContent = moduleData.title;
+                selectedModuleQr.src = moduleData.imageUrl;
+                selectedModuleQr.alt = `QR Code for ${moduleData.title}`;
+                downloadModuleQr.href = moduleData.imageUrl;
+                viewModuleStats.href = moduleData.statsUrl;
+                moduleQrDisplay.classList.remove('hidden');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

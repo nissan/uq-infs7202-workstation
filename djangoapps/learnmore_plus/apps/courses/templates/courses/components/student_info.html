@@ -1,0 +1,27 @@
+<div class="flex items-center gap-4">
+    {% if student_profile and student_profile.avatar %}
+        <img src="{{ student_profile.avatar.url }}" alt="Avatar" class="w-14 h-14 rounded-full object-cover border-2 border-primary">
+    {% else %}
+        <div class="w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+            <i class="fas fa-user text-gray-500 dark:text-gray-400 text-2xl"></i>
+        </div>
+    {% endif %}
+    <div>
+        <div class="font-medium text-gray-900 dark:text-white">{{ student.get_full_name }}</div>
+        <div class="text-gray-500 dark:text-gray-400 text-sm">{{ student.email }}</div>
+        {% if student_profile %}
+            {% if student_profile.bio %}<div class="text-gray-500 dark:text-gray-400 text-xs mt-1">{{ student_profile.bio }}</div>{% endif %}
+            {% if student_profile.location %}<div class="text-gray-500 dark:text-gray-400 text-xs">Location: {{ student_profile.location }}</div>{% endif %}
+            {% if student_profile.birth_date %}<div class="text-gray-500 dark:text-gray-400 text-xs">Birth Date: {{ student_profile.birth_date }}</div>{% endif %}
+        {% endif %}
+        <div class="mt-1">
+            {% for group in student.groups.all %}
+                <span class="inline-block bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs font-semibold px-2 py-1 rounded-full mr-1">{{ group.name }}</span>
+            {% endfor %}
+        </div>
+        <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            <span>Last Login: {{ last_login|date:"M d, Y H:i" }}</span><br>
+            <span>Date Joined: {{ date_joined|date:"M d, Y" }}</span>
+        </div>
+    </div>
+</div> 

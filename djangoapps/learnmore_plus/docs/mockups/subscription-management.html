@@ -1,0 +1,2771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Management - Enhanced LearnMore</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --primary-light: #dbeafe;
+            --secondary: #64748b;
+            --light: #f8fafc;
+            --dark: #0f172a;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #06b6d4;
+            --admin-bg: #f1f5f9;
+            --admin-sidebar: #1e293b;
+            --admin-sidebar-hover: #334155;
+            --admin-card: #ffffff;
+            --border-color: #e2e8f0;
+            --text-muted: #94a3b8;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark);
+            background-color: var(--admin-bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header Styles */
+        .admin-header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 0.75rem 1.5rem;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 1030;
+            height: 70px;
+        }
+        
+        .header-logo {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.25rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo-icon {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .admin-badge {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .action-icon {
+            position: relative;
+            color: var(--secondary);
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .action-icon:hover {
+            color: var(--primary);
+            background-color: var(--primary-light);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-profile:hover {
+            background-color: var(--primary-light);
+        }
+        
+        .admin-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .admin-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .admin-info {
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .admin-info {
+                display: block;
+            }
+        }
+        
+        .admin-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin: 0;
+            font-size: 0.875rem;
+        }
+        
+        .admin-role {
+            color: var(--secondary);
+            font-size: 0.75rem;
+            margin: 0;
+        }
+        
+        /* Sidebar Styles */
+        .admin-sidebar {
+            background-color: var(--admin-sidebar);
+            width: 260px;
+            position: fixed;
+            top: 70px;
+            left: 0;
+            bottom: 0;
+            z-index: 1020;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-collapsed .admin-sidebar {
+            width: 70px;
+        }
+        
+        .sidebar-nav {
+            padding: 1.5rem 0;
+        }
+        
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .nav-section-title {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 0.75rem 1.5rem;
+            margin: 0;
+        }
+        
+        .sidebar-collapsed .nav-section-title {
+            display: none;
+        }
+        
+        .nav-item {
+            margin-bottom: 0.25rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-link:hover {
+            background-color: var(--admin-sidebar-hover);
+            color: white;
+        }
+        
+        .nav-link.active {
+            background-color: var(--admin-sidebar-hover);
+            color: white;
+            border-left-color: var(--primary);
+        }
+        
+        .nav-icon {
+            font-size: 1.25rem;
+            width: 24px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        .nav-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .sidebar-collapsed .nav-text {
+            display: none;
+        }
+        
+        .sidebar-collapsed .nav-link {
+            padding: 0.75rem;
+            justify-content: center;
+        }
+        
+        .sidebar-toggle {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1030;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-toggle:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.05);
+        }
+        
+        .sidebar-collapsed .sidebar-toggle {
+            left: 1.5rem;
+        }
+        
+        /* Main Content Styles */
+        .admin-main {
+            margin-left: 260px;
+            margin-top: 70px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .sidebar-collapsed .admin-main {
+            margin-left: 70px;
+        }
+        
+        .page-title {
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        /* Right Sidebar */
+        .right-sidebar {
+            position: fixed;
+            top: 70px;
+            right: 0;
+            bottom: 0;
+            width: 320px;
+            background-color: white;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.05);
+            overflow-y: auto;
+            z-index: 1010;
+            transition: all 0.3s ease;
+            padding: 1.5rem;
+        }
+        
+        .right-sidebar-collapsed .right-sidebar {
+            transform: translateX(100%);
+        }
+        
+        .right-sidebar-toggle {
+            position: fixed;
+            top: 85px;
+            right: 320px;
+            width: 24px;
+            height: 40px;
+            background-color: white;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1015;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.05);
+            border-radius: 4px 0 0 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .right-sidebar-collapsed .right-sidebar-toggle {
+            right: 0;
+        }
+        
+        .right-sidebar-section {
+            margin-bottom: 2rem;
+        }
+        
+        .right-sidebar-title {
+            font-weight: 700;
+            color: var(--dark);
+            font-size: 1.1rem;
+            margin-bottom: 1.25rem;
+        }
+        
+        /* Content Container */
+        .content-container {
+            margin-right: 320px;
+            transition: all 0.3s ease;
+        }
+        
+        .right-sidebar-collapsed .content-container {
+            margin-right: 0;
+        }
+        
+        /* Tabs */
+        .nav-tabs {
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .nav-tabs .nav-link {
+            border: none;
+            border-bottom: 2px solid transparent;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            color: var(--secondary);
+            background-color: transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            color: var(--primary);
+            border-color: transparent;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--primary);
+            border-color: var(--primary);
+            background-color: transparent;
+        }
+        
+        /* Subscription Plans Tab */
+        .tab-content {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+        }
+        
+        .tab-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .tab-title {
+            font-weight: 700;
+            color: var(--dark);
+            font-size: 1.25rem;
+            margin: 0;
+        }
+        
+        .tab-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .view-toggle {
+            display: flex;
+            align-items: center;
+            background-color: var(--light);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .view-toggle-btn {
+            background: none;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            color: var(--secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .view-toggle-btn:hover {
+            color: var(--primary);
+        }
+        
+        .view-toggle-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        /* Table Styles */
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        .subscription-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .subscription-table th {
+            background-color: var(--light);
+            color: var(--secondary);
+            font-weight: 600;
+            padding: 1rem;
+            text-align: left;
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .subscription-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+        
+        .subscription-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .subscription-table tr:hover {
+            background-color: var(--primary-light);
+        }
+        
+        .plan-name {
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .plan-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .plan-basic .plan-icon {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+        
+        .plan-premium .plan-icon {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+        
+        .plan-enterprise .plan-icon {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+        
+        .plan-trial .plan-icon {
+            background-color: rgba(6, 182, 212, 0.1);
+            color: var(--info);
+        }
+        
+        .plan-price {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .price-monthly {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .price-annual {
+            color: var(--secondary);
+            font-size: 0.875rem;
+        }
+        
+        .plan-limits {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .limit-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--secondary);
+            font-size: 0.875rem;
+        }
+        
+        .limit-icon {
+            color: var(--primary);
+            font-size: 0.75rem;
+        }
+        
+        .feature-flags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .feature-badge {
+            background-color: var(--light);
+            color: var(--secondary);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .subscribers-count {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .table-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--light);
+            color: var(--secondary);
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+        
+        .action-btn.edit:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+        
+        .action-btn.disable:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+        
+        .status-trial {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+        
+        .status-expired {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        
+        .status-pending {
+            background-color: rgba(6, 182, 212, 0.1);
+            color: var(--info);
+        }
+        
+        /* Plan Comparison */
+        .plan-comparison {
+            display: none;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .comparison-table th {
+            background-color: var(--light);
+            color: var(--secondary);
+            font-weight: 600;
+            padding: 1rem;
+            text-align: left;
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table .feature-name {
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .comparison-table .feature-included {
+            color: var(--success);
+            font-size: 1.25rem;
+            text-align: center;
+        }
+        
+        .comparison-table .feature-excluded {
+            color: var(--danger);
+            font-size: 1.25rem;
+            text-align: center;
+        }
+        
+        .comparison-table .feature-limited {
+            color: var(--warning);
+            font-size: 0.875rem;
+            text-align: center;
+        }
+        
+        /* Subscribers Tab */
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.5rem 1rem 0.5rem 2.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: var(--dark);
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary);
+            font-size: 1rem;
+        }
+        
+        .filter-dropdown .dropdown-toggle {
+            background-color: var(--light);
+            border: none;
+            color: var(--secondary);
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .filter-dropdown .dropdown-toggle:hover,
+        .filter-dropdown .dropdown-toggle:focus {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+        
+        .bulk-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .bulk-actions-dropdown .dropdown-toggle {
+            background-color: var(--primary);
+            border: none;
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .bulk-actions-dropdown .dropdown-toggle:hover,
+        .bulk-actions-dropdown .dropdown-toggle:focus {
+            background-color: var(--primary-dark);
+        }
+        
+        /* Institutional Subscriptions Tab */
+        .institution-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .institution-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .institution-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .institution-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        
+        .institution-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .institution-details {
+            flex: 1;
+        }
+        
+        .institution-name {
+            font-weight: 700;
+            color: var(--dark);
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .institution-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--secondary);
+            font-size: 0.875rem;
+        }
+        
+        .meta-icon {
+            color: var(--primary);
+            font-size: 0.875rem;
+        }
+        
+        .institution-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .seat-allocation {
+            margin-top: 1.5rem;
+        }
+        
+        .allocation-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .allocation-title {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1rem;
+        }
+        
+        .allocation-summary {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--secondary);
+            font-size: 0.875rem;
+        }
+        
+        .allocation-progress {
+            flex: 1;
+            height: 8px;
+            background-color: var(--light);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .allocation-fill {
+            height: 100%;
+            background-color: var(--primary);
+            border-radius: 4px;
+        }
+        
+        .allocation-text {
+            font-weight: 600;
+            color: var(--dark);
+            white-space: nowrap;
+        }
+        
+        .department-list {
+            margin-top: 1.5rem;
+        }
+        
+        .department-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background-color: var(--light);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+        }
+        
+        .department-name {
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .department-seats {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .seats-count {
+            color: var(--secondary);
+            font-size: 0.875rem;
+        }
+        
+        .seats-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .seat-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            color: var(--secondary);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            font-size: 0.75rem;
+        }
+        
+        .seat-btn:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary-light);
+        }
+        
+        .seat-input {
+            width: 40px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        .sso-config {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: var(--light);
+            border-radius: 8px;
+        }
+        
+        .sso-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .sso-title {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .sso-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .sso-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .sso-enabled {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+        
+        .sso-disabled {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        
+        .sso-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .sso-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .sso-label {
+            width: 120px;
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 0.875rem;
+        }
+        
+        .sso-value {
+            flex: 1;
+            color: var(--secondary);
+            font-size: 0.875rem;
+        }
+        
+        /* Right Sidebar Content */
+        .stat-card {
+            background-color: var(--light);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+        
+        .stat-title {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.875rem;
+        }
+        
+        .stat-icon {
+            color: var(--primary);
+            font-size: 1rem;
+        }
+        
+        .stat-value {
+            font-weight: 700;
+            color: var(--dark);
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .trend-up {
+            color: var(--success);
+        }
+        
+        .trend-down {
+            color: var(--danger);
+        }
+        
+        .trend-neutral {
+            color: var(--secondary);
+        }
+        
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .activity-item {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+            color: white;
+        }
+        
+        .activity-new {
+            background-color: var(--primary);
+        }
+        
+        .activity-upgrade {
+            background-color: var(--success);
+        }
+        
+        .activity-cancel {
+            background-color: var(--danger);
+        }
+        
+        .activity-renew {
+            background-color: var(--warning);
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-title {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .activity-text {
+            color: var(--secondary);
+            font-size: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .activity-time {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+        
+        .approval-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .approval-item {
+            background-color: var(--light);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        
+        .approval-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+        
+        .approval-title {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .approval-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+        
+        .approval-text {
+            color: var(--secondary);
+            font-size: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .approval-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .approve-btn {
+            flex: 1;
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .approve-btn:hover {
+            background-color: #0d9488;
+        }
+        
+        .reject-btn {
+            flex: 1;
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .reject-btn:hover {
+            background-color: #dc2626;
+        }
+        
+        /* Mobile Styles */
+        @media (max-width: 991.98px) {
+            .admin-sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+            }
+            
+            .admin-sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .admin-main {
+                margin-left: 0;
+            }
+            
+            .sidebar-collapsed .admin-main {
+                margin-left: 0;
+            }
+            
+            .sidebar-backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 1015;
+                display: none;
+            }
+            
+            .sidebar-backdrop.show {
+                display: block;
+            }
+            
+            .sidebar-toggle {
+                left: 1.5rem;
+            }
+            
+            .right-sidebar {
+                transform: translateX(100%);
+            }
+            
+            .right-sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .right-sidebar-toggle {
+                right: 0;
+            }
+            
+            .content-container {
+                margin-right: 0;
+            }
+        }
+        
+        @media (max-width: 767.98px) {
+            .admin-header {
+                padding: 0.75rem 1rem;
+            }
+            
+            .admin-main {
+                padding: 1.5rem 1rem;
+            }
+            
+            .tab-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filter-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .institution-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <a href="#" class="header-logo me-4">
+                    <i class="bi bi-book logo-icon"></i>
+                    <span>Enhanced LearnMore</span>
+                    <span class="admin-badge">Admin</span>
+                </a>
+            </div>
+            
+            <div class="header-actions">
+                <div class="action-icon">
+                    <i class="bi bi-search"></i>
+                </div>
+                
+                <div class="action-icon">
+                    <i class="bi bi-bell"></i>
+                    <div class="notification-badge">5</div>
+                </div>
+                
+                <div class="action-icon">
+                    <i class="bi bi-envelope"></i>
+                    <div class="notification-badge">3</div>
+                </div>
+                
+                <div class="dropdown">
+                    <div class="admin-profile" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="admin-avatar">
+                            <img src="https://placehold.co/40x40/3b82f6/ffffff?text=SA" alt="Admin Avatar">
+                        </div>
+                        <div class="admin-info">
+                            <p class="admin-name">Sarah Adams</p>
+                            <p class="admin-role">System Administrator</p>
+                        </div>
+                        <i class="bi bi-chevron-down ms-2 d-none d-md-block" style="font-size: 0.75rem; color: var(--secondary);"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>My Profile</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Account Settings</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-activity me-2"></i>Activity Log</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i>Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-nav">
+            <div class="nav-section">
+                <h6 class="nav-section-title">Main</h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="bi bi-speedometer2 nav-icon"></i>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="nav-section">
+                <h6 class="nav-section-title">Management</h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="bi bi-people nav-icon"></i>
+                            <span class="nav-text">User Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <i class="bi bi-credit-card nav-icon"></i>
+                            <span class="nav-text">Subscription Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="bi bi-journal-text nav-icon"></i>
+                            <span class="nav-text">Content Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="bi bi-building nav-icon"></i>
+                            <span class="nav-text">Institution Management</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="nav-section">
+                <h6 class="nav-section-title">System</h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="bi bi-gear nav-icon"></i>
+                            <span class="nav-text">System Settings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="bi bi-graph-up nav-icon"></i>
+                            <span class="nav-text">Analytics & Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="bi bi-shield-check nav-icon"></i>
+                            <span class="nav-text">Security</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="bi bi-database nav-icon"></i>
+                            <span class="nav-text">Backup & Restore</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="nav-section">
+                <h6 class="nav-section-title">Support</h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="bi bi-question-circle nav-icon"></i>
+                            <span class="nav-text">Help Center</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="bi bi-ticket nav-icon"></i>
+                            <span class="nav-text">Support Tickets</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- Sidebar Backdrop (Mobile) -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    
+    <!-- Sidebar Toggle Button -->
+    <div class="sidebar-toggle" id="sidebarToggle">
+        <i class="bi bi-chevron-left"></i>
+    </div>
+    
+    <!-- Right Sidebar -->
+    <aside class="right-sidebar" id="rightSidebar">
+        <div class="right-sidebar-section">
+            <h3 class="right-sidebar-title">Quick Statistics</h3>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Total Revenue</div>
+                    <div class="stat-icon"><i class="bi bi-currency-dollar"></i></div>
+                </div>
+                <div class="stat-value">$128,450</div>
+                <div class="stat-trend trend-up">
+                    <i class="bi bi-arrow-up"></i> 12% from last month
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Active Subscribers</div>
+                    <div class="stat-icon"><i class="bi bi-people"></i></div>
+                </div>
+                <div class="stat-value">18,349</div>
+                <div class="stat-trend trend-up">
+                    <i class="bi bi-arrow-up"></i> 5% from last month
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Churn Rate</div>
+                    <div class="stat-icon"><i class="bi bi-graph-down"></i></div>
+                </div>
+                <div class="stat-value">2.4%</div>
+                <div class="stat-trend trend-down">
+                    <i class="bi bi-arrow-down"></i> 0.5% from last month
+                </div>
+            </div>
+        </div>
+        
+        <div class="right-sidebar-section">
+            <h3 class="right-sidebar-title">Recent Activities</h3>
+            
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-icon activity-new">
+                        <i class="bi bi-plus"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">New Subscription</div>
+                        <div class="activity-text">John Smith subscribed to Basic Plan</div>
+                        <div class="activity-time">10 minutes ago</div>
+                    </div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-icon activity-upgrade">
+                        <i class="bi bi-arrow-up"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">Plan Upgrade</div>
+                        <div class="activity-text">Emily Johnson upgraded to Premium Plan</div>
+                        <div class="activity-time">45 minutes ago</div>
+                    </div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-icon activity-renew">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">Subscription Renewed</div>
+                        <div class="activity-text">Stanford University renewed Enterprise Plan</div>
+                        <div class="activity-time">2 hours ago</div>
+                    </div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-icon activity-cancel">
+                        <i class="bi bi-x"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">Subscription Cancelled</div>
+                        <div class="activity-text">Michael Chen cancelled Basic Plan</div>
+                        <div class="activity-time">5 hours ago</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="right-sidebar-section">
+            <h3 class="right-sidebar-title">Pending Approvals</h3>
+            
+            <div class="approval-list">
+                <div class="approval-item">
+                    <div class="approval-header">
+                        <div class="approval-title">
+                            <i class="bi bi-building"></i> UCLA Extension
+                        </div>
+                        <div class="approval-badge">Pending</div>
+                    </div>
+                    <div class="approval-text">Requesting Enterprise Plan with 500 seats. Needs approval for custom pricing.</div>
+                    <div class="approval-actions">
+                        <button class="approve-btn">Approve</button>
+                        <button class="reject-btn">Reject</button>
+                    </div>
+                </div>
+                
+                <div class="approval-item">
+                    <div class="approval-header">
+                        <div class="approval-title">
+                            <i class="bi bi-building"></i> Tech Solutions Inc.
+                        </div>
+                        <div class="approval-badge">Pending</div>
+                    </div>
+                    <div class="approval-text">Requesting Premium Plan with extended trial period of 60 days.</div>
+                    <div class="approval-actions">
+                        <button class="approve-btn">Approve</button>
+                        <button class="reject-btn">Reject</button>
+                    </div>
+                </div>
+                
+                <div class="approval-item">
+                    <div class="approval-header">
+                        <div class="approval-title">
+                            <i class="bi bi-person"></i> Sarah Williams
+                        </div>
+                        <div class="approval-badge">Pending</div>
+                    </div>
+                    <div class="approval-text">Requesting refund for Premium Plan subscription due to technical issues.</div>
+                    <div class="approval-actions">
+                        <button class="approve-btn">Approve</button>
+                        <button class="reject-btn">Reject</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- Right Sidebar Toggle -->
+    <div class="right-sidebar-toggle" id="rightSidebarToggle">
+        <i class="bi bi-chevron-right"></i>
+    </div>
+    
+    <!-- Main Content -->
+    <main class="admin-main">
+        <div class="content-container">
+            <h1 class="page-title">Subscription Management</h1>
+            
+            <!-- Tabs Navigation -->
+            <ul class="nav nav-tabs" id="subscriptionTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="plans-tab" data-bs-toggle="tab" data-bs-target="#plans" type="button" role="tab" aria-controls="plans" aria-selected="true">
+                        Subscription Plans
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="subscribers-tab" data-bs-toggle="tab" data-bs-target="#subscribers" type="button" role="tab" aria-controls="subscribers" aria-selected="false">
+                        Subscribers
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="institutions-tab" data-bs-toggle="tab" data-bs-target="#institutions" type="button" role="tab" aria-controls="institutions" aria-selected="false">
+                        Institutional Subscriptions
+                    </button>
+                </li>
+            </ul>
+            
+            <!-- Tabs Content -->
+            <div class="tab-content" id="subscriptionTabsContent">
+                <!-- Subscription Plans Tab -->
+                <div class="tab-pane fade show active" id="plans" role="tabpanel" aria-labelledby="plans-tab">
+                    <div class="tab-header">
+                        <h2 class="tab-title">Manage Subscription Plans</h2>
+                        
+                        <div class="tab-actions">
+                            <div class="view-toggle">
+                                <button class="view-toggle-btn active" id="tableViewBtn">
+                                    <i class="bi bi-table"></i> Table
+                                </button>
+                                <button class="view-toggle-btn" id="comparisonViewBtn">
+                                    <i class="bi bi-grid-3x3-gap"></i> Comparison
+                                </button>
+                            </div>
+                            
+                            <button class="btn btn-primary d-flex align-items-center gap-2">
+                                <i class="bi bi-plus"></i> Add New Plan
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Plans Table View -->
+                    <div class="table-responsive" id="plansTableView">
+                        <table class="subscription-table">
+                            <thead>
+                                <tr>
+                                    <th>Plan Name</th>
+                                    <th>Pricing</th>
+                                    <th>Limits</th>
+                                    <th>Features</th>
+                                    <th>Subscribers</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Basic Plan -->
+                                <tr>
+                                    <td>
+                                        <div class="plan-name plan-basic">
+                                            <div class="plan-icon">
+                                                <i class="bi bi-bookmark"></i>
+                                            </div>
+                                            <span>Basic Plan</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="plan-price">
+                                            <div class="price-monthly">$9.99/month</div>
+                                            <div class="price-annual">$99.99/year</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="plan-limits">
+                                            <div class="limit-item">
+                                                <i class="bi bi-person limit-icon"></i>
+                                                <span>1 User</span>
+                                            </div>
+                                            <div class="limit-item">
+                                                <i class="bi bi-book limit-icon"></i>
+                                                <span>50 Courses</span>
+                                            </div>
+                                            <div class="limit-item">
+                                                <i class="bi bi-download limit-icon"></i>
+                                                <span>10 Downloads/month</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="feature-flags">
+                                            <span class="feature-badge">Basic Content</span>
+                                            <span class="feature-badge">Quizzes</span>
+                                            <span class="feature-badge">Certificates</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="subscribers-count">8,245</div>
+                                    </td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="action-btn edit" title="Edit Plan">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="action-btn disable" title="Disable Plan">
+                                                <i class="bi bi-slash-circle"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Premium Plan -->
+                                <tr>
+                                    <td>
+                                        <div class="plan-name plan-premium">
+                                            <div class="plan-icon">
+                                                <i class="bi bi-star"></i>
+                                            </div>
+                                            <span>Premium Plan</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="plan-price">
+                                            <div class="price-monthly">$19.99/month</div>
+                                            <div class="price-annual">$199.99/year</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="plan-limits">
+                                            <div class="limit-item">
+                                                <i class="bi bi-person limit-icon"></i>
+                                                <span>1 User</span>
+                                            </div>
+                                            <div class="limit-item">
+                                                <i class="bi bi-book limit-icon"></i>
+                                                <span>Unlimited Courses</span>
+                                            </div>
+                                            <div class="limit-item">
+                                                <i class="bi bi-download limit-icon"></i>
+                                                <span>Unlimited Downloads</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="feature-flags">
+                                            <span class="feature-badge">All Content</span>
+                                            <span class="feature-badge">Advanced Quizzes</span>
+                                            <span class="feature-badge">Certificates</span>
+                                            <span class="feature-badge">AI Tutor</span>
+                                            <span class="feature-badge">Offline Access</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="subscribers-count">6,782</div>
+                                    </td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="action-btn edit" title="Edit Plan">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="action-btn disable" title="Disable Plan">
+                                                <i class="bi bi-slash-circle"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Enterprise Plan -->
+                                <tr>
+                                    <td>
+                                        <div class="plan-name plan-enterprise">
+                                            <div class="plan-icon">
+                                                <i class="bi bi-building"></i>
+                                            </div>
+                                            <span>Enterprise Plan</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="plan-price">
+                                            <div class="price-monthly">Custom Pricing</div>
+                                            <div class="price-annual">Contact Sales</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="plan-limits">
+                                            <div class="limit-item">
+                                                <i class="bi bi-people limit-icon"></i>
+                                                <span>Unlimited Users</span>
+                                            </div>
+                                            <div class="limit-item">
+                                                <i class="bi bi-book limit-icon"></i>
+                                                <span>Unlimited Courses</span>
+                                            </div>
+                                            <div class="limit-item">
+                                                <i class="bi bi-download limit-icon"></i>
+                                                <span>Unlimited Downloads</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="feature-flags">
+                                            <span class="feature-badge">All Content</span>
+                                            <span class="feature-badge">Advanced Quizzes</span>
+                                            <span class="feature-badge">Certificates</span>
+                                            <span class="feature-badge">AI Tutor</span>
+                                            <span class="feature-badge">Offline Access</span>
+                                            <span class="feature-badge">SSO</span>
+                                            <span class="feature-badge">API Access</span>
+                                            <span class="feature-badge">Custom Branding</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="subscribers-count">124</div>
+                                    </td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="action-btn edit" title="Edit Plan">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="action-btn disable" title="Disable Plan">
+                                                <i class="bi bi-slash-circle"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Trial Plan -->
+                                <tr>
+                                    <td>
+                                        <div class="plan-name plan-trial">
+                                            <div class="plan-icon">
+                                                <i class="bi bi-hourglass"></i>
+                                            </div>
+                                            <span>Trial Plan</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="plan-price">
+                                            <div class="price-monthly">Free</div>
+                                            <div class="price-annual">14-day trial</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="plan-limits">
+                                            <div class="limit-item">
+                                                <i class="bi bi-person limit-icon"></i>
+                                                <span>1 User</span>
+                                            </div>
+                                            <div class="limit-item">
+                                                <i class="bi bi-book limit-icon"></i>
+                                                <span>10 Courses</span>
+                                            </div>
+                                            <div class="limit-item">
+                                                <i class="bi bi-download limit-icon"></i>
+                                                <span>5 Downloads</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="feature-flags">
+                                            <span class="feature-badge">Basic Content</span>
+                                            <span class="feature-badge">Basic Quizzes</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="subscribers-count">3,198</div>
+                                    </td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="action-btn edit" title="Edit Plan">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="action-btn disable" title="Disable Plan">
+                                                <i class="bi bi-slash-circle"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Plans Comparison View -->
+                    <div class="plan-comparison d-none" id="plansComparisonView">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Trial</th>
+                                    <th>Basic</th>
+                                    <th>Premium</th>
+                                    <th>Enterprise</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="feature-name">Monthly Price</td>
+                                    <td>Free</td>
+                                    <td>$9.99</td>
+                                    <td>$19.99</td>
+                                    <td>Custom</td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-name">Annual Price</td>
+                                    <td>N/A</td>
+                                    <td>$99.99</td>
+                                    <td>$199.99</td>
+                                    <td>Custom</td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-name">Users</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>Unlimited</td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-name">Course Access</td>
+                                    <td>10 Courses</td>
+                                    <td>50 Courses</td>
+                                    <td>Unlimited</td>
+                                    <td>Unlimited</td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-name">Downloads</td>
+                                    <td>5 Total</td>
+                                    <td>10/month</td>
+                                    <td>Unlimited</td>
+                                    <td>Unlimited</td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-name">Basic Content</td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-name">Advanced Content</td>
+                                    <td class="feature-excluded"><i class="bi bi-x-lg"></i></td>
+                                    <td class="feature-excluded"><i class="bi bi-x-lg"></i></td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-name">Quizzes</td>
+                                    <td class="feature-limited">Basic</td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-name">Certificates</td>
+                                    <td class="feature-excluded"><i class="bi bi-x-lg"></i></td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-name">AI Tutor</td>
+                                    <td class="feature-excluded"><i class="bi bi-x-lg"></i></td>
+                                    <td class="feature-excluded"><i class="bi bi-x-lg"></i></td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-name">Offline Access</td>
+                                    <td class="feature-excluded"><i class="bi bi-x-lg"></i></td>
+                                    <td class="feature-excluded"><i class="bi bi-x-lg"></i></td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-name">SSO</td>
+                                    <td class="feature-excluded"><i class="bi bi-x-lg"></i></td>
+                                    <td class="feature-excluded"><i class="bi bi-x-lg"></i></td>
+                                    <td class="feature-excluded"><i class="bi bi-x-lg"></i></td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-name">API Access</td>
+                                    <td class="feature-excluded"><i class="bi bi-x-lg"></i></td>
+                                    <td class="feature-excluded"><i class="bi bi-x-lg"></i></td>
+                                    <td class="feature-excluded"><i class="bi bi-x-lg"></i></td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-name">Custom Branding</td>
+                                    <td class="feature-excluded"><i class="bi bi-x-lg"></i></td>
+                                    <td class="feature-excluded"><i class="bi bi-x-lg"></i></td>
+                                    <td class="feature-excluded"><i class="bi bi-x-lg"></i></td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-name">Priority Support</td>
+                                    <td class="feature-excluded"><i class="bi bi-x-lg"></i></td>
+                                    <td class="feature-excluded"><i class="bi bi-x-lg"></i></td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                    <td class="feature-included"><i class="bi bi-check-lg"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Subscribers Tab -->
+                <div class="tab-pane fade" id="subscribers" role="tabpanel" aria-labelledby="subscribers-tab">
+                    <div class="tab-header">
+                        <h2 class="tab-title">Manage Subscribers</h2>
+                    </div>
+                    
+                    <div class="filter-bar">
+                        <div class="search-box">
+                            <i class="bi bi-search search-icon"></i>
+                            <input type="text" class="search-input" placeholder="Search subscribers...">
+                        </div>
+                        
+                        <div class="dropdown filter-dropdown">
+                            <button class="dropdown-toggle" type="button" id="planFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-funnel"></i> Plan: All
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="planFilterDropdown">
+                                <li><a class="dropdown-item" href="#">All Plans</a></li>
+                                <li><a class="dropdown-item" href="#">Trial</a></li>
+                                <li><a class="dropdown-item" href="#">Basic</a></li>
+                                <li><a class="dropdown-item" href="#">Premium</a></li>
+                                <li><a class="dropdown-item" href="#">Enterprise</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="dropdown filter-dropdown">
+                            <button class="dropdown-toggle" type="button" id="statusFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-filter"></i> Status: All
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="statusFilterDropdown">
+                                <li><a class="dropdown-item" href="#">All Statuses</a></li>
+                                <li><a class="dropdown-item" href="#">Active</a></li>
+                                <li><a class="dropdown-item" href="#">Trial</a></li>
+                                <li><a class="dropdown-item" href="#">Expired</a></li>
+                                <li><a class="dropdown-item" href="#">Pending</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="dropdown bulk-actions-dropdown">
+                            <button class="dropdown-toggle" type="button" id="bulkActionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-list-check"></i> Bulk Actions
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="bulkActionsDropdown">
+                                <li><a class="dropdown-item" href="#">Change Plan</a></li>
+                                <li><a class="dropdown-item" href="#">Extend Subscription</a></li>
+                                <li><a class="dropdown-item" href="#">Send Email</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#">Cancel Subscriptions</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="subscription-table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="selectAllSubscribers">
+                                        </div>
+                                    </th>
+                                    <th>Subscriber</th>
+                                    <th>Plan</th>
+                                    <th>Status</th>
+                                    <th>Billing Cycle</th>
+                                    <th>Next Invoice</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Individual Subscriber 1 -->
+                                <tr>
+                                    <td>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="plan-name">
+                                            <div class="plan-icon">
+                                                <i class="bi bi-person"></i>
+                                            </div>
+                                            <div>
+                                                <div>John Smith</div>
+                                                <div class="text-muted small">john.smith@example.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Premium Plan</td>
+                                    <td>
+                                        <span class="status-badge status-active">
+                                            <i class="bi bi-check-circle"></i> Active
+                                        </span>
+                                    </td>
+                                    <td>Monthly</td>
+                                    <td>May 15, 2023</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="action-btn" title="Change Plan">
+                                                <i class="bi bi-arrow-repeat"></i>
+                                            </button>
+                                            <button class="action-btn" title="Manage Subscription">
+                                                <i class="bi bi-gear"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Individual Subscriber 2 -->
+                                <tr>
+                                    <td>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="plan-name">
+                                            <div class="plan-icon">
+                                                <i class="bi bi-person"></i>
+                                            </div>
+                                            <div>
+                                                <div>Emily Johnson</div>
+                                                <div class="text-muted small">emily.j@example.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Basic Plan</td>
+                                    <td>
+                                        <span class="status-badge status-active">
+                                            <i class="bi bi-check-circle"></i> Active
+                                        </span>
+                                    </td>
+                                    <td>Annual</td>
+                                    <td>Dec 10, 2023</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="action-btn" title="Change Plan">
+                                                <i class="bi bi-arrow-repeat"></i>
+                                            </button>
+                                            <button class="action-btn" title="Manage Subscription">
+                                                <i class="bi bi-gear"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Individual Subscriber 3 -->
+                                <tr>
+                                    <td>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="plan-name">
+                                            <div class="plan-icon">
+                                                <i class="bi bi-person"></i>
+                                            </div>
+                                            <div>
+                                                <div>Michael Chen</div>
+                                                <div class="text-muted small">m.chen@example.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Trial Plan</td>
+                                    <td>
+                                        <span class="status-badge status-trial">
+                                            <i class="bi bi-hourglass"></i> Trial
+                                        </span>
+                                    </td>
+                                    <td>N/A</td>
+                                    <td>May 8, 2023</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="action-btn" title="Change Plan">
+                                                <i class="bi bi-arrow-repeat"></i>
+                                            </button>
+                                            <button class="action-btn" title="Manage Subscription">
+                                                <i class="bi bi-gear"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Individual Subscriber 4 -->
+                                <tr>
+                                    <td>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="plan-name">
+                                            <div class="plan-icon">
+                                                <i class="bi bi-person"></i>
+                                            </div>
+                                            <div>
+                                                <div>Sarah Williams</div>
+                                                <div class="text-muted small">s.williams@example.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Basic Plan</td>
+                                    <td>
+                                        <span class="status-badge status-expired">
+                                            <i class="bi bi-x-circle"></i> Expired
+                                        </span>
+                                    </td>
+                                    <td>Monthly</td>
+                                    <td>Apr 30, 2023</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="action-btn" title="Change Plan">
+                                                <i class="bi bi-arrow-repeat"></i>
+                                            </button>
+                                            <button class="action-btn" title="Manage Subscription">
+                                                <i class="bi bi-gear"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Institution Subscriber -->
+                                <tr>
+                                    <td>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="plan-name">
+                                            <div class="plan-icon">
+                                                <i class="bi bi-building"></i>
+                                            </div>
+                                            <div>
+                                                <div>Stanford University</div>
+                                                <div class="text-muted small">edu@stanford.edu</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Enterprise Plan</td>
+                                    <td>
+                                        <span class="status-badge status-active">
+                                            <i class="bi bi-check-circle"></i> Active
+                                        </span>
+                                    </td>
+                                    <td>Annual</td>
+                                    <td>Jan 15, 2024</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="action-btn" title="Change Plan">
+                                                <i class="bi bi-arrow-repeat"></i>
+                                            </button>
+                                            <button class="action-btn" title="Manage Subscription">
+                                                <i class="bi bi-gear"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Institutional Subscriptions Tab -->
+                <div class="tab-pane fade" id="institutions" role="tabpanel" aria-labelledby="institutions-tab">
+                    <div class="tab-header">
+                        <h2 class="tab-title">Institutional Subscriptions</h2>
+                        
+                        <div class="tab-actions">
+                            <button class="btn btn-primary d-flex align-items-center gap-2">
+                                <i class="bi bi-plus"></i> Add Institution
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Stanford University -->
+                    <div class="institution-card">
+                        <div class="institution-header">
+                            <div class="institution-info">
+                                <div class="institution-logo">
+                                    <img src="https://placehold.co/48x48/3b82f6/ffffff?text=SU" alt="Stanford University">
+                                </div>
+                                <div class="institution-details">
+                                    <h3 class="institution-name">Stanford University</h3>
+                                    <div class="institution-meta">
+                                        <div class="meta-item">
+                                            <i class="bi bi-credit-card meta-icon"></i>
+                                            <span>Enterprise Plan</span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <i class="bi bi-calendar meta-icon"></i>
+                                            <span>Renewal: Jan 15, 2024</span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <i class="bi bi-people meta-icon"></i>
+                                            <span>500 Seats</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="institution-actions">
+                                <button class="btn btn-outline-primary btn-sm">Manage Plan</button>
+                                <button class="btn btn-outline-secondary btn-sm">Contact Admin</button>
+                            </div>
+                        </div>
+                        
+                        <div class="seat-allocation">
+                            <div class="allocation-header">
+                                <div class="allocation-title">Seat Allocation</div>
+                                <div class="allocation-summary">
+                                    <div class="allocation-progress">
+                                        <div class="allocation-fill" style="width: 85%;"></div>
+                                    </div>
+                                    <div class="allocation-text">425/500 seats used</div>
+                                </div>
+                            </div>
+                            
+                            <div class="department-list">
+                                <div class="department-item">
+                                    <div class="department-name">Computer Science Department</div>
+                                    <div class="department-seats">
+                                        <div class="seats-count">120 seats</div>
+                                        <div class="seats-control">
+                                            <button class="seat-btn">-</button>
+                                            <input type="text" class="seat-input" value="120">
+                                            <button class="seat-btn">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="department-item">
+                                    <div class="department-name">Engineering Department</div>
+                                    <div class="department-seats">
+                                        <div class="seats-count">150 seats</div>
+                                        <div class="seats-control">
+                                            <button class="seat-btn">-</button>
+                                            <input type="text" class="seat-input" value="150">
+                                            <button class="seat-btn">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="department-item">
+                                    <div class="department-name">Business School</div>
+                                    <div class="department-seats">
+                                        <div class="seats-count">100 seats</div>
+                                        <div class="seats-control">
+                                            <button class="seat-btn">-</button>
+                                            <input type="text" class="seat-input" value="100">
+                                            <button class="seat-btn">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="department-item">
+                                    <div class="department-name">Medical School</div>
+                                    <div class="department-seats">
+                                        <div class="seats-count">55 seats</div>
+                                        <div class="seats-control">
+                                            <button class="seat-btn">-</button>
+                                            <input type="text" class="seat-input" value="55">
+                                            <button class="seat-btn">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="sso-config">
+                            <div class="sso-header">
+                                <div class="sso-title">
+                                    <i class="bi bi-shield-lock"></i> SSO Configuration
+                                </div>
+                                <div class="sso-status">
+                                    <span class="sso-badge sso-enabled">Enabled</span>
+                                </div>
+                            </div>
+                            
+                            <div class="sso-details">
+                                <div class="sso-item">
+                                    <div class="sso-label">Provider:</div>
+                                    <div class="sso-value">Okta</div>
+                                </div>
+                                <div class="sso-item">
+                                    <div class="sso-label">Domain:</div>
+                                    <div class="sso-value">stanford.edu</div>
+                                </div>
+                                <div class="sso-item">
+                                    <div class="sso-label">Last Sync:</div>
+                                    <div class="sso-value">Today, 09:45 AM</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- MIT -->
+                    <div class="institution-card">
+                        <div class="institution-header">
+                            <div class="institution-info">
+                                <div class="institution-logo">
+                                    <img src="https://placehold.co/48x48/ef4444/ffffff?text=MIT" alt="MIT">
+                                </div>
+                                <div class="institution-details">
+                                    <h3 class="institution-name">Massachusetts Institute of Technology</h3>
+                                    <div class="institution-meta">
+                                        <div class="meta-item">
+                                            <i class="bi bi-credit-card meta-icon"></i>
+                                            <span>Enterprise Plan</span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <i class="bi bi-calendar meta-icon"></i>
+                                            <span>Renewal: Aug 30, 2023</span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <i class="bi bi-people meta-icon"></i>
+                                            <span>750 Seats</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="institution-actions">
+                                <button class="btn btn-outline-primary btn-sm">Manage Plan</button>
+                                <button class="btn btn-outline-secondary btn-sm">Contact Admin</button>
+                            </div>
+                        </div>
+                        
+                        <div class="seat-allocation">
+                            <div class="allocation-header">
+                                <div class="allocation-title">Seat Allocation</div>
+                                <div class="allocation-summary">
+                                    <div class="allocation-progress">
+                                        <div class="allocation-fill" style="width: 92%;"></div>
+                                    </div>
+                                    <div class="allocation-text">690/750 seats used</div>
+                                </div>
+                            </div>
+                            
+                            <div class="department-list">
+                                <div class="department-item">
+                                    <div class="department-name">Computer Science & AI Lab</div>
+                                    <div class="department-seats">
+                                        <div class="seats-count">200 seats</div>
+                                        <div class="seats-control">
+                                            <button class="seat-btn">-</button>
+                                            <input type="text" class="seat-input" value="200">
+                                            <button class="seat-btn">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="department-item">
+                                    <div class="department-name">Electrical Engineering</div>
+                                    <div class="department-seats">
+                                        <div class="seats-count">180 seats</div>
+                                        <div class="seats-control">
+                                            <button class="seat-btn">-</button>
+                                            <input type="text" class="seat-input" value="180">
+                                            <button class="seat-btn">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="department-item">
+                                    <div class="department-name">Sloan School of Management</div>
+                                    <div class="department-seats">
+                                        <div class="seats-count">150 seats</div>
+                                        <div class="seats-control">
+                                            <button class="seat-btn">-</button>
+                                            <input type="text" class="seat-input" value="150">
+                                            <button class="seat-btn">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="department-item">
+                                    <div class="department-name">Media Lab</div>
+                                    <div class="department-seats">
+                                        <div class="seats-count">160 seats</div>
+                                        <div class="seats-control">
+                                            <button class="seat-btn">-</button>
+                                            <input type="text" class="seat-input" value="160">
+                                            <button class="seat-btn">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="sso-config">
+                            <div class="sso-header">
+                                <div class="sso-title">
+                                    <i class="bi bi-shield-lock"></i> SSO Configuration
+                                </div>
+                                <div class="sso-status">
+                                    <span class="sso-badge sso-enabled">Enabled</span>
+                                </div>
+                            </div>
+                            
+                            <div class="sso-details">
+                                <div class="sso-item">
+                                    <div class="sso-label">Provider:</div>
+                                    <div class="sso-value">Azure AD</div>
+                                </div>
+                                <div class="sso-item">
+                                    <div class="sso-label">Domain:</div>
+                                    <div class="sso-value">mit.edu</div>
+                                </div>
+                                <div class="sso-item">
+                                    <div class="sso-label">Last Sync:</div>
+                                    <div class="sso-value">Yesterday, 14:20 PM</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tech Solutions Inc. -->
+                    <div class="institution-card">
+                        <div class="institution-header">
+                            <div class="institution-info">
+                                <div class="institution-logo">
+                                    <img src="https://placehold.co/48x48/10b981/ffffff?text=TS" alt="Tech Solutions Inc.">
+                                </div>
+                                <div class="institution-details">
+                                    <h3 class="institution-name">Tech Solutions Inc.</h3>
+                                    <div class="institution-meta">
+                                        <div class="meta-item">
+                                            <i class="bi bi-credit-card meta-icon"></i>
+                                            <span>Enterprise Plan</span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <i class="bi bi-calendar meta-icon"></i>
+                                            <span>Renewal: Jun 15, 2023</span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <i class="bi bi-people meta-icon"></i>
+                                            <span>250 Seats</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="institution-actions">
+                                <button class="btn btn-outline-primary btn-sm">Manage Plan</button>
+                                <button class="btn btn-outline-secondary btn-sm">Contact Admin</button>
+                            </div>
+                        </div>
+                        
+                        <div class="seat-allocation">
+                            <div class="allocation-header">
+                                <div class="allocation-title">Seat Allocation</div>
+                                <div class="allocation-summary">
+                                    <div class="allocation-progress">
+                                        <div class="allocation-fill" style="width: 78%;"></div>
+                                    </div>
+                                    <div class="allocation-text">195/250 seats used</div>
+                                </div>
+                            </div>
+                            
+                            <div class="department-list">
+                                <div class="department-item">
+                                    <div class="department-name">Engineering Team</div>
+                                    <div class="department-seats">
+                                        <div class="seats-count">85 seats</div>
+                                        <div class="seats-control">
+                                            <button class="seat-btn">-</button>
+                                            <input type="text" class="seat-input" value="85">
+                                            <button class="seat-btn">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="department-item">
+                                    <div class="department-name">Product Team</div>
+                                    <div class="department-seats">
+                                        <div class="seats-count">45 seats</div>
+                                        <div class="seats-control">
+                                            <button class="seat-btn">-</button>
+                                            <input type="text" class="seat-input" value="45">
+                                            <button class="seat-btn">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="department-item">
+                                    <div class="department-name">Sales & Marketing</div>
+                                    <div class="department-seats">
+                                        <div class="seats-count">65 seats</div>
+                                        <div class="seats-control">
+                                            <button class="seat-btn">-</button>
+                                            <input type="text" class="seat-input" value="65">
+                                            <button class="seat-btn">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="sso-config">
+                            <div class="sso-header">
+                                <div class="sso-title">
+                                    <i class="bi bi-shield-lock"></i> SSO Configuration
+                                </div>
+                                <div class="sso-status">
+                                    <span class="sso-badge sso-disabled">Disabled</span>
+                                </div>
+                            </div>
+                            
+                            <div class="sso-details">
+                                <div class="sso-item">
+                                    <div class="sso-label">Status:</div>
+                                    <div class="sso-value">Not Configured</div>
+                                </div>
+                                <div class="sso-item">
+                                    <div class="sso-label">Action:</div>
+                                    <div class="sso-value">
+                                        <button class="btn btn-sm btn-outline-primary">Configure SSO</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Sidebar Toggle
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const adminSidebar = document.getElementById('adminSidebar');
+        const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+        const body = document.body;
+        
+        sidebarToggle.addEventListener('click', function() {
+            if (window.innerWidth >= 992) {
+                // Desktop behavior - collapse/expand
+                body.classList.toggle('sidebar-collapsed');
+                
+                // Update toggle icon
+                const toggleIcon = sidebarToggle.querySelector('i');
+                if (body.classList.contains('sidebar-collapsed')) {
+                    toggleIcon.classList.remove('bi-chevron-left');
+                    toggleIcon.classList.add('bi-chevron-right');
+                } else {
+                    toggleIcon.classList.remove('bi-chevron-right');
+                    toggleIcon.classList.add('bi-chevron-left');
+                }
+            } else {
+                // Mobile behavior - show/hide with backdrop
+                adminSidebar.classList.toggle('show');
+                sidebarBackdrop.classList.toggle('show');
+                
+                if (adminSidebar.classList.contains('show')) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
+            }
+        });
+        
+        // Close sidebar on backdrop click (mobile)
+        sidebarBackdrop.addEventListener('click', function() {
+            adminSidebar.classList.remove('show');
+            sidebarBackdrop.classList.remove('show');
+            document.body.style.overflow = '';
+        });
+        
+        // Right Sidebar Toggle
+        const rightSidebarToggle = document.getElementById('rightSidebarToggle');
+        const rightSidebar = document.getElementById('rightSidebar');
+        
+        rightSidebarToggle.addEventListener('click', function() {
+            body.classList.toggle('right-sidebar-collapsed');
+            
+            // Update toggle icon
+            const toggleIcon = rightSidebarToggle.querySelector('i');
+            if (body.classList.contains('right-sidebar-collapsed')) {
+                toggleIcon.classList.remove('bi-chevron-right');
+                toggleIcon.classList.add('bi-chevron-left');
+            } else {
+                toggleIcon.classList.remove('bi-chevron-left');
+                toggleIcon.classList.add('bi-chevron-right');
+            }
+        });
+        
+        // Toggle between table and comparison view
+        const tableViewBtn = document.getElementById('tableViewBtn');
+        const comparisonViewBtn = document.getElementById('comparisonViewBtn');
+        const plansTableView = document.getElementById('plansTableView');
+        const plansComparisonView = document.getElementById('plansComparisonView');
+        
+        tableViewBtn.addEventListener('click', function() {
+            tableViewBtn.classList.add('active');
+            comparisonViewBtn.classList.remove('active');
+            plansTableView.classList.remove('d-none');
+            plansComparisonView.classList.add('d-none');
+        });
+        
+        comparisonViewBtn.addEventListener('click', function() {
+            comparisonViewBtn.classList.add('active');
+            tableViewBtn.classList.remove('active');
+            plansComparisonView.classList.remove('d-none');
+            plansTableView.classList.add('d-none');
+        });
+        
+        // Select All Subscribers Checkbox
+        const selectAllSubscribers = document.getElementById('selectAllSubscribers');
+        if (selectAllSubscribers) {
+            selectAllSubscribers.addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('#subscribers .form-check-input');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = selectAllSubscribers.checked;
+                });
+            });
+        }
+        
+        // Responsive behavior
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 992) {
+                adminSidebar.classList.remove('show');
+                sidebarBackdrop.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        });
+    </script>
+</body>
+</html>

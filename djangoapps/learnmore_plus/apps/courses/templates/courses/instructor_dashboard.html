@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Instructor Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">Instructor Dashboard</h1>
+
+    <!-- Course List -->
+    <div class="grid grid-cols-1 gap-6">
+        {% for course in courses %}
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-4">
+                        {% if course.cover_image %}
+                        <img src="{{ course.cover_image.url }}" alt="{{ course.title }}" class="w-16 h-16 object-cover rounded-lg">
+                        {% else %}
+                        <div class="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                            <span class="text-gray-400 dark:text-gray-500">No image</span>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ course.title }}</h2>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ course.category.name }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="px-3 py-1 rounded-full text-sm font-medium
+                            {% if course.status == 'published' %}bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100
+                            {% elif course.status == 'draft' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100
+                            {% else %}bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100{% endif %}">
+                            {{ course.status|title }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Students</h3>
+                        <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ course.enrollments.count }} enrolled</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Average Progress</h3>
+                        <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ course.average_progress|default:0|floatformat:1 }}%</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Last Updated</h3>
+                        <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ course.updated_at|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end space-x-4">
+                    <a href="{% url 'courses:course_detail' course.slug %}" class="text-primary hover:text-primary-dark">
+                        View Course
+                    </a>
+                    <a href="{% url 'courses:course_manage_content' course.slug %}" class="text-primary hover:text-primary-dark">
+                        Manage Content
+                    </a>
+                    <a href="{% url 'courses:course_analytics' course.slug %}" class="text-primary hover:text-primary-dark">
+                        View Analytics
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 text-center">
+            <p class="text-gray-500 dark:text-gray-400">You are not teaching any courses yet.</p>
+            <p class="text-gray-500 dark:text-gray-400 mt-2">Contact a course coordinator to be assigned to a course.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

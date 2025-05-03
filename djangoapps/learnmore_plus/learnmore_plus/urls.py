@@ -18,23 +18,35 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
-from . import views
-from accounts import views as account_views
+from apps.core import views as core_views
+from apps.accounts import views as account_views
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", views.home, name="home"),
+    path("", core_views.home, name="home"),
     path("accounts/", include("allauth.urls")),  # allauth URLs
     path("login/", account_views.login_view, name="login"),
     path("register/", account_views.register, name="register"),
     path("logout/", account_views.logout_view, name="logout"),
-    path('admin-dashboard/', include('dashboard.urls')),  # Changed from 'dashboard/' to 'admin-dashboard/'
-    path('courses/', include('courses.urls')),
-    path('', include('core.urls')),
-    path('accounts/', include('accounts.urls')),
-    path('instructor/', include('courses.instructor_urls')),
-    path('coordinator/', include('courses.coordinator_urls')),
-    path('api/', include('courses.api_urls')),  # API endpoints
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    path('admin-dashboard/', include(('apps.dashboard.urls', 'admin_dashboard'), namespace='admin_dashboard')),
+    path('courses/', include('apps.courses.urls')),
+    path('', include('apps.core.urls')),
+    path('accounts/', include('apps.accounts.urls')),
+    path('instructor/', include('apps.courses.instructor_urls')),
+    path('coordinator/', include('apps.courses.coordinator_urls')),
+    path('api/', include('apps.courses.api_urls')),  # API endpoints
+    path('api/', include('apps.dashboard.api_urls')),  # Dashboard API endpoints
+    path('qr/', include('apps.qr_codes.urls')),  # QR code URLs
+    path('tutor/', include('apps.ai_tutor.urls')),  # AI Tutor URLs
+    path('dashboard/', include(('apps.dashboard.urls', 'user_dashboard'), namespace='user_dashboard')),
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    import debug_toolbar
+    urlpatterns = [
+        path('__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns

@@ -1,0 +1,126 @@
+{% load qr_code_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Codes for {{ course.title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 15px;
+        }
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .header p {
+            color: #666;
+            font-size: 14px;
+            margin: 0;
+        }
+        .qr-container {
+            page-break-inside: avoid;
+            margin-bottom: 40px;
+        }
+        .qr-box {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            display: inline-block;
+            margin: 10px;
+            width: 220px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .qr-box h3 {
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            height: 40px;
+            overflow: hidden;
+        }
+        .qr-box img {
+            width: 180px;
+            height: 180px;
+        }
+        .qr-box p {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+            margin-bottom: 0;
+        }
+        .course-qr {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .course-qr .qr-box {
+            width: 300px;
+        }
+        .course-qr .qr-box img {
+            width: 250px;
+            height: 250px;
+        }
+        .modules-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .page-break {
+            page-break-after: always;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: 40px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>QR Codes for {{ course.title }}</h1>
+        <p>Generated on {{ generated_at|date:"F j, Y, g:i a" }}</p>
+    </div>
+
+    <div class="course-qr">
+        <h2>Course QR Code</h2>
+        <div class="qr-box">
+            <h3>{{ course.title }}</h3>
+            <img src="{{ course_qr_code.code.url }}" alt="QR Code for {{ course.title }}">
+            <p>Scan to access the full course</p>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <h2>Module QR Codes</h2>
+    <div class="modules-grid">
+        {% for module in modules %}
+            {% with qr_code=module_qr_codes|get_item:module.id %}
+                <div class="qr-box">
+                    <h3>{{ module.title }}</h3>
+                    <img src="{{ qr_code.code.url }}" alt="QR Code for {{ module.title }}">
+                    <p>Module {{ module.order }}</p>
+                </div>
+                {% if forloop.counter|divisibleby:6 and not forloop.last %}
+                    <div class="page-break"></div>
+                {% endif %}
+            {% endwith %}
+        {% endfor %}
+    </div>
+
+    <div class="footer">
+        <p>LearnMore+ | QR Code Printing Service</p>
+    </div>
+</body>
+</html>

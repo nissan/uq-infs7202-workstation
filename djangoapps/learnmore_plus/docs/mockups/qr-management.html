@@ -1,0 +1,2287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Management - Enhanced LearnMore</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Chart.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #dbeafe;
+            --secondary: #64748b;
+            --light: #f8fafc;
+            --dark: #0f172a;
+            --accent: #7c3aed;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark);
+            background-color: #f5f8ff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header Styles */
+        .platform-header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 0.75rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+        }
+        
+        .header-logo {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.25rem;
+            text-decoration: none;
+        }
+        
+        .nav-link {
+            color: var(--secondary);
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary);
+        }
+        
+        .nav-link.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .notification-bell {
+            position: relative;
+            color: var(--secondary);
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .notification-bell:hover {
+            color: var(--primary);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .user-name {
+                display: block;
+            }
+        }
+        
+        /* Breadcrumb Styles */
+        .breadcrumb-container {
+            background-color: var(--primary-light);
+            padding: 0.75rem 1.5rem;
+        }
+        
+        .breadcrumb-item a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .breadcrumb-item.active {
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem 0;
+        }
+        
+        .container {
+            max-width: 1400px;
+        }
+        
+        /* Page Title */
+        .page-title-container {
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .page-description {
+            color: var(--secondary);
+            margin-bottom: 0;
+        }
+        
+        /* Tabs */
+        .nav-tabs {
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .nav-tabs .nav-link {
+            border: none;
+            border-bottom: 2px solid transparent;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            color: var(--secondary);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            color: var(--primary);
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* QR Codes Tab */
+        .master-qr-container {
+            background-color: var(--primary-light);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .master-qr-title {
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary-dark);
+        }
+        
+        .master-qr-description {
+            color: var(--secondary);
+            margin-bottom: 1.5rem;
+            max-width: 600px;
+        }
+        
+        .master-qr-image {
+            width: 200px;
+            height: 200px;
+            background-color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .master-qr-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .master-qr-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .btn-qr-action {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-qr-action i {
+            font-size: 1.25rem;
+        }
+        
+        .btn-qr-download {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+        }
+        
+        .btn-qr-download:hover {
+            background-color: var(--primary-dark);
+            color: white;
+        }
+        
+        .btn-qr-copy {
+            background-color: white;
+            color: var(--secondary);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .btn-qr-copy:hover {
+            background-color: #f8fafc;
+            color: var(--primary);
+        }
+        
+        .btn-qr-analytics {
+            background-color: white;
+            color: var(--secondary);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .btn-qr-analytics:hover {
+            background-color: #f8fafc;
+            color: var(--primary);
+        }
+        
+        .module-qr-title {
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .module-qr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .qr-card {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .qr-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .qr-card-header {
+            padding: 1rem;
+            background-color: var(--primary-light);
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .qr-card-title {
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 0;
+        }
+        
+        .qr-card-badge {
+            background-color: var(--primary);
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        
+        .qr-card-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .qr-card-image {
+            width: 150px;
+            height: 150px;
+            background-color: white;
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .qr-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .qr-card-description {
+            color: var(--secondary);
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+            min-height: 40px;
+        }
+        
+        .qr-card-actions {
+            display: flex;
+            gap: 0.5rem;
+            width: 100%;
+        }
+        
+        .qr-card-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .qr-card-btn-download {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            border: none;
+        }
+        
+        .qr-card-btn-download:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .qr-card-btn-copy {
+            background-color: #f8fafc;
+            color: var(--secondary);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .qr-card-btn-copy:hover {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+        
+        .qr-card-btn-analytics {
+            background-color: #f8fafc;
+            color: var(--secondary);
+            border: 1px solid #e2e8f0;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .qr-card-btn-analytics:hover {
+            background-color: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        
+        .btn-download-all {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-download-all:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        /* Printing Options Tab */
+        .printing-options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        
+        .printing-options-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .form-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-section-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-section-title i {
+            color: var(--primary);
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-text {
+            font-size: 0.75rem;
+            color: var(--secondary);
+        }
+        
+        .layout-options {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .layout-option {
+            flex: 1;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .layout-option:hover {
+            border-color: var(--primary-light);
+            background-color: var(--primary-light);
+        }
+        
+        .layout-option.active {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+        }
+        
+        .layout-option-icon {
+            font-size: 2rem;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .layout-option.active .layout-option-icon {
+            color: var(--primary);
+        }
+        
+        .layout-option-label {
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .size-slider {
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+        
+        .print-preview {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .preview-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+        
+        .preview-paper {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 1rem;
+            height: 100%;
+        }
+        
+        .preview-qr {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+        }
+        
+        .preview-qr-image {
+            width: 60%;
+            height: 60%;
+            background-color: white;
+            margin-bottom: 0.5rem;
+        }
+        
+        .preview-qr-title {
+            font-size: 0.625rem;
+            color: var(--secondary);
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+        
+        .preview-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            height: 100%;
+            overflow-y: auto;
+        }
+        
+        .preview-qr-list-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+        }
+        
+        .preview-qr-list-image {
+            width: 40px;
+            height: 40px;
+            background-color: white;
+            flex-shrink: 0;
+        }
+        
+        .preview-qr-list-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .preview-qr-list-title {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .preview-qr-list-subtitle {
+            font-size: 0.625rem;
+            color: var(--secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .print-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn-print {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-print:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-preview {
+            background-color: white;
+            color: var(--secondary);
+            border: 1px solid #e2e8f0;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-preview:hover {
+            background-color: #f8fafc;
+            color: var(--primary);
+            border-color: var(--primary-light);
+        }
+        
+        /* Analytics Tab */
+        .analytics-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .analytics-title {
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0;
+        }
+        
+        .analytics-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn-export {
+            background-color: white;
+            color: var(--secondary);
+            border: 1px solid #e2e8f0;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-export:hover {
+            background-color: #f8fafc;
+            color: var(--primary);
+            border-color: var(--primary-light);
+        }
+        
+        .analytics-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-item {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .analytics-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .metric-card {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            border-color: var(--primary-light);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .metric-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 1rem;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-label {
+            color: var(--secondary);
+            font-size: 0.875rem;
+        }
+        
+        .metric-change {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .metric-change.positive {
+            color: var(--success);
+        }
+        
+        .metric-change.negative {
+            color: var(--danger);
+        }
+        
+        .chart-container {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-title {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0;
+        }
+        
+        .chart-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .chart-action {
+            background-color: #f8fafc;
+            color: var(--secondary);
+            border: 1px solid #e2e8f0;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+        
+        .chart-action:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary-light);
+        }
+        
+        .chart-action.active {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary-light);
+            font-weight: 500;
+        }
+        
+        .chart-canvas {
+            width: 100%;
+            height: 300px;
+        }
+        
+        .analytics-tables {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .table-container {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        
+        .table-title {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+        
+        .table-responsive {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table th {
+            font-weight: 600;
+            color: var(--secondary);
+            border-top: none;
+            background-color: #f8fafc;
+        }
+        
+        .table td {
+            vertical-align: middle;
+        }
+        
+        .table-qr {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .table-qr-image {
+            width: 40px;
+            height: 40px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 0.25rem;
+            flex-shrink: 0;
+        }
+        
+        .table-qr-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .table-qr-title {
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+        }
+        
+        .map-container {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .map-title {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+        
+        .map-canvas {
+            width: 100%;
+            height: 300px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary);
+            font-style: italic;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 100px;
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .sidebar-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .sidebar-description {
+            color: var(--secondary);
+            font-size: 0.875rem;
+            margin-bottom: 0;
+        }
+        
+        .sidebar-content {
+            padding: 1.5rem;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+        
+        .sidebar-section-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .sidebar-section-title i {
+            color: var(--primary);
+        }
+        
+        .color-picker-container {
+            margin-bottom: 1.5rem;
+        }
+        
+        .color-preview {
+            width: 100%;
+            height: 40px;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .color-options {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .color-option {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .color-option:hover, .color-option.active {
+            transform: scale(1.2);
+            border-color: white;
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+        
+        .logo-upload {
+            margin-bottom: 1.5rem;
+        }
+        
+        .logo-preview {
+            width: 100%;
+            height: 100px;
+            border: 2px dashed #e2e8f0;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .logo-preview:hover {
+            border-color: var(--primary-light);
+            background-color: var(--primary-light);
+        }
+        
+        .logo-preview i {
+            font-size: 2rem;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .logo-preview-text {
+            font-size: 0.875rem;
+            color: var(--secondary);
+            text-align: center;
+        }
+        
+        .logo-preview-image {
+            max-width: 100%;
+            max-height: 80px;
+            display: none;
+        }
+        
+        .logo-preview.has-image {
+            border-style: solid;
+            border-color: var(--primary-light);
+        }
+        
+        .logo-preview.has-image i, .logo-preview.has-image .logo-preview-text {
+            display: none;
+        }
+        
+        .logo-preview.has-image .logo-preview-image {
+            display: block;
+        }
+        
+        .error-correction-options {
+            margin-bottom: 1.5rem;
+        }
+        
+        .error-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .error-option:hover {
+            border-color: var(--primary-light);
+            background-color: var(--primary-light);
+        }
+        
+        .error-option.active {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+        }
+        
+        .error-option-radio {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .error-option.active .error-option-radio {
+            border-color: var(--primary);
+        }
+        
+        .error-option.active .error-option-radio::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--primary);
+        }
+        
+        .error-option-content {
+            flex: 1;
+        }
+        
+        .error-option-title {
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+        
+        .error-option-description {
+            font-size: 0.75rem;
+            color: var(--secondary);
+        }
+        
+        .landing-page-options {
+            margin-bottom: 1.5rem;
+        }
+        
+        .landing-preview {
+            width: 100%;
+            height: 150px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        .landing-preview-header {
+            height: 30%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+        }
+        
+        .landing-preview-logo {
+            width: 24px;
+            height: 24px;
+            background-color: white;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+        }
+        
+        .landing-preview-title {
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .landing-preview-body {
+            height: 70%;
+            background-color: white;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .landing-preview-line {
+            height: 8px;
+            background-color: #f1f5f9;
+            border-radius: 4px;
+            width: 100%;
+        }
+        
+        .landing-preview-line:nth-child(2) {
+            width: 80%;
+        }
+        
+        .landing-preview-line:nth-child(3) {
+            width: 60%;
+        }
+        
+        .landing-preview-button {
+            height: 20px;
+            background-color: var(--primary);
+            border-radius: 4px;
+            width: 40%;
+            margin-top: auto;
+        }
+        
+        .sidebar-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .btn-apply {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-apply:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-reset {
+            background-color: white;
+            color: var(--secondary);
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-reset:hover {
+            background-color: #f8fafc;
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 991.98px) {
+            .sidebar {
+                position: static;
+                margin-top: 2rem;
+            }
+            
+            .master-qr-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .printing-options-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .layout-options {
+                flex-direction: column;
+            }
+            
+            .analytics-tables {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 767.98px) {
+            .platform-header {
+                padding: 0.75rem 1rem;
+            }
+            
+            .breadcrumb-container {
+                padding: 0.75rem 1rem;
+            }
+            
+            .tab-content {
+                padding: 1.5rem;
+            }
+            
+            .master-qr-container {
+                padding: 1.5rem;
+            }
+            
+            .module-qr-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .analytics-metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="platform-header">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <a href="#" class="header-logo me-4">Enhanced LearnMore</a>
+                    <nav class="d-none d-md-flex">
+                        <a href="#" class="nav-link">Home</a>
+                        <a href="#" class="nav-link">Courses</a>
+                        <a href="#" class="nav-link active">QR Management</a>
+                        <a href="#" class="nav-link">Analytics</a>
+                    </nav>
+                </div>
+                
+                <div class="header-actions">
+                    <div class="notification-bell me-3">
+                        <i class="bi bi-bell"></i>
+                        <div class="notification-badge">2</div>
+                    </div>
+                    
+                    <div class="user-profile dropdown">
+                        <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="user-avatar">
+                                <img src="https://placehold.co/36x36/2563eb/ffffff?text=JS" alt="User Avatar">
+                            </div>
+                            <div class="user-name">John Smith</div>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>My Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i>Sign Out</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-container">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="#">Courses</a></li>
+                    <li class="breadcrumb-item"><a href="#">Machine Learning Fundamentals</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">QR Management</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="page-title-container">
+                <h1 class="page-title">QR Code Management</h1>
+                <p class="page-description">Generate, customize, and track QR codes for your course and modules</p>
+            </div>
+            
+            <div class="row">
+                <!-- Main Content Area -->
+                <div class="col-lg-8">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs" id="qrTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="qrcodes-tab" data-bs-toggle="tab" data-bs-target="#qrcodes" type="button" role="tab" aria-controls="qrcodes" aria-selected="true">QR Codes</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="printing-tab" data-bs-toggle="tab" data-bs-target="#printing" type="button" role="tab" aria-controls="printing" aria-selected="false">Printing Options</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="analytics-tab" data-bs-toggle="tab" data-bs-target="#analytics" type="button" role="tab" aria-controls="analytics" aria-selected="false">Analytics</button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="qrTabsContent">
+                        <!-- QR Codes Tab -->
+                        <div class="tab-pane fade show active" id="qrcodes" role="tabpanel" aria-labelledby="qrcodes-tab">
+                            <!-- Master QR Code -->
+                            <div class="master-qr-container">
+                                <h2 class="master-qr-title">Course Master QR Code</h2>
+                                <p class="master-qr-description">This QR code provides access to the entire "Machine Learning Fundamentals" course. Share it with your students for quick access.</p>
+                                
+                                <div class="master-qr-image">
+                                    <img src="https://placehold.co/200x200/2563eb/ffffff?text=Course+QR" alt="Course Master QR Code">
+                                </div>
+                                
+                                <div class="master-qr-actions">
+                                    <button class="btn-qr-action btn-qr-download">
+                                        <i class="bi bi-download"></i>
+                                        Download QR Code
+                                    </button>
+                                    <button class="btn-qr-action btn-qr-copy">
+                                        <i class="bi bi-clipboard"></i>
+                                        Copy Link
+                                    </button>
+                                    <button class="btn-qr-action btn-qr-analytics">
+                                        <i class="bi bi-bar-chart"></i>
+                                        View Analytics
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Module QR Codes -->
+                            <div class="module-qr-title">
+                                <span>Module QR Codes</span>
+                                <button class="btn-download-all">
+                                    <i class="bi bi-download"></i>
+                                    Download All
+                                </button>
+                            </div>
+                            
+                            <div class="module-qr-grid">
+                                <!-- Module 1 QR -->
+                                <div class="qr-card">
+                                    <div class="qr-card-header">
+                                        <h3 class="qr-card-title">Module 1</h3>
+                                        <span class="qr-card-badge">Active</span>
+                                    </div>
+                                    <div class="qr-card-body">
+                                        <div class="qr-card-image">
+                                            <img src="https://placehold.co/150x150/2563eb/ffffff?text=Module+1" alt="Module 1 QR Code">
+                                        </div>
+                                        <div class="qr-card-description">Introduction to Machine Learning</div>
+                                        <div class="qr-card-actions">
+                                            <button class="qr-card-btn qr-card-btn-download">
+                                                <i class="bi bi-download"></i>
+                                                Download
+                                            </button>
+                                            <button class="qr-card-btn qr-card-btn-copy">
+                                                <i class="bi bi-clipboard"></i>
+                                                Copy Link
+                                            </button>
+                                            <button class="qr-card-btn-analytics">
+                                                <i class="bi bi-bar-chart"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Module 2 QR -->
+                                <div class="qr-card">
+                                    <div class="qr-card-header">
+                                        <h3 class="qr-card-title">Module 2</h3>
+                                        <span class="qr-card-badge">Active</span>
+                                    </div>
+                                    <div class="qr-card-body">
+                                        <div class="qr-card-image">
+                                            <img src="https://placehold.co/150x150/2563eb/ffffff?text=Module+2" alt="Module 2 QR Code">
+                                        </div>
+                                        <div class="qr-card-description">Data Preprocessing and Exploration</div>
+                                        <div class="qr-card-actions">
+                                            <button class="qr-card-btn qr-card-btn-download">
+                                                <i class="bi bi-download"></i>
+                                                Download
+                                            </button>
+                                            <button class="qr-card-btn qr-card-btn-copy">
+                                                <i class="bi bi-clipboard"></i>
+                                                Copy Link
+                                            </button>
+                                            <button class="qr-card-btn-analytics">
+                                                <i class="bi bi-bar-chart"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Module 3 QR -->
+                                <div class="qr-card">
+                                    <div class="qr-card-header">
+                                        <h3 class="qr-card-title">Module 3</h3>
+                                        <span class="qr-card-badge">Active</span>
+                                    </div>
+                                    <div class="qr-card-body">
+                                        <div class="qr-card-image">
+                                            <img src="https://placehold.co/150x150/2563eb/ffffff?text=Module+3" alt="Module 3 QR Code">
+                                        </div>
+                                        <div class="qr-card-description">Supervised Learning: Classification</div>
+                                        <div class="qr-card-actions">
+                                            <button class="qr-card-btn qr-card-btn-download">
+                                                <i class="bi bi-download"></i>
+                                                Download
+                                            </button>
+                                            <button class="qr-card-btn qr-card-btn-copy">
+                                                <i class="bi bi-clipboard"></i>
+                                                Copy Link
+                                            </button>
+                                            <button class="qr-card-btn-analytics">
+                                                <i class="bi bi-bar-chart"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Module 4 QR -->
+                                <div class="qr-card">
+                                    <div class="qr-card-header">
+                                        <h3 class="qr-card-title">Module 4</h3>
+                                        <span class="qr-card-badge">Active</span>
+                                    </div>
+                                    <div class="qr-card-body">
+                                        <div class="qr-card-image">
+                                            <img src="https://placehold.co/150x150/2563eb/ffffff?text=Module+4" alt="Module 4 QR Code">
+                                        </div>
+                                        <div class="qr-card-description">Supervised Learning: Regression</div>
+                                        <div class="qr-card-actions">
+                                            <button class="qr-card-btn qr-card-btn-download">
+                                                <i class="bi bi-download"></i>
+                                                Download
+                                            </button>
+                                            <button class="qr-card-btn qr-card-btn-copy">
+                                                <i class="bi bi-clipboard"></i>
+                                                Copy Link
+                                            </button>
+                                            <button class="qr-card-btn-analytics">
+                                                <i class="bi bi-bar-chart"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Module 5 QR -->
+                                <div class="qr-card">
+                                    <div class="qr-card-header">
+                                        <h3 class="qr-card-title">Module 5</h3>
+                                        <span class="qr-card-badge">Active</span>
+                                    </div>
+                                    <div class="qr-card-body">
+                                        <div class="qr-card-image">
+                                            <img src="https://placehold.co/150x150/2563eb/ffffff?text=Module+5" alt="Module 5 QR Code">
+                                        </div>
+                                        <div class="qr-card-description">Unsupervised Learning</div>
+                                        <div class="qr-card-actions">
+                                            <button class="qr-card-btn qr-card-btn-download">
+                                                <i class="bi bi-download"></i>
+                                                Download
+                                            </button>
+                                            <button class="qr-card-btn qr-card-btn-copy">
+                                                <i class="bi bi-clipboard"></i>
+                                                Copy Link
+                                            </button>
+                                            <button class="qr-card-btn-analytics">
+                                                <i class="bi bi-bar-chart"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Module 6 QR -->
+                                <div class="qr-card">
+                                    <div class="qr-card-header">
+                                        <h3 class="qr-card-title">Module 6</h3>
+                                        <span class="qr-card-badge">Active</span>
+                                    </div>
+                                    <div class="qr-card-body">
+                                        <div class="qr-card-image">
+                                            <img src="https://placehold.co/150x150/2563eb/ffffff?text=Module+6" alt="Module 6 QR Code">
+                                        </div>
+                                        <div class="qr-card-description">Model Evaluation and Deployment</div>
+                                        <div class="qr-card-actions">
+                                            <button class="qr-card-btn qr-card-btn-download">
+                                                <i class="bi bi-download"></i>
+                                                Download
+                                            </button>
+                                            <button class="qr-card-btn qr-card-btn-copy">
+                                                <i class="bi bi-clipboard"></i>
+                                                Copy Link
+                                            </button>
+                                            <button class="qr-card-btn-analytics">
+                                                <i class="bi bi-bar-chart"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Printing Options Tab -->
+                        <div class="tab-pane fade" id="printing" role="tabpanel" aria-labelledby="printing-tab">
+                            <div class="printing-options-container">
+                                <div class="printing-options-form">
+                                    <div class="form-section">
+                                        <h3 class="form-section-title">
+                                            <i class="bi bi-grid-3x3"></i>
+                                            Layout Options
+                                        </h3>
+                                        
+                                        <div class="layout-options">
+                                            <div class="layout-option active">
+                                                <div class="layout-option-icon">
+                                                    <i class="bi bi-grid-3x3"></i>
+                                                </div>
+                                                <div class="layout-option-label">Grid</div>
+                                            </div>
+                                            <div class="layout-option">
+                                                <div class="layout-option-icon">
+                                                    <i class="bi bi-list-ul"></i>
+                                                </div>
+                                                <div class="layout-option-label">List</div>
+                                            </div>
+                                            <div class="layout-option">
+                                                <div class="layout-option-icon">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </div>
+                                                <div class="layout-option-label">Custom</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="gridSize" class="form-label">Grid Size</label>
+                                            <select class="form-select" id="gridSize">
+                                                <option value="2x2">2 x 2 (4 per page)</option>
+                                                <option value="3x3" selected>3 x 3 (9 per page)</option>
+                                                <option value="4x4">4 x 4 (16 per page)</option>
+                                                <option value="5x5">5 x 5 (25 per page)</option>
+                                            </select>
+                                            <div class="form-text">Select how many QR codes to display per page</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-section">
+                                        <h3 class="form-section-title">
+                                            <i class="bi bi-file-earmark"></i>
+                                            Paper Options
+                                        </h3>
+                                        
+                                        <div class="mb-3">
+                                            <label for="paperSize" class="form-label">Paper Size</label>
+                                            <select class="form-select" id="paperSize">
+                                                <option value="letter" selected>Letter (8.5" x 11")</option>
+                                                <option value="a4">A4 (210mm x 297mm)</option>
+                                                <option value="legal">Legal (8.5" x 14")</option>
+                                                <option value="tabloid">Tabloid (11" x 17")</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="orientation" class="form-label">Orientation</label>
+                                            <select class="form-select" id="orientation">
+                                                <option value="portrait" selected>Portrait</option>
+                                                <option value="landscape">Landscape</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="includeCourseInfo" checked>
+                                                <label class="form-check-label" for="includeCourseInfo">
+                                                    Include course information
+                                                </label>
+                                            </div>
+                                            <div class="form-text">Add course title and description to the printout</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-section">
+                                        <h3 class="form-section-title">
+                                            <i class="bi bi-qr-code"></i>
+                                            QR Code Options
+                                        </h3>
+                                        
+                                        <div class="mb-3">
+                                            <label for="qrSize" class="form-label">QR Code Size</label>
+                                            <input type="range" class="form-range size-slider" min="1" max="5" step="1" value="3" id="qrSize">
+                                            <div class="d-flex justify-content-between">
+                                                <span>Small</span>
+                                                <span>Medium</span>
+                                                <span>Large</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="includeLabels" checked>
+                                                <label class="form-check-label" for="includeLabels">
+                                                    Include labels
+                                                </label>
+                                            </div>
+                                            <div class="form-text">Add module titles below each QR code</div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="includeBorders">
+                                                <label class="form-check-label" for="includeBorders">
+                                                    Include cut borders
+                                                </label>
+                                            </div>
+                                            <div class="form-text">Add dotted lines for easy cutting</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="print-preview">
+                                    <h3 class="preview-title">Print Preview</h3>
+                                    
+                                    <div class="preview-paper">
+                                        <div class="preview-grid">
+                                            <div class="preview-qr">
+                                                <div class="preview-qr-image"></div>
+                                                <div class="preview-qr-title">Module 1</div>
+                                            </div>
+                                            <div class="preview-qr">
+                                                <div class="preview-qr-image"></div>
+                                                <div class="preview-qr-title">Module 2</div>
+                                            </div>
+                                            <div class="preview-qr">
+                                                <div class="preview-qr-image"></div>
+                                                <div class="preview-qr-title">Module 3</div>
+                                            </div>
+                                            <div class="preview-qr">
+                                                <div class="preview-qr-image"></div>
+                                                <div class="preview-qr-title">Module 4</div>
+                                            </div>
+                                            <div class="preview-qr">
+                                                <div class="preview-qr-image"></div>
+                                                <div class="preview-qr-title">Module 5</div>
+                                            </div>
+                                            <div class="preview-qr">
+                                                <div class="preview-qr-image"></div>
+                                                <div class="preview-qr-title">Module 6</div>
+                                            </div>
+                                            <div class="preview-qr">
+                                                <div class="preview-qr-image"></div>
+                                                <div class="preview-qr-title">Course QR</div>
+                                            </div>
+                                            <div class="preview-qr">
+                                                <div class="preview-qr-image"></div>
+                                                <div class="preview-qr-title">Module 7</div>
+                                            </div>
+                                            <div class="preview-qr">
+                                                <div class="preview-qr-image"></div>
+                                                <div class="preview-qr-title">Module 8</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="print-actions">
+                                        <button class="btn-preview">
+                                            <i class="bi bi-eye"></i>
+                                            Full Preview
+                                        </button>
+                                        <button class="btn-print">
+                                            <i class="bi bi-printer"></i>
+                                            Print QR Codes
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Analytics Tab -->
+                        <div class="tab-pane fade" id="analytics" role="tabpanel" aria-labelledby="analytics-tab">
+                            <div class="analytics-header">
+                                <h2 class="analytics-title">QR Code Analytics</h2>
+                                <div class="analytics-actions">
+                                    <button class="btn-export">
+                                        <i class="bi bi-download"></i>
+                                        Export Data
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="analytics-filters">
+                                <div class="filter-item">
+                                    <label for="dateRange" class="form-label">Date Range</label>
+                                    <select class="form-select" id="dateRange">
+                                        <option value="7days">Last 7 days</option>
+                                        <option value="30days" selected>Last 30 days</option>
+                                        <option value="90days">Last 90 days</option>
+                                        <option value="custom">Custom Range</option>
+                                    </select>
+                                </div>
+                                <div class="filter-item">
+                                    <label for="qrFilter" class="form-label">QR Code</label>
+                                    <select class="form-select" id="qrFilter">
+                                        <option value="all" selected>All QR Codes</option>
+                                        <option value="course">Course Master QR</option>
+                                        <option value="module1">Module 1</option>
+                                        <option value="module2">Module 2</option>
+                                        <option value="module3">Module 3</option>
+                                        <option value="module4">Module 4</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="analytics-metrics">
+                                <div class="metric-card">
+                                    <div class="metric-icon">
+                                        <i class="bi bi-qr-code-scan"></i>
+                                    </div>
+                                    <div class="metric-value">1,247</div>
+                                    <div class="metric-label">Total Scans</div>
+                                    <div class="metric-change positive">
+                                        <i class="bi bi-arrow-up"></i>
+                                        <span>12.5%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="metric-card">
+                                    <div class="metric-icon">
+                                        <i class="bi bi-people"></i>
+                                    </div>
+                                    <div class="metric-value">324</div>
+                                    <div class="metric-label">Unique Users</div>
+                                    <div class="metric-change positive">
+                                        <i class="bi bi-arrow-up"></i>
+                                        <span>8.3%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="metric-card">
+                                    <div class="metric-icon">
+                                        <i class="bi bi-phone"></i>
+                                    </div>
+                                    <div class="metric-value">78%</div>
+                                    <div class="metric-label">Mobile Devices</div>
+                                    <div class="metric-change positive">
+                                        <i class="bi bi-arrow-up"></i>
+                                        <span>3.2%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="metric-card">
+                                    <div class="metric-icon">
+                                        <i class="bi bi-laptop"></i>
+                                    </div>
+                                    <div class="metric-value">22%</div>
+                                    <div class="metric-label">Desktop Devices</div>
+                                    <div class="metric-change negative">
+                                        <i class="bi bi-arrow-down"></i>
+                                        <span>3.2%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="chart-container">
+                                <div class="chart-header">
+                                    <h3 class="chart-title">Scan Activity Over Time</h3>
+                                    <div class="chart-actions">
+                                        <button class="chart-action">Daily</button>
+                                        <button class="chart-action active">Weekly</button>
+                                        <button class="chart-action">Monthly</button>
+                                    </div>
+                                </div>
+                                <canvas id="scanChart" class="chart-canvas"></canvas>
+                            </div>
+                            
+                            <div class="analytics-tables">
+                                <div class="table-container">
+                                    <h3 class="table-title">Top Scanned QR Codes</h3>
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>QR Code</th>
+                                                    <th>Scans</th>
+                                                    <th>% of Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <div class="table-qr">
+                                                            <div class="table-qr-image">
+                                                                <img src="https://placehold.co/40x40/2563eb/ffffff?text=Course" alt="Course QR">
+                                                            </div>
+                                                            <div class="table-qr-title">Course Master QR</div>
+                                                        </div>
+                                                    </td>
+                                                    <td>487</td>
+                                                    <td>39.1%</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="table-qr">
+                                                            <div class="table-qr-image">
+                                                                <img src="https://placehold.co/40x40/2563eb/ffffff?text=M1" alt="Module 1 QR">
+                                                            </div>
+                                                            <div class="table-qr-title">Module 1</div>
+                                                        </div>
+                                                    </td>
+                                                    <td>312</td>
+                                                    <td>25.0%</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="table-qr">
+                                                            <div class="table-qr-image">
+                                                                <img src="https://placehold.co/40x40/2563eb/ffffff?text=M2" alt="Module 2 QR">
+                                                            </div>
+                                                            <div class="table-qr-title">Module 2</div>
+                                                        </div>
+                                                    </td>
+                                                    <td>198</td>
+                                                    <td>15.9%</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="table-qr">
+                                                            <div class="table-qr-image">
+                                                                <img src="https://placehold.co/40x40/2563eb/ffffff?text=M3" alt="Module 3 QR">
+                                                            </div>
+                                                            <div class="table-qr-title">Module 3</div>
+                                                        </div>
+                                                    </td>
+                                                    <td>143</td>
+                                                    <td>11.5%</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="table-qr">
+                                                            <div class="table-qr-image">
+                                                                <img src="https://placehold.co/40x40/2563eb/ffffff?text=M4" alt="Module 4 QR">
+                                                            </div>
+                                                            <div class="table-qr-title">Module 4</div>
+                                                        </div>
+                                                    </td>
+                                                    <td>107</td>
+                                                    <td>8.6%</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <div class="table-container">
+                                    <h3 class="table-title">Device Breakdown</h3>
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Device</th>
+                                                    <th>Scans</th>
+                                                    <th>Percentage</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>iPhone</td>
+                                                    <td>487</td>
+                                                    <td>
+                                                        <div class="progress">
+                                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 39%" aria-valuenow="39" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Android Phone</td>
+                                                    <td>412</td>
+                                                    <td>
+                                                        <div class="progress">
+                                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 33%" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>iPad</td>
+                                                    <td>76</td>
+                                                    <td>
+                                                        <div class="progress">
+                                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 6%" aria-valuenow="6" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Windows Desktop</td>
+                                                    <td>187</td>
+                                                    <td>
+                                                        <div class="progress">
+                                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 15%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Mac Desktop</td>
+                                                    <td>85</td>
+                                                    <td>
+                                                        <div class="progress">
+                                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 7%" aria-valuenow="7" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="map-container">
+                                <h3 class="map-title">Geographic Distribution</h3>
+                                <div class="map-canvas">
+                                    <p>Geographic distribution map would appear here</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <div class="sidebar">
+                        <div class="sidebar-header">
+                            <h3 class="sidebar-title">Customization Options</h3>
+                            <p class="sidebar-description">Customize the appearance and behavior of your QR codes</p>
+                        </div>
+                        <div class="sidebar-content">
+                            <div class="sidebar-section">
+                                <h4 class="sidebar-section-title">
+                                    <i class="bi bi-palette"></i>
+                                    QR Code Colors
+                                </h4>
+                                
+                                <div class="color-picker-container">
+                                    <label class="form-label">Foreground Color</label>
+                                    <div class="color-preview" style="background-color: #2563eb;"></div>
+                                    <div class="color-options">
+                                        <div class="color-option" style="background-color: #000000;"></div>
+                                        <div class="color-option active" style="background-color: #2563eb;"></div>
+                                        <div class="color-option" style="background-color: #10b981;"></div>
+                                        <div class="color-option" style="background-color: #7c3aed;"></div>
+                                        <div class="color-option" style="background-color: #ef4444;"></div>
+                                        <div class="color-option" style="background-color: #f59e0b;"></div>
+                                        <div class="color-option" style="background-color: #64748b;"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="color-picker-container">
+                                    <label class="form-label">Background Color</label>
+                                    <div class="color-preview" style="background-color: #ffffff;"></div>
+                                    <div class="color-options">
+                                        <div class="color-option active" style="background-color: #ffffff;"></div>
+                                        <div class="color-option" style="background-color: #f8fafc;"></div>
+                                        <div class="color-option" style="background-color: #dbeafe;"></div>
+                                        <div class="color-option" style="background-color: #f3e8ff;"></div>
+                                        <div class="color-option" style="background-color: #dcfce7;"></div>
+                                        <div class="color-option" style="background-color: #ffedd5;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="sidebar-section">
+                                <h4 class="sidebar-section-title">
+                                    <i class="bi bi-image"></i>
+                                    Logo Options
+                                </h4>
+                                
+                                <div class="logo-upload">
+                                    <label class="form-label">Add Logo to QR Code</label>
+                                    <div class="logo-preview">
+                                        <i class="bi bi-cloud-arrow-up"></i>
+                                        <div class="logo-preview-text">Click to upload a logo or drag and drop</div>
+                                        <img src="/placeholder.svg" alt="Logo Preview" class="logo-preview-image">
+                                    </div>
+                                    <div class="form-text">Recommended size: 200x200px, PNG or SVG with transparency</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="logoSize" class="form-label">Logo Size</label>
+                                    <input type="range" class="form-range size-slider" min="1" max="5" step="1" value="3" id="logoSize">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Small</span>
+                                        <span>Medium</span>
+                                        <span>Large</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="sidebar-section">
+                                <h4 class="sidebar-section-title">
+                                    <i class="bi bi-shield-check"></i>
+                                    Error Correction
+                                </h4>
+                                
+                                <div class="error-correction-options">
+                                    <div class="error-option">
+                                        <div class="error-option-radio"></div>
+                                        <div class="error-option-content">
+                                            <div class="error-option-title">Low (L)</div>
+                                            <div class="error-option-description">Recovers up to 7% of data</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="error-option">
+                                        <div class="error-option-radio"></div>
+                                        <div class="error-option-content">
+                                            <div class="error-option-title">Medium (M)</div>
+                                            <div class="error-option-description">Recovers up to 15% of data</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="error-option active">
+                                        <div class="error-option-radio"></div>
+                                        <div class="error-option-content">
+                                            <div class="error-option-title">Quartile (Q)</div>
+                                            <div class="error-option-description">Recovers up to 25% of data</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="error-option">
+                                        <div class="error-option-radio"></div>
+                                        <div class="error-option-content">
+                                            <div class="error-option-title">High (H)</div>
+                                            <div class="error-option-description">Recovers up to 30% of data</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-text mb-3">Higher error correction allows for more data recovery but creates denser QR codes</div>
+                            </div>
+                            
+                            <div class="sidebar-section">
+                                <h4 class="sidebar-section-title">
+                                    <i class="bi bi-window"></i>
+                                    Landing Page
+                                </h4>
+                                
+                                <div class="landing-page-options">
+                                    <div class="mb-3">
+                                        <label for="landingPageType" class="form-label">Landing Page Type</label>
+                                        <select class="form-select" id="landingPageType">
+                                            <option value="direct" selected>Direct to Course</option>
+                                            <option value="custom">Custom Landing Page</option>
+                                            <option value="redirect">Redirect with Analytics</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="landing-preview">
+                                        <div class="landing-preview-header">
+                                            <div class="landing-preview-logo"></div>
+                                            <div class="landing-preview-title">Enhanced LearnMore</div>
+                                        </div>
+                                        <div class="landing-preview-body">
+                                            <div class="landing-preview-line"></div>
+                                            <div class="landing-preview-line"></div>
+                                            <div class="landing-preview-line"></div>
+                                            <div class="landing-preview-button"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" value="" id="trackAnalytics" checked>
+                                        <label class="form-check-label" for="trackAnalytics">
+                                            Track analytics on landing page
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="sidebar-actions">
+                                <button class="btn-apply">Apply to All QR Codes</button>
+                                <button class="btn-reset">Reset to Defaults</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Initialize Chart.js
+        document.addEventListener('DOMContentLoaded', function() {
+            // Only initialize if the canvas exists
+            const scanChartCanvas = document.getElementById('scanChart');
+            if (scanChartCanvas) {
+                const ctx = scanChartCanvas.getContext('2d');
+                const scanChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8'],
+                        datasets: [{
+                            label: 'Course QR',
+                            data: [65, 78, 52, 91, 43, 56, 61, 87],
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }, {
+                            label: 'Module QRs',
+                            data: [28, 48, 40, 19, 86, 27, 90, 102],
+                            borderColor: '#7c3aed',
+                            backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Number of Scans'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Time Period'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Layout option selection
+            const layoutOptions = document.querySelectorAll('.layout-option');
+            layoutOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    layoutOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // Error correction option selection
+            const errorOptions = document.querySelectorAll('.error-option');
+            errorOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    errorOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // Color option selection
+            const colorOptions = document.querySelectorAll('.color-option');
+            colorOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const parent = this.closest('.color-picker-container');
+                    parent.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const preview = parent.querySelector('.color-preview');
+                    preview.style.backgroundColor = this.style.backgroundColor;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

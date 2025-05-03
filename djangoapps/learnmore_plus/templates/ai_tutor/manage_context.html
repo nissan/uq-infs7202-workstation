@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Context - AI Tutor - LearnMore+{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen py-8">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="mb-6 flex justify-between items-center">
+                <a href="{% url 'ai_tutor:chat' session.id %}" class="inline-flex items-center text-gray-600 hover:text-purple-600 transition-colors">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Back to Chat
+                </a>
+                
+                <div class="text-sm text-gray-500">
+                    Session: <span class="font-medium text-gray-700">{{ session.title }}</span>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h1 class="text-2xl font-bold text-gray-900">Manage Context</h1>
+                    <p class="text-gray-600 mt-2">
+                        Customize the context that the AI tutor uses to respond to your questions.
+                        Add, remove, or reorder context items to improve the tutor's understanding.
+                    </p>
+                </div>
+                
+                <div class="p-6">
+                    <div class="mb-8">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Current Context Items</h2>
+                        
+                        {% if context_items %}
+                            <ul id="contextList" class="space-y-4">
+                                {% for item in context_items %}
+                                    <li id="item-{{ item.id }}" class="border border-gray-200 rounded-lg overflow-hidden" data-item-id="{{ item.id }}">
+                                        <div class="bg-gray-50 p-3 flex justify-between items-center">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 mr-3 cursor-move handle">
+                                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <h3 class="font-medium text-gray-900">{{ item.title }}</h3>
+                                                    <div class="text-xs text-gray-500">
+                                                        {{ item.get_context_type_display }} • Relevance: {{ item.relevance_score|floatformat:2 }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <button type="button" class="toggle-content-btn text-gray-500 hover:text-gray-700">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                    </svg>
+                                                </button>
+                                                <form method="post" action="{% url 'ai_tutor:manage_context' session.id %}" class="inline">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="action" value="remove">
+                                                    <input type="hidden" name="item_id" value="{{ item.id }}">
+                                                    <button type="submit" class="text-red-500 hover:text-red-700 ml-2">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        <div class="content-preview hidden p-4 border-t border-gray-200">
+                                            <div class="prose prose-sm max-w-none">
+                                                {{ item.content|linebreaks|truncatewords:100 }}
+                                                {% if item.content|wordcount > 100 %}
+                                                    <div class="text-sm text-gray-500 mt-2">(Content truncated for display)</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            
+                            <form id="reorderForm" method="post" action="{% url 'ai_tutor:manage_context' session.id %}" class="mt-4">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="reorder">
+                                <input type="hidden" id="orderData" name="order_data" value="">
+                                <button type="submit" id="saveOrderBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg transition-colors hidden">
+                                    Save Order
+                                </button>
+                            </form>
+                        {% else %}
+                            <div class="text-center p-8 bg-gray-50 rounded-lg">
+                                <div class="text-gray-400 mb-3">
+                                    <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-900">No Context Items Yet</h3>
+                                <p class="text-gray-600 mt-2">Start adding custom context items or continue chatting to automatically generate context.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="border-t border-gray-200 pt-8">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Add Custom Context</h2>
+                        
+                        <form method="post" action="{% url 'ai_tutor:manage_context' session.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="add">
+                            
+                            <div class="mb-4">
+                                <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                                <input type="text" id="title" name="title" required
+                                       class="w-full border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50"
+                                       placeholder="E.g., Important Concept Definition">
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label for="content" class="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                                <textarea id="content" name="content" rows="6" required
+                                          class="w-full border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50"
+                                          placeholder="Enter the context information here..."></textarea>
+                                <p class="text-sm text-gray-500 mt-1">
+                                    Add definitions, concepts, or any information you want the AI tutor to reference.
+                                </p>
+                            </div>
+                            
+                            <div>
+                                <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
+                                    Add Context Item
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 bg-white rounded-lg shadow p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-3">About Context</h2>
+                <div class="space-y-4 text-gray-600">
+                    <p>
+                        Context helps the AI tutor understand the specific topics and concepts relevant to your questions.
+                        The tutor automatically retrieves context from your course materials, but you can also add custom context.
+                    </p>
+                    <div class="grid md:grid-cols-3 gap-4 mt-4">
+                        <div class="bg-purple-50 p-4 rounded-lg">
+                            <h3 class="font-medium text-gray-900 mb-2">Course Content</h3>
+                            <p class="text-sm">
+                                The AI tutor automatically uses course content as context when you ask questions.
+                            </p>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-lg">
+                            <h3 class="font-medium text-gray-900 mb-2">Custom Context</h3>
+                            <p class="text-sm">
+                                Add your own notes, definitions, or additional information to help the tutor.
+                            </p>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-lg">
+                            <h3 class="font-medium text-gray-900 mb-2">Dynamic Retrieval</h3>
+                            <p class="text-sm">
+                                As you chat, the tutor will find and use the most relevant context for your questions.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle content preview
+        const toggleButtons = document.querySelectorAll('.toggle-content-btn');
+        toggleButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const contentPreview = this.closest('li').querySelector('.content-preview');
+                contentPreview.classList.toggle('hidden');
+                
+                // Toggle icon
+                const icon = this.querySelector('svg path');
+                if (contentPreview.classList.contains('hidden')) {
+                    icon.setAttribute('d', 'M19 9l-7 7-7-7');
+                } else {
+                    icon.setAttribute('d', 'M5 15l7-7 7 7');
+                }
+            });
+        });
+        
+        // Make list sortable
+        const contextList = document.getElementById('contextList');
+        if (contextList) {
+            const sortable = new Sortable(contextList, {
+                handle: '.handle',
+                animation: 150,
+                onEnd: function() {
+                    // Show save button
+                    document.getElementById('saveOrderBtn').classList.remove('hidden');
+                    
+                    // Update order data
+                    updateOrderData();
+                }
+            });
+            
+            // Update order data when saving
+            document.getElementById('reorderForm').addEventListener('submit', function() {
+                updateOrderData();
+            });
+            
+            function updateOrderData() {
+                const items = contextList.querySelectorAll('li');
+                const orderData = {};
+                
+                items.forEach((item, index) => {
+                    const itemId = item.getAttribute('data-item-id');
+                    orderData[itemId] = index;
+                });
+                
+                document.getElementById('orderData').value = JSON.stringify(orderData);
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Enrollment Details{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-8">
+        <div class="mb-6 flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Enrollment Details</h1>
+            <a href="{% url 'courses:manage_enrollments' %}" class="text-primary hover:text-primary-dark text-sm">Back to Enrollments</a>
+        </div>
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Student</h2>
+            {% include "courses/components/student_info.html" with student=enrollment.student student_profile=student_profile last_login=last_login date_joined=date_joined %}
+        </div>
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Course</h2>
+            <div>
+                <div class="font-medium text-gray-900 dark:text-white">{{ enrollment.course.title }}</div>
+                <div class="text-gray-500 dark:text-gray-400 text-sm">Category: {{ enrollment.course.category.name }}</div>
+                <div class="text-gray-500 dark:text-gray-400 text-sm">Enrolled: {{ enrollment.enrolled_at|date:"M d, Y" }}</div>
+                <div class="text-gray-500 dark:text-gray-400 text-sm">Status: <span class="font-semibold">{{ enrollment.status|title }}</span></div>
+                <div class="flex items-center mt-2">
+                    <span class="text-gray-500 dark:text-gray-400 text-sm mr-2">Progress:</span>
+                    <div class="w-40 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-2">
+                        <div class="bg-primary h-2 rounded-full" style="width: {{ enrollment.progress|default:0 }}%"></div>
+                    </div>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">{{ enrollment.progress|default:0|floatformat:1 }}%</span>
+                </div>
+                <!-- Course statistics -->
+                <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    {% with total_modules=enrollment.course.modules.count %}
+                        <span>Total Modules: {{ total_modules }}</span>
+                        {% with completed=module_progress|dictsort:'status'|length %}
+                            <span class="ml-4">Completed Modules: {{ module_progress|dictsort:'status'|filter:'completed'|length }}</span>
+                        {% endwith %}
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+        <div>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Module Progress</h2>
+            {% if module_progress %}
+                {% include "courses/components/module_progress_list.html" with module_progress=module_progress %}
+            {% else %}
+                <p class="text-gray-500 dark:text-gray-400">No module progress data available.</p>
+            {% endif %}
+        </div>
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Quiz Attempts</h2>
+            {% if quiz_attempts %}
+                {% include "courses/components/quiz_attempts_table.html" with quiz_attempts=quiz_attempts %}
+            {% else %}
+                <p class="text-gray-500 dark:text-gray-400">No quiz attempts for this course.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

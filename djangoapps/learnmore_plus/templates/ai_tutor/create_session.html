@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}New AI Tutor Session - LearnMore+{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen py-8">
+    <div class="container mx-auto px-4">
+        <div class="max-w-2xl mx-auto">
+            <div class="mb-6">
+                <a href="{% url 'ai_tutor:session_list' %}" class="inline-flex items-center text-gray-600 hover:text-purple-600 transition-colors">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Back to Sessions
+                </a>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h1 class="text-2xl font-bold text-gray-900">Start a New AI Tutor Session</h1>
+                    <p class="text-gray-600 mt-2">
+                        Choose a session type and select your focus to get personalized help.
+                    </p>
+                </div>
+                
+                <form method="post" action="{% url 'ai_tutor:create_session' %}" class="p-6">
+                    {% csrf_token %}
+                    
+                    <div class="mb-6">
+                        <label for="session_type" class="block text-sm font-medium text-gray-700 mb-2">Session Type</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <input type="radio" id="type_course" name="session_type" value="course" class="hidden peer" checked>
+                                <label for="type_course" class="flex items-center p-4 border rounded-lg cursor-pointer peer-checked:bg-purple-50 peer-checked:border-purple-500 hover:bg-gray-50 transition-colors">
+                                    <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-4">
+                                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-gray-900">Course Tutor</div>
+                                        <div class="text-sm text-gray-500">Focus on an entire course with broader context</div>
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <input type="radio" id="type_module" name="session_type" value="module" class="hidden peer">
+                                <label for="type_module" class="flex items-center p-4 border rounded-lg cursor-pointer peer-checked:bg-purple-50 peer-checked:border-purple-500 hover:bg-gray-50 transition-colors">
+                                    <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-4">
+                                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-gray-900">Module Tutor</div>
+                                        <div class="text-sm text-gray-500">Focus on a specific module or topic</div>
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <input type="radio" id="type_content" name="session_type" value="content" class="hidden peer">
+                                <label for="type_content" class="flex items-center p-4 border rounded-lg cursor-pointer peer-checked:bg-purple-50 peer-checked:border-purple-500 hover:bg-gray-50 transition-colors">
+                                    <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-4">
+                                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-gray-900">Content Tutor</div>
+                                        <div class="text-sm text-gray-500">Focus on specific content or lesson</div>
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <input type="radio" id="type_general" name="session_type" value="general" class="hidden peer">
+                                <label for="type_general" class="flex items-center p-4 border rounded-lg cursor-pointer peer-checked:bg-purple-50 peer-checked:border-purple-500 hover:bg-gray-50 transition-colors">
+                                    <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-4">
+                                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-gray-900">General Tutor</div>
+                                        <div class="text-sm text-gray-500">Any topic or general questions</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="courseSelector" class="mb-6">
+                        <label for="course_id" class="block text-sm font-medium text-gray-700 mb-2">Select a Course</label>
+                        <select id="course_id" name="course_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50">
+                            <option value="">Select a course...</option>
+                            {% for course in courses %}
+                                <option value="{{ course.id }}">{{ course.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div id="moduleSelector" class="mb-6 hidden">
+                        <label for="module_id" class="block text-sm font-medium text-gray-700 mb-2">Select a Module</label>
+                        <select id="module_id" name="module_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50" disabled>
+                            <option value="">Select a module...</option>
+                            <!-- Will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <div id="contentSelector" class="mb-6 hidden">
+                        <label for="content_id" class="block text-sm font-medium text-gray-700 mb-2">Select Content</label>
+                        <select id="content_id" name="content_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50" disabled>
+                            <option value="">Select content...</option>
+                            <!-- Will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Session Title (Optional)</label>
+                        <input type="text" id="title" name="title" placeholder="E.g., Help with Python Functions" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50">
+                        <p class="text-sm text-gray-500 mt-1">Leave blank for an auto-generated title</p>
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg shadow-sm transition-colors">
+                            Create Session
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const typeRadios = document.querySelectorAll('input[name="session_type"]');
+        const courseSelector = document.getElementById('courseSelector');
+        const moduleSelector = document.getElementById('moduleSelector');
+        const contentSelector = document.getElementById('contentSelector');
+        
+        const courseSelect = document.getElementById('course_id');
+        const moduleSelect = document.getElementById('module_id');
+        const contentSelect = document.getElementById('content_id');
+        
+        // Course module data - this would be populated by the backend
+        const coursesData = {
+            {% for course in courses %}
+                "{{ course.id }}": {
+                    "title": "{{ course.title }}",
+                    "modules": [
+                        {% for module in course.modules.all %}
+                            {
+                                "id": "{{ module.id }}",
+                                "title": "{{ module.title }}",
+                                "contents": [
+                                    {% for content in module.contents.all %}
+                                        {
+                                            "id": "{{ content.id }}",
+                                            "title": "{{ content.title }}"
+                                        }{% if not forloop.last %},{% endif %}
+                                    {% endfor %}
+                                ]
+                            }{% if not forloop.last %},{% endif %}
+                        {% endfor %}
+                    ]
+                }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        };
+        
+        // Handle session type change
+        typeRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                // Reset selectors
+                courseSelector.classList.add('hidden');
+                moduleSelector.classList.add('hidden');
+                contentSelector.classList.add('hidden');
+                
+                moduleSelect.disabled = true;
+                contentSelect.disabled = true;
+                
+                // Show relevant selectors based on type
+                if (this.value === 'general') {
+                    // General doesn't need any selectors
+                } else if (this.value === 'course') {
+                    courseSelector.classList.remove('hidden');
+                } else if (this.value === 'module') {
+                    courseSelector.classList.remove('hidden');
+                    moduleSelector.classList.remove('hidden');
+                } else if (this.value === 'content') {
+                    courseSelector.classList.remove('hidden');
+                    moduleSelector.classList.remove('hidden');
+                    contentSelector.classList.remove('hidden');
+                }
+            });
+        });
+        
+        // Handle course selection
+        courseSelect.addEventListener('change', function() {
+            // Clear module options
+            moduleSelect.innerHTML = '<option value="">Select a module...</option>';
+            contentSelect.innerHTML = '<option value="">Select content...</option>';
+            
+            if (this.value) {
+                // Enable module select
+                moduleSelect.disabled = false;
+                
+                // Get modules for this course
+                const modules = coursesData[this.value]?.modules || [];
+                
+                // Add module options
+                modules.forEach(module => {
+                    const option = document.createElement('option');
+                    option.value = module.id;
+                    option.textContent = module.title;
+                    moduleSelect.appendChild(option);
+                });
+            } else {
+                moduleSelect.disabled = true;
+                contentSelect.disabled = true;
+            }
+        });
+        
+        // Handle module selection
+        moduleSelect.addEventListener('change', function() {
+            // Clear content options
+            contentSelect.innerHTML = '<option value="">Select content...</option>';
+            
+            if (this.value) {
+                // Enable content select
+                contentSelect.disabled = false;
+                
+                // Get course ID
+                const courseId = courseSelect.value;
+                
+                // Find the module
+                const modules = coursesData[courseId]?.modules || [];
+                const module = modules.find(m => m.id === this.value);
+                
+                // Add content options
+                if (module) {
+                    module.contents.forEach(content => {
+                        const option = document.createElement('option');
+                        option.value = content.id;
+                        option.textContent = content.title;
+                        contentSelect.appendChild(option);
+                    });
+                }
+            } else {
+                contentSelect.disabled = true;
+            }
+        });
+    });
+</script>
+{% endblock %}

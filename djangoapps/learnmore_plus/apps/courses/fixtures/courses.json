@@ -1,0 +1,95 @@
+[
+    {
+        "model": "courses.coursecategory",
+        "pk": 1,
+        "fields": {
+            "name": "Programming",
+            "description": "Learn programming languages and software development",
+            "slug": "programming",
+            "created_at": "2024-03-20T00:00:00Z",
+            "updated_at": "2024-03-20T00:00:00Z"
+        }
+    },
+    {
+        "model": "courses.coursecategory",
+        "pk": 2,
+        "fields": {
+            "name": "Data Science",
+            "description": "Master data analysis, machine learning, and AI",
+            "slug": "data-science",
+            "created_at": "2024-03-20T00:00:00Z",
+            "updated_at": "2024-03-20T00:00:00Z"
+        }
+    },
+    {
+        "model": "courses.coursecategory",
+        "pk": 3,
+        "fields": {
+            "name": "Web Development",
+            "description": "Build modern web applications and websites",
+            "slug": "web-development",
+            "created_at": "2024-03-20T00:00:00Z",
+            "updated_at": "2024-03-20T00:00:00Z"
+        }
+    },
+    {
+        "model": "courses.course",
+        "pk": 1,
+        "fields": {
+            "title": "Introduction to Python Programming",
+            "slug": "introduction-to-python-programming",
+            "description": "Learn Python from scratch. This course covers basic syntax, data structures, and programming concepts.",
+            "category": 1,
+            "instructor": 1,
+            "status": "published",
+            "level": "beginner",
+            "start_date": "2024-04-01T00:00:00Z",
+            "end_date": "2024-06-30T00:00:00Z",
+            "created_at": "2024-03-20T00:00:00Z",
+            "updated_at": "2024-03-20T00:00:00Z",
+            "price": "99.99",
+            "max_students": 50,
+            "is_featured": true
+        }
+    },
+    {
+        "model": "courses.course",
+        "pk": 2,
+        "fields": {
+            "title": "Data Analysis with Python",
+            "slug": "data-analysis-with-python",
+            "description": "Master data analysis using Python libraries like Pandas, NumPy, and Matplotlib.",
+            "category": 2,
+            "instructor": 1,
+            "status": "published",
+            "level": "intermediate",
+            "start_date": "2024-04-15T00:00:00Z",
+            "end_date": "2024-07-15T00:00:00Z",
+            "created_at": "2024-03-20T00:00:00Z",
+            "updated_at": "2024-03-20T00:00:00Z",
+            "price": "149.99",
+            "max_students": 30,
+            "is_featured": true
+        }
+    },
+    {
+        "model": "courses.course",
+        "pk": 3,
+        "fields": {
+            "title": "Full Stack Web Development",
+            "slug": "full-stack-web-development",
+            "description": "Learn to build complete web applications using modern technologies like React and Django.",
+            "category": 3,
+            "instructor": 1,
+            "status": "published",
+            "level": "advanced",
+            "start_date": "2024-05-01T00:00:00Z",
+            "end_date": "2024-08-01T00:00:00Z",
+            "created_at": "2024-03-20T00:00:00Z",
+            "updated_at": "2024-03-20T00:00:00Z",
+            "price": "199.99",
+            "max_students": 25,
+            "is_featured": true
+        }
+    }
+] 

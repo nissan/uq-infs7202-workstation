@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Tutor Sessions - LearnMore+{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen py-8">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">AI Tutor Sessions</h1>
+            <a href="{% url 'ai_tutor:create_session' %}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                New Session
+            </a>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2 text-purple-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                        <span class="font-semibold">{{ active_sessions }} Active Sessions</span>
+                    </div>
+                    <div class="text-gray-500 text-sm">
+                        Get AI tutoring help for any course content
+                    </div>
+                </div>
+            </div>
+            
+            {% if sessions %}
+                <ul class="divide-y divide-gray-200">
+                    {% for session in sessions %}
+                        <li class="hover:bg-gray-50 transition-colors">
+                            <a href="{% url 'ai_tutor:chat' session.id %}" class="p-4 flex justify-between items-center">
+                                <div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="{% if session.is_active %}text-green-500{% else %}text-gray-400{% endif %}">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-gray-900 font-medium">{{ session.title }}</h3>
+                                            <div class="text-sm text-gray-500">
+                                                {% if session.course %}
+                                                    {{ session.course.title }}
+                                                    {% if session.module %}
+                                                        › {{ session.module.title }}
+                                                        {% if session.content %}
+                                                            › {{ session.content.title }}
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% else %}
+                                                    General Session
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% if session.last_message %}
+                                        <div class="mt-2 text-sm text-gray-600 truncate max-w-lg">
+                                            {{ session.last_message.content|truncatechars:100 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-sm text-gray-500">
+                                        {{ session.updated_at|date:"M d, g:i a" }}
+                                    </div>
+                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </div>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="p-8 text-center">
+                    <div class="text-purple-500 mb-4">
+                        <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No AI Tutor Sessions Yet</h3>
+                    <p class="text-gray-500 mb-6">Start a new session to get personalized help with your courses.</p>
+                    <a href="{% url 'ai_tutor:create_session' %}" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors inline-flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Start Your First Session
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="mt-8 bg-white rounded-lg shadow overflow-hidden">
+            <div class="p-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">AI Tutor Help</h2>
+            </div>
+            <div class="p-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="text-purple-600 mb-2">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-gray-900 font-medium mb-2">How to Use AI Tutor</h3>
+                        <p class="text-gray-600 text-sm">
+                            The AI Tutor can help explain course concepts, provide practice problems, 
+                            and guide you through difficult topics. Start by selecting a course or 
+                            specific content to focus your session.
+                        </p>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="text-purple-600 mb-2">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-gray-900 font-medium mb-2">Effective Questioning</h3>
+                        <p class="text-gray-600 text-sm">
+                            For best results, ask specific questions about course concepts. 
+                            The AI Tutor can access your course content to provide accurate 
+                            and relevant answers tailored to your learning materials.
+                        </p>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="text-purple-600 mb-2">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-gray-900 font-medium mb-2">Managing Sessions</h3>
+                        <p class="text-gray-600 text-sm">
+                            You can create multiple AI Tutor sessions for different courses 
+                            or topics. Sessions remain active until you delete them, allowing 
+                            you to continue conversations across study sessions.
+                        </p>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="text-purple-600 mb-2">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-gray-900 font-medium mb-2">Customizing Context</h3>
+                        <p class="text-gray-600 text-sm">
+                            The AI Tutor automatically uses relevant course content as context. 
+                            You can also add custom context information to help the tutor better 
+                            understand your specific learning needs.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

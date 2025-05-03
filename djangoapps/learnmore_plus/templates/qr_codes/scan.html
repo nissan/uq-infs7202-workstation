@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Scan QR Code{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Scan QR Code</h2>
+                </div>
+                <div class="card-body">
+                    <div id="qr-reader" class="mb-3"></div>
+                    <div id="qr-reader-results" class="alert alert-info d-none">
+                        Scanning...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+    function onScanSuccess(decodedText, decodedResult) {
+        // Stop scanning
+        html5QrcodeScanner.stop();
+        
+        // Show result
+        const resultDiv = document.getElementById('qr-reader-results');
+        resultDiv.classList.remove('d-none');
+        resultDiv.classList.remove('alert-info');
+        resultDiv.classList.add('alert-success');
+        resultDiv.textContent = 'QR Code detected! Redirecting...';
+        
+        // Redirect to the QR code URL
+        window.location.href = decodedText;
+    }
+
+    function onScanFailure(error) {
+        // Handle scan failure, usually ignore
+        console.warn(`QR Code scan error: ${error}`);
+    }
+
+    // Initialize QR code scanner
+    let html5QrcodeScanner = new Html5QrcodeScanner(
+        "qr-reader",
+        { fps: 10, qrbox: {width: 250, height: 250} },
+        false
+    );
+    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+</script>
+{% endblock %} 

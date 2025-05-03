@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Content Editor - Enhanced LearnMore</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Prism.js for code highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css" rel="stylesheet" />
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #dbeafe;
+            --secondary: #64748b;
+            --light: #f8fafc;
+            --dark: #0f172a;
+            --accent: #7c3aed;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --sidebar-width: 280px;
+            --right-sidebar-width: 320px;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark);
+            background-color: #f5f8ff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+        
+        /* Header Styles */
+        .editor-header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 0.75rem 1.5rem;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 1030;
+            height: 70px;
+        }
+        
+        .header-logo {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.25rem;
+            text-decoration: none;
+        }
+        
+        .breadcrumb-item a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        
+        .breadcrumb-item.active {
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .save-status {
+            color: var(--secondary);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .save-status.saved {
+            color: var(--success);
+        }
+        
+        .save-status.saving {
+            color: var(--warning);
+        }
+        
+        .save-status i {
+            font-size: 1rem;
+        }
+        
+        /* Main Layout */
+        .editor-container {
+            display: flex;
+            margin-top: 70px;
+            min-height: calc(100vh - 70px - 60px); /* Subtract header and footer height */
+        }
+        
+        /* Left Sidebar */
+        .left-sidebar {
+            width: var(--sidebar-width);
+            background-color: white;
+            border-right: 1px solid #e2e8f0;
+            position: fixed;
+            top: 70px;
+            bottom: 60px;
+            left: 0;
+            overflow-y: auto;
+            z-index: 1020;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-section {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .sidebar-title {
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sidebar-title .toggle-icon {
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: var(--secondary);
+        }
+        
+        /* Module Navigation */
+        .module-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .module-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .module-header {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .module-header:hover {
+            background-color: var(--primary-light);
+        }
+        
+        .module-header.active {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .module-toggle {
+            margin-right: 0.5rem;
+            font-size: 0.875rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .module-item.expanded .module-toggle {
+            transform: rotate(90deg);
+        }
+        
+        .module-title {
+            flex: 1;
+            font-size: 0.875rem;
+        }
+        
+        .module-pages {
+            list-style: none;
+            padding-left: 1.5rem;
+            margin: 0.5rem 0;
+            display: none;
+        }
+        
+        .module-item.expanded .module-pages {
+            display: block;
+        }
+        
+        .page-item {
+            margin-bottom: 0.25rem;
+        }
+        
+        .page-link {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            color: var(--secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .page-link:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+        
+        .page-link.active {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .page-icon {
+            margin-right: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        /* Block Types */
+        .block-types {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        
+        .block-type {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: 8px;
+            background-color: #f8fafc;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .block-type:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+        
+        .block-type i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .block-type-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        /* Settings Panel */
+        .settings-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .settings-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .settings-link {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            color: var(--secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .settings-link:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+        
+        .settings-icon {
+            margin-right: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        /* Main Editor Area */
+        .main-editor {
+            flex: 1;
+            padding: 2rem;
+            margin-left: var(--sidebar-width);
+            margin-right: var(--right-sidebar-width);
+            transition: margin 0.3s ease;
+        }
+        
+        .editor-toolbar {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            padding: 0.75rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0;
+        }
+        
+        .toolbar-group {
+            display: flex;
+            gap: 0.25rem;
+            border-right: 1px solid #e2e8f0;
+            padding-right: 0.5rem;
+            margin-right: 0.5rem;
+        }
+        
+        .toolbar-group:last-child {
+            border-right: none;
+            padding-right: 0;
+            margin-right: 0;
+        }
+        
+        .toolbar-btn {
+            background: none;
+            border: none;
+            color: var(--secondary);
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .toolbar-btn:hover {
+            background-color: #f1f5f9;
+            color: var(--dark);
+        }
+        
+        .toolbar-btn.active {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+        
+        .toolbar-btn i {
+            font-size: 1rem;
+        }
+        
+        .toolbar-dropdown {
+            position: relative;
+        }
+        
+        .toolbar-dropdown-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: none;
+            border: none;
+            color: var(--secondary);
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .toolbar-dropdown-toggle:hover {
+            background-color: #f1f5f9;
+            color: var(--dark);
+        }
+        
+        .toolbar-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 1000;
+            min-width: 10rem;
+            padding: 0.5rem 0;
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            display: none;
+        }
+        
+        .toolbar-dropdown.show .toolbar-dropdown-menu {
+            display: block;
+        }
+        
+        .toolbar-dropdown-item {
+            display: block;
+            width: 100%;
+            padding: 0.5rem 1rem;
+            clear: both;
+            font-weight: 400;
+            color: var(--dark);
+            text-align: inherit;
+            white-space: nowrap;
+            background-color: transparent;
+            border: 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .toolbar-dropdown-item:hover {
+            background-color: #f1f5f9;
+            color: var(--primary);
+        }
+        
+        /* Content Blocks */
+        .content-blocks {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-top: none;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            padding: 1.5rem;
+            min-height: 500px;
+        }
+        
+        .content-block {
+            position: relative;
+            margin-bottom: 2rem;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .content-block:hover {
+            border-color: #e2e8f0;
+        }
+        
+        .content-block:hover .block-actions {
+            opacity: 1;
+        }
+        
+        .block-actions {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            display: flex;
+            gap: 0.25rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 10;
+        }
+        
+        .block-action {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            color: var(--secondary);
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+        
+        .block-action:hover {
+            background-color: #f1f5f9;
+            color: var(--dark);
+        }
+        
+        .block-action.delete:hover {
+            background-color: #fee2e2;
+            color: var(--danger);
+        }
+        
+        .block-drag {
+            position: absolute;
+            top: 50%;
+            left: -1.5rem;
+            transform: translateY(-50%);
+            color: var(--secondary);
+            cursor: grab;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .content-block:hover .block-drag {
+            opacity: 1;
+        }
+        
+        .block-content {
+            padding: 1rem;
+        }
+        
+        /* Text Block */
+        .text-block h2 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+        
+        .text-block p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .text-block ul, .text-block ol {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+        
+        .text-block li {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Image Block */
+        .image-block {
+            text-align: center;
+        }
+        
+        .image-container {
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .image-caption {
+            font-size: 0.875rem;
+            color: var(--secondary);
+            text-align: center;
+            font-style: italic;
+        }
+        
+        /* Video Block */
+        .video-block {
+            margin-bottom: 1rem;
+        }
+        
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+        
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* Code Block */
+        .code-block {
+            margin-bottom: 1rem;
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background-color: #f1f5f9;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            border: 1px solid #e2e8f0;
+            border-bottom: none;
+        }
+        
+        .code-language {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        .code-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .code-action {
+            background: none;
+            border: none;
+            color: var(--secondary);
+            cursor: pointer;
+            transition: color 0.3s ease;
+            font-size: 0.875rem;
+        }
+        
+        .code-action:hover {
+            color: var(--primary);
+        }
+        
+        .code-container {
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .code-container pre {
+            margin: 0;
+            border-radius: 0;
+        }
+        
+        /* Quiz Block */
+        .quiz-block {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .quiz-header {
+            padding: 1rem;
+            background-color: var(--primary-light);
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .quiz-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--primary-dark);
+        }
+        
+        .quiz-description {
+            font-size: 0.875rem;
+            color: var(--secondary);
+        }
+        
+        .quiz-content {
+            padding: 1rem;
+        }
+        
+        .quiz-question {
+            margin-bottom: 1.5rem;
+        }
+        
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .question-options {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .question-option {
+            margin-bottom: 0.5rem;
+        }
+        
+        .option-label {
+            display: flex;
+            align-items: flex-start;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .option-label:hover {
+            background-color: #f8fafc;
+        }
+        
+        .option-input {
+            margin-top: 0.25rem;
+            margin-right: 0.75rem;
+        }
+        
+        .option-text {
+            flex: 1;
+        }
+        
+        .quiz-actions {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        /* Add Block Button */
+        .add-block-container {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        
+        .add-block-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: white;
+            border: 2px dashed #e2e8f0;
+            color: var(--secondary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .add-block-button:hover {
+            background-color: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        /* Right Sidebar */
+        .right-sidebar {
+            width: var(--right-sidebar-width);
+            background-color: white;
+            border-left: 1px solid #e2e8f0;
+            position: fixed;
+            top: 70px;
+            bottom: 60px;
+            right: 0;
+            overflow-y: auto;
+            z-index: 1020;
+            transition: transform 0.3s ease;
+        }
+        
+        .right-sidebar-toggle {
+            position: absolute;
+            top: 1rem;
+            left: -1.5rem;
+            width: 24px;
+            height: 24px;
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1;
+        }
+        
+        .right-sidebar-toggle:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+        
+        .right-sidebar.collapsed {
+            transform: translateX(100%);
+        }
+        
+        .right-sidebar.collapsed .right-sidebar-toggle i::before {
+            content: "\F285";
+        }
+        
+        /* Block Properties */
+        .property-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .property-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            font-size: 0.875rem;
+        }
+        
+        .property-description {
+            font-size: 0.75rem;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        /* AI Assistance */
+        .ai-panel {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .ai-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .ai-title {
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .ai-suggestion {
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .ai-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .ai-action {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            color: var(--secondary);
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .ai-action:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary-light);
+        }
+        
+        .ai-action.primary {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .ai-action.primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+        
+        /* Accessibility Checker */
+        .accessibility-panel {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        
+        .accessibility-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .accessibility-title {
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .accessibility-score {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .score-badge {
+            background-color: var(--success);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .accessibility-issues {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .accessibility-issue {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 4px;
+            background-color: white;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid;
+        }
+        
+        .accessibility-issue.warning {
+            border-left-color: var(--warning);
+        }
+        
+        .accessibility-issue.error {
+            border-left-color: var(--danger);
+        }
+        
+        .issue-icon {
+            color: var(--warning);
+            font-size: 1rem;
+        }
+        
+        .accessibility-issue.error .issue-icon {
+            color: var(--danger);
+        }
+        
+        .issue-content {
+            flex: 1;
+        }
+        
+        .issue-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        .issue-description {
+            font-size: 0.75rem;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .issue-location {
+            font-size: 0.75rem;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .issue-location:hover {
+            text-decoration: underline;
+        }
+        
+        /* Footer */
+        .editor-footer {
+            background-color: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 1rem 1.5rem;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1030;
+        }
+        
+        .footer-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 1199.98px) {
+            .right-sidebar {
+                transform: translateX(100%);
+            }
+            
+            .right-sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-editor {
+                margin-right: 0;
+            }
+        }
+        
+        @media (max-width: 991.98px) {
+            .left-sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .left-sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-editor {
+                margin-left: 0;
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+        }
+        
+        @media (max-width: 767.98px) {
+            .editor-header {
+                padding: 0.75rem 1rem;
+            }
+            
+            .main-editor {
+                padding: 1.5rem 1rem;
+            }
+            
+            .toolbar-group {
+                border-right: none;
+                padding-right: 0;
+                margin-right: 0;
+            }
+            
+            .editor-footer {
+                padding: 0.75rem 1rem;
+            }
+            
+            .footer-actions {
+                gap: 0.5rem;
+            }
+            
+            .btn {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.875rem;
+            }
+        }
+        
+        /* Sidebar Toggles */
+        .sidebar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            margin-right: 1rem;
+        }
+        
+        @media (max-width: 991.98px) {
+            .sidebar-toggle {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="editor-header">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <button class="sidebar-toggle" id="leftSidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <a href="#" class="header-logo me-4">Enhanced LearnMore</a>
+                <nav aria-label="breadcrumb" class="d-none d-md-block">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="#">Courses</a></li>
+                        <li class="breadcrumb-item"><a href="#">Web Development Fundamentals</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">HTML Basics</li>
+                    </ol>
+                </nav>
+            </div>
+            
+            <div class="header-actions">
+                <div class="save-status saved">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>All changes saved</span>
+                </div>
+                
+                <button class="btn btn-outline-secondary d-none d-md-inline-flex" id="rightSidebarToggle">
+                    <i class="bi bi-gear"></i>
+                    <span class="ms-2">Properties</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="editor-container">
+        <!-- Left Sidebar -->
+        <aside class="left-sidebar" id="leftSidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    Module Structure
+                    <i class="bi bi-chevron-up toggle-icon"></i>
+                </h3>
+                <ul class="module-nav">
+                    <li class="module-item expanded">
+                        <div class="module-header active">
+                            <i class="bi bi-chevron-right module-toggle"></i>
+                            <div class="module-title">1. Introduction to HTML</div>
+                        </div>
+                        <ul class="module-pages">
+                            <li class="page-item">
+                                <a href="#" class="page-link active">
+                                    <i class="bi bi-file-text page-icon"></i>
+                                    HTML Basics
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a href="#" class="page-link">
+                                    <i class="bi bi-file-text page-icon"></i>
+                                    HTML Structure
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a href="#" class="page-link">
+                                    <i class="bi bi-question-circle page-icon"></i>
+                                    Quiz: HTML Fundamentals
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="module-item">
+                        <div class="module-header">
+                            <i class="bi bi-chevron-right module-toggle"></i>
+                            <div class="module-title">2. CSS Styling</div>
+                        </div>
+                        <ul class="module-pages">
+                            <li class="page-item">
+                                <a href="#" class="page-link">
+                                    <i class="bi bi-file-text page-icon"></i>
+                                    CSS Basics
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a href="#" class="page-link">
+                                    <i class="bi bi-file-text page-icon"></i>
+                                    Selectors and Properties
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a href="#" class="page-link">
+                                    <i class="bi bi-file-code page-icon"></i>
+                                    CSS Layout
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="module-item">
+                        <div class="module-header">
+                            <i class="bi bi-chevron-right module-toggle"></i>
+                            <div class="module-title">3. JavaScript Basics</div>
+                        </div>
+                        <ul class="module-pages">
+                            <li class="page-item">
+                                <a href="#" class="page-link">
+                                    <i class="bi bi-file-text page-icon"></i>
+                                    Introduction to JavaScript
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a href="#" class="page-link">
+                                    <i class="bi bi-file-code page-icon"></i>
+                                    Variables and Data Types
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    Content Blocks
+                    <i class="bi bi-chevron-up toggle-icon"></i>
+                </h3>
+                <div class="block-types">
+                    <div class="block-type">
+                        <i class="bi bi-type"></i>
+                        <div class="block-type-name">Text</div>
+                    </div>
+                    <div class="block-type">
+                        <i class="bi bi-image"></i>
+                        <div class="block-type-name">Image</div>
+                    </div>
+                    <div class="block-type">
+                        <i class="bi bi-film"></i>
+                        <div class="block-type-name">Video</div>
+                    </div>
+                    <div class="block-type">
+                        <i class="bi bi-code-square"></i>
+                        <div class="block-type-name">Code</div>
+                    </div>
+                    <div class="block-type">
+                        <i class="bi bi-question-circle"></i>
+                        <div class="block-type-name">Quiz</div>
+                    </div>
+                    <div class="block-type">
+                        <i class="bi bi-file-earmark-text"></i>
+                        <div class="block-type-name">Assignment</div>
+                    </div>
+                    <div class="block-type">
+                        <i class="bi bi-link-45deg"></i>
+                        <div class="block-type-name">Link</div>
+                    </div>
+                    <div class="block-type">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                        <div class="block-type-name">PDF</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    Settings
+                    <i class="bi bi-chevron-up toggle-icon"></i>
+                </h3>
+                <ul class="settings-list">
+                    <li class="settings-item">
+                        <a href="#" class="settings-link">
+                            <i class="bi bi-gear settings-icon"></i>
+                            Page Settings
+                        </a>
+                    </li>
+                    <li class="settings-item">
+                        <a href="#" class="settings-link">
+                            <i class="bi bi-eye settings-icon"></i>
+                            Preview
+                        </a>
+                    </li>
+                    <li class="settings-item">
+                        <a href="#" class="settings-link">
+                            <i class="bi bi-clock-history settings-icon"></i>
+                            Revision History
+                        </a>
+                    </li>
+                    <li class="settings-item">
+                        <a href="#" class="settings-link">
+                            <i class="bi bi-shield-check settings-icon"></i>
+                            Access Control
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+        
+        <!-- Main Editor Area -->
+        <main class="main-editor">
+            <div class="editor-toolbar">
+                <div class="toolbar-group">
+                    <div class="toolbar-dropdown">
+                        <button class="toolbar-dropdown-toggle">
+                            <span>Paragraph</span>
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <div class="toolbar-dropdown-menu">
+                            <button class="toolbar-dropdown-item">Heading 1</button>
+                            <button class="toolbar-dropdown-item">Heading 2</button>
+                            <button class="toolbar-dropdown-item">Heading 3</button>
+                            <button class="toolbar-dropdown-item">Paragraph</button>
+                            <button class="toolbar-dropdown-item">Quote</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" title="Bold">
+                        <i class="bi bi-type-bold"></i>
+                    </button>
+                    <button class="toolbar-btn" title="Italic">
+                        <i class="bi bi-type-italic"></i>
+                    </button>
+                    <button class="toolbar-btn" title="Underline">
+                        <i class="bi bi-type-underline"></i>
+                    </button>
+                    <button class="toolbar-btn" title="Strikethrough">
+                        <i class="bi bi-type-strikethrough"></i>
+                    </button>
+                </div>
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" title="Bulleted List">
+                        <i class="bi bi-list-ul"></i>
+                    </button>
+                    <button class="toolbar-btn" title="Numbered List">
+                        <i class="bi bi-list-ol"></i>
+                    </button>
+                    <button class="toolbar-btn" title="Decrease Indent">
+                        <i class="bi bi-text-indent-left"></i>
+                    </button>
+                    <button class="toolbar-btn" title="Increase Indent">
+                        <i class="bi bi-text-indent-right"></i>
+                    </button>
+                </div>
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" title="Insert Link">
+                        <i class="bi bi-link-45deg"></i>
+                    </button>
+                    <button class="toolbar-btn" title="Insert Image">
+                        <i class="bi bi-image"></i>
+                    </button>
+                    <button class="toolbar-btn" title="Insert Table">
+                        <i class="bi bi-table"></i>
+                    </button>
+                </div>
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" title="Code">
+                        <i class="bi bi-code"></i>
+                    </button>
+                    <button class="toolbar-btn" title="Code Block">
+                        <i class="bi bi-code-square"></i>
+                    </button>
+                </div>
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" title="Clear Formatting">
+                        <i class="bi bi-eraser"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="content-blocks">
+                <!-- Text Block -->
+                <div class="content-block text-block">
+                    <div class="block-drag">
+                        <i class="bi bi-grip-vertical"></i>
+                    </div>
+                    <div class="block-actions">
+                        <button class="block-action" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="block-action" title="Duplicate">
+                            <i class="bi bi-copy"></i>
+                        </button>
+                        <button class="block-action delete" title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                    <div class="block-content">
+                        <h2>Introduction to HTML</h2>
+                        <p>HTML (HyperText Markup Language) is the standard markup language for creating web pages. It describes the structure of a web page and consists of a series of elements that tell the browser how to display the content.</p>
+                        <p>HTML elements are represented by tags, written using angle brackets. Tags come in pairs, with the opening tag and the closing tag. The content goes between these tags.</p>
+                        <p>Here are some key points about HTML:</p>
+                        <ul>
+                            <li>HTML stands for HyperText Markup Language</li>
+                            <li>HTML is used to create the structure of web pages</li>
+                            <li>HTML consists of elements represented by tags</li>
+                            <li>Tags usually come in pairs: opening tag and closing tag</li>
+                            <li>The browser does not display the HTML tags, but uses them to render the content</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Image Block -->
+                <div class="content-block image-block">
+                    <div class="block-drag">
+                        <i class="bi bi-grip-vertical"></i>
+                    </div>
+                    <div class="block-actions">
+                        <button class="block-action" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="block-action" title="Duplicate">
+                            <i class="bi bi-copy"></i>
+                        </button>
+                        <button class="block-action delete" title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                    <div class="block-content">
+                        <div class="image-container">
+                            <img src="https://placehold.co/800x400/2563eb/ffffff?text=HTML+Structure+Diagram" alt="HTML Document Structure">
+                        </div>
+                        <div class="image-caption">Figure 1: Basic structure of an HTML document showing the relationship between different elements.</div>
+                    </div>
+                </div>
+                
+                <!-- Code Block -->
+                <div class="content-block code-block">
+                    <div class="block-drag">
+                        <i class="bi bi-grip-vertical"></i>
+                    </div>
+                    <div class="block-actions">
+                        <button class="block-action" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="block-action" title="Duplicate">
+                            <i class="bi bi-copy"></i>
+                        </button>
+                        <button class="block-action delete" title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                    <div class="block-content">
+                        <div class="code-header">
+                            <div class="code-language">HTML</div>
+                            <div class="code-actions">
+                                <button class="code-action" title="Copy">
+                                    <i class="bi bi-clipboard"></i> Copy
+                                </button>
+                            </div>
+                        </div>
+                        <div class="code-container">
+                            <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;My First HTML Page&lt;/title&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Hello, World!&lt;/h1&gt;
+    &lt;p&gt;This is my first HTML page.&lt;/p&gt;
+    
+    &lt;h2&gt;HTML Elements&lt;/h2&gt;
+    &lt;ul&gt;
+        &lt;li&gt;Headings: h1, h2, h3, ...&lt;/li&gt;
+        &lt;li&gt;Paragraphs: p&lt;/li&gt;
+        &lt;li&gt;Lists: ul, ol, li&lt;/li&gt;
+        &lt;li&gt;Links: a&lt;/li&gt;
+        &lt;li&gt;Images: img&lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Video Block -->
+                <div class="content-block video-block">
+                    <div class="block-drag">
+                        <i class="bi bi-grip-vertical"></i>
+                    </div>
+                    <div class="block-actions">
+                        <button class="block-action" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="block-action" title="Duplicate">
+                            <i class="bi bi-copy"></i>
+                        </button>
+                        <button class="block-action delete" title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                    <div class="block-content">
+                        <div class="video-container">
+                            <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Video Tutorial" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quiz Block -->
+                <div class="content-block quiz-block">
+                    <div class="block-drag">
+                        <i class="bi bi-grip-vertical"></i>
+                    </div>
+                    <div class="block-actions">
+                        <button class="block-action" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="block-action" title="Duplicate">
+                            <i class="bi bi-copy"></i>
+                        </button>
+                        <button class="block-action delete" title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                    <div class="block-content">
+                        <div class="quiz-header">
+                            <h3 class="quiz-title">Quick Check: HTML Basics</h3>
+                            <p class="quiz-description">Test your understanding of HTML fundamentals.</p>
+                        </div>
+                        <div class="quiz-content">
+                            <div class="quiz-question">
+                                <p class="question-text">1. Which tag is used to define the main heading of an HTML document?</p>
+                                <ul class="question-options">
+                                    <li class="question-option">
+                                        <label class="option-label">
+                                            <input type="radio" name="question1" class="option-input">
+                                            <span class="option-text">&lt;header&gt;</span>
+                                        </label>
+                                    </li>
+                                    <li class="question-option">
+                                        <label class="option-label">
+                                            <input type="radio" name="question1" class="option-input">
+                                            <span class="option-text">&lt;heading&gt;</span>
+                                        </label>
+                                    </li>
+                                    <li class="question-option">
+                                        <label class="option-label">
+                                            <input type="radio" name="question1" class="option-input">
+                                            <span class="option-text">&lt;h1&gt;</span>
+                                        </label>
+                                    </li>
+                                    <li class="question-option">
+                                        <label class="option-label">
+                                            <input type="radio" name="question1" class="option-input">
+                                            <span class="option-text">&lt;head&gt;</span>
+                                        </label>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="quiz-question">
+                                <p class="question-text">2. Which of the following is the correct way to create a hyperlink in HTML?</p>
+                                <ul class="question-options">
+                                    <li class="question-option">
+                                        <label class="option-label">
+                                            <input type="radio" name="question2" class="option-input">
+                                            <span class="option-text">&lt;link href="https://example.com"&gt;Visit Example&lt;/link&gt;</span>
+                                        </label>
+                                    </li>
+                                    <li class="question-option">
+                                        <label class="option-label">
+                                            <input type="radio" name="question2" class="option-input">
+                                            <span class="option-text">&lt;a url="https://example.com"&gt;Visit Example&lt;/a&gt;</span>
+                                        </label>
+                                    </li>
+                                    <li class="question-option">
+                                        <label class="option-label">
+                                            <input type="radio" name="question2" class="option-input">
+                                            <span class="option-text">&lt;a href="https://example.com"&gt;Visit Example&lt;/a&gt;</span>
+                                        </label>
+                                    </li>
+                                    <li class="question-option">
+                                        <label class="option-label">
+                                            <input type="radio" name="question2" class="option-input">
+                                            <span class="option-text">&lt;hyperlink to="https://example.com"&gt;Visit Example&lt;/hyperlink&gt;</span>
+                                        </label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="quiz-actions">
+                            <button class="btn btn-outline-secondary">Reset</button>
+                            <button class="btn btn-primary">Check Answers</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Add Block Button -->
+                <div class="add-block-container">
+                    <button class="add-block-button">
+                        <i class="bi bi-plus-circle"></i>
+                        Add Content Block
+                    </button>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Right Sidebar -->
+        <aside class="right-sidebar" id="rightSidebar">
+            <button class="right-sidebar-toggle" id="rightSidebarToggleBtn">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+            
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    Block Properties
+                    <i class="bi bi-chevron-up toggle-icon"></i>
+                </h3>
+                <div class="property-group">
+                    <label class="property-label">Block Type</label>
+                    <select class="form-select form-select-sm">
+                        <option>Text</option>
+                        <option>Image</option>
+                        <option>Video</option>
+                        <option>Code</option>
+                        <option>Quiz</option>
+                    </select>
+                </div>
+                <div class="property-group">
+                    <label class="property-label">Alignment</label>
+                    <div class="btn-group w-100">
+                        <button class="btn btn-outline-secondary btn-sm active">
+                            <i class="bi bi-text-left"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-text-center"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-text-right"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="property-group">
+                    <label class="property-label">Spacing</label>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="property-description">Top</label>
+                            <select class="form-select form-select-sm">
+                                <option>None</option>
+                                <option>Small</option>
+                                <option selected>Medium</option>
+                                <option>Large</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="property-description">Bottom</label>
+                            <select class="form-select form-select-sm">
+                                <option>None</option>
+                                <option>Small</option>
+                                <option selected>Medium</option>
+                                <option>Large</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="property-group">
+                    <label class="property-label">Background</label>
+                    <select class="form-select form-select-sm">
+                        <option selected>None</option>
+                        <option>Light Gray</option>
+                        <option>Primary Light</option>
+                        <option>Success Light</option>
+                        <option>Warning Light</option>
+                        <option>Danger Light</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    AI Assistance
+                    <i class="bi bi-chevron-up toggle-icon"></i>
+                </h3>
+                <div class="ai-panel">
+                    <div class="ai-header">
+                        <div class="ai-icon">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                        <div class="ai-title">Content Suggestions</div>
+                    </div>
+                    <div class="ai-suggestion">
+                        <p>Consider adding a practical example showing how HTML elements are nested within each other to create a complete page structure.</p>
+                    </div>
+                    <div class="ai-actions">
+                        <button class="ai-action">Ignore</button>
+                        <button class="ai-action">Generate Example</button>
+                        <button class="ai-action primary">Add to Content</button>
+                    </div>
+                </div>
+                <div class="ai-panel">
+                    <div class="ai-header">
+                        <div class="ai-icon">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                        <div class="ai-title">Clarity Improvement</div>
+                    </div>
+                    <div class="ai-suggestion">
+                        <p>The explanation of HTML tags could be clearer. Here's an alternative:</p>
+                        <p><em>"HTML tags are like containers that wrap around content to tell the browser how to display it. Most tags come in pairs: an opening tag &lt;tag&gt; and a closing tag &lt;/tag&gt;."</em></p>
+                    </div>
+                    <div class="ai-actions">
+                        <button class="ai-action">Ignore</button>
+                        <button class="ai-action primary">Replace Text</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    Accessibility Checker
+                    <i class="bi bi-chevron-up toggle-icon"></i>
+                </h3>
+                <div class="accessibility-panel">
+                    <div class="accessibility-header">
+                        <div class="accessibility-title">
+                            <i class="bi bi-shield-check"></i>
+                            Accessibility
+                        </div>
+                        <div class="accessibility-score">
+                            <span class="score-badge">92%</span>
+                        </div>
+                    </div>
+                    <ul class="accessibility-issues">
+                        <li class="accessibility-issue warning">
+                            <div class="issue-icon">
+                                <i class="bi bi-exclamation-triangle"></i>
+                            </div>
+                            <div class="issue-content">
+                                <div class="issue-title">Image missing alt text</div>
+                                <div class="issue-description">The image should have descriptive alternative text for screen readers.</div>
+                                <a href="#" class="issue-location">Fix in Image Block</a>
+                            </div>
+                        </li>
+                        <li class="accessibility-issue error">
+                            <div class="issue-icon">
+                                <i class="bi bi-x-circle"></i>
+                            </div>
+                            <div class="issue-content">
+                                <div class="issue-title">Low color contrast</div>
+                                <div class="issue-description">The text color in the quiz section doesn't have sufficient contrast with the background.</div>
+                                <a href="#" class="issue-location">Fix in Quiz Block</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="editor-footer">
+        <div>
+            <button class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+                <span class="d-none d-sm-inline ms-1">Previous Page</span>
+            </button>
+        </div>
+        <div class="footer-actions">
+            <button class="btn btn-outline-secondary">
+                <i class="bi bi-eye"></i>
+                <span class="d-none d-sm-inline ms-1">Preview</span>
+            </button>
+            <button class="btn btn-outline-primary">
+                <i class="bi bi-save"></i>
+                <span class="d-none d-sm-inline ms-1">Save Draft</span>
+            </button>
+            <button class="btn btn-success">
+                <i class="bi bi-check-circle"></i>
+                <span class="d-none d-sm-inline ms-1">Publish</span>
+            </button>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Prism.js for code highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Toggle left sidebar on mobile
+        document.getElementById('leftSidebarToggle').addEventListener('click', function() {
+            document.getElementById('leftSidebar').classList.toggle('active');
+        });
+        
+        // Toggle right sidebar
+        document.getElementById('rightSidebarToggle').addEventListener('click', function() {
+            document.getElementById('rightSidebar').classList.toggle('collapsed');
+        });
+        
+        document.getElementById('rightSidebarToggleBtn').addEventListener('click', function() {
+            document.getElementById('rightSidebar').classList.toggle('collapsed');
+        });
+        
+        // Toggle module pages
+        document.querySelectorAll('.module-header').forEach(function(header) {
+            header.addEventListener('click', function() {
+                this.closest('.module-item').classList.toggle('expanded');
+            });
+        });
+        
+        // Toggle sidebar sections
+        document.querySelectorAll('.sidebar-title .toggle-icon').forEach(function(icon) {
+            icon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const content = this.closest('.sidebar-section').querySelector(':scope > *:not(.sidebar-title)');
+                if (content.style.display === 'none') {
+                    content.style.display = 'block';
+                    this.classList.remove('bi-chevron-down');  {
+                    content.style.display = 'block';
+                    this.classList.remove('bi-chevron-down');
+                    this.classList.add('bi-chevron-up');
+                } else {
+                    content.style.display = 'none';
+                    this.classList.remove('bi-chevron-up');
+                    this.classList.add('bi-chevron-down');
+                }
+            });
+        });
+        
+        // Toolbar dropdown toggle
+        document.querySelectorAll('.toolbar-dropdown-toggle').forEach(function(toggle) {
+            toggle.addEventListener('click', function() {
+                this.closest('.toolbar-dropdown').classList.toggle('show');
+            });
+        });
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdowns = document.querySelectorAll('.toolbar-dropdown.show');
+            dropdowns.forEach(function(dropdown) {
+                if (!dropdown.contains(event.target)) {
+                    dropdown.classList.remove('show');
+                }
+            });
+        });
+        
+        // Add block button
+        document.querySelector('.add-block-button').addEventListener('click', function() {
+            alert('This would open a block selector menu in a real implementation.');
+        });
+        
+        // Block action buttons
+        document.querySelectorAll('.block-action').forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const action = this.getAttribute('title').toLowerCase();
+                const block = this.closest('.content-block');
+                
+                if (action === 'delete') {
+                    if (confirm('Are you sure you want to delete this block?')) {
+                        block.remove();
+                    }
+                } else if (action === 'duplicate') {
+                    const clone = block.cloneNode(true);
+                    block.after(clone);
+                } else if (action === 'edit') {
+                    alert('This would open the block editor in a real implementation.');
+                }
+            });
+        });
+        
+        // Simulate saving
+        let saveTimeout;
+        const saveStatus = document.querySelector('.save-status');
+        
+        function simulateSaving() {
+            saveStatus.classList.remove('saved');
+            saveStatus.classList.add('saving');
+            saveStatus.innerHTML = '<i class="bi bi-arrow-repeat"></i><span>Saving changes...</span>';
+            
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(function() {
+                saveStatus.classList.remove('saving');
+                saveStatus.classList.add('saved');
+                saveStatus.innerHTML = '<i class="bi bi-check-circle-fill"></i><span>All changes saved</span>';
+            }, 1500);
+        }
+        
+        // Simulate saving when interacting with the editor
+        document.querySelector('.content-blocks').addEventListener('click', function() {
+            simulateSaving();
+        });
+        
+        // Initialize code highlighting
+        Prism.highlightAll();
+    </script>
+</body>
+</html>
