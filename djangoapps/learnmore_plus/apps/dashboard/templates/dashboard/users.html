@@ -1,66 +1,145 @@
 {% extends 'dashboard/base.html' %}
+{% load static %}
 
 {% block title %}Users - Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard-tables.css' %}">
+{% endblock %}
 
 {% block content %}
 <h1 class="page-title">User Management</h1>
 
 <div class="bg-white rounded-lg shadow-sm p-6">
+    <div class="table-controls">
+        <div class="search-box">
+            <input type="text" placeholder="Search users..." id="userSearch">
+            <i class="bi bi-search"></i>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-funnel"></i> Filter
+            </button>
+            <button class="btn btn-primary btn-sm">
+                <i class="bi bi-plus"></i> Add User
+            </button>
+        </div>
+    </div>
+
     <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
+        <table class="dashboard-table">
             <thead>
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th width="35%">User</th>
+                    <th width="25%">Email</th>
+                    <th width="15%">Status</th>
+                    <th width="15%">Role</th>
+                    <th width="10%">Actions</th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody>
                 {% for user in users %}
                 <tr>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0 h-10 w-10">
+                    <td>
+                        <div class="user-info">
+                            <div class="user-avatar">
                                 {% if user.profile_picture %}
-                                    <img class="h-10 w-10 rounded-full" src="{{ user.profile_picture.url }}" alt="">
+                                    <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}">
                                 {% else %}
-                                    <div class="h-10 w-10 rounded-full bg-primary-light text-primary flex items-center justify-center font-semibold">
-                                        {{ user.username|first|upper }}
-                                    </div>
+                                    {{ user.username|first|upper }}
                                 {% endif %}
                             </div>
-                            <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-900">{{ user.get_full_name|default:user.username }}</div>
-                                <div class="text-sm text-gray-500">Joined {{ user.date_joined|date:"M d, Y" }}</div>
+                            <div class="user-details">
+                                <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                                <div class="user-meta">Joined {{ user.date_joined|date:"M d, Y" }}</div>
                             </div>
                         </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">{{ user.email }}</div>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        <span class="status-badge active">Active</span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                            Active
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td>
                         {% if user.is_superuser %}
-                            Administrator
+                            <span class="role-pill admin">Administrator</span>
                         {% elif user.is_staff %}
-                            Staff
+                            <span class="role-pill staff">Staff</span>
                         {% else %}
-                            User
+                            <span class="role-pill user">User</span>
                         {% endif %}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a href="#" class="text-primary hover:text-primary-dark">Edit</a>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="#" class="btn-action view" title="View Profile">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="#" class="btn-action edit" title="Edit User">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            {% if not user.is_superuser %}
+                            <a href="#" class="btn-action delete" title="Delete User">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="bi bi-people"></i>
+                            </div>
+                            <h4 class="empty-state-title">No users found</h4>
+                            <p class="empty-state-message">There are no users matching your criteria.</p>
+                            <button class="btn btn-primary">Add First User</button>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+
+    {% if users.count > 10 %}
+    <div class="table-pagination">
+        <div class="pagination-info">
+            Showing <span class="fw-bold">1-10</span> of <span class="fw-bold">{{ users.count }}</span> users
+        </div>
+        <div class="pagination-controls">
+            <button class="page-btn" disabled>
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+    {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Simple search functionality
+    document.getElementById('userSearch').addEventListener('keyup', function() {
+        const searchText = this.value.toLowerCase();
+        const rows = document.querySelectorAll('.dashboard-table tbody tr');
+        
+        rows.forEach(row => {
+            const userName = row.querySelector('.user-name').textContent.toLowerCase();
+            const userEmail = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            
+            if (userName.includes(searchText) || userEmail.includes(searchText)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+</script>
 {% endblock %} 
