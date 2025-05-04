@@ -9,7 +9,21 @@ from apps.courses.models import (
 )
 from datetime import timedelta
 import random
-import lorem
+
+# Try to import lorem, but provide a fallback if not available
+try:
+    import lorem
+    HAS_LOREM = True
+except ImportError:
+    HAS_LOREM = False
+    # Simple lorem ipsum text generator as fallback
+    def generate_paragraph():
+        paragraphs = [
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisi id efficitur tincidunt, nisl nunc tincidunt urna, id lacinia nunc nisl id nisi.",
+            "Mauris volutpat, odio non efficitur tincidunt, elit erat tincidunt urna, id lacinia nunc nisl id nisi. Nullam auctor, nisi id efficitur tincidunt.",
+            "Sed euismod, nisl nec tincidunt tincidunt, nisl nunc tincidunt urna, id lacinia nunc nisl id nisi. Nullam auctor, nisi id efficitur tincidunt.",
+        ]
+        return "\n\n".join(random.sample(paragraphs, k=min(3, len(paragraphs))))
 
 User = get_user_model()
 
@@ -380,7 +394,10 @@ class Command(BaseCommand):
     def generate_content(self, content_type, subject):
         """Generate appropriate content based on content type and subject"""
         if content_type == 'text':
-            return lorem.paragraph() + "\n\n" + lorem.paragraph() + "\n\n" + lorem.paragraph()
+            if HAS_LOREM:
+                return lorem.paragraph() + "\n\n" + lorem.paragraph() + "\n\n" + lorem.paragraph()
+            else:
+                return generate_paragraph()
         elif content_type == 'video':
             return f"https://example.com/videos/{subject.lower().replace(' ', '-')}.mp4"
         elif content_type == 'file':
