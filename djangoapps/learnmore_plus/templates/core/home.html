@@ -1,28 +1,80 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Welcome to LearnMore Plus{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Card styles with proper text contrast */
+    .home-card {
+        @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 
+               border border-gray-100 dark:border-gray-700
+               transition-all duration-300 hover:shadow-lg;
+    }
+    
+    .home-card h2 {
+        @apply text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-100;
+    }
+    
+    .home-card p {
+        @apply mb-4 text-gray-700 dark:text-gray-300;
+    }
+    
+    .home-card .btn {
+        @apply inline-block px-5 py-2 rounded-md bg-primary-600 text-white
+               hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600
+               font-medium transition-colors duration-200;
+    }
+    
+    .page-title {
+        @apply text-4xl font-bold mb-8 text-gray-900 dark:text-white
+               relative pb-3 inline-block;
+    }
+    
+    .page-title::after {
+        content: '';
+        @apply absolute bottom-0 left-0 w-1/2 h-1 bg-primary-500 dark:bg-primary-400 rounded;
+    }
+    
+    .hero-section {
+        @apply py-12 mb-12 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 
+               dark:from-gray-800 dark:to-gray-900;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
+<div class="hero-section">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+            Welcome to <span class="text-primary-600 dark:text-primary-400">LearnMore Plus</span>
+        </h1>
+        <p class="text-xl mb-6 text-gray-700 dark:text-gray-300 max-w-3xl">
+            Experience the next generation of learning with our AI-powered platform designed for students, instructors, and coordinators.
+        </p>
+    </div>
+</div>
+
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-4xl font-bold mb-8">Welcome to LearnMore Plus</h1>
+    <h2 class="page-title">Choose Your Path</h2>
     
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-2xl font-semibold mb-4">For Students</h2>
-            <p class="mb-4">Explore our courses and start your learning journey today.</p>
-            <a href="{% url 'courses:course_catalog' %}" class="btn btn-primary">Browse Courses</a>
+        <div class="home-card">
+            <h2>For Students</h2>
+            <p>Explore our courses and start your learning journey today. Access AI-powered tutoring, interactive content, and track your progress.</p>
+            <a href="{% url 'courses:course_catalog' %}" class="btn">Browse Courses</a>
         </div>
         
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-2xl font-semibold mb-4">For Instructors</h2>
-            <p class="mb-4">Create and manage your courses with our powerful tools.</p>
-            <a href="{% url 'courses:instructor_dashboard' %}" class="btn btn-primary">Instructor Dashboard</a>
+        <div class="home-card">
+            <h2>For Instructors</h2>
+            <p>Create and manage your courses with our powerful tools. Develop engaging content, monitor student progress, and provide personalized feedback.</p>
+            <a href="{% url 'courses:instructor_dashboard' %}" class="btn">Instructor Dashboard</a>
         </div>
         
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-2xl font-semibold mb-4">For Coordinators</h2>
-            <p class="mb-4">Oversee course delivery and manage instructors.</p>
-            <a href="{% url 'courses:coordinator_dashboard' %}" class="btn btn-primary">Coordinator Dashboard</a>
+        <div class="home-card">
+            <h2>For Coordinators</h2>
+            <p>Oversee course delivery and manage instructors. Analyze learning outcomes, ensure quality standards, and optimize educational resources.</p>
+            <a href="{% url 'courses:coordinator_dashboard' %}" class="btn">Coordinator Dashboard</a>
         </div>
     </div>
 </div>
