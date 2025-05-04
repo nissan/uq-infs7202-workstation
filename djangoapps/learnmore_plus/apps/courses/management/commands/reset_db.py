@@ -87,28 +87,45 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('Groups and permissions set up.'))
 
         self.stdout.write(self.style.WARNING('Seeding enhanced demo data...'))
+        seed_success = False
         try:
             call_command('enhanced_seed_data')
             self.stdout.write(self.style.SUCCESS('Enhanced demo data successfully seeded!'))
+            seed_success = True
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error seeding enhanced demo data: {str(e)}'))
             
-            # Fallback to original seed methods
-            self.stdout.write(self.style.WARNING('Falling back to original seed methods...'))
-            self.stdout.write(self.style.WARNING('Seeding demo data via API...'))
-            call_command('seed_demo_data_api')
-
-        self.stdout.write(self.style.WARNING('Seeding activity data...'))
-        call_command('seed_activity_data')
-        
-        self.stdout.write(self.style.WARNING('Seeding AI Tutor demo data...'))
-        try:
-            call_command('seed_ai_tutor_demo')
-        except Exception as e:
-            self.stdout.write(self.style.ERROR(f'Error seeding AI Tutor demo data: {str(e)}'))
-            self.stdout.write(self.style.WARNING('AI Tutor demo data seeding skipped. You can run it manually with:'))
-            self.stdout.write('python manage.py seed_ai_tutor_demo')
-
+            # Since there was an error with the enhanced seed, exit cleanly
+            # without trying other seeding methods to avoid transaction issues
+            self.stdout.write(self.style.WARNING('Seeding failed. You may need to install required dependencies:'))
+            self.stdout.write(self.style.WARNING('pip install python-lorem>=1.3.0'))
+            self.stdout.write(self.style.WARNING('Then try the following commands individually:'))
+            self.stdout.write(self.style.WARNING('python manage.py enhanced_seed_data'))
+            self.stdout.write(self.style.WARNING('python manage.py seed_activity_data'))
+            self.stdout.write(self.style.WARNING('python manage.py seed_ai_tutor_demo'))
+            
+            # We'll display user information and exit early
+            self.print_user_info()
+            return
+           
+        # Only continue if the enhanced seed was successful
+        if seed_success:
+            self.stdout.write(self.style.WARNING('Seeding activity data...'))
+            call_command('seed_activity_data')
+            
+            self.stdout.write(self.style.WARNING('Seeding AI Tutor demo data...'))
+            try:
+                call_command('seed_ai_tutor_demo')
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f'Error seeding AI Tutor demo data: {str(e)}'))
+                self.stdout.write(self.style.WARNING('AI Tutor demo data seeding skipped. You can run it manually with:'))
+                self.stdout.write('python manage.py seed_ai_tutor_demo')
+            
+            # Print user information after successful seeding
+            self.print_user_info()
+    
+    def print_user_info(self):
+        """Print information about demo users"""
         self.stdout.write(self.style.SUCCESS('System reset complete!'))
         self.stdout.write('')
         self.stdout.write('Test users created:')
@@ -140,4 +157,4 @@ class Command(BaseCommand):
         self.stdout.write('  Password: alice.johnson123')
         self.stdout.write('')
         self.stdout.write('Run the development server with:')
-        self.stdout.write('python manage.py runserver') 
+        self.stdout.write('python manage.py runserver')

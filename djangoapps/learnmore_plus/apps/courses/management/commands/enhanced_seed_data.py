@@ -24,6 +24,20 @@ except ImportError:
             "Sed euismod, nisl nec tincidunt tincidunt, nisl nunc tincidunt urna, id lacinia nunc nisl id nisi. Nullam auctor, nisi id efficitur tincidunt.",
         ]
         return "\n\n".join(random.sample(paragraphs, k=min(3, len(paragraphs))))
+    
+    # Mock the paragraph function from lorem to return our generator
+    class LoremMock:
+        @staticmethod
+        def paragraph():
+            paragraphs = [
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                "Nullam auctor, nisi id efficitur tincidunt.",
+                "Mauris volutpat, odio non efficitur tincidunt.",
+                "Sed euismod, nisl nec tincidunt tincidunt."
+            ]
+            return random.choice(paragraphs)
+    
+    lorem = LoremMock()
 
 User = get_user_model()
 
@@ -395,7 +409,12 @@ class Command(BaseCommand):
         """Generate appropriate content based on content type and subject"""
         if content_type == 'text':
             if HAS_LOREM:
-                return lorem.paragraph() + "\n\n" + lorem.paragraph() + "\n\n" + lorem.paragraph()
+                # When using actual lorem package
+                try:
+                    return lorem.paragraph() + "\n\n" + lorem.paragraph() + "\n\n" + lorem.paragraph()
+                except (TypeError, AttributeError):
+                    # Fallback if the package doesn't work as expected
+                    return generate_paragraph()
             else:
                 return generate_paragraph()
         elif content_type == 'video':
