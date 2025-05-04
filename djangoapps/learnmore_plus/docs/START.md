@@ -210,6 +210,13 @@ After running `python manage.py seed_demo_data`, you can use these accounts:
 - Check STATIC_ROOT setting
 - Verify static files directory
 
+### UI Framework
+- The application exclusively uses Tailwind CSS for styling
+- No Bootstrap dependencies are used (we've migrated from Bootstrap to Tailwind)
+- Dark mode is supported across all components through Tailwind's dark mode variants
+- Custom components use Tailwind utility classes for consistent styling
+- See `docs/ui-framework-decision.md` for details on this architectural decision
+
 ### Admin Access
 - Ensure user is in admin group
 - Check user permissions

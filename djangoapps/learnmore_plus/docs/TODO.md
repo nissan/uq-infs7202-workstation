@@ -39,8 +39,8 @@
 
 ### User Experience
 - [x] Improve mobile responsiveness
-- [ ] Add dark mode support
-- [ ] Implement keyboard shortcuts
+- [x] Add dark mode support
+- [x] Implement keyboard shortcuts for modal accessibility
 - [ ] Add user preferences
 - [x] Create user dashboard customization
 - [ ] Add notification system
@@ -82,6 +82,15 @@
 - [x] Create test documentation including Playwright setup
 
 ## Completed Tasks
+
+### UI Framework
+- [x] Standardize on Tailwind CSS for consistent styling
+- [x] Remove Bootstrap dependencies to eliminate styling conflicts
+- [x] Implement dark mode support throughout the application
+- [x] Create UI framework decision documentation
+- [x] Convert all modals to use Tailwind CSS
+- [x] Optimize for mobile responsiveness
+- [x] Enhance keyboard accessibility for interactive elements
 
 ### Deployment
 - [x] Configure Django for Railway.app deployment
@@ -126,6 +135,10 @@
 - [x] Implement QR code scanning view
 - [x] Add printable QR code sheets
 - [x] Integrate QR codes with course detail pages
+- [x] Replace Bootstrap modal with Tailwind CSS in QR code popup
+- [x] Enhance QR code UI with improved accessibility
+- [x] Implement dark mode support for QR code interfaces
+- [x] Add keyboard navigation for QR code modal (Escape to close)
 
 ### AI Tutor System
 - [x] Implement AI tutor model structure
