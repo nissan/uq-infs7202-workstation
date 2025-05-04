@@ -77,6 +77,28 @@ Each demo test file follows the same structure:
 2. **Core Functionality Tests**: Individual tests for each key aspect of the user's role
 3. **AI Tutor Test**: A test of the AI tutor functionality for this user type
 
+## Visual and UI Tests
+
+In addition to functional tests, we've implemented specialized tests for visual styling and UI framework verification:
+
+1. **Visual Verification Tests** (`visual-verification.spec.js`)
+   - Tests dark mode transitions
+   - Verifies styling consistency across pages
+   - Checks responsive layouts on different device sizes
+   - Validates modal functionality and styling
+
+2. **QR Code UI Tests** (`qr-codes.spec.js`)
+   - Tests QR code modal display and interactions
+   - Verifies proper theme handling for QR code components
+   - Tests download functionality and printable QR sheets
+
+3. **Tailwind Visual Regression Tests** (`tailwind-visual-regression.spec.js`)
+   - Advanced testing of Tailwind CSS implementation
+   - Verifies color schemes in light and dark modes
+   - Confirms absence of Bootstrap classes
+   - Tests responsive behavior at all Tailwind breakpoints
+   - Validates proper usage of Tailwind utilities across components
+
 ## Auto-generated Reports
 
 After running tests, detailed reports are available in the `playwright-report` directory. Open `playwright-report/index.html` in a browser to view details of test runs, including screenshots of failures.
