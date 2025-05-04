@@ -4,75 +4,75 @@
 {% block title %}QR Code Statistics{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="mb-0">QR Code Statistics</h2>
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+        <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">QR Code Statistics</h2>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Total Scans -->
+                <div class="bg-white dark:bg-gray-700 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-600">
+                    <h5 class="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">Total Scans</h5>
+                    <h2 class="text-3xl font-bold text-primary">{{ total_scans }}</h2>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Total Scans</h5>
-                                    <h2 class="text-primary">{{ total_scans }}</h2>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Active QR Codes</h5>
-                                    <h2 class="text-success">{{ active_qr_codes }}</h2>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Average Scans per Code</h5>
-                                    <h2 class="text-info">{{ average_scans|floatformat:1 }}</h2>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                
+                <!-- Active QR Codes -->
+                <div class="bg-white dark:bg-gray-700 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-600">
+                    <h5 class="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">Active QR Codes</h5>
+                    <h2 class="text-3xl font-bold text-green-600 dark:text-green-400">{{ active_qr_codes }}</h2>
+                </div>
+                
+                <!-- Average Scans per Code -->
+                <div class="bg-white dark:bg-gray-700 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-600">
+                    <h5 class="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">Average Scans per Code</h5>
+                    <h2 class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ average_scans|floatformat:1 }}</h2>
+                </div>
+            </div>
 
-                    <div class="row mt-4">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Scans Over Time</h5>
-                                    <canvas id="scansChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Top QR Codes</h5>
-                                    <div class="table-responsive">
-                                        <table class="table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Content</th>
-                                                    <th>Scans</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {% for code in top_qr_codes %}
-                                                <tr>
-                                                    <td>{{ code.content }}</td>
-                                                    <td>{{ code.scan_count }}</td>
-                                                </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Scans Over Time Chart -->
+                <div class="bg-white dark:bg-gray-700 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-600">
+                    <h5 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Scans Over Time</h5>
+                    <div class="h-64">
+                        <canvas id="scansChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Top QR Codes -->
+                <div class="bg-white dark:bg-gray-700 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-600">
+                    <h5 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Top QR Codes</h5>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+                            <thead class="bg-gray-50 dark:bg-gray-800">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        Content
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        Scans
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-gray-700 divide-y divide-gray-200 dark:divide-gray-600">
+                                {% for code in top_qr_codes %}
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                        {{ code.content }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                        {{ code.scan_count }}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="2" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                                        No QR codes have been scanned yet.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -84,30 +84,83 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get dark mode status
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    
+    // Define colors based on theme
+    const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+    const textColor = isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)';
+    
     // Scans over time chart
     const ctx = document.getElementById('scansChart').getContext('2d');
-    new Chart(ctx, {
+    const chart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: {{ dates|safe }},
             datasets: [{
                 label: 'Number of Scans',
                 data: {{ scan_counts|safe }},
-                borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1
+                borderColor: '#0ea5e9',
+                backgroundColor: 'rgba(14, 165, 233, 0.2)',
+                tension: 0.2,
+                fill: true,
+                pointBackgroundColor: '#0ea5e9',
+                pointBorderColor: '#fff',
+                pointRadius: 4,
+                pointHoverRadius: 6
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: textColor
+                    }
+                }
+            },
             scales: {
+                x: {
+                    grid: {
+                        color: gridColor
+                    },
+                    ticks: {
+                        color: textColor
+                    }
+                },
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        stepSize: 1
+                        stepSize: 1,
+                        color: textColor
+                    },
+                    grid: {
+                        color: gridColor
                     }
                 }
             }
         }
     });
+    
+    // Update chart when theme changes
+    document.querySelectorAll('[data-theme-toggle]').forEach(toggle => {
+        toggle.addEventListener('click', () => {
+            setTimeout(() => {
+                const isDark = document.documentElement.classList.contains('dark');
+                const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+                const textColor = isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)';
+                
+                chart.options.scales.x.grid.color = gridColor;
+                chart.options.scales.y.grid.color = gridColor;
+                chart.options.scales.x.ticks.color = textColor;
+                chart.options.scales.y.ticks.color = textColor;
+                chart.options.plugins.legend.labels.color = textColor;
+                chart.update();
+            }, 100);
+        });
+    });
+});
 </script>
 {% endblock %} 
