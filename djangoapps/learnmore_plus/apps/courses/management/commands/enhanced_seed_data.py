@@ -10,20 +10,21 @@ from apps.courses.models import (
 from datetime import timedelta
 import random
 
+# Define paragraph generation function at module level so it's available throughout the file
+def generate_paragraph():
+    paragraphs = [
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisi id efficitur tincidunt, nisl nunc tincidunt urna, id lacinia nunc nisl id nisi.",
+        "Mauris volutpat, odio non efficitur tincidunt, elit erat tincidunt urna, id lacinia nunc nisl id nisi. Nullam auctor, nisi id efficitur tincidunt.",
+        "Sed euismod, nisl nec tincidunt tincidunt, nisl nunc tincidunt urna, id lacinia nunc nisl id nisi. Nullam auctor, nisi id efficitur tincidunt.",
+    ]
+    return "\n\n".join(random.sample(paragraphs, k=min(3, len(paragraphs))))
+
 # Try to import lorem, but provide a fallback if not available
 try:
     import lorem
     HAS_LOREM = True
 except ImportError:
     HAS_LOREM = False
-    # Simple lorem ipsum text generator as fallback
-    def generate_paragraph():
-        paragraphs = [
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisi id efficitur tincidunt, nisl nunc tincidunt urna, id lacinia nunc nisl id nisi.",
-            "Mauris volutpat, odio non efficitur tincidunt, elit erat tincidunt urna, id lacinia nunc nisl id nisi. Nullam auctor, nisi id efficitur tincidunt.",
-            "Sed euismod, nisl nec tincidunt tincidunt, nisl nunc tincidunt urna, id lacinia nunc nisl id nisi. Nullam auctor, nisi id efficitur tincidunt.",
-        ]
-        return "\n\n".join(random.sample(paragraphs, k=min(3, len(paragraphs))))
     
     # Mock the paragraph function from lorem to return our generator
     class LoremMock:
