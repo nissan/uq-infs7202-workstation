@@ -462,10 +462,12 @@ Each group has specific Django permissions assigned to it, controlling access to
   - Easy sharing and distribution
 
 - UI/UX
-  - Responsive design
-  - Dark mode support
-  - Accessibility features
-  - Internationalization
+  - Responsive design with Tailwind CSS
+  - Full dark mode support across all components
+  - Accessibility features including keyboard navigation
+  - Consistent styling through exclusive use of Tailwind CSS
+  - Modals and interactive elements with keyboard support
+  - Internationalization support
 
 ## Project Structure
 
@@ -705,7 +707,8 @@ This project is licensed under the MIT License - see the `LICENSE` file for deta
 - Django framework
 - Tailwind CSS
 - django-allauth
-- Bootstrap Icons
+- Font Awesome
+- Lucide icons
 - noUiSlider 
 
 ## Dashboard Roles & Access

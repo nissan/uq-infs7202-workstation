@@ -895,4 +895,13 @@ These should be updated to use the new settings format:
 - 'Browse All Courses' is now a prominent button, visible and accessible in both light and dark modes.
 - Fixed number circle contrast in 'How Enhanced LearnMore Works'.
 - Removed duplicate 'Or continue with' on login page.
-- All changes follow accessibility and usability best practices. 
+- All changes follow accessibility and usability best practices.
+
+## QR Code Modal Refactoring (2024-06)
+- Replaced Bootstrap modal with pure Tailwind CSS implementation for QR code popup
+- Improved dark mode compatibility for QR code modal
+- Enhanced modal accessibility with keyboard navigation (Escape key to close)
+- Added click-outside-to-close functionality
+- Maintained consistent styling across the application
+- Fixed styling issues with overlapping styles from Bootstrap
+- Improved mobile responsiveness of QR code display 

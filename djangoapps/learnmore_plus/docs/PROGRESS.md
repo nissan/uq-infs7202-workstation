@@ -138,6 +138,8 @@ The AI tutor system includes the following components:
 
 ### Fixed Issues
 
+- **UI Framework Consistency**: Replaced all Bootstrap components with Tailwind CSS equivalents to maintain consistent styling and dark mode compatibility. Most recently, refactored the QR code modal from a Bootstrap implementation to a pure Tailwind CSS solution.
+
 - **Import Path Errors**: Fixed import references in management commands to use proper app-relative paths (e.g., `from apps.courses.models` instead of `from courses.models`). This prevents `ModuleNotFoundError` exceptions when running commands.
 
 - **Migration Handling**: Added robust migration checking and automatic creation for the AI Tutor app. The `seed_ai_tutor_demo` command now detects when tables are missing and automatically creates and applies migrations before proceeding.
@@ -157,3 +159,11 @@ The AI tutor system includes the following components:
   - Updated package requirements to include these dedicated provider packages
 
 - **Documentation Updates**: Enhanced documentation in AI tutor demo guide, feature documentation, and technical implementation guide to reflect the updated LangChain integration and required Ollama models.
+
+- **Template Syntax Issues**: Fixed template syntax issues in multiple components that were causing rendering errors on the home page:
+  - Identified and resolved issues with nested `{% with %}` and `{% if %}` blocks
+  - Rewrote key template components using a more robust pattern for default values
+  - Created a `check_templates.py` tool for automated template syntax checking
+  - Added comprehensive tests to detect template nesting issues
+  - Added detailed documentation on proper template patterns in `docs/template-patterns.md`
+  - The landing page and all components now render correctly
