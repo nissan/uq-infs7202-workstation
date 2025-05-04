@@ -1,0 +1,306 @@
+Script started on Sun May  4 18:15:49 2025
+[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004h[7mpython -m venv [7mv[7menv[27m[K[A[26C[27mp[27my[27mt[27mh[27mo[27mn[27m [27m-[27mm[27m [27mv[27me[27mn[27mv[27m v[27me[27mn[27mv[1C[1C[?1l>[?2004l
+]2;python -m venv venv]1;python[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hssource ven
+[J[1;36mvendor[0m/  [J[1;36mvenv[0m/  [J[A[0m[27m[24m[30Csource ven[Kv[1m/[0m[0m/bin[1m/[0m[K[0m/acttivt    
+[J[A[4Civate[?1l>[?2004l
+[J]2;source venv/bin/activate]1;source[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004h[7mpip inst[7ma[7mll django djangorestframework django-cors-he[7ma[7mders django-environ[27m[K
+[K[3A[37C[27mp[27mi[27mp[27m [27mi[27mn[27ms[27mta[27ml[27ml[27m [27md[27mj[27ma[27mn[27mg[27mo[27m [27md[27mj[27ma[27mn[27mg[27mo[27mr[27me[27ms[27mt[27mf[27mr[27ma[27mm[27me[27mw[27mo[27mr[27mk[27m [27md[27mj[27ma[27mn[27mg[27mo[27m-[27mc[27mo[27mr[27ms[27m-[27mh[27mea[27md[27me[27mr[27ms[27m [27md[27mj[27ma[27mn[27mg[27mo[27m-[27me[27mn[27mv[27mi[27mr[27mo[27mn[1B[K[A[20C[?1l>[?2004l[1B
+]2;pip install django djangorestframework django-cors-headers django-environ]1;pip[33mWARNING: pip is configured with locations that require TLS/SSL, however the ssl module in Python is not available.[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=3, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0mCould not fetch URL https://pypi.org/simple/django/: There was a problem confirming the ssl certificate: HTTPSConnectionPool(host='pypi.org', port=443): Max retries exceeded with url: /simple/django/ (Caused by SSLError("Can't connect to HTTPS URL because the SSL module is not available.")) - skipping
+[31mERROR: Could not find a version that satisfies the requirement django (from versions: none)[0m[31m
+[0m[31mERROR: No matching distribution found for django[0m[31m
+[0m[33mWARNING: pip is configured with locations that require TLS/SSL, however the ssl module in Python is not available.[0m[33m
+[0mCould not fetch URL https://pypi.org/simple/pip/: There was a problem confirming the ssl certificate: HTTPSConnectionPool(host='pypi.org', port=443): Max retries exceeded with url: /simple/pip/ (Caused by SSLError("Can't connect to HTTPS URL because the SSL module is not available.")) - skipping
+[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;31m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hpip install django djangorestframework django-cors-headers django-environ[K
+[K[A[20C[1B[K[A[20C[?1l>[?2004l[1B
+]2;pip install django djangorestframework django-cors-headers django-environ]1;pip[33mWARNING: pip is configured with locations that require TLS/SSL, however the ssl module in Python is not available.[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=3, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0mCould not fetch URL https://pypi.org/simple/django/: There was a problem confirming the ssl certificate: HTTPSConnectionPool(host='pypi.org', port=443): Max retries exceeded with url: /simple/django/ (Caused by SSLError("Can't connect to HTTPS URL because the SSL module is not available.")) - skipping
+[31mERROR: Could not find a version that satisfies the requirement django (from versions: none)[0m[31m
+[0m[31mERROR: No matching distribution found for django[0m[31m
+[0m[33mWARNING: pip is configured with locations that require TLS/SSL, however the ssl module in Python is not available.[0m[33m
+[0mCould not fetch URL https://pypi.org/simple/pip/: There was a problem confirming the ssl certificate: HTTPSConnectionPool(host='pypi.org', port=443): Max retries exceeded with url: /simple/pip/ (Caused by SSLError("Can't connect to HTTPS URL because the SSL module is not available.")) - skipping
+[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;31m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004h[7mbrew ins[7mt[7mall openssl[27m[K
+[K[A[A[37C[27mb[27mr[27me[27mw[27m [27mi[27mn[27mst[27ma[27ml[27ml[27m [27mo[27mp[27me[27mn[27ms[27ms[27ml[1B[K[?1l>[?2004l
+]2;brew install openssl]1;brew[34m==>[0m [1mAuto-updating Homebrew...[0m
+Adjust how often this is run with HOMEBREW_AUTO_UPDATE_SECS or disable with
+HOMEBREW_NO_AUTO_UPDATE. Hide these hints with HOMEBREW_NO_ENV_HINTS (see `man brew`).
+[4;31mError[0m: Failed to download https://formulae.brew.sh/api/formula_tap_migrations.jws.json!
+[34m==>[0m [1mDownloading https://ghcr.io/v2/homebrew/portable-ruby/portable-ruby/blobs/sha256:40e7f5d7514a7e9757facdd39006f7a351d3d7986d3a228be13c8b1c3216727b[0m
+###=-                                        ##O#-                                        ###=#                                        ###=#                                        #=##-#                                       -##=# #                                      -#O#-# #                                     -=#=# # #                                    -=#=#  # #                                   -=O#-#  #  #                                 -=O=# #  #  #                                -=O=-# #  #  #                               -=O=- # #  #  #                              -=O=-  # #  #   #                            -=O=-   #  #  #  #                           -=O=-    #  #  #  #                          -=O=-     #  #  #   #                        -=O=-      #  #   #  #                       -=O=-       #   #  #  #                      -=O=-         #  #  #   #                    -=O=-          #  #   #  #                   -=O=-           #   #  #  #                  -=O=-             #  #  #   #                -=O=-              #  #   #  #               -=O=-               #   #  #  #              -=O=-                 #  #  #  #             -=O=-                  #  #   #  #           -=O=-                   #   #  #  #          -=O=-                     #  #  #  #         -=O=-                      #  #  #  #        -=O=-                       #  #  #  #       -=O=-                         #  # #  #      -=O=-                          #  # # #      -=O=-                           #  # # #     -=O=-                            #  # # #                                             0.0%                                         0.1%                                         0.1%                                         0.1%                                         0.1%                                         0.2%                                         0.5%                                         1.2%                                         1.4%                                         1.5%                                         1.6%                                         1.8%                                         1.9%                                         2.0%                                         2.2%                                         2.2%                                         2.5%                                         2.6%#                                        2.7%#                                        3.7%#                                        5.0%##                                       6.0%###                                      8.4%###                                      8.8%###                                      8.9%###                                      9.0%###                                      9.3%###                                      9.5%###                                      9.9%###                                     10.0%###                                     10.1%###                                     10.3%####                                    11.2%####                                    12.1%####                                    12.2%####                                    12.3%####                                    12.6%####                                    12.8%#####                                   13.3%#####                                   13.5%#####                                   13.7%#####                                   14.7%######                                  18.0%######                                  18.1%#######                                 19.1%#######                                 21.0%########                                21.1%########                                21.3%########                                22.2%#########                               23.8%#########                               24.8%#########                               25.5%##########                              26.9%##########                              27.0%##########                              27.9%##########                              28.4%##########                              28.5%##########                              28.6%###########                             29.6%###########                             31.1%############                            32.0%############                            32.8%############                            33.4%#############                           34.3%#############                           36.0%#############                           36.3%##############                          37.2%##############                          37.5%##############                          37.9%##############                          38.1%##############                          39.2%###############                         40.0%###############                         40.9%###############                         41.4%###############                         41.6%###############                         41.7%###############                         41.8%################                        42.7%################                        43.2%################                        44.2%################                        44.6%#################                       45.0%#################                       45.3%#################                       46.1%#################                       46.2%#################                       46.4%#################                       46.8%##################                      48.3%##################                      48.4%##################                      48.5%##################                      48.8%##################                      49.8%###################                     51.1%###################                     52.1%###################                     52.2%###################                     52.4%###################                     52.6%####################                    53.4%####################                    53.5%####################                    53.7%#####################                   55.3%#####################                   56.3%######################                  58.3%######################                  58.4%######################                  58.5%######################                  59.4%######################                  59.4%######################                  59.6%######################                  60.4%#######################                 61.5%#######################                 62.4%#######################                 63.0%########################                63.9%########################                64.3%########################                64.4%########################                64.9%########################                65.0%########################                65.5%########################                65.7%#########################               65.8%#########################               67.4%#########################               67.5%##########################              68.4%##########################              69.2%##########################              69.3%##########################              69.5%##########################              70.4%###########################             71.5%###########################             71.5%###########################             73.2%###########################             73.3%###########################             73.4%###########################             73.6%############################            73.7%############################            75.3%############################            75.5%############################            75.6%############################            75.8%############################            76.2%############################            76.3%#############################           76.4%#############################           77.3%#############################           77.8%#############################           78.2%##############################          79.2%##############################          80.0%##############################          80.9%###############################         83.8%###############################         83.9%###############################         84.1%################################        84.2%################################        85.2%################################        86.1%################################        86.3%################################        86.4%################################        86.5%#################################       87.5%#################################       88.9%#################################       89.0%#################################       89.3%##################################      90.2%##################################      90.9%##################################      91.2%##################################      91.3%###################################     92.3%###################################     93.2%###################################     93.5%###################################     93.6%###################################     94.2%###################################     94.3%####################################    95.8%####################################    96.0%#####################################   97.7%#####################################   97.9%#####################################   98.0%#####################################   98.2%#####################################   99.7%###################################### 100.0%
+[34m==>[0m [1mPouring portable-ruby-3.4.3.arm64_big_sur.bottle.tar.gz[0m
+[34m==>[0m [1mAuto-updated Homebrew![0m
+Updated 6 taps (oven-sh/bun, hashicorp/tap, supabase/tap, withgraphite/tap, homebrew/core and homebrew/cask).
+[34m==>[0m [1mNew Formulae[0m
+camlpdf
+elfio
+iccmax
+miniflux
+oven-sh/bun/bun@1.2.12
+readerwriterqueue
+rofi
+sequoia-chameleon-gnupg
+sexpect
+[34m==>[0m [1mNew Casks[0m
+cloudpouch
+clover-chord-systems
+elemental@6
+font-asta-sans
+font-harmonyos-sans
+font-harmonyos-sans-naskh-arabic
+font-harmonyos-sans-sc
+font-harmonyos-sans-tc
+font-wdxl-lubrifont-jp-n
+font-wdxl-lubrifont-sc
+meru
+sc-menu
+
+You have [1m20[0m outdated formulae installed.
+
+[34m==>[0m [1mDownloading https://formulae.brew.sh/api/[0m
+openssl@3 3.4.1 is already installed but outdated (so it will be upgraded).
+[34m==>[0m [1mDownloading https://ghcr.io/v2/homebrew/c[0m
+###=-                                        ##O#-                                        ###=#                                        ###=#                                        #=##-#                                       -##=# #                                      -#O#-# #                                     -=#=# # #                                    -=#=#  # #                                   -=O#-#  #  #                                 -=O=# #  #  #                                -=O=-# #  #  #                               -=O=- # #  #  #                              -=O=-  # #  #   #                            -=O=-   #  #  #  #                           ####################                    53.0%#################################       86.9%###################################### 100.0%
+[32m==>[0m [1mFetching [32mopenssl@3[39m[0m
+[34m==>[0m [1mDownloading https://ghcr.io/v2/homebrew/c[0m
+###=-                                        ##O#-                                        ###=#                                        ###=#                                        #=##-#                                       -##=# #                                      -#O#-# #                                     -=#=# # #                                    -=#=#  # #                                   -=O#-#  #  #                                 -=O=# #  #  #                                -=O=-# #  #  #                               -=O=- # #  #  #                              -=O=-  # #  #   #                            -=O=-   #  #  #  #                           -=O=-    #  #  #  #                                                                   0.1%                                         0.1%                                         0.1%                                         0.1%                                         0.2%                                         0.2%                                         0.3%                                         0.3%                                         0.3%                                         0.4%                                         0.4%                                         0.4%                                         0.5%                                         0.5%                                         0.6%                                         0.6%                                         0.8%                                         0.9%                                         1.1%                                         1.2%                                         1.4%                                         1.5%                                         2.6%#                                        3.0%#                                        3.2%#                                        5.1%##                                       6.7%##                                       7.0%##                                       7.3%##                                       7.6%###                                      8.6%#####                                   14.7%#####                                   15.0%######                                  15.9%######                                  16.0%######                                  17.3%######                                  17.4%#######                                 18.5%#######                                 19.6%#######                                 20.1%#######                                 20.4%#######                                 20.9%#######                                 21.0%########                                23.0%#########                               24.1%###########                             30.1%############                            34.2%#############                           34.5%#############                           34.9%#############                           35.2%#############                           35.4%###############                         41.9%###############                         42.1%################                        43.7%################                        44.0%################                        44.5%#################                       45.0%#################                       45.4%#################                       45.9%#################                       46.2%#################                       46.5%#################                       46.6%#################                       46.9%##################                      48.0%###################                     51.2%###################                     52.3%####################                    54.5%#####################                   55.4%#####################                   55.5%#####################                   56.6%#######################                 61.5%#######################                 62.1%#######################                 62.4%#######################                 62.9%########################                63.2%########################                63.5%########################                63.7%########################                63.8%########################                64.1%########################                64.6%########################                65.0%########################                65.6%#########################               66.5%#########################               66.7%#########################               66.8%#########################               67.0%#########################               68.0%#############################           77.6%#############################           78.6%##############################          79.5%##############################          80.0%##############################          80.4%##############################          80.7%###############################         81.8%################################        85.0%################################        86.0%################################        86.2%##################################      90.9%##################################      91.0%###################################     92.1%####################################    95.6%####################################    95.7%#####################################   99.1%###################################### 100.0%
+[32m==>[0m [1mUpgrading [32mopenssl[39m[0m
+  3.4.1 -> 3.5.0 
+[34m==>[0m [1mPouring openssl@3--3.5.0.arm64_sequoia.bo[0m
+[34m==>[0m [1mCaveats[0m
+A CA file has been bootstrapped using certificates from the system
+keychain. To add additional certificates, place .pem files in
+  /opt/homebrew/etc/openssl@3/certs
+
+and run
+  /opt/homebrew/opt/openssl@3/bin/c_rehash
+[34m==>[0m [1mSummary[0m
+🍺  /opt/homebrew/Cellar/openssl@3/3.5.0: 7,563 files, 35.4MB
+[34m==>[0m [1mRunning `brew cleanup openssl@3`...[0m
+Disable this behaviour by setting HOMEBREW_NO_INSTALL_CLEANUP.
+Hide these hints with HOMEBREW_NO_ENV_HINTS (see `man brew`).
+Removing: /opt/homebrew/Cellar/openssl@3/3.4.1... (7,236 files, 33.4MB)
+Removing: /Users/nissan/Library/Caches/Homebrew/openssl@3_bottle_manifest--3.4.1... (10.3KB)
+Removing: /Users/nissan/Library/Caches/Homebrew/openssl@3--3.4.1... (9.8MB)
+[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hbrew install openssl[K
+[K[A[12C[A[25Cpip install django djangorestframework django-cors-headers django-environ
+[K[A[20C[1B[K[A[20C[?1l>[?2004l[1B
+]2;pip install django djangorestframework django-cors-headers django-environ]1;pip[33mWARNING: pip is configured with locations that require TLS/SSL, however the ssl module in Python is not available.[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=3, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0mCould not fetch URL https://pypi.org/simple/django/: There was a problem confirming the ssl certificate: HTTPSConnectionPool(host='pypi.org', port=443): Max retries exceeded with url: /simple/django/ (Caused by SSLError("Can't connect to HTTPS URL because the SSL module is not available.")) - skipping
+[31mERROR: Could not find a version that satisfies the requirement django (from versions: none)[0m[31m
+[0m[31mERROR: No matching distribution found for django[0m[31m
+[0m[33mWARNING: pip is configured with locations that require TLS/SSL, however the ssl module in Python is not available.[0m[33m
+[0mCould not fetch URL https://pypi.org/simple/pip/: There was a problem confirming the ssl certificate: HTTPSConnectionPool(host='pypi.org', port=443): Max retries exceeded with url: /simple/pip/ (Caused by SSLError("Can't connect to HTTPS URL because the SSL module is not available.")) - skipping
+[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;31m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hpip install django djangorestframework django-cors-headers django-environ[K
+[K[A[20C[K[1B[K[A[19Cn [1B[K[A[19C                a [K[A[44C[K[1B[K[A[44C                                       a [K[A[44C[K[1B[K[A[44C    p  brew install openssl[K[1B[K[A[12C[A[25Cpip install django djangorestframework django-cors-headers django-environ[1B[K[A[20C[A[A[17Cbrew install openssl[K[1B[K[1B[K[A[A[12C[A[25C[K[1B[K[1B[K[A[A[37Cbrew install openssl[K[1B[K[A[12C[A[25Cpip install django djangorestframework django-cors-headers django-environ[1B[K[A[20C [1B[K[A[19C                a [K[A[44C[K[2B[K[A[A[44C                                       a [K[A[44C[K[2B[K[A[A[44C    p  cclear[?1l>[?2004l[2B]2;clear]1;clear[3J[H[2J[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hclear
+[K[A[42Cpip install django djangorestframework django-cors-headers django-environ[K
+[K[A[20C[K[1B[K[A[19C                a [K[A[44C[K[2B[K[A[A[44C                                       a [K[A[44C[K[2B[K[A[A[44C    p  cclear[?1l>[?2004l[2B]2;clear]1;clear[3J[H[2J[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hppip inst [Kaall django[?1l>[?2004l
+]2;pip install django]1;pip[33mWARNING: pip is configured with locations that require TLS/SSL, however the ssl module in Python is not available.[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=3, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0mCould not fetch URL https://pypi.org/simple/django/: There was a problem confirming the ssl certificate: HTTPSConnectionPool(host='pypi.org', port=443): Max retries exceeded with url: /simple/django/ (Caused by SSLError("Can't connect to HTTPS URL because the SSL module is not available.")) - skipping
+[31mERROR: Could not find a version that satisfies the requirement django (from versions: none)[0m[31m
+[0m[31mERROR: No matching distribution found for django[0m[31m
+[0m[33mWARNING: pip is configured with locations that require TLS/SSL, however the ssl module in Python is not available.[0m[33m
+[0mCould not fetch URL https://pypi.org/simple/pip/: There was a problem confirming the ssl certificate: HTTPSConnectionPool(host='pypi.org', port=443): Max retries exceeded with url: /simple/pip/ (Caused by SSLError("Can't connect to HTTPS URL because the SSL module is not available.")) - skipping
+[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;31m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hmmamba en [Kvv list[?1l>[?2004l
+]2;mamba env list]1;mambaTraceback (most recent call last):
+  File "/Users/nissan/mambaforge/bin/mamba", line 7, in <module>
+    from mamba.mamba import main
+  File "/Users/nissan/mambaforge/lib/python3.10/site-packages/mamba/mamba.py", line 16, in <module>
+    from conda.cli.common import check_non_admin, confirm_yn, specs_from_url
+  File "/Users/nissan/mambaforge/lib/python3.10/site-packages/conda/cli/common.py", line 16, in <module>
+    from ..exceptions import (
+  File "/Users/nissan/mambaforge/lib/python3.10/site-packages/conda/exceptions.py", line 16, in <module>
+    from requests.exceptions import JSONDecodeError
+  File "/Users/nissan/mambaforge/lib/python3.10/site-packages/requests/__init__.py", line 151, in <module>
+    from . import packages, utils
+  File "/Users/nissan/mambaforge/lib/python3.10/site-packages/requests/utils.py", line 24, in <module>
+    from . import certs
+  File "/Users/nissan/mambaforge/lib/python3.10/site-packages/requests/certs.py", line 14, in <module>
+    from certifi import where
+ImportError: cannot import name 'where' from 'certifi' (unknown location)
+[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;31m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hmmmm mama ba de [Kaactivate[?1l>[?2004l
+]2;mamba deactivate]1;mamba[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hddeactivate[?1l>[?2004l
+]2;deactivate]1;deactivate[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hdeactivate[10Dmamba deactivate[K[A[35Cenv list[K[1B[K[A[44C[8Ddeactivate[K[A[29C[6P[9Ce[K[1B[K[A[40C[10D          [10Dc ssoure ce ven[1B[J[1;36mvendor[0m/  [J[1;36mvenv[0m/  [J[A[0m[27m[24m[30Csource ven[Knv  v[1m/[0m[0m/bin[1m/[0m[K[0m/activate[?1l>[?2004l
+[J]2;source venv/bin/activate]1;source[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hppip inst [Kaall django[?1l>[?2004l
+]2;pip install django]1;pip[33mWARNING: pip is configured with locations that require TLS/SSL, however the ssl module in Python is not available.[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=3, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0m[33mWARNING: Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError("Can't connect to HTTPS URL because the SSL module is not available.")': /simple/django/[0m[33m
+[0mCould not fetch URL https://pypi.org/simple/django/: There was a problem confirming the ssl certificate: HTTPSConnectionPool(host='pypi.org', port=443): Max retries exceeded with url: /simple/django/ (Caused by SSLError("Can't connect to HTTPS URL because the SSL module is not available.")) - skipping
+[31mERROR: Could not find a version that satisfies the requirement django (from versions: none)[0m[31m
+[0m[31mERROR: No matching distribution found for django[0m[31m
+[0m[33mWARNING: pip is configured with locations that require TLS/SSL, however the ssl module in Python is not available.[0m[33m
+[0mCould not fetch URL https://pypi.org/simple/pip/: There was a problem confirming the ssl certificate: HTTPSConnectionPool(host='pypi.org', port=443): Max retries exceeded with url: /simple/pip/ (Caused by SSLError("Can't connect to HTTPS URL because the SSL module is not available.")) - skipping
+[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;31m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hbbrew ins [Kttall python3[?1l>[?2004l
+]2;brew install python3]1;brew[34m==>[0m [1mDownloading https://formulae.brew.sh/api/[0m
+[34m==>[0m [1mDownloading https://formulae.brew.sh/api/[0m
+[33mWarning:[0m python@3.13 3.13.3 is already installed and up-to-date.
+To reinstall 3.13.3, run:
+  brew reinstall python@3.13
+[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hbbrew rei [Knnstall pt      n [K[A[44C[K[1B[K[A[44C    b  bbrew sea [Krrch python3[?1l>[?2004l
+]2;brew search python3]1;brew[34m==>[0m [1mFormulae[0m
+boost-python3  python@3.8     jython
+[1mpython3 [32m✔[0m[0m      ipython        cython
+python@3.9     bpython
+
+If you meant "python3" specifically:
+It was migrated from homebrew/cask to homebrew/core.
+[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hbbrew rei [Knnstall python3[?1l>[?2004l
+]2;brew reinstall python3]1;brew3[34m==>[0m [1mDownloading https://ghcr.io/v2/homebrew/c[0m
+Already downloaded: /Users/nissan/Library/Caches/Homebrew/downloads/c1320fdecb7ec29ab4a10c506bbe39179751a95489af3414b3a4acce32721cc0--python@3.13-3.13.3-1.bottle_manifest.json
+[32m==>[0m [1mFetching [32mpython@3.13[39m[0m
+[34m==>[0m [1mDownloading https://ghcr.io/v2/homebrew/c[0m
+Already downloaded: /Users/nissan/Library/Caches/Homebrew/downloads/39afeb8e687bccfb3ff486e466b7f9a11193c5c2c5455270b42b95047b96ba48--python@3.13--3.13.3.arm64_sequoia.bottle.1.tar.gz
+[32m==>[0m [1mReinstalling [32mpython@3.13[39m [0m
+[34m==>[0m [1mPouring python@3.13--3.13.3.arm64_sequoia[0m
+🍺  /opt/homebrew/Cellar/python@3.13/3.13.3: 3,598 files, 66.7MB
+[34m==>[0m [1mRunning `brew cleanup python@3.13`...[0m
+Disable this behaviour by setting HOMEBREW_NO_INSTALL_CLEANUP.
+Hide these hints with HOMEBREW_NO_ENV_HINTS (see `man brew`).
+Removing: /opt/homebrew/Cellar/python@3.13/3.13.2... (3,398 files, 68.1MB)
+Removing: /Users/nissan/Library/Caches/Homebrew/python@3.13_bottle_manifest--3.13.2... (24.0KB)
+Removing: /Users/nissan/Library/Caches/Homebrew/python@3.13--3.13.2... (15.5MB)
+[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004h33deactiv [Kaate[?1l>[?2004l
+]2;3deactivate]1;3deactivatezsh: command not found: 3deactivate
+[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;31m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hddeactiva [Ktte[?1l>[?2004l
+]2;deactivate]1;deactivate[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hmmamba deactivat [Ke[?1l>[?2004l
+]2;mamba deactivate]1;mamba[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hrrm vn env[1m/[0m[0m     -rf venv[1m/[0m[0m [?1l>[?2004l
+]2;rm -rf venv]1;rm[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hpphy p python3 -m venv [K  venv[?1l>[?2004l
+]2;python3 -m venv venv]1;python3[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hssource ven
+[J[1;36mvendor[0m/  [J[1;36mvenv[0m/  [J[A[0m[27m[24m[30Csource ven[Kv[1m/[0m[0m/bin[1m/[0m[K[0m/activate[?1l>[?2004l
+[J]2;source venv/bin/activate]1;source[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hcclear[?1l>[?2004l
+]2;clear]1;clear[3J[H[2J[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hppip inst [Kaall django[?1l>[?2004l
+]2;pip install django]1;pipCollecting django
+  Using cached Django-5.2-py3-none-any.whl.metadata (4.1 kB)
+Collecting asgiref>=3.8.1 (from django)
+  Using cached asgiref-3.8.1-py3-none-any.whl.metadata (9.3 kB)
+Collecting sqlparse>=0.3.1 (from django)
+  Using cached sqlparse-0.5.3-py3-none-any.whl.metadata (3.9 kB)
+Using cached Django-5.2-py3-none-any.whl (8.3 MB)
+Using cached asgiref-3.8.1-py3-none-any.whl (23 kB)
+Using cached sqlparse-0.5.3-py3-none-any.whl (44 kB)
+Installing collected packages: sqlparse, asgiref, django
+Successfully installed asgiref-3.8.1 django-5.2 sqlparse-0.5.3
+
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m25.0.1[0m[39;49m -> [0m[32;49m25.1.1[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hppip inst [Kaall --upgrade pip[?1l>[?2004l
+]2;pip install --upgrade pip]1;pipRequirement already satisfied: pip in ./venv/lib/python3.13/site-packages (25.0.1)
+Collecting pip
+  Using cached pip-25.1.1-py3-none-any.whl.metadata (3.6 kB)
+Using cached pip-25.1.1-py3-none-any.whl (1.8 MB)
+Installing collected packages: pip
+  Attempting uninstall: pip
+    Found existing installation: pip 25.0.1
+    Uninstalling pip-25.0.1:
+      Successfully uninstalled pip-25.0.1
+Successfully installed pip-25.1.1
+[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hppip inst [Kaall [7mdjangorestframework[27m[19D[27md[27mj[27ma[27mn[27mg[27mo[27mr[27me[27ms[27mt[27mf[27mr[27ma[27mm[27me[27mw[27mo[27mr[27mk[?1l>[?2004l
+]2;pip install djangorestframework]1;pipCollecting djangorestframework
+  Using cached djangorestframework-3.16.0-py3-none-any.whl.metadata (11 kB)
+Requirement already satisfied: django>=4.2 in ./venv/lib/python3.13/site-packages (from djangorestframework) (5.2)
+Requirement already satisfied: asgiref>=3.8.1 in ./venv/lib/python3.13/site-packages (from django>=4.2->djangorestframework) (3.8.1)
+Requirement already satisfied: sqlparse>=0.3.1 in ./venv/lib/python3.13/site-packages (from django>=4.2->djangorestframework) (0.5.3)
+Using cached djangorestframework-3.16.0-py3-none-any.whl (1.1 MB)
+Installing collected packages: djangorestframework
+Successfully installed djangorestframework-3.16.0
+[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hppip inst [Kaall django-cors-headers[?1l>[?2004l
+]2;pip install django-cors-headers]1;pipCollecting django-cors-headers
+  Using cached django_cors_headers-4.7.0-py3-none-any.whl.metadata (16 kB)
+Requirement already satisfied: asgiref>=3.6 in ./venv/lib/python3.13/site-packages (from django-cors-headers) (3.8.1)
+Requirement already satisfied: django>=4.2 in ./venv/lib/python3.13/site-packages (from django-cors-headers) (5.2)
+Requirement already satisfied: sqlparse>=0.3.1 in ./venv/lib/python3.13/site-packages (from django>=4.2->django-cors-headers) (0.5.3)
+Using cached django_cors_headers-4.7.0-py3-none-any.whl (12 kB)
+Installing collected packages: django-cors-headers
+Successfully installed django-cors-headers-4.7.0
+[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hppip inst [Kaall django-environ[?1l>[?2004l
+]2;pip install django-environ]1;pipCollecting django-environ
+  Downloading django_environ-0.12.0-py2.py3-none-any.whl.metadata (12 kB)
+Downloading django_environ-0.12.0-py2.py3-none-any.whl (19 kB)
+Installing collected packages: django-environ
+Successfully installed django-environ-0.12.0
+[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hddjango-a [Kddmin startproject learnmore .[?1l>[?2004l
+]2;django-admin startproject learnmore .]1;django-admin[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hpptp python m [Kaanage.py startapp courses[?1l>[?2004l
+]2;python manage.py startapp courses]1;python[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hppython m [Kaanage.py[1m [0m[0m startup  app prg ogress[?1l>[?2004l
+]2;python manage.py startapp progress]1;python[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hppython m [Kaanage.py[1m [0m[0m startapp users[?1l>[?2004l
+]2;python manage.py startapp users]1;python[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hppython s [Kttart  t [K[A[44C[K[1B[K[A[44C, [K[A[44C[K[1B[K[A[44C    p  ppython m [Kaanage.py startapp users[?1l>[?2004l
+]2;python manage.py startapp users]1;python[31;1mCommandError: 'users' conflicts with the name of an existing Python module and cannot be used as an app name. Please try another name.
+[0m[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;31m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hpython manage.py startapp users[K[K    ai_tutor[?1l>[?2004l
+]2;python manage.py startapp ai_tutor]1;python[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hpython manage.py startapp ai_tutor[K[K      nalytics[?1l>[?2004l
+]2;python manage.py startapp analytics]1;python[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004httouch .e [Knnv[?1l>[?2004l
+]2;touch .env]1;touch[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hppython m [Kaanage.py migrate[?1l>[?2004l
+]2;python manage.py migrate]1;python[36;1mOperations to perform:[0m
+[1m  Apply all migrations: [0madmin, auth, contenttypes, sessions
+[36;1mRunning migrations:[0m
+  Applying contenttypes.0001_initial...[32;1m OK[0m
+  Applying auth.0001_initial...[32;1m OK[0m
+  Applying admin.0001_initial...[32;1m OK[0m
+  Applying admin.0002_logentry_remove_auto_add...[32;1m OK[0m
+  Applying admin.0003_logentry_add_action_flag_choices...[32;1m OK[0m
+  Applying contenttypes.0002_remove_content_type_name...[32;1m OK[0m
+  Applying auth.0002_alter_permission_name_max_length...[32;1m OK[0m
+  Applying auth.0003_alter_user_email_max_length...[32;1m OK[0m
+  Applying auth.0004_alter_user_username_opts...[32;1m OK[0m
+  Applying auth.0005_alter_user_last_login_null...[32;1m OK[0m
+  Applying auth.0006_require_contenttypes_0002...[32;1m OK[0m
+  Applying auth.0007_alter_validators_add_error_messages...[32;1m OK[0m
+  Applying auth.0008_alter_user_username_max_length...[32;1m OK[0m
+  Applying auth.0009_alter_user_last_name_max_length...[32;1m OK[0m
+  Applying auth.0010_alter_group_name_max_length...[32;1m OK[0m
+  Applying auth.0011_update_proxy_permissions...[32;1m OK[0m
+  Applying auth.0012_alter_user_first_name_max_length...[32;1m OK[0m
+  Applying sessions.0001_initial...[32;1m OK[0m
+[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004h[7mpython m[7ma[7mnage.py createsuperuser[27m[K
+[K[A[A[37C[27mp[27my[27mt[27mh[27mo[27mn[27m [27mma[27mn[27ma[27mg[27me[27m.[27mp[27my[27m [27mc[27mr[27me[27ma[27mt[27me[27ms[27mu[27mp[27me[27mr[27mu[27ms[27me[27mr[1B[K[A[24C[?1l>[?2004l[1B
+]2;python manage.py createsuperuser]1;pythonUsername (leave blank to use 'nissan'): admin
+Email address: admin@example.com
+Password: 
+Password (again): 
+[31;1mThe password is too similar to the username.
+This password is too common.
+[0mBypass password validation and create user anyway? [y/N]: y
+Superuser created successfully.
+[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hpphytho    p python m [Kaanage.py runserver[?1l>[?2004l
+]2;python manage.py runserver]1;pythonWatching for file changes with StatReloader
+Performing system checks...
+
+System check identified no issues (0 silenced).
+[31;1mError: That port is already in use.
+[0m[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;31m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hpython manage.py runserver[K[?1l>[?2004l
+]2;python manage.py runserver]1;pythonWatching for file changes with StatReloader
+Performing system checks...
+
+System check identified no issues (0 silenced).
+May 04, 2025 - 14:41:08
+Django version 5.2, using settings 'learnmore.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+[33;1mWARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/5.2/howto/deployment/[0m
+[04/May/2025 14:41:16] [m"GET / HTTP/1.1" 200 12068[0m
+^C[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004hppip free [Kzze >requirements.txt[?1l>[?2004l
+]2;pip freeze > requirements.txt]1;pip[1m[7m%[27m[1m[0m                                             ]2;nissan@Nissans-MacBook-Air:~/code/uq-learnmore-reborn]1;..rnmore-reborn]7;file://Nissans-MacBook-Air.local/Users/nissan/code/uq-learnmore-reborn\[0m[27m[24m[J(venv) (base) [01;32m➜  [36muq-learnmore-reborn[00m [K[?1h=[?2004heexit[?1l>[?2004l
+]2;exit]1;exit
+Script done on Sun May  4 18:41:48 2025
