@@ -23,56 +23,84 @@ This is the initial scaffold for the Enhanced LearnMore project, a Django-based 
 ```bash
 python -m venv venv
 source venv/bin/activate   # or venv\Scripts\activate on Windows
+```
+
 Install dependencies:
 
-bash
-Copy
-Edit
+```bash
 pip install -r requirements.txt
-Create .env file at project root:
+```
 
-ini
-Copy
-Edit
+Create .env file at project root:
+```ini
 DEBUG=True
 SECRET_KEY=django-insecure-replace-this-with-a-better-key
 ALLOWED_HOSTS=127.0.0.1,localhost
-Run migrations:
+```
 
-bash
-Copy
-Edit
+```bash
 python manage.py migrate
+```
+
 Create superuser:
 
-bash
-Copy
-Edit
+```bash
 python manage.py createsuperuser
+```
+
 Run development server:
 
-bash
-Copy
-Edit
+```bash
 python manage.py runserver
+```
 Visit: http://127.0.0.1:8000/admin/
 
 📂 Project Structure (key folders)
-bash
-Copy
-Edit
-enhanced_learnmore/
+```bash
+learnmore_reborn/
 ├── courses/
 │   ├── models.py
 │   ├── serializers.py
 │   ├── views.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── tests.py
+│   └── migrations/
 ├── progress/
 │   ├── models.py
 │   ├── serializers.py
 │   ├── views.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── tests.py
+│   └── migrations/
 ├── users/
-├── enhanced_learnmore/
+│   ├── models.py
+│   ├── views.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── tests.py
+│   └── migrations/
+├── analytics/
+│   ├── models.py
+│   ├── views.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── tests.py
+│   └── migrations/
+├── ai_tutor/
+│   ├── models.py
+│   ├── views.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── tests.py
+│   └── migrations/
+├── learnmore/
 │   ├── settings.py
-├── .env
+│   ├── urls.py
+│   ├── asgi.py
+│   ├── wsgi.py
+│   └── __init__.py
 ├── requirements.txt
 ├── manage.py
+```
