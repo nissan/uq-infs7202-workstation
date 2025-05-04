@@ -1,0 +1,20 @@
+[run]
+source = apps
+omit =
+    */migrations/*
+    */management/commands/*
+    */admin.py
+    */apps.py
+    */urls.py
+    */tests.py
+    */tests/*
+    */conftest.py
+    
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise NotImplementedError
+    if settings.DEBUG
+    pass
+    raise ImproperlyConfigured
