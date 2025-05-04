@@ -1,0 +1,20 @@
+# Node modules
+node_modules/
+
+# Playwright browsers
+.playwright-browsers/
+
+# Playwright test results
+test-results/
+playwright-report/
+blob-report/
+
+# Screenshots
+screenshots/current-*
+screenshots/diff/
+
+# Environment variables
+.env
+
+# NPM
+npm-debug.log
