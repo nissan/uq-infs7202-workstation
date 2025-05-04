@@ -27,6 +27,10 @@ from django.conf.urls.static import static
 
 # Simple health check endpoint for Railway
 def health_check(request):
+    """
+    Bare minimum health check that simply returns OK.
+    Railway uses this to determine if the application is running.
+    """
     return HttpResponse("OK", content_type="text/plain")
 
 urlpatterns = [
