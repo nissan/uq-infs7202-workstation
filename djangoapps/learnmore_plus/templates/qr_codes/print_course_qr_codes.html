@@ -6,60 +6,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Codes for {{ course.title }}</title>
     <style>
+        /* Base styles */
         body {
-            font-family: Arial, sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             margin: 0;
             padding: 20px;
+            color: #1f2937;
+            line-height: 1.5;
         }
+        
+        /* Header styles */
         .header {
             text-align: center;
             margin-bottom: 30px;
-            border-bottom: 1px solid #ccc;
+            border-bottom: 1px solid #e5e7eb;
             padding-bottom: 15px;
         }
         .header h1 {
             font-size: 24px;
+            font-weight: 700;
             margin-bottom: 5px;
+            color: #111827;
         }
         .header p {
-            color: #666;
+            color: #6b7280;
             font-size: 14px;
             margin: 0;
         }
+        
+        /* QR Code container */
         .qr-container {
             page-break-inside: avoid;
             margin-bottom: 40px;
         }
+        
+        /* QR Code box */
         .qr-box {
-            border: 1px solid #ddd;
+            border: 1px solid #e5e7eb;
             border-radius: 8px;
             padding: 15px;
             display: inline-block;
             margin: 10px;
             width: 220px;
             text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            background-color: white;
         }
         .qr-box h3 {
             font-size: 16px;
+            font-weight: 600;
             margin-top: 0;
             margin-bottom: 10px;
             height: 40px;
             overflow: hidden;
+            color: #111827;
         }
         .qr-box img {
             width: 180px;
             height: 180px;
+            border: 1px solid #f3f4f6;
+            padding: 4px;
         }
         .qr-box p {
             font-size: 12px;
-            color: #666;
+            color: #6b7280;
             margin-top: 10px;
             margin-bottom: 0;
         }
+        
+        /* Course QR specific styles */
         .course-qr {
             margin-bottom: 30px;
             text-align: center;
+        }
+        .course-qr h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 16px;
         }
         .course-qr .qr-box {
             width: 300px;
@@ -68,21 +92,52 @@
             width: 250px;
             height: 250px;
         }
+        
+        /* Module grid */
+        .modules-heading {
+            font-size: 20px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 16px;
+            text-align: center;
+        }
         .modules-grid {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
         }
+        
+        /* Page breaks for print */
         .page-break {
             page-break-after: always;
         }
+        
+        /* Footer */
         .footer {
             text-align: center;
             font-size: 12px;
-            color: #999;
+            color: #9ca3af;
             margin-top: 40px;
-            border-top: 1px solid #eee;
+            border-top: 1px solid #f3f4f6;
             padding-top: 15px;
+        }
+        
+        /* Module counter badge */
+        .module-badge {
+            display: inline-block;
+            background-color: #0ea5e9;
+            color: white;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            margin-top: 4px;
+        }
+        
+        /* Logo */
+        .logo {
+            font-weight: 700;
+            color: #0ea5e9;
         }
     </style>
 </head>
@@ -103,14 +158,14 @@
 
     <div class="page-break"></div>
 
-    <h2>Module QR Codes</h2>
+    <h2 class="modules-heading">Module QR Codes</h2>
     <div class="modules-grid">
         {% for module in modules %}
             {% with qr_code=module_qr_codes|get_item:module.id %}
                 <div class="qr-box">
                     <h3>{{ module.title }}</h3>
                     <img src="{{ qr_code.code.url }}" alt="QR Code for {{ module.title }}">
-                    <p>Module {{ module.order }}</p>
+                    <div class="module-badge">Module {{ module.order }}</div>
                 </div>
                 {% if forloop.counter|divisibleby:6 and not forloop.last %}
                     <div class="page-break"></div>
@@ -120,7 +175,7 @@
     </div>
 
     <div class="footer">
-        <p>LearnMore+ | QR Code Printing Service</p>
+        <p><span class="logo">LearnMore+</span> | QR Code Printing Service</p>
     </div>
 </body>
 </html>
