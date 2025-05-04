@@ -26,56 +26,421 @@
                font-medium transition-colors duration-200;
     }
     
-    .page-title {
+    .section-title {
         @apply text-4xl font-bold mb-8 text-gray-900 dark:text-white
                relative pb-3 inline-block;
     }
     
-    .page-title::after {
+    .section-title::after {
         content: '';
         @apply absolute bottom-0 left-0 w-1/2 h-1 bg-primary-500 dark:bg-primary-400 rounded;
     }
     
+    .section-subtitle {
+        @apply text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto text-center mb-12;
+    }
+    
     .hero-section {
-        @apply py-12 mb-12 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 
+        @apply py-12 bg-gradient-to-r from-blue-50 to-indigo-50 
                dark:from-gray-800 dark:to-gray-900;
+    }
+    
+    .feature-card {
+        @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 
+               border border-gray-100 dark:border-gray-700 h-full
+               transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+    }
+    
+    .feature-icon {
+        @apply w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 
+               text-primary-600 dark:text-primary-400 flex items-center justify-center 
+               text-2xl mb-4;
+    }
+    
+    .step-card {
+        @apply relative text-center p-6;
+    }
+    
+    .step-number {
+        @apply w-10 h-10 rounded-full bg-primary-600 dark:bg-primary-500 
+               text-white flex items-center justify-center font-bold 
+               mx-auto mb-4;
+    }
+    
+    .step-connector {
+        @apply absolute top-10 left-1/2 w-full h-0.5 bg-primary-200 dark:bg-primary-800 -z-10;
+    }
+    
+    .testimonial-card {
+        @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 
+               border border-gray-100 dark:border-gray-700 my-4
+               transition-all duration-300 hover:shadow-lg relative;
+    }
+    
+    .testimonial-card::before {
+        content: '"';
+        @apply absolute top-4 left-6 text-6xl text-primary-100 dark:text-primary-900/30 font-serif opacity-80;
+    }
+    
+    .testimonial-author {
+        @apply flex items-center mt-4 pt-4 border-t border-gray-100 dark:border-gray-700;
+    }
+    
+    .testimonial-avatar {
+        @apply w-12 h-12 rounded-full bg-primary-100 dark:bg-primary-900/30 
+               text-primary-600 dark:text-primary-400 flex items-center justify-center 
+               text-lg font-bold mr-4;
+    }
+    
+    .course-card {
+        @apply bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden
+               border border-gray-100 dark:border-gray-700
+               transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+    }
+    
+    .course-image {
+        @apply relative h-48 overflow-hidden;
+    }
+    
+    .course-image img {
+        @apply w-full h-full object-cover transition-transform duration-500;
+    }
+    
+    .course-card:hover .course-image img {
+        @apply scale-110;
+    }
+    
+    .course-badge {
+        @apply absolute top-4 right-4 py-1 px-3 rounded-full text-xs font-bold
+               bg-primary-600 dark:bg-primary-500 text-white;
+    }
+    
+    .course-content {
+        @apply p-6;
+    }
+    
+    .course-meta {
+        @apply flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-2;
+    }
+    
+    .cta-section {
+        @apply bg-primary-600 dark:bg-primary-800 text-white py-12 my-16;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="hero-section">
-    <div class="container mx-auto px-4">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4 text-gray-800 dark:text-gray-100">
-            Welcome to <span class="text-primary-600 dark:text-primary-400">LearnMore Plus</span>
-        </h1>
-        <p class="text-xl mb-6 text-gray-700 dark:text-gray-300 max-w-3xl">
-            Experience the next generation of learning with our AI-powered platform designed for students, instructors, and coordinators.
-        </p>
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col md:flex-row items-center">
+            <div class="w-full md:w-1/2 mb-8 md:mb-0 md:pr-8">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+                    Revolutionize Learning with <span class="text-primary-600 dark:text-primary-400">LearnMore Plus</span>
+                </h1>
+                <p class="text-xl mb-6 text-gray-700 dark:text-gray-300">
+                    Transform how educators create, share, and teach with our AI-powered learning platform. Create engaging courses, share with QR codes, and provide personalized AI tutoring.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="{% url 'courses:course_catalog' %}" class="btn bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white py-2 px-6 rounded-full font-semibold transition-colors">
+                        Get Started Free
+                    </a>
+                    <a href="#" class="btn bg-white hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-primary-600 dark:text-primary-400 py-2 px-6 rounded-full font-semibold border border-gray-200 dark:border-gray-700 transition-colors">
+                        Watch Demo
+                    </a>
+                </div>
+            </div>
+            <div class="w-full md:w-1/2">
+                <img src="{% static 'images/course-placeholder.svg' %}" alt="LearnMore Plus Platform" class="rounded-lg shadow-lg w-full">
+            </div>
+        </div>
     </div>
-</div>
+</section>
 
-<div class="container mx-auto px-4 py-8">
-    <h2 class="page-title">Choose Your Path</h2>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <div class="home-card">
-            <h2>For Students</h2>
-            <p>Explore our courses and start your learning journey today. Access AI-powered tutoring, interactive content, and track your progress.</p>
-            <a href="{% url 'courses:course_catalog' %}" class="btn">Browse Courses</a>
-        </div>
+<!-- User Types Section -->
+<section class="py-16 bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4">
+        <h2 class="section-title text-center mx-auto">Choose Your Path</h2>
+        <p class="section-subtitle">
+            LearnMore Plus offers tailored experiences for different user types. Select your role to get started.
+        </p>
         
-        <div class="home-card">
-            <h2>For Instructors</h2>
-            <p>Create and manage your courses with our powerful tools. Develop engaging content, monitor student progress, and provide personalized feedback.</p>
-            <a href="{% url 'courses:instructor_dashboard' %}" class="btn">Instructor Dashboard</a>
-        </div>
-        
-        <div class="home-card">
-            <h2>For Coordinators</h2>
-            <p>Oversee course delivery and manage instructors. Analyze learning outcomes, ensure quality standards, and optimize educational resources.</p>
-            <a href="{% url 'courses:coordinator_dashboard' %}" class="btn">Coordinator Dashboard</a>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+            <div class="home-card">
+                <h2>For Students</h2>
+                <p>Explore our courses and start your learning journey today. Access AI-powered tutoring, interactive content, and track your progress.</p>
+                <a href="{% url 'courses:course_catalog' %}" class="btn">Browse Courses</a>
+            </div>
+            
+            <div class="home-card">
+                <h2>For Instructors</h2>
+                <p>Create and manage your courses with our powerful tools. Develop engaging content, monitor student progress, and provide personalized feedback.</p>
+                <a href="{% url 'courses:instructor_dashboard' %}" class="btn">Instructor Dashboard</a>
+            </div>
+            
+            <div class="home-card">
+                <h2>For Coordinators</h2>
+                <p>Oversee course delivery and manage instructors. Analyze learning outcomes, ensure quality standards, and optimize educational resources.</p>
+                <a href="{% url 'courses:coordinator_dashboard' %}" class="btn">Coordinator Dashboard</a>
+            </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- Features Section -->
+<section class="py-16" id="features">
+    <div class="container mx-auto px-4">
+        <h2 class="section-title text-center mx-auto">Powerful Features</h2>
+        <p class="section-subtitle">
+            Our platform combines cutting-edge technology with intuitive design to create the ultimate learning experience.
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">Course Creation</h3>
+                <p class="text-gray-600 dark:text-gray-400">Build engaging courses with our intuitive editor. Add videos, quizzes, and interactive elements.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-qr-code"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">QR Code Sharing</h3>
+                <p class="text-gray-600 dark:text-gray-400">Share your courses instantly with QR codes. Students can access materials with a simple scan.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">AI Tutoring</h3>
+                <p class="text-gray-600 dark:text-gray-400">Provide 24/7 personalized support with our AI tutoring system that adapts to each student's learning style.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">Advanced Analytics</h3>
+                <p class="text-gray-600 dark:text-gray-400">Track student progress and engagement with detailed analytics and actionable insights.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-16 bg-gray-50 dark:bg-gray-900" id="how-it-works">
+    <div class="container mx-auto px-4">
+        <h2 class="section-title text-center mx-auto">How It Works</h2>
+        <p class="section-subtitle">
+            Our streamlined process makes it easy to create, share, and manage your educational content.
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mt-8">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <div class="step-connector hidden md:block"></div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">Create</h3>
+                <p class="text-gray-600 dark:text-gray-400">Build your course with our intuitive editor and AI-powered content suggestions.</p>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <div class="step-connector hidden md:block"></div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">Share</h3>
+                <p class="text-gray-600 dark:text-gray-400">Distribute your course with QR codes or direct links to your students.</p>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <div class="step-connector hidden md:block"></div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">Teach</h3>
+                <p class="text-gray-600 dark:text-gray-400">Engage with students through live sessions or let our AI tutor assist them.</p>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">4</div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">Analyze</h3>
+                <p class="text-gray-600 dark:text-gray-400">Review detailed analytics to improve your teaching and student outcomes.</p>
+            </div>
+        </div>
+        
+        <div class="mt-16 text-center">
+            <img src="{% static 'images/course-placeholder.svg' %}" alt="Platform Workflow" class="rounded-lg shadow-lg inline-block max-w-4xl w-full">
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-16" id="testimonials">
+    <div class="container mx-auto px-4">
+        <h2 class="section-title text-center mx-auto">What Our Users Say</h2>
+        <p class="section-subtitle">
+            Hear from educators and learners who have transformed their teaching and learning experience.
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="testimonial-card">
+                <p class="text-gray-700 dark:text-gray-300 relative z-10">
+                    "LearnMore Plus has completely transformed how I teach. The AI tutoring feature has given my students 24/7 support, and I've seen a 30% improvement in test scores."
+                </p>
+                <div class="testimonial-author">
+                    <div class="testimonial-avatar">
+                        <span>SJ</span>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900 dark:text-white">Dr. Sarah Johnson</h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Biology Professor</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="testimonial-card">
+                <p class="text-gray-700 dark:text-gray-300 relative z-10">
+                    "As a teacher with limited tech skills, I was amazed at how easy it was to create engaging courses. The QR code sharing has made distributing materials incredibly simple."
+                </p>
+                <div class="testimonial-author">
+                    <div class="testimonial-avatar">
+                        <span>MR</span>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900 dark:text-white">Michael Rodriguez</h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">High School Teacher</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="testimonial-card">
+                <p class="text-gray-700 dark:text-gray-300 relative z-10">
+                    "The AI tutor feels like having a personal teacher available whenever I need help. I can ask questions at 2 AM and get clear, helpful answers. My grades have improved significantly."
+                </p>
+                <div class="testimonial-author">
+                    <div class="testimonial-avatar">
+                        <span>EC</span>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900 dark:text-white">Emily Chen</h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Computer Science Student</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Courses Section -->
+<section class="py-16 bg-gray-50 dark:bg-gray-900" id="courses">
+    <div class="container mx-auto px-4">
+        <h2 class="section-title text-center mx-auto">Featured Courses</h2>
+        <p class="section-subtitle">
+            Explore some of the popular courses created by educators on our platform.
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="course-card">
+                <div class="course-image">
+                    <img src="{% static 'images/course-placeholder.svg' %}" alt="Introduction to Python Programming">
+                    <span class="course-badge">Popular</span>
+                </div>
+                <div class="course-content">
+                    <div class="course-meta">
+                        <span><i class="bi bi-clock"></i> 8 weeks</span>
+                        <span>
+                            <i class="bi bi-star-fill text-yellow-400"></i>
+                            <i class="bi bi-star-fill text-yellow-400"></i>
+                            <i class="bi bi-star-fill text-yellow-400"></i>
+                            <i class="bi bi-star-fill text-yellow-400"></i>
+                            <i class="bi bi-star-half text-yellow-400"></i>
+                            4.5
+                        </span>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">Introduction to Python</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">Learn the fundamentals of Python programming with hands-on exercises and projects.</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-primary-600 dark:text-primary-400 font-bold">Free</span>
+                        <a href="{% url 'courses:course_catalog' %}" class="btn py-1 px-4 text-sm">Enroll Now</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="course-card">
+                <div class="course-image">
+                    <img src="{% static 'images/course-placeholder.svg' %}" alt="Web Development with Django">
+                    <span class="course-badge">New</span>
+                </div>
+                <div class="course-content">
+                    <div class="course-meta">
+                        <span><i class="bi bi-clock"></i> 10 weeks</span>
+                        <span>
+                            <i class="bi bi-star-fill text-yellow-400"></i>
+                            <i class="bi bi-star-fill text-yellow-400"></i>
+                            <i class="bi bi-star-fill text-yellow-400"></i>
+                            <i class="bi bi-star-fill text-yellow-400"></i>
+                            <i class="bi bi-star text-yellow-400"></i>
+                            4.0
+                        </span>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">Web Development with Django</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">Build modern, database-driven web applications with Django framework.</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-primary-600 dark:text-primary-400 font-bold">Free</span>
+                        <a href="{% url 'courses:course_catalog' %}" class="btn py-1 px-4 text-sm">Enroll Now</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="course-card">
+                <div class="course-image">
+                    <img src="{% static 'images/course-placeholder.svg' %}" alt="Advanced Data Science">
+                    <span class="course-badge">Advanced</span>
+                </div>
+                <div class="course-content">
+                    <div class="course-meta">
+                        <span><i class="bi bi-clock"></i> 12 weeks</span>
+                        <span>
+                            <i class="bi bi-star-fill text-yellow-400"></i>
+                            <i class="bi bi-star-fill text-yellow-400"></i>
+                            <i class="bi bi-star-fill text-yellow-400"></i>
+                            <i class="bi bi-star-fill text-yellow-400"></i>
+                            <i class="bi bi-star-fill text-yellow-400"></i>
+                            5.0
+                        </span>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">Advanced Data Science</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">Master machine learning, deep learning, and data visualization techniques.</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-primary-600 dark:text-primary-400 font-bold">Free</span>
+                        <a href="{% url 'courses:course_catalog' %}" class="btn py-1 px-4 text-sm">Enroll Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-12">
+            <a href="{% url 'courses:course_catalog' %}" class="btn bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white py-2 px-6 rounded-full font-semibold transition-colors">
+                Browse All Courses
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="cta-section">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-6 md:mb-0">
+                <h2 class="text-2xl md:text-3xl font-bold mb-2">Ready to Transform Your Learning Experience?</h2>
+                <p class="text-white/80">Join thousands of educators and learners on LearnMore Plus.</p>
+            </div>
+            <div>
+                <a href="{% url 'register' %}" class="btn bg-white hover:bg-gray-100 text-primary-600 py-3 px-8 rounded-full font-semibold transition-colors inline-block">
+                    Start Your Free Trial
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %} 
