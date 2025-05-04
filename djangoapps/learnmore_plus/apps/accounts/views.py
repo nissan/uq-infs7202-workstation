@@ -27,7 +27,7 @@ def register(request):
             # Log the user in
             login(request, user)
             messages.success(request, 'Registration successful!')
-            return redirect('home')
+            return redirect('core:home')
     else:
         form = UserRegistrationForm()
     return render(request, 'accounts/register.html', {'form': form})
@@ -58,7 +58,7 @@ def login_view(request):
                     return redirect('courses:student_dashboard')
                 else:
                     # Default to home page if no specific group is assigned
-                    return redirect('home')
+                    return redirect('core:home')
         else:
             messages.error(request, 'Invalid username or password.')
     else:
@@ -76,7 +76,7 @@ def logout_view(request):
     
     # Perform logout
     logout(request)
-    return redirect('home')
+    return redirect('core:home')
 
 @login_required
 def profile(request):

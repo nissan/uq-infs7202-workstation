@@ -7,17 +7,19 @@
 <style>
     /* Card styles with proper text contrast */
     .home-card {
-        @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 
-               border border-gray-100 dark:border-gray-700
-               transition-all duration-300 hover:shadow-lg;
+        @apply bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 
+               border-2 border-gray-100 dark:border-gray-700 h-full
+               transition-all duration-300 hover:shadow-xl hover:-translate-y-1 
+               flex flex-col;
     }
     
     .home-card h2 {
-        @apply text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-100;
+        @apply text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100
+               pb-2 border-b border-gray-200 dark:border-gray-700;
     }
     
     .home-card p {
-        @apply mb-4 text-gray-700 dark:text-gray-300;
+        @apply mb-6 text-gray-700 dark:text-gray-300 flex-grow;
     }
     
     .home-card .btn {
@@ -27,17 +29,17 @@
     }
     
     .section-title {
-        @apply text-4xl font-bold mb-8 text-gray-900 dark:text-white
-               relative pb-3 inline-block;
+        @apply text-3xl md:text-4xl lg:text-5xl font-bold mb-10 text-gray-900 dark:text-white
+               relative pb-4 inline-block mx-auto;
     }
     
     .section-title::after {
         content: '';
-        @apply absolute bottom-0 left-0 w-1/2 h-1 bg-primary-500 dark:bg-primary-400 rounded;
+        @apply absolute bottom-0 left-0 right-0 w-24 h-1.5 bg-primary-500 dark:bg-primary-400 rounded mx-auto;
     }
     
     .section-subtitle {
-        @apply text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto text-center mb-12;
+        @apply text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto text-center mb-14 leading-relaxed;
     }
     
     .hero-section {
@@ -46,60 +48,69 @@
     }
     
     .feature-card {
-        @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 
-               border border-gray-100 dark:border-gray-700 h-full
-               transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+        @apply bg-white dark:bg-gray-800 rounded-xl shadow-md p-7 
+               border-2 border-gray-100 dark:border-gray-700 h-full
+               transition-all duration-300 hover:shadow-xl hover:-translate-y-1
+               flex flex-col items-center text-center;
     }
     
     .feature-icon {
-        @apply w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 
+        @apply w-20 h-20 rounded-full bg-primary-100 dark:bg-primary-900/30 
                text-primary-600 dark:text-primary-400 flex items-center justify-center 
-               text-2xl mb-4;
+               mb-5 shadow-sm;
+    }
+    
+    .feature-icon i[data-lucide] {
+        @apply w-8 h-8;
     }
     
     .step-card {
-        @apply relative text-center p-6;
+        @apply relative text-center p-6 bg-white dark:bg-gray-800 rounded-xl 
+               border-2 border-gray-100 dark:border-gray-700 shadow-md
+               transition-all duration-300 hover:shadow-xl;
     }
     
     .step-number {
-        @apply w-10 h-10 rounded-full bg-primary-600 dark:bg-primary-500 
-               text-white flex items-center justify-center font-bold 
-               mx-auto mb-4;
+        @apply w-12 h-12 rounded-full bg-primary-600 dark:bg-primary-500 
+               text-white flex items-center justify-center font-bold text-xl
+               mx-auto mb-5 shadow-md;
     }
     
     .step-connector {
-        @apply absolute top-10 left-1/2 w-full h-0.5 bg-primary-200 dark:bg-primary-800 -z-10;
+        @apply absolute top-12 left-1/2 w-full h-1 bg-primary-200 dark:bg-primary-800 -z-10;
     }
     
     .testimonial-card {
-        @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 
-               border border-gray-100 dark:border-gray-700 my-4
-               transition-all duration-300 hover:shadow-lg relative;
+        @apply bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 
+               border-2 border-gray-100 dark:border-gray-700
+               transition-all duration-300 hover:shadow-xl relative h-full
+               flex flex-col;
     }
     
     .testimonial-card::before {
         content: '"';
-        @apply absolute top-4 left-6 text-6xl text-primary-100 dark:text-primary-900/30 font-serif opacity-80;
+        @apply absolute top-4 left-6 text-7xl text-primary-100 dark:text-primary-900/30 font-serif opacity-80;
     }
     
     .testimonial-author {
-        @apply flex items-center mt-4 pt-4 border-t border-gray-100 dark:border-gray-700;
+        @apply flex items-center mt-auto pt-5 border-t border-gray-200 dark:border-gray-700;
     }
     
     .testimonial-avatar {
-        @apply w-12 h-12 rounded-full bg-primary-100 dark:bg-primary-900/30 
+        @apply w-14 h-14 rounded-full bg-primary-100 dark:bg-primary-900/30 
                text-primary-600 dark:text-primary-400 flex items-center justify-center 
-               text-lg font-bold mr-4;
+               text-lg font-bold mr-4 shadow-sm;
     }
     
     .course-card {
-        @apply bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden
-               border border-gray-100 dark:border-gray-700
-               transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+        @apply bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden
+               border-2 border-gray-100 dark:border-gray-700
+               transition-all duration-300 hover:shadow-xl hover:-translate-y-1
+               flex flex-col h-full;
     }
     
     .course-image {
-        @apply relative h-48 overflow-hidden;
+        @apply relative h-52 overflow-hidden;
     }
     
     .course-image img {
@@ -111,20 +122,21 @@
     }
     
     .course-badge {
-        @apply absolute top-4 right-4 py-1 px-3 rounded-full text-xs font-bold
-               bg-primary-600 dark:bg-primary-500 text-white;
+        @apply absolute top-4 right-4 py-1.5 px-4 rounded-full text-xs font-bold
+               bg-primary-600 dark:bg-primary-500 text-white shadow-md;
     }
     
     .course-content {
-        @apply p-6;
+        @apply p-7 flex-grow flex flex-col;
     }
     
     .course-meta {
-        @apply flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-2;
+        @apply flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-3 
+               pb-3 border-b border-gray-100 dark:border-gray-700;
     }
     
     .cta-section {
-        @apply bg-primary-600 dark:bg-primary-800 text-white py-12 my-16;
+        @apply bg-primary-600 dark:bg-primary-800 text-white py-16 my-20 rounded-xl shadow-lg;
     }
 </style>
 {% endblock %}
@@ -158,7 +170,7 @@
 </section>
 
 <!-- User Types Section -->
-<section class="py-16 bg-gray-50 dark:bg-gray-900">
+<section class="py-20 bg-gray-50 dark:bg-gray-900">
     <div class="container mx-auto px-4">
         <h2 class="section-title text-center mx-auto">Choose Your Path</h2>
         <p class="section-subtitle">
@@ -188,7 +200,7 @@
 </section>
 
 <!-- Features Section -->
-<section class="py-16" id="features">
+<section class="py-20" id="features">
     <div class="container mx-auto px-4">
         <h2 class="section-title text-center mx-auto">Powerful Features</h2>
         <p class="section-subtitle">
@@ -198,7 +210,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div class="feature-card">
                 <div class="feature-icon">
-                    <i class="bi bi-pencil-square"></i>
+                    <i data-lucide="pencil"></i>
                 </div>
                 <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">Course Creation</h3>
                 <p class="text-gray-600 dark:text-gray-400">Build engaging courses with our intuitive editor. Add videos, quizzes, and interactive elements.</p>
@@ -206,7 +218,7 @@
             
             <div class="feature-card">
                 <div class="feature-icon">
-                    <i class="bi bi-qr-code"></i>
+                    <i data-lucide="qr-code"></i>
                 </div>
                 <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">QR Code Sharing</h3>
                 <p class="text-gray-600 dark:text-gray-400">Share your courses instantly with QR codes. Students can access materials with a simple scan.</p>
@@ -214,7 +226,7 @@
             
             <div class="feature-card">
                 <div class="feature-icon">
-                    <i class="bi bi-robot"></i>
+                    <i data-lucide="bot"></i>
                 </div>
                 <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">AI Tutoring</h3>
                 <p class="text-gray-600 dark:text-gray-400">Provide 24/7 personalized support with our AI tutoring system that adapts to each student's learning style.</p>
@@ -222,7 +234,7 @@
             
             <div class="feature-card">
                 <div class="feature-icon">
-                    <i class="bi bi-graph-up"></i>
+                    <i data-lucide="line-chart"></i>
                 </div>
                 <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">Advanced Analytics</h3>
                 <p class="text-gray-600 dark:text-gray-400">Track student progress and engagement with detailed analytics and actionable insights.</p>
@@ -232,7 +244,7 @@
 </section>
 
 <!-- How It Works Section -->
-<section class="py-16 bg-gray-50 dark:bg-gray-900" id="how-it-works">
+<section class="py-20 bg-gray-50 dark:bg-gray-900" id="how-it-works">
     <div class="container mx-auto px-4">
         <h2 class="section-title text-center mx-auto">How It Works</h2>
         <p class="section-subtitle">
@@ -275,7 +287,7 @@
 </section>
 
 <!-- Testimonials Section -->
-<section class="py-16" id="testimonials">
+<section class="py-20" id="testimonials">
     <div class="container mx-auto px-4">
         <h2 class="section-title text-center mx-auto">What Our Users Say</h2>
         <p class="section-subtitle">
@@ -332,7 +344,7 @@
 </section>
 
 <!-- Featured Courses Section -->
-<section class="py-16 bg-gray-50 dark:bg-gray-900" id="courses">
+<section class="py-20 bg-gray-50 dark:bg-gray-900" id="courses">
     <div class="container mx-auto px-4">
         <h2 class="section-title text-center mx-auto">Featured Courses</h2>
         <p class="section-subtitle">
@@ -347,13 +359,13 @@
                 </div>
                 <div class="course-content">
                     <div class="course-meta">
-                        <span><i class="bi bi-clock"></i> 8 weeks</span>
+                        <span><i data-lucide="clock" class="inline-block w-4 h-4 mr-1"></i> 8 weeks</span>
                         <span>
-                            <i class="bi bi-star-fill text-yellow-400"></i>
-                            <i class="bi bi-star-fill text-yellow-400"></i>
-                            <i class="bi bi-star-fill text-yellow-400"></i>
-                            <i class="bi bi-star-fill text-yellow-400"></i>
-                            <i class="bi bi-star-half text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star-half-stroke text-yellow-400"></i>
                             4.5
                         </span>
                     </div>
@@ -373,13 +385,13 @@
                 </div>
                 <div class="course-content">
                     <div class="course-meta">
-                        <span><i class="bi bi-clock"></i> 10 weeks</span>
+                        <span><i data-lucide="clock" class="inline-block w-4 h-4 mr-1"></i> 10 weeks</span>
                         <span>
-                            <i class="bi bi-star-fill text-yellow-400"></i>
-                            <i class="bi bi-star-fill text-yellow-400"></i>
-                            <i class="bi bi-star-fill text-yellow-400"></i>
-                            <i class="bi bi-star-fill text-yellow-400"></i>
-                            <i class="bi bi-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-regular fa-star text-yellow-400"></i>
                             4.0
                         </span>
                     </div>
@@ -399,13 +411,13 @@
                 </div>
                 <div class="course-content">
                     <div class="course-meta">
-                        <span><i class="bi bi-clock"></i> 12 weeks</span>
+                        <span><i data-lucide="clock" class="inline-block w-4 h-4 mr-1"></i> 12 weeks</span>
                         <span>
-                            <i class="bi bi-star-fill text-yellow-400"></i>
-                            <i class="bi bi-star-fill text-yellow-400"></i>
-                            <i class="bi bi-star-fill text-yellow-400"></i>
-                            <i class="bi bi-star-fill text-yellow-400"></i>
-                            <i class="bi bi-star-fill text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
                             5.0
                         </span>
                     </div>
@@ -428,8 +440,8 @@
 </section>
 
 <!-- Call to Action -->
-<section class="cta-section">
-    <div class="container mx-auto px-4">
+<section class="mx-4">
+    <div class="container mx-auto cta-section px-8">
         <div class="flex flex-col md:flex-row justify-between items-center">
             <div class="mb-6 md:mb-0">
                 <h2 class="text-2xl md:text-3xl font-bold mb-2">Ready to Transform Your Learning Experience?</h2>

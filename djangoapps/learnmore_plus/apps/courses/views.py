@@ -79,7 +79,7 @@ def course_detail(request, slug):
         module_qr_codes = {}
         for module in modules:
             module_url = request.build_absolute_uri(
-                reverse('courses:course_learn', kwargs={'slug': course.slug, 'module_order': module.order})
+                reverse('courses:learn_module', kwargs={'slug': course.slug, 'module_order': module.order})
             )
             module_qr_codes[module.id] = QRCodeService.get_or_create_qr_code(module, module_url)
         
@@ -251,16 +251,27 @@ def course_learn(request, slug, module_order=None, content_order=None):
 
 @login_required
 def student_dashboard(request):
-    """Student dashboard view."""
-    enrollments = CourseEnrollment.objects.filter(
-        student=request.user,
-        status='active'
-    ).select_related('course').prefetch_related('module_progress')
+    """Student dashboard view with error handling."""
+    try:
+        # Get enrollments with course and module progress info
+        enrollments = CourseEnrollment.objects.filter(
+            student=request.user,
+            status='active'
+        ).select_related('course').prefetch_related('module_progress')
 
-    context = {
-        'enrollments': enrollments,
-    }
-    return render(request, 'courses/student_dashboard.html', context)
+        context = {
+            'enrollments': enrollments,
+        }
+        return render(request, 'courses/student/dashboard.html', context)
+    except Exception as e:
+        # Log the error
+        logger.error(f"Error in student dashboard for user {request.user.username}: {str(e)}")
+        
+        # Add error message
+        messages.error(request, "There was a problem loading your dashboard. Please try again later.")
+        
+        # Redirect to home
+        return redirect('core:home')
 
 @login_required
 @group_required(['Instructor', 'Course Coordinator', 'Administrator'])

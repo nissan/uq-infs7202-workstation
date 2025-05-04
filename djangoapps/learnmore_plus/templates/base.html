@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}LearnMore Plus{% endblock %}</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -33,68 +32,33 @@
         }
     </script>
     
-    <!-- shadcn-ui -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shadcn/ui@latest/dist/shadcn-ui.min.css">
-    
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    
-    <!-- Custom CSS -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/custom.css' %}">
     
     {% block extra_css %}{% endblock %}
     <script src="{% static 'js/app.js' %}" defer></script>
 </head>
 <body class="h-full bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
-    <!-- Navigation -->
     <nav class="bg-white dark:bg-gray-800 shadow-sm py-3 sticky top-0 z-50">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center">
-                <a href="{% url 'home' %}" class="text-primary-600 dark:text-primary-400 font-bold text-xl">
+                <a href="{% url 'core:home' %}" class="text-primary-600 dark:text-primary-400 font-bold text-xl">
                     LearnMore Plus
                 </a>
                 
-                <div class="flex items-center space-x-4">
-                    <!-- Theme Toggle -->
-                    <button data-theme-toggle class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                        <!-- Sun icon -->
-                        <svg class="w-6 h-6 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                        </svg>
-                        <!-- Moon icon -->
-                        <svg class="w-6 h-6 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-                        </svg>
-                    </button>
-                    
-                    <!-- Mobile menu button -->
-                    <button class="md:hidden" id="mobile-menu-button">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
-                    </button>
-                </div>
-                
-                <!-- Desktop Navigation -->
-                <div class="hidden md:flex items-center space-x-8">
+                <div class="hidden md:flex items-center space-x-6">
                     <a href="#features" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Features</a>
                     <a href="#how-it-works" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">How It Works</a>
-                    <a href="#testimonials" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Testimonials</a>
                     <a href="{% url 'courses:course_catalog' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Courses</a>
                     {% if user.is_authenticated %}
                         <a href="{% url 'ai_tutor:session_list' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">AI Tutor</a>
-                        {% if user.is_superuser %}
-                            <a href="{% url 'courses:admin_dashboard' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Dashboard</a>
-                        {% elif 'Course Coordinator' in user.groups.all|stringformat:'s' %}
-                            <a href="{% url 'courses:coordinator_dashboard' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Dashboard</a>
-                        {% elif 'Instructor' in user.groups.all|stringformat:'s' %}
-                            <a href="{% url 'courses:instructor_dashboard' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Dashboard</a>
-                        {% else %}
-                            <a href="{% url 'courses:student_dashboard' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Dashboard</a>
-                        {% endif %}
+                        
                         {% if user.is_staff %}
-                            <a href="{% url 'dashboard:home' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">System Admin</a>
+                            <a href="{% url 'dashboard:home' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Dashboard</a>
                         {% endif %}
+                        
                         <form method="post" action="{% url 'logout' %}" class="inline">
                             {% csrf_token %}
                             <button type="submit" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Log Out</button>
@@ -106,35 +70,44 @@
                         </a>
                     {% endif %}
                 </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button data-theme-toggle class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <svg class="w-6 h-6 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        <svg class="w-6 h-6 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                        </svg>
+                    </button>
+                    
+                    <button class="md:hidden" id="mobile-menu-button">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
             </div>
             
-            <!-- Mobile Navigation -->
-            <div class="hidden md:hidden absolute left-0 right-0 bg-white dark:bg-gray-800 shadow-lg mt-3 py-2 px-4" id="mobile-menu">
-                <div class="flex flex-col space-y-4">
+            <div class="hidden md:hidden" id="mobile-menu">
+                <div class="mt-4 flex flex-col space-y-3 pb-3">
                     <a href="#features" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Features</a>
                     <a href="#how-it-works" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">How It Works</a>
-                    <a href="#testimonials" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Testimonials</a>
                     <a href="{% url 'courses:course_catalog' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Courses</a>
+                    
                     {% if user.is_authenticated %}
                         <a href="{% url 'ai_tutor:session_list' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">AI Tutor</a>
-                        {% if user.is_superuser %}
-                            <a href="{% url 'courses:admin_dashboard' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Dashboard</a>
-                        {% elif 'Course Coordinator' in user.groups.all|stringformat:'s' %}
-                            <a href="{% url 'courses:coordinator_dashboard' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Dashboard</a>
-                        {% elif 'Instructor' in user.groups.all|stringformat:'s' %}
-                            <a href="{% url 'courses:instructor_dashboard' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Dashboard</a>
-                        {% else %}
-                            <a href="{% url 'courses:student_dashboard' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Dashboard</a>
-                        {% endif %}
+                        
                         {% if user.is_staff %}
-                            <a href="{% url 'dashboard:home' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">System Admin</a>
+                            <a href="{% url 'dashboard:home' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Dashboard</a>
                         {% endif %}
-                        <form method="post" action="{% url 'logout' %}" class="border-t dark:border-gray-700 pt-4">
+                        
+                        <form method="post" action="{% url 'logout' %}" class="inline">
                             {% csrf_token %}
-                            <button type="submit" class="w-full text-left py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Log Out</button>
+                            <button type="submit" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Log Out</button>
                         </form>
                     {% else %}
-                        <div class="border-t dark:border-gray-700 pt-4 flex flex-col space-y-2">
+                        <div class="pt-2 flex flex-col space-y-2">
                             <a href="{% url 'login' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Log In</a>
                             <a href="{% url 'register' %}" class="bg-primary-600 text-white px-6 py-2 rounded-full hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 transition-colors text-center">
                                 Sign Up
@@ -146,13 +119,20 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="min-h-[calc(100vh-theme(spacing.32))]">
         {% if messages %}
         <div class="container mx-auto px-4 mt-4">
             {% for message in messages %}
-            <div class="rounded-md p-4 mb-4 {% if message.tags == 'error' %}bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-200{% elif message.tags == 'success' %}bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-200{% else %}bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-200{% endif %}">
-                {{ message }}
+            <div class="rounded-md p-4 mb-4 relative
+                {% if message.tags == 'error' %}bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-200
+                {% elif message.tags == 'success' %}bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-200
+                {% elif message.tags == 'warning' %}bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-200
+                {% else %}bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-200{% endif %}">
+                <div class="flex">
+                    <div class="ml-3">
+                        <p>{{ message }}</p>
+                    </div>
+                </div>
             </div>
             {% endfor %}
         </div>
@@ -161,7 +141,6 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
     <footer class="bg-gray-900 text-white py-12">
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -172,28 +151,23 @@
                 <div>
                     <h4 class="font-semibold mb-4">Platform</h4>
                     <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Features</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Pricing</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Integrations</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Updates</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-semibold mb-4">Resources</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Documentation</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Tutorials</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Blog</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Community</a></li>
+                        <li><a href="#features" class="text-gray-400 hover:text-white transition-colors">Features</a></li>
+                        <li><a href="{% url 'courses:course_catalog' %}" class="text-gray-400 hover:text-white transition-colors">Courses</a></li>
+                        <li><a href="{% url 'ai_tutor:session_list' %}" class="text-gray-400 hover:text-white transition-colors">AI Tutor</a></li>
                     </ul>
                 </div>
                 <div>
                     <h4 class="font-semibold mb-4">Company</h4>
                     <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">About Us</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Careers</a></li>
+                        <li><a href="{% url 'core:about' %}" class="text-gray-400 hover:text-white transition-colors">About Us</a></li>
                         <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contact</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Press</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Legal</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Terms of Service</a></li>
                     </ul>
                 </div>
             </div>
@@ -203,22 +177,23 @@
         </div>
     </footer>
 
-    <!-- JavaScript -->
     <script>
         // Mobile menu toggle
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
         
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', (event) => {
-            if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
-                mobileMenu.classList.add('hidden');
-            }
-        });
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (event) => {
+                if (mobileMenu && !mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        }
 
         // Theme handling
         function getThemePreference() {
@@ -259,6 +234,13 @@
         // Listen for system theme changes
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
             setThemePreference(e.matches);
+        });
+        
+        // Initialize Lucide icons
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         });
     </script>
     
