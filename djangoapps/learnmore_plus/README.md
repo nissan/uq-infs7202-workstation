@@ -184,7 +184,38 @@ After running `python manage.py reset_db`, the following demo users are availabl
 
 ### Demo Scenarios
 
-The seeded data includes several pre-configured scenarios that you can explore:
+The seeded data includes several pre-configured scenarios with a variety of course types and states:
+
+#### Course Variety
+1. **Published Courses with Content**
+   - Several fully-developed courses with modules, lessons, and quizzes
+   - Example: "Python Programming Fundamentals" and "Web Development with HTML, CSS, and JavaScript"
+   - Include text content, videos, files, and different types of quizzes
+
+2. **Empty Courses Available for Enrollment**
+   - Courses that have been created but don't yet have content
+   - Example: "Cloud Computing with AWS" and "Introduction to SQL and Database Design"
+   - Students can enroll in these courses to see the "waiting for content" experience
+
+3. **Draft and Archived Courses**
+   - Courses in different states of the lifecycle
+   - Example: "Mobile App Development with React Native" (draft) and "Legacy Web Development with PHP" (archived)
+   - Shows how courses progress through different statuses
+
+#### Quiz Types
+1. **Pre-Check Surveys**
+   - Survey-style quizzes with no right/wrong answers
+   - Used at the beginning of courses/modules to gauge student knowledge
+   - All answers are considered "correct" and don't affect progress
+
+2. **Knowledge Check Quizzes**
+   - Traditional quizzes with correct and incorrect answers
+   - Different question types (multiple choice, true/false)
+   - Shows scoring and attempts tracking
+
+3. **Prerequisite Quizzes**
+   - Quizzes that must be passed before proceeding
+   - Shows how course flow can be controlled with prerequisites
 
 #### AI Tutor System
 1. **Course-Specific AI Tutoring**

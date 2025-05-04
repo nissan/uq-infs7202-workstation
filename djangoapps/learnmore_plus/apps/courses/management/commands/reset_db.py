@@ -86,8 +86,17 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS('Groups and permissions set up.'))
 
-        self.stdout.write(self.style.WARNING('Seeding demo data via API...'))
-        call_command('seed_demo_data_api')
+        self.stdout.write(self.style.WARNING('Seeding enhanced demo data...'))
+        try:
+            call_command('enhanced_seed_data')
+            self.stdout.write(self.style.SUCCESS('Enhanced demo data successfully seeded!'))
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f'Error seeding enhanced demo data: {str(e)}'))
+            
+            # Fallback to original seed methods
+            self.stdout.write(self.style.WARNING('Falling back to original seed methods...'))
+            self.stdout.write(self.style.WARNING('Seeding demo data via API...'))
+            call_command('seed_demo_data_api')
 
         self.stdout.write(self.style.WARNING('Seeding activity data...'))
         call_command('seed_activity_data')
