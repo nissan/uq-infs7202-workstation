@@ -18,21 +18,29 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
+from django.http import HttpResponse
 from apps.core import views as core_views
 from apps.accounts import views as account_views
+from apps.core.views_monitoring import metrics_view
 from django.conf import settings
 from django.conf.urls.static import static
 
+# Simple health check endpoint for Railway
+def health_check(request):
+    return HttpResponse("OK", content_type="text/plain")
+
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", core_views.home, name="home"),
+    # Removed path("", core_views.home, name="home") to resolve conflict
     path("accounts/", include("allauth.urls")),  # allauth URLs
     path("login/", account_views.login_view, name="login"),
     path("register/", account_views.register, name="register"),
     path("logout/", account_views.logout_view, name="logout"),
+    path("health/", health_check, name="health_check"),
+    path("metrics/", metrics_view, name="metrics"),
     path('admin-dashboard/', include(('apps.dashboard.urls', 'admin_dashboard'), namespace='admin_dashboard')),
     path('courses/', include('apps.courses.urls')),
-    path('', include('apps.core.urls')),
+    path('', include(('apps.core.urls', 'core'), namespace='core')),  # This already includes the home URL
     path('accounts/', include('apps.accounts.urls')),
     path('instructor/', include('apps.courses.instructor_urls')),
     path('coordinator/', include('apps.courses.coordinator_urls')),
@@ -46,7 +54,9 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    import debug_toolbar
-    urlpatterns = [
-        path('__debug__/', include(debug_toolbar.urls)),
-    ] + urlpatterns
+    
+    # Temporarily disabled debug toolbar
+    # import debug_toolbar
+    # urlpatterns = [
+    #     path('__debug__/', include(debug_toolbar.urls)),
+    # ] + urlpatterns

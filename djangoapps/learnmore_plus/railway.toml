@@ -1,0 +1,54 @@
+[build]
+builder = "nixpacks"
+buildCommand = "pip install -r requirements.txt"
+
+[deploy]
+startCommand = "gunicorn learnmore_plus.wsgi:application"
+healthcheckPath = "/health/"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 5
+
+[deploy.lifecycle]
+type = "single"
+
+[service]
+# Use PostgreSQL as the database engine
+internal_port = 8000
+checkConnection = true
+protocol = "http"
+# Custom healthcheck
+healthcheck_enabled = true
+healthcheck_timeout = 30
+
+[service.commands]
+[service.commands.release]
+command = "python manage.py migrate"
+
+[service.vars]
+DJANGO_SETTINGS_MODULE = "learnmore_plus.settings.prod"
+PYTHON_VERSION = "3.11.6"
+APP_NAME = "learnmore-plus"
+PYTHONUNBUFFERED = "1"
+
+# Environment-specific variables will be set in the Railway dashboard
+# SECRET_KEY
+# ALLOWED_HOSTS
+# OPENAI_API_KEY (if using OpenAI for AI Tutor)
+
+[service.metrics]
+enabled = true
+path = "/metrics/"
+
+[service.scaling]
+min_instances = 1
+max_instances = 3
+depends_on = ["${{ Database }}", "${{ Redis }}"]
+
+[[database]]
+plan = "shared"
+name = "postgres"
+
+[[redis]]
+plan = "starter"
+name = "cache"

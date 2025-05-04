@@ -499,7 +499,34 @@ For more details, see the comprehensive documentation in `docs/ai-tutor-feature.
 
 ### Railway.app Deployment
 
-This application is configured for easy deployment to Railway.app with the following setup:
+This application is configured for easy deployment to Railway.app with two approaches:
+
+#### Config-as-Code Approach (Recommended)
+
+We've implemented Railway's Configuration as Code for simplified deployment:
+
+1. **Configuration File**:
+   - `railway.toml` - Defines all deployment settings, services, and dependencies
+
+2. **Automated Features**:
+   - Automatic database provisioning
+   - Health checks and monitoring
+   - Auto-scaling configuration
+   - Automatic database migrations
+   - Environment variable management
+
+3. **Deployment Steps**:
+   ```bash
+   # Using Railway CLI with config-as-code
+   railway login
+   railway up
+   ```
+
+For details on this approach, see `docs/railway-config-as-code.md`.
+
+#### Manual Approach
+
+Alternatively, you can deploy using the traditional method:
 
 1. **Required Files** (already included):
    - `Procfile` - Defines Railway application processes
@@ -512,15 +539,7 @@ This application is configured for easy deployment to Railway.app with the follo
    - Uses environment variables for configuration 
    - Configured to use `DATABASE_URL` provided by Railway
 
-3. **Deployment Steps**:
-   ```bash
-   # Using Railway CLI (optional)
-   railway login
-   railway link
-   railway up
-   ```
-
-4. **Environment Variables to Set**:
+3. **Environment Variables to Set**:
    - `DJANGO_SETTINGS_MODULE=learnmore_plus.settings.prod`
    - `SECRET_KEY` (generate a new one for production)
    - `ALLOWED_HOSTS` (your Railway domain)

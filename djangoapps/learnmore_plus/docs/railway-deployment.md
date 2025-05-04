@@ -2,6 +2,8 @@
 
 This document provides step-by-step instructions for deploying the LearnMore Plus application to Railway.app.
 
+> **Config-as-Code Available**: We've implemented a `railway.toml` file for automated deployment. See [Railway Config as Code](railway-config-as-code.md) for details on this simpler approach.
+
 ## Prerequisites
 
 Before deploying to Railway, ensure you have:
