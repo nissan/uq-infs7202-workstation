@@ -1,0 +1,3 @@
+<a href="{% if url|slice:':5' == 'http:' or url|slice:':6' == 'https:' %}{{ url }}{% elif url|slice:':1' == '#' %}{{ url }}{% else %}{% url url %}{% endif %}" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-full">
+    {{ text }}
+</a>

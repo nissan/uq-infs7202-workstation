@@ -1,0 +1,45 @@
+{% comment %}
+Card component (atom)
+Usage: {% include "components/atoms/ui/card.html" with title="Card Title" content="Card content" button_text="Learn More" button_url="#" %}
+
+Parameters:
+- title: Card title (required)
+- content: Card content (required)
+- button_text: Text for the button (optional)
+- button_url: URL for the button (optional, default: #)
+- variant: default (default), bordered, shadowed
+- classes: Optional additional CSS classes
+{% endcomment %}
+
+{% if not variant %}
+    {% with variant="default" %}
+{% endif %}
+
+<div class="h-full 
+  {% if variant == 'default' %}
+    bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 
+  {% elif variant == 'bordered' %}
+    bg-white dark:bg-gray-800 rounded-xl p-8 border-2 border-gray-200 dark:border-gray-700
+  {% elif variant == 'shadowed' %}
+    bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8
+  {% endif %}
+  flex flex-col {{ classes|default:'' }}">
+  
+  <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100 pb-2 border-b border-gray-200 dark:border-gray-700">
+    {{ title }}
+  </h2>
+  
+  <p class="mb-6 text-gray-700 dark:text-gray-300 flex-grow">
+    {{ content }}
+  </p>
+  
+  {% if button_text %}
+  <a href="{{ button_url|default:'#'|safe }}" class="inline-block px-5 py-2 rounded-md bg-primary-600 text-white hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 font-medium transition-colors duration-200">
+    {{ button_text }}
+  </a>
+  {% endif %}
+</div>
+
+{% if not variant %}
+    {% endwith %}
+{% endif %}

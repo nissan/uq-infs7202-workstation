@@ -1,0 +1,18 @@
+{% comment %}
+Feature Card component (molecule)
+Usage: {% include "components/molecules/cards/feature-card.html" with title="Feature Title" description="Feature description" icon="icon-name" %}
+
+Parameters:
+- title: Card title (required)
+- description: Card description text (required)
+- icon: Icon name for Lucide icons (required)
+- classes: Optional additional CSS classes
+{% endcomment %}
+
+<div class="feature-card bg-white dark:bg-gray-800 rounded-xl shadow-md p-7 border-2 border-gray-100 dark:border-gray-700 h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col items-center text-center {{ classes|default:'' }}">
+    <div class="feature-icon w-20 h-20 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex items-center justify-center mb-5 shadow-sm">
+        <i data-lucide="{{ icon }}" class="w-8 h-8"></i>
+    </div>
+    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{{ title }}</h3>
+    <p class="text-gray-600 dark:text-gray-400">{{ description }}</p>
+</div>

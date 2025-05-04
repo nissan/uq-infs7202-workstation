@@ -1,0 +1,14 @@
+{% comment %}
+Messages component (molecule)
+Usage: {% include "components/molecules/notifications/messages.html" with messages=messages %}
+
+This component displays Django messages using the alert component.
+{% endcomment %}
+
+{% if messages %}
+<div class="container mx-auto px-4 mt-4">
+    {% for message in messages %}
+    {% include "components/molecules/notifications/alert.html" with type=message.tags message=message %}
+    {% endfor %}
+</div>
+{% endif %}

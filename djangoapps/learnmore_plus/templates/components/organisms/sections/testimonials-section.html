@@ -1,0 +1,35 @@
+{% load static %}
+{% comment %}
+Testimonials Section component (organism)
+Usage: 
+{% include "components/organisms/sections/testimonials-section.html" %}
+{% endcomment %}
+
+<section class="py-20" id="testimonials">
+    <div class="container mx-auto px-4">
+        <h2 class="section-title text-center mx-auto text-3xl md:text-4xl lg:text-5xl font-bold mb-10 text-gray-900 dark:text-white relative pb-4 inline-block">What Our Users Say</h2>
+        <p class="section-subtitle text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto text-center mb-14 leading-relaxed">
+            Hear from educators and learners who have transformed their teaching and learning experience.
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {% include "components/molecules/cards/testimonial-card.html" with 
+                quote="LearnMore Plus has completely transformed how I teach. The AI tutoring feature has given my students 24/7 support, and I've seen a 30% improvement in test scores." 
+                author_name="Dr. Sarah Johnson" 
+                author_title="Biology Professor" 
+                author_initials="SJ" %}
+            
+            {% include "components/molecules/cards/testimonial-card.html" with 
+                quote="As a teacher with limited tech skills, I was amazed at how easy it was to create engaging courses. The QR code sharing has made distributing materials incredibly simple." 
+                author_name="Michael Rodriguez" 
+                author_title="High School Teacher" 
+                author_initials="MR" %}
+            
+            {% include "components/molecules/cards/testimonial-card.html" with 
+                quote="The AI tutor feels like having a personal teacher available whenever I need help. I can ask questions at 2 AM and get clear, helpful answers. My grades have improved significantly." 
+                author_name="Emily Chen" 
+                author_title="Computer Science Student" 
+                author_initials="EC" %}
+        </div>
+    </div>
+</section>

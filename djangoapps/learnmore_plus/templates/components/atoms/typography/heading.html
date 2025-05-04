@@ -1,0 +1,31 @@
+{% comment %}
+Heading component (atomic)
+Usage: {% include "components/atoms/typography/heading.html" with level="1" text="Heading Text" %}
+
+Parameters:
+- level: 1-6 (default is 2)
+- text: Text content of heading
+- classes: Optional additional CSS classes
+- with_underline: Boolean, whether to add a decorative underline (default: False)
+- center: Boolean, whether to center the heading (default: False)
+{% endcomment %}
+
+{% with level=level|default:"2" %}
+
+<h{{ level }} class="
+    {% if level == '1' %}text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white{% endif %}
+    {% if level == '2' %}text-2xl md:text-3xl font-bold text-gray-900 dark:text-white{% endif %}
+    {% if level == '3' %}text-xl md:text-2xl font-semibold text-gray-900 dark:text-white{% endif %}
+    {% if level == '4' %}text-lg md:text-xl font-semibold text-gray-900 dark:text-white{% endif %}
+    {% if level == '5' %}text-base md:text-lg font-medium text-gray-900 dark:text-white{% endif %}
+    {% if level == '6' %}text-sm md:text-base font-medium text-gray-900 dark:text-white{% endif %}
+    {% if center %}text-center mx-auto{% endif %}
+    {% if with_underline %}relative pb-4{% endif %}
+    {{ classes|default:'' }}">
+    {{ text }}
+    {% if with_underline %}
+    <span class="absolute bottom-0 left-0 right-0 w-24 h-1.5 bg-primary-500 dark:bg-primary-400 rounded {% if center %}mx-auto{% endif %}"></span>
+    {% endif %}
+</h{{ level }}>
+
+{% endwith %}

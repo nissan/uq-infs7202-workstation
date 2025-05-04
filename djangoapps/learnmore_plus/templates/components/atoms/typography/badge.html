@@ -1,0 +1,49 @@
+{% comment %}
+Badge component (atom)
+Usage: {% include "components/atoms/typography/badge.html" with text="New" variant="primary" %}
+
+Parameters:
+- text: The badge text (required)
+- variant: primary (default), secondary, success, danger, warning, info
+- size: sm (default), md, lg
+- rounded: normal (default), full
+- classes: Optional additional CSS classes
+{% endcomment %}
+
+{% with variant=variant|default:"primary" size=size|default:"sm" rounded=rounded|default:"normal" %}
+
+<span class="inline-flex 
+  {% if size == 'sm' %}
+    text-xs px-2 py-0.5
+  {% elif size == 'md' %}
+    text-sm px-2.5 py-0.5
+  {% elif size == 'lg' %}
+    text-base px-3 py-1
+  {% endif %}
+  
+  {% if rounded == 'full' %}
+    rounded-full
+  {% else %}
+    rounded
+  {% endif %}
+  
+  {% if variant == 'primary' %}
+    bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-300
+  {% elif variant == 'secondary' %}
+    bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
+  {% elif variant == 'success' %}
+    bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300
+  {% elif variant == 'danger' %}
+    bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300
+  {% elif variant == 'warning' %}
+    bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300
+  {% elif variant == 'info' %}
+    bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300
+  {% endif %}
+  
+  font-medium
+  {{ classes|default:'' }}">
+  {{ text }}
+</span>
+
+{% endwith %}

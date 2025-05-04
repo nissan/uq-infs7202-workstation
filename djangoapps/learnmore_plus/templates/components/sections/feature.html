@@ -1,0 +1,33 @@
+{% comment %}
+Feature section component
+Usage: {% include "components/sections/feature.html" with title="Features" subtitle="Our amazing features" features=features %}
+
+Parameters:
+- title: Section title
+- subtitle: Section subtitle
+- features: List of feature dictionaries with title, description, and icon
+{% endcomment %}
+
+<section class="py-16 bg-white dark:bg-gray-900">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">{{ title|default:"Platform Features" }}</h2>
+      <p class="text-xl text-gray-600 dark:text-gray-400">{{ subtitle|default:"Discover what makes our platform special" }}</p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {% for feature in features %}
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-7 border-2 border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300">
+        {% if feature.icon %}
+        <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mb-4 text-primary-600 dark:text-primary-400">
+          <i data-lucide="{{ feature.icon }}" class="w-6 h-6"></i>
+        </div>
+        {% endif %}
+        
+        <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">{{ feature.title }}</h3>
+        <p class="text-gray-600 dark:text-gray-400">{{ feature.description }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>

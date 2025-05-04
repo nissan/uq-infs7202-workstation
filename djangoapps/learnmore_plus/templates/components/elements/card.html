@@ -1,0 +1,38 @@
+{% comment %}
+Card component
+Usage: {% include "components/elements/card.html" with title="Card Title" content="Card content" button_text="Button Text" button_url="#" %}
+
+Parameters:
+- title: Card title
+- content: Card content
+- button_text: Optional button text
+- button_url: Optional button URL
+- image_url: Optional image URL
+- classes: Optional additional CSS classes
+{% endcomment %}
+
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 border-2 border-gray-100 
+            dark:border-gray-700 transition-all duration-300 hover:shadow-xl flex flex-col {{ classes|default:'' }}">
+  <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100 pb-2 border-b border-gray-200 dark:border-gray-700">
+    {{ title }}
+  </h2>
+  
+  {% if image_url %}
+  <div class="mb-4">
+    <img src="{{ image_url|safe }}" alt="{{ title }}" class="rounded-lg w-full">
+  </div>
+  {% endif %}
+  
+  <p class="mb-6 text-gray-700 dark:text-gray-300 flex-grow">
+    {{ content|safe }}
+  </p>
+  
+  {% if button_text and button_url %}
+  <a href="{% if button_url|slice:':5' == 'http:' or button_url|slice:':6' == 'https:' %}{{ button_url }}{% elif button_url|slice:':1' == '#' %}{{ button_url }}{% else %}{% url button_url %}{% endif %}" 
+     class="inline-flex items-center justify-center rounded-md font-medium transition-colors 
+            bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 
+            text-white text-base h-10 px-4">
+    {{ button_text }}
+  </a>
+  {% endif %}
+</div>

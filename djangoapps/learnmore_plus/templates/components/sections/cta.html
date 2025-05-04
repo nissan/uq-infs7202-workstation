@@ -1,0 +1,33 @@
+{% comment %}
+Call to Action section component
+Usage: {% include "components/sections/cta.html" with title="Title" subtitle="Subtitle" button_text="Button Text" button_url="#" %}
+
+Parameters:
+- title: CTA title (default: "Ready to Transform Your Learning Experience?")
+- subtitle: CTA subtitle (default: "Join thousands of educators and learners on LearnMore Plus.")
+- button_text: Button text (default: "Start Your Free Trial")
+- button_url: Button URL (default: "#")
+- classes: Additional CSS classes
+{% endcomment %}
+
+<section class="mx-4 {{ classes|default:'' }}">
+  <div class="container mx-auto bg-primary-600 dark:bg-primary-800 text-white py-16 my-20 rounded-xl shadow-lg px-8">
+    <div class="flex flex-col md:flex-row justify-between items-center">
+      <div class="mb-6 md:mb-0">
+        <h2 class="text-2xl md:text-3xl font-bold mb-2">
+          {{ title|default:"Ready to Transform Your Learning Experience?" }}
+        </h2>
+        <p class="text-white/80">
+          {{ subtitle|default:"Join thousands of educators and learners on LearnMore Plus." }}
+        </p>
+      </div>
+      <div>
+        <a href="{{ button_url|default:'#'|safe }}" 
+           class="inline-flex items-center justify-center rounded-full font-medium transition-colors 
+                 bg-white hover:bg-gray-100 text-primary-600 text-lg h-12 px-8">
+          {{ button_text|default:"Start Your Free Trial" }}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

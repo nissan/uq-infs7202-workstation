@@ -1,0 +1,53 @@
+{% load static %}
+{% comment %}
+Courses Section component (organism)
+Usage: 
+{% include "components/organisms/sections/courses-section.html" %}
+{% endcomment %}
+
+<section class="py-20 bg-gray-50 dark:bg-gray-900" id="courses">
+    <div class="container mx-auto px-4">
+        <h2 class="section-title text-center mx-auto text-3xl md:text-4xl lg:text-5xl font-bold mb-10 text-gray-900 dark:text-white relative pb-4 inline-block">Featured Courses</h2>
+        <p class="section-subtitle text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto text-center mb-14 leading-relaxed">
+            Explore some of the popular courses created by educators on our platform.
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% include "components/molecules/cards/course-card.html" with 
+                title="Introduction to Python" 
+                description="Learn the fundamentals of Python programming with hands-on exercises and projects." 
+                image_url="/static/images/course-placeholder.svg"
+                badge_text="Popular" 
+                duration="8 weeks" 
+                rating="4.5" 
+                price="Free"
+                enroll_url="/courses/catalog/" %}
+            
+            {% include "components/molecules/cards/course-card.html" with 
+                title="Web Development with Django" 
+                description="Build modern, database-driven web applications with Django framework." 
+                image_url="/static/images/course-placeholder.svg"
+                badge_text="New" 
+                duration="10 weeks" 
+                rating="4.0" 
+                price="Free"
+                enroll_url="/courses/catalog/" %}
+            
+            {% include "components/molecules/cards/course-card.html" with 
+                title="Advanced Data Science" 
+                description="Master machine learning, deep learning, and data visualization techniques." 
+                image_url="/static/images/course-placeholder.svg"
+                badge_text="Advanced" 
+                duration="12 weeks" 
+                rating="5.0" 
+                price="Free"
+                enroll_url="/courses/catalog/" %}
+        </div>
+        
+        <div class="text-center mt-12">
+            <a href="{% url 'courses:course_catalog' %}" class="btn bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white py-2 px-6 rounded-full font-semibold transition-colors">
+                Browse All Courses
+            </a>
+        </div>
+    </div>
+</section>

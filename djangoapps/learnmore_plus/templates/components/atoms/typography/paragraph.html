@@ -1,0 +1,30 @@
+{% comment %}
+Paragraph component (atomic)
+Usage: {% include "components/atoms/typography/paragraph.html" with text="Paragraph text" %}
+
+Parameters:
+- text: Text content 
+- size: sm, md (default), lg, xl
+- classes: Optional additional CSS classes
+- center: Boolean, whether to center the text (default: False)
+- muted: Boolean, whether to display as muted text (default: False)
+{% endcomment %}
+
+{% if not size %}
+    {% with size="md" %}
+{% endif %}
+
+<p class="
+    {% if size == 'sm' %}text-sm{% endif %}
+    {% if size == 'md' %}text-base{% endif %}
+    {% if size == 'lg' %}text-lg{% endif %}
+    {% if size == 'xl' %}text-xl{% endif %}
+    {% if muted %}text-gray-500 dark:text-gray-400{% else %}text-gray-700 dark:text-gray-300{% endif %}
+    {% if center %}text-center{% endif %}
+    {{ classes|default:'' }}">
+    {{ text }}
+</p>
+
+{% if not size %}
+    {% endwith %}
+{% endif %}

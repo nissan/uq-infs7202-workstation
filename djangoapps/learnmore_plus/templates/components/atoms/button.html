@@ -1,0 +1,53 @@
+{% comment %}
+Button component (atomic)
+Usage: {% include "components/atoms/button.html" with variant="primary" text="Button Text" url="#" size="md" %}
+
+Parameters:
+- variant: primary (default), secondary, outline, ghost
+- text: Text to display on button
+- url: URL to navigate to
+- size: sm, md (default), lg
+- icon: Optional icon name for Lucide icons (e.g., "arrow-right")
+- icon_position: left (default) or right
+- classes: Optional additional CSS classes
+{% endcomment %}
+
+{% with variant=variant|default:"primary" %}
+{% with size=size|default:"md" %}
+{% with icon_position=icon_position|default:"left" %}
+
+<a href="{{ url|default:'#'|safe }}" 
+   class="inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 
+   {% if variant == 'primary' %}
+     bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white 
+   {% elif variant == 'secondary' %}
+     bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100
+   {% elif variant == 'outline' %}
+     border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100
+   {% elif variant == 'ghost' %}
+     hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100
+   {% endif %}
+   
+   {% if size == 'sm' %}
+     text-sm h-8 px-3
+   {% elif size == 'md' %}
+     text-base h-10 px-4
+   {% elif size == 'lg' %}
+     text-lg h-12 px-6
+   {% endif %}
+   {{ classes|default:'' }}">
+   
+   {% if icon and icon_position == 'left' %}
+   <i data-lucide="{{ icon }}" class="{% if size == 'sm' %}w-4 h-4{% elif size == 'md' %}w-5 h-5{% else %}w-6 h-6{% endif %} mr-2"></i>
+   {% endif %}
+   
+   {{ text }}
+   
+   {% if icon and icon_position == 'right' %}
+   <i data-lucide="{{ icon }}" class="{% if size == 'sm' %}w-4 h-4{% elif size == 'md' %}w-5 h-5{% else %}w-6 h-6{% endif %} ml-2"></i>
+   {% endif %}
+</a>
+
+{% endwith %}
+{% endwith %}
+{% endwith %}

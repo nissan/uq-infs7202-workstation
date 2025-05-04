@@ -1,0 +1,24 @@
+{% comment %}
+Step Card component (molecular)
+Usage: {% include "components/molecules/step-card.html" with number="1" title="Step Title" description="Step description" has_connector=True %}
+
+Parameters:
+- number: Step number
+- title: Step title
+- description: Step description
+- has_connector: Boolean to show connector line (default: False)
+- classes: Optional additional CSS classes
+{% endcomment %}
+
+<div class="relative text-center p-6 bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-100 dark:border-gray-700 shadow-md transition-all duration-300 hover:shadow-xl {{ classes|default:'' }}">
+  <div class="w-12 h-12 rounded-full bg-primary-600 dark:bg-primary-500 text-white flex items-center justify-center font-bold text-xl mx-auto mb-5 shadow-md">
+    {{ number }}
+  </div>
+  
+  {% if has_connector %}
+  <div class="absolute top-12 left-1/2 w-full h-1 bg-primary-200 dark:bg-primary-800 -z-10"></div>
+  {% endif %}
+  
+  <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{{ title }}</h3>
+  <p class="text-gray-600 dark:text-gray-400">{{ description }}</p>
+</div>

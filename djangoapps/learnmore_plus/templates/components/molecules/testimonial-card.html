@@ -1,0 +1,25 @@
+{% comment %}
+Testimonial Card component (molecular)
+Usage: {% include "components/molecules/testimonial-card.html" with quote="Testimonial text" name="John Doe" role="Developer" initials="JD" %}
+
+Parameters:
+- quote: Testimonial text
+- name: Name of the person
+- role: Role or title of the person
+- initials: Initials to display in the avatar
+- image: Optional image URL for avatar
+- classes: Optional additional CSS classes
+{% endcomment %}
+
+{% include "components/atoms/card.html" with variant="border" classes="p-8 flex flex-col h-full relative" %}
+  <span class="absolute top-4 left-6 text-7xl text-primary-100 dark:text-primary-900/30 font-serif opacity-80">"</span>
+  <p class="text-gray-700 dark:text-gray-300 relative z-10 mb-6 flex-grow">{{ quote }}</p>
+  
+  <div class="flex items-center mt-auto pt-5 border-t border-gray-200 dark:border-gray-700">
+    {% include "components/atoms/avatar.html" with text=initials src=image size="lg" classes="mr-4" %}
+    <div>
+      <h4 class="font-semibold text-gray-900 dark:text-white">{{ name }}</h4>
+      <p class="text-sm text-gray-500 dark:text-gray-400">{{ role }}</p>
+    </div>
+  </div>
+{% include "components/atoms/card.html" with end=True %}

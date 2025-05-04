@@ -1,0 +1,42 @@
+{% comment %}
+Hero Section component (organism)
+Usage: {% include "components/organisms/sections/hero-section.html" with title="Hero Title" subtitle="Hero subtitle" primary_button_text="Get Started" primary_button_url="#" secondary_button_text="Learn More" secondary_button_url="#" image_url="/path/to/image.jpg" %}
+
+Parameters:
+- title: Section title (required)
+- subtitle: Section subtitle (required)
+- primary_button_text: Text for primary button (required)
+- primary_button_url: URL for primary button (required)
+- secondary_button_text: Text for secondary button (optional)
+- secondary_button_url: URL for secondary button (optional)
+- image_url: URL to the hero image (required)
+- classes: Optional additional CSS classes
+{% endcomment %}
+
+<section class="hero-section py-12 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 {{ classes|default:'' }}">
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col md:flex-row items-center">
+            <div class="w-full md:w-1/2 mb-8 md:mb-0 md:pr-8">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+                    {{ title|safe }}
+                </h1>
+                <p class="text-xl mb-6 text-gray-700 dark:text-gray-300">
+                    {{ subtitle }}
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="{{ primary_button_url|default:'#'|safe }}" class="btn bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white py-2 px-6 rounded-full font-semibold transition-colors">
+                        {{ primary_button_text }}
+                    </a>
+                    {% if secondary_button_text %}
+                    <a href="{{ secondary_button_url|default:'#'|safe }}" class="btn bg-white hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-primary-600 dark:text-primary-400 py-2 px-6 rounded-full font-semibold border border-gray-200 dark:border-gray-700 transition-colors">
+                        {{ secondary_button_text }}
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="w-full md:w-1/2">
+                <img src="{{ image_url }}" alt="Hero Image" class="rounded-lg shadow-lg w-full">
+            </div>
+        </div>
+    </div>
+</section>

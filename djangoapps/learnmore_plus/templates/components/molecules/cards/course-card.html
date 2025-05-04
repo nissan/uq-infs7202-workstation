@@ -1,0 +1,49 @@
+{% comment %}
+Course Card component (molecule)
+Usage: {% include "components/molecules/cards/course-card.html" with title="Course Title" description="Course description" image_url="/path/to/image.jpg" badge_text="Popular" duration="8 weeks" rating="4.5" %}
+
+Parameters:
+- title: Course title (required)
+- description: Course description (required)
+- image_url: URL to the course image (required)
+- badge_text: Text for the badge (optional)
+- duration: Course duration (required)
+- rating: Course rating (required)
+- price: Course price (default: "Free")
+- enroll_url: URL for enrollment button (required)
+- classes: Optional additional CSS classes
+{% endcomment %}
+
+{% with price=price|default:"Free" %}
+
+<div class="course-card bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border-2 border-gray-100 dark:border-gray-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col h-full {{ classes|default:'' }}">
+    <div class="course-image relative h-52 overflow-hidden">
+        <img src="{{ image_url }}" alt="{{ title }}" class="w-full h-full object-cover transition-transform duration-500">
+        {% if badge_text %}
+        <span class="course-badge absolute top-4 right-4 py-1.5 px-4 rounded-full text-xs font-bold bg-primary-600 dark:bg-primary-500 text-white shadow-md">
+            {{ badge_text }}
+        </span>
+        {% endif %}
+    </div>
+    <div class="course-content p-7 flex-grow flex flex-col">
+        <div class="course-meta flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-3 pb-3 border-b border-gray-100 dark:border-gray-700">
+            <span><i data-lucide="clock" class="inline-block w-4 h-4 mr-1"></i> {{ duration }}</span>
+            <span>
+                <i class="fa-solid fa-star text-yellow-400"></i>
+                <i class="fa-solid fa-star text-yellow-400"></i>
+                <i class="fa-solid fa-star text-yellow-400"></i>
+                <i class="fa-solid fa-star text-yellow-400"></i>
+                <i class="fa-{% if rating == 5 %}solid{% else %}{% if rating >= 4.5 %}solid fa-star-half-stroke{% else %}regular fa-star{% endif %}{% endif %} text-yellow-400"></i>
+                {{ rating }}
+            </span>
+        </div>
+        <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{{ title }}</h3>
+        <p class="text-gray-600 dark:text-gray-400 mb-4">{{ description }}</p>
+        <div class="flex justify-between items-center mt-auto">
+            <span class="text-primary-600 dark:text-primary-400 font-bold">{{ price }}</span>
+            <a href="{{ enroll_url|default:'#'|safe }}" class="btn py-1 px-4 text-sm bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white rounded-md">Enroll Now</a>
+        </div>
+    </div>
+</div>
+
+{% endwith %}

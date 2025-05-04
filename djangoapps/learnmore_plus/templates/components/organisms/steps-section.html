@@ -1,0 +1,45 @@
+{% comment %}
+Steps Section component (organism)
+Usage: 
+{% include "components/organisms/steps-section.html" with title="How It Works" subtitle="Our process is simple" steps=4 show_image=True image_url="/path/to/image.jpg" %}
+  {% include "components/molecules/step-card.html" with number="1" title="Step 1" description="Step description" has_connector=True %}
+  ...more step cards (set has_connector=False for the last one)...
+{% include "components/organisms/steps-section.html" with end=True %}
+
+Parameters:
+- title: Section title
+- subtitle: Optional section subtitle
+- steps: Number of steps (default: 4)
+- background: "light" or "dark" (default: "dark")
+- show_image: Boolean to show image below steps (default: False)
+- image_url: URL for image below steps
+- image_alt: Alt text for image
+- classes: Optional additional CSS classes
+- end: Boolean to indicate end tag
+{% endcomment %}
+
+{% with steps=steps|default:"4" %}
+{% with background=background|default:"dark" %}
+
+{% if not end %}
+<section class="py-20 {% if background == 'dark' %}bg-gray-50 dark:bg-gray-900{% endif %} {{ classes|default:'' }}" id="how-it-works">
+  <div class="container mx-auto px-4">
+    {% if title %}
+    {% include "components/molecules/section-heading.html" with title=title subtitle=subtitle %}
+    {% endif %}
+    
+    <div class="grid grid-cols-1 md:grid-cols-{{ steps }} gap-8 mt-8">
+{% else %}
+    </div>
+    
+    {% if show_image %}
+    <div class="mt-16 text-center">
+      <img src="{{ image_url|safe }}" alt="{{ image_alt|default:'Process illustration' }}" class="rounded-lg shadow-lg inline-block max-w-4xl w-full">
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+
+{% endwith %}
+{% endwith %}

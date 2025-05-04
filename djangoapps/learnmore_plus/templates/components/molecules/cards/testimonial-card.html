@@ -1,0 +1,27 @@
+{% comment %}
+Testimonial Card component (molecule)
+Usage: {% include "components/molecules/cards/testimonial-card.html" with quote="Testimonial text" author_name="John Doe" author_title="CEO" author_initials="JD" %}
+
+Parameters:
+- quote: The testimonial text (required)
+- author_name: Name of the person giving the testimonial (required)
+- author_title: Position or title of the testimonial author (required)
+- author_initials: Initials to display in the avatar (required)
+- classes: Optional additional CSS classes
+{% endcomment %}
+
+<div class="testimonial-card bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 border-2 border-gray-100 dark:border-gray-700 transition-all duration-300 hover:shadow-xl relative h-full flex flex-col {{ classes|default:'' }}">
+    <div class="absolute top-4 left-6 text-7xl text-primary-100 dark:text-primary-900/30 font-serif opacity-80">"</div>
+    <p class="text-gray-700 dark:text-gray-300 relative z-10">
+        "{{ quote }}"
+    </p>
+    <div class="testimonial-author flex items-center mt-auto pt-5 border-t border-gray-200 dark:border-gray-700">
+        <div class="testimonial-avatar w-14 h-14 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex items-center justify-center text-lg font-bold mr-4 shadow-sm">
+            <span>{{ author_initials }}</span>
+        </div>
+        <div>
+            <h4 class="font-semibold text-gray-900 dark:text-white">{{ author_name }}</h4>
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ author_title }}</p>
+        </div>
+    </div>
+</div>

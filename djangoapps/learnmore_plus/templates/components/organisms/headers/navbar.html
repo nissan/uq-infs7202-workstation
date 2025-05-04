@@ -1,0 +1,99 @@
+{% comment %}
+Navbar component (organism)
+Usage: {% include "components/organisms/headers/navbar.html" %}
+
+This is the main navigation bar for the LearnMore Plus platform.
+{% endcomment %}
+
+<!-- Navigation -->
+<nav class="bg-white dark:bg-gray-800 shadow-sm py-3 sticky top-0 z-50">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center">
+            <a href="{% url 'core:home' %}" class="text-primary-600 dark:text-primary-400 font-bold text-xl">
+                LearnMore Plus
+            </a>
+            
+            <div class="flex items-center space-x-4">
+                <!-- Theme Toggle -->
+                {% include "components/atoms/ui/theme-toggle.html" %}
+                
+                <!-- Mobile menu button -->
+                <button class="md:hidden" id="mobile-menu-button">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#features" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Features</a>
+                <a href="#how-it-works" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">How It Works</a>
+                <a href="#testimonials" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Testimonials</a>
+                <a href="{% url 'courses:course_catalog' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Courses</a>
+                <a href="{% url 'core:about' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">About</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'ai_tutor:session_list' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">AI Tutor</a>
+                    {% if user.is_superuser %}
+                        <a href="{% url 'courses:admin_dashboard' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Dashboard</a>
+                    {% elif 'Course Coordinator' in user.groups.all|stringformat:'s' %}
+                        <a href="{% url 'courses:coordinator_dashboard' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Dashboard</a>
+                    {% elif 'Instructor' in user.groups.all|stringformat:'s' %}
+                        <a href="{% url 'courses:instructor_dashboard' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Dashboard</a>
+                    {% else %}
+                        <a href="{% url 'courses:student_dashboard' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Dashboard</a>
+                    {% endif %}
+                    {% if user.is_staff %}
+                        <a href="{% url 'dashboard:home' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">System Admin</a>
+                    {% endif %}
+                    <form method="post" action="{% url 'logout' %}" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Log Out</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Log In</a>
+                    <a href="{% url 'register' %}" class="bg-primary-600 text-white px-6 py-2 rounded-full hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 transition-colors">
+                        Sign Up
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Mobile Navigation -->
+        <div class="hidden md:hidden absolute left-0 right-0 bg-white dark:bg-gray-800 shadow-lg mt-3 py-2 px-4" id="mobile-menu">
+            <div class="flex flex-col space-y-4">
+                <a href="#features" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Features</a>
+                <a href="#how-it-works" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">How It Works</a>
+                <a href="#testimonials" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Testimonials</a>
+                <a href="{% url 'courses:course_catalog' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Courses</a>
+                <a href="{% url 'core:about' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">About</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'ai_tutor:session_list' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">AI Tutor</a>
+                    {% if user.is_superuser %}
+                        <a href="{% url 'courses:admin_dashboard' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Dashboard</a>
+                    {% elif 'Course Coordinator' in user.groups.all|stringformat:'s' %}
+                        <a href="{% url 'courses:coordinator_dashboard' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Dashboard</a>
+                    {% elif 'Instructor' in user.groups.all|stringformat:'s' %}
+                        <a href="{% url 'courses:instructor_dashboard' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Dashboard</a>
+                    {% else %}
+                        <a href="{% url 'courses:student_dashboard' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Dashboard</a>
+                    {% endif %}
+                    {% if user.is_staff %}
+                        <a href="{% url 'dashboard:home' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">System Admin</a>
+                    {% endif %}
+                    <form method="post" action="{% url 'logout' %}" class="border-t dark:border-gray-700 pt-4">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full text-left py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Log Out</button>
+                    </form>
+                {% else %}
+                    <div class="border-t dark:border-gray-700 pt-4 flex flex-col space-y-2">
+                        <a href="{% url 'login' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Log In</a>
+                        <a href="{% url 'register' %}" class="bg-primary-600 text-white px-6 py-2 rounded-full hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 transition-colors text-center">
+                            Sign Up
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>

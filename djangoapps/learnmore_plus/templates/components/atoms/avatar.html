@@ -1,0 +1,31 @@
+{% comment %}
+Avatar component (atomic)
+Usage: {% include "components/atoms/avatar.html" with text="JD" %}
+
+Parameters:
+- text: Short text to display (usually initials)
+- src: Optional image URL for avatar image
+- size: sm, md (default), lg, xl
+- classes: Optional additional CSS classes
+{% endcomment %}
+
+{% if not size %}
+    {% with size="md" %}
+{% endif %}
+
+<div class="flex items-center justify-center overflow-hidden bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 font-medium rounded-full
+  {% if size == 'sm' %}w-8 h-8 text-xs{% endif %}
+  {% if size == 'md' %}w-10 h-10 text-sm{% endif %}
+  {% if size == 'lg' %}w-14 h-14 text-base{% endif %}
+  {% if size == 'xl' %}w-20 h-20 text-lg{% endif %}
+  {{ classes|default:'' }}">
+  {% if src %}
+    <img src="{{ src }}" alt="{{ text|default:'Avatar' }}" class="w-full h-full object-cover">
+  {% else %}
+    {{ text }}
+  {% endif %}
+</div>
+
+{% if not size %}
+    {% endwith %}
+{% endif %}

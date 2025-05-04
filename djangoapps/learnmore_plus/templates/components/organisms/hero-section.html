@@ -1,0 +1,42 @@
+{% comment %}
+Hero Section component (organism)
+Usage: {% include "components/organisms/hero-section.html" with title="Main Title" subtitle="Subtitle text" image_url="/path/to/image.jpg" primary_button_text="Get Started" primary_button_url="/start" secondary_button_text="Learn More" secondary_button_url="/learn" %}
+
+Parameters:
+- title: Hero title (supports HTML)
+- subtitle: Hero subtitle text (supports HTML)
+- image_url: URL to hero image
+- image_alt: Alt text for image
+- primary_button_text: Text for primary CTA button
+- primary_button_url: URL for primary CTA button
+- secondary_button_text: Optional text for secondary button
+- secondary_button_url: Optional URL for secondary button
+- classes: Optional additional CSS classes
+{% endcomment %}
+
+<section class="py-12 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 {{ classes|default:'' }}">
+  <div class="container mx-auto px-4 py-8">
+    <div class="flex flex-col md:flex-row items-center">
+      <div class="w-full md:w-1/2 mb-8 md:mb-0 md:pr-8">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+          {{ title }}
+        </h1>
+        <p class="text-xl mb-6 text-gray-700 dark:text-gray-300">
+          {{ subtitle }}
+        </p>
+        <div class="flex flex-wrap gap-4">
+          {% if primary_button_text %}
+          {% include "components/atoms/button.html" with text=primary_button_text url=primary_button_url variant="primary" size="lg" classes="rounded-full font-semibold" %}
+          {% endif %}
+          
+          {% if secondary_button_text %}
+          {% include "components/atoms/button.html" with text=secondary_button_text url=secondary_button_url variant="outline" size="lg" classes="rounded-full font-semibold border border-gray-200 dark:border-gray-700" %}
+          {% endif %}
+        </div>
+      </div>
+      <div class="w-full md:w-1/2">
+        <img src="{{ image_url|safe }}" alt="{{ image_alt|default:'Hero image' }}" class="rounded-lg shadow-lg w-full">
+      </div>
+    </div>
+  </div>
+</section>

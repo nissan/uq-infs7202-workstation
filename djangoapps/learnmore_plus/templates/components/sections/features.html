@@ -1,0 +1,83 @@
+{% comment %}
+Features section component
+Usage: {% include "components/sections/features.html" %}
+
+Parameters:
+- title: Section title (default: "Powerful Features")
+- subtitle: Section subtitle
+- feature_items: Optional list of feature items passed from the view context
+{% endcomment %}
+
+<section class="py-20" id="features">
+  <div class="container mx-auto px-4">
+    <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-10 text-gray-900 dark:text-white relative pb-4 inline-block mx-auto text-center">
+      {{ title|default:"Powerful Features" }}
+      <span class="absolute bottom-0 left-0 right-0 w-24 h-1.5 bg-primary-500 dark:bg-primary-400 rounded mx-auto"></span>
+    </h2>
+    <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto text-center mb-14 leading-relaxed">
+      {{ subtitle|default:"Our platform combines cutting-edge technology with intuitive design to create the ultimate learning experience." }}
+    </p>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      {% if feature_items %}
+        {% for feature in feature_items %}
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-7 border-2 border-gray-100 
+                     dark:border-gray-700 h-full transition-all duration-300 hover:shadow-xl 
+                     hover:-translate-y-1 flex flex-col items-center text-center">
+            <div class="w-20 h-20 rounded-full bg-primary-100 dark:bg-primary-900/30 
+                       text-primary-600 dark:text-primary-400 flex items-center justify-center mb-5 shadow-sm">
+              <i data-lucide="{{ feature.icon }}" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{{ feature.title }}</h3>
+            <p class="text-gray-600 dark:text-gray-400">{{ feature.description }}</p>
+          </div>
+        {% endfor %}
+      {% else %}
+        <!-- Default features if none are provided -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-7 border-2 border-gray-100 
+                   dark:border-gray-700 h-full transition-all duration-300 hover:shadow-xl 
+                   hover:-translate-y-1 flex flex-col items-center text-center">
+          <div class="w-20 h-20 rounded-full bg-primary-100 dark:bg-primary-900/30 
+                     text-primary-600 dark:text-primary-400 flex items-center justify-center mb-5 shadow-sm">
+            <i data-lucide="pencil" class="w-8 h-8"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">Course Creation</h3>
+          <p class="text-gray-600 dark:text-gray-400">Build engaging courses with our intuitive editor. Add videos, quizzes, and interactive elements.</p>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-7 border-2 border-gray-100 
+                   dark:border-gray-700 h-full transition-all duration-300 hover:shadow-xl 
+                   hover:-translate-y-1 flex flex-col items-center text-center">
+          <div class="w-20 h-20 rounded-full bg-primary-100 dark:bg-primary-900/30 
+                     text-primary-600 dark:text-primary-400 flex items-center justify-center mb-5 shadow-sm">
+            <i data-lucide="qr-code" class="w-8 h-8"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">QR Code Sharing</h3>
+          <p class="text-gray-600 dark:text-gray-400">Share your courses instantly with QR codes. Students can access materials with a simple scan.</p>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-7 border-2 border-gray-100 
+                   dark:border-gray-700 h-full transition-all duration-300 hover:shadow-xl 
+                   hover:-translate-y-1 flex flex-col items-center text-center">
+          <div class="w-20 h-20 rounded-full bg-primary-100 dark:bg-primary-900/30 
+                     text-primary-600 dark:text-primary-400 flex items-center justify-center mb-5 shadow-sm">
+            <i data-lucide="bot" class="w-8 h-8"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">AI Tutoring</h3>
+          <p class="text-gray-600 dark:text-gray-400">Provide 24/7 personalized support with our AI tutoring system that adapts to each student's learning style.</p>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-7 border-2 border-gray-100 
+                   dark:border-gray-700 h-full transition-all duration-300 hover:shadow-xl 
+                   hover:-translate-y-1 flex flex-col items-center text-center">
+          <div class="w-20 h-20 rounded-full bg-primary-100 dark:bg-primary-900/30 
+                     text-primary-600 dark:text-primary-400 flex items-center justify-center mb-5 shadow-sm">
+            <i data-lucide="line-chart" class="w-8 h-8"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">Advanced Analytics</h3>
+          <p class="text-gray-600 dark:text-gray-400">Track student progress and engagement with detailed analytics and actionable insights.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>

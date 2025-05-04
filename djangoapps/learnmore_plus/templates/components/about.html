@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}About LearnMore Plus{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="py-16 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
+  <div class="container mx-auto px-4">
+    <div class="text-center max-w-3xl mx-auto">
+      <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gray-800 dark:text-gray-100">
+        About <span class="text-primary-600 dark:text-primary-400">LearnMore Plus</span>
+      </h1>
+      <p class="text-xl mb-6 text-gray-700 dark:text-gray-300">
+        Our mission is to transform education through innovative technology and personalized learning experiences.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Our Story Section -->
+{% include "components/organisms/features-grid.html" with title="Our Story" subtitle="How LearnMore Plus came to be" columns=1 %}
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 border-2 border-gray-100 dark:border-gray-700">
+    <p class="text-gray-700 dark:text-gray-300 mb-4">
+      LearnMore Plus was founded in 2023 by a team of educators and technologists who saw the need for more effective and engaging online learning tools. Our founders experienced firsthand the challenges of remote education during the global pandemic and were inspired to create a platform that combines the best aspects of traditional education with cutting-edge technology.
+    </p>
+    <p class="text-gray-700 dark:text-gray-300 mb-4">
+      We started with a simple idea: create a learning platform that adapts to each student's unique needs while giving educators powerful tools to create engaging content. After months of development and testing with educational institutions, LearnMore Plus was born.
+    </p>
+    <p class="text-gray-700 dark:text-gray-300">
+      Today, we're proud to serve thousands of students and educators worldwide, continually improving our platform based on user feedback and advances in educational technology.
+    </p>
+  </div>
+{% include "components/organisms/features-grid.html" with end=True %}
+
+<!-- Our Values Section -->
+{% include "components/organisms/features-grid.html" with title="Our Values" subtitle="The principles that guide everything we do" columns=3 background="dark" %}
+  {% include "components/molecules/feature-card.html" with 
+    title="Innovation" 
+    description="We constantly explore new technologies and teaching methodologies to improve the learning experience." 
+    icon="lightbulb"
+  %}
+  
+  {% include "components/molecules/feature-card.html" with 
+    title="Accessibility" 
+    description="We believe education should be accessible to everyone, regardless of location, background, or learning style." 
+    icon="accessibility"
+  %}
+  
+  {% include "components/molecules/feature-card.html" with 
+    title="Quality" 
+    description="We're committed to providing the highest quality educational content and tools to help learners succeed." 
+    icon="check-circle"
+  %}
+{% include "components/organisms/features-grid.html" with end=True %}
+
+<!-- Team Section -->
+{% include "components/organisms/features-grid.html" with title="Our Team" subtitle="The talented individuals behind LearnMore Plus" columns=4 %}
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-2 border-gray-100 dark:border-gray-700 text-center">
+    <div class="mb-4 flex justify-center">
+      {% include "components/atoms/avatar.html" with text="JD" size="xl" %}
+    </div>
+    <h3 class="text-xl font-semibold mb-1 text-gray-800 dark:text-white">Jane Doe</h3>
+    <p class="text-primary-600 dark:text-primary-400 mb-2">CEO & Founder</p>
+    <p class="text-gray-600 dark:text-gray-400 text-sm">Former educator with 15+ years of experience in EdTech</p>
+  </div>
+  
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-2 border-gray-100 dark:border-gray-700 text-center">
+    <div class="mb-4 flex justify-center">
+      {% include "components/atoms/avatar.html" with text="JS" size="xl" %}
+    </div>
+    <h3 class="text-xl font-semibold mb-1 text-gray-800 dark:text-white">John Smith</h3>
+    <p class="text-primary-600 dark:text-primary-400 mb-2">CTO</p>
+    <p class="text-gray-600 dark:text-gray-400 text-sm">AI specialist with a background in educational psychology</p>
+  </div>
+  
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-2 border-gray-100 dark:border-gray-700 text-center">
+    <div class="mb-4 flex justify-center">
+      {% include "components/atoms/avatar.html" with text="MC" size="xl" %}
+    </div>
+    <h3 class="text-xl font-semibold mb-1 text-gray-800 dark:text-white">Marie Chen</h3>
+    <p class="text-primary-600 dark:text-primary-400 mb-2">Head of Design</p>
+    <p class="text-gray-600 dark:text-gray-400 text-sm">UX expert specializing in accessible and intuitive interfaces</p>
+  </div>
+  
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-2 border-gray-100 dark:border-gray-700 text-center">
+    <div class="mb-4 flex justify-center">
+      {% include "components/atoms/avatar.html" with text="RJ" size="xl" %}
+    </div>
+    <h3 class="text-xl font-semibold mb-1 text-gray-800 dark:text-white">Robert Johnson</h3>
+    <p class="text-primary-600 dark:text-primary-400 mb-2">Content Director</p>
+    <p class="text-gray-600 dark:text-gray-400 text-sm">PhD in Educational Content Development with focus on interactive learning</p>
+  </div>
+{% include "components/organisms/features-grid.html" with end=True %}
+
+<!-- Testimonials Section -->
+{% include "components/organisms/testimonials-section.html" with title="What People Say About Us" subtitle="Feedback from our community" %}
+  {% include "components/molecules/testimonial-card.html" with 
+    quote="LearnMore Plus has revolutionized how our university delivers online courses. The platform's intuitive design and powerful features have made a significant impact on student engagement and success."
+    name="Prof. Richard Brown"
+    role="University Dean"
+    initials="RB"
+  %}
+  
+  {% include "components/molecules/testimonial-card.html" with 
+    quote="I've used many learning platforms throughout my career, but LearnMore Plus stands out for its AI tutoring capabilities and analytics. It's truly the future of online education."
+    name="Dr. Lisa Wong"
+    role="Education Consultant"
+    initials="LW"
+  %}
+  
+  {% include "components/molecules/testimonial-card.html" with 
+    quote="As a parent, I'm impressed by how engaging LearnMore Plus makes learning for my children. The interactive content and personalized approach has made a huge difference in their academic progress."
+    name="David Thompson"
+    role="Parent"
+    initials="DT"
+  %}
+{% include "components/organisms/testimonials-section.html" with end=True %}
+
+<!-- Call to Action -->
+{% include "components/organisms/cta-section.html" with 
+  title="Join Our Educational Revolution"
+  subtitle="Experience the future of learning with LearnMore Plus"
+  button_text="Get Started Today"
+  button_url="{% url 'register' %}"
+%}
+{% endblock %}

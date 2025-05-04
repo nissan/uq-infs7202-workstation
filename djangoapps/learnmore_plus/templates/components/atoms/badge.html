@@ -1,0 +1,50 @@
+{% comment %}
+Badge component (atomic)
+Usage: {% include "components/atoms/badge.html" with text="New" variant="primary" %}
+
+Parameters:
+- text: Badge text content
+- variant: primary (default), secondary, outline, success, warning, danger
+- size: sm, md (default)
+- classes: Optional additional CSS classes
+{% endcomment %}
+
+{% if not variant %}
+    {% with variant="primary" %}
+{% endif %}
+
+{% if not size %}
+    {% with size="md" %}
+{% endif %}
+
+<span class="inline-flex items-center justify-center font-medium rounded-full whitespace-nowrap
+  {% if variant == 'primary' %}
+    bg-primary-600 dark:bg-primary-500 text-white
+  {% elif variant == 'secondary' %}
+    bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200
+  {% elif variant == 'outline' %}
+    bg-transparent border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200
+  {% elif variant == 'success' %}
+    bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300
+  {% elif variant == 'warning' %}
+    bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300
+  {% elif variant == 'danger' %}
+    bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300
+  {% endif %}
+  
+  {% if size == 'sm' %}
+    text-xs px-2 py-0.5
+  {% elif size == 'md' %}
+    text-sm px-3 py-1
+  {% endif %}
+  {{ classes|default:'' }}">
+  {{ text }}
+</span>
+
+{% if not size %}
+    {% endwith %}
+{% endif %}
+
+{% if not variant %}
+    {% endwith %}
+{% endif %}

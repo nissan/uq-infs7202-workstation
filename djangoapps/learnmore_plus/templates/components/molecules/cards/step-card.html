@@ -1,0 +1,30 @@
+{% comment %}
+Step Card component (molecule)
+Usage: {% include "components/molecules/cards/step-card.html" with step_number="1" title="Step Title" description="Step description" %}
+
+Parameters:
+- step_number: The step number (required)
+- title: Step title (required)
+- description: Step description (required)
+- last: Boolean, whether this is the last step (default: false)
+- classes: Optional additional CSS classes
+{% endcomment %}
+
+{% if not last %}
+    {% with last=False %}
+{% endif %}
+
+<div class="step-card relative text-center p-6 bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-100 dark:border-gray-700 shadow-md transition-all duration-300 hover:shadow-xl {{ classes|default:'' }}">
+    <div class="step-number w-12 h-12 rounded-full bg-primary-600 dark:bg-primary-500 text-white flex items-center justify-center font-bold text-xl mx-auto mb-5 shadow-md">
+        {{ step_number }}
+    </div>
+    {% if not last %}
+    <div class="step-connector absolute top-12 left-1/2 w-full h-1 bg-primary-200 dark:bg-primary-800 -z-10 hidden md:block"></div>
+    {% endif %}
+    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{{ title }}</h3>
+    <p class="text-gray-600 dark:text-gray-400">{{ description }}</p>
+</div>
+
+{% if not last %}
+    {% endwith %}
+{% endif %}

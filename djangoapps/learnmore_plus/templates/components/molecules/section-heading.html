@@ -1,0 +1,22 @@
+{% comment %}
+Section Heading component (molecular)
+Usage: {% include "components/molecules/section-heading.html" with title="Section Title" subtitle="Section subtitle text" %}
+
+Parameters:
+- title: Section title
+- subtitle: Optional subtitle
+- classes: Optional additional CSS classes for container
+{% endcomment %}
+
+<div class="text-center mb-12 {{ classes|default:'' }}">
+  <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-10 text-gray-900 dark:text-white relative pb-4 inline-block mx-auto">
+    {{ title }}
+    <span class="absolute bottom-0 left-0 right-0 w-24 h-1.5 bg-primary-500 dark:bg-primary-400 rounded mx-auto"></span>
+  </h2>
+  
+  {% if subtitle %}
+  <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
+    {{ subtitle }}
+  </p>
+  {% endif %}
+</div>

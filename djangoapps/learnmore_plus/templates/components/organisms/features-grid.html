@@ -1,0 +1,34 @@
+{% comment %}
+Features Grid component (organism)
+Usage: 
+{% include "components/organisms/features-grid.html" with title="Features" subtitle="Our main features" columns=4 %}
+  {% include "components/molecules/feature-card.html" with title="Feature 1" description="Description 1" icon="pencil" %}
+  {% include "components/molecules/feature-card.html" with title="Feature 2" description="Description 2" icon="code" %}
+  ...more feature cards...
+{% include "components/organisms/features-grid.html" with end=True %}
+
+Parameters:
+- title: Section title
+- subtitle: Optional section subtitle
+- columns: Number of columns (default: 3)
+- classes: Optional additional CSS classes
+- end: Boolean to indicate end tag
+{% endcomment %}
+
+{% with columns=columns|default:"3" %}
+
+{% if not end %}
+<section class="py-20 {{ classes|default:'' }}">
+  <div class="container mx-auto px-4">
+    {% if title %}
+    {% include "components/molecules/section-heading.html" with title=title subtitle=subtitle %}
+    {% endif %}
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-{{ columns }} gap-8">
+{% else %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endwith %}

@@ -1,0 +1,90 @@
+{% comment %}
+Button Link component (atom)
+A button that looks like a link.
+
+Usage: {% include "components/atoms/buttons/button-link.html" with text="Link Text" url="#" %}
+
+Parameters:
+- text: Text to display on the link
+- url: URL to navigate to (can be a URL or a template tag like {% url 'name' %} - use with |safe filter)
+- icon: Optional icon name for Lucide icons (e.g., "arrow-right")
+- icon_position: left (default) or right
+- variant: default (default), primary, muted
+- classes: Optional additional CSS classes
+- as_button: Set to True to render as <button> instead of <a>
+- button_type: If as_button is True, the button type (submit, button, reset)
+{% endcomment %}
+
+{% if not icon_position %}
+    {% with icon_position="left" %}
+{% endif %}
+{% if not variant %}
+    {% with variant="default" %}
+{% endif %}
+{% if not as_button %}
+    {% with as_button=False %}
+{% endif %}
+{% if not button_type %}
+    {% with button_type="button" %}
+{% endif %}
+
+{% if as_button %}
+<button 
+  type="{{ button_type }}"
+  class="inline-flex items-center font-medium transition-colors underline-offset-4 hover:underline 
+  {% if variant == 'default' %}
+    text-gray-900 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-300
+  {% elif variant == 'primary' %}
+    text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-500
+  {% elif variant == 'muted' %}
+    text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300
+  {% endif %}
+  {{ classes|default:'' }}">
+  
+  {% if icon and icon_position == 'left' %}
+  <i data-lucide="{{ icon }}" class="w-4 h-4 mr-2"></i>
+  {% endif %}
+  
+  {{ text }}
+  
+  {% if icon and icon_position == 'right' %}
+  <i data-lucide="{{ icon }}" class="w-4 h-4 ml-2"></i>
+  {% endif %}
+</button>
+{% else %}
+<a 
+  href="{{ url|default:'#'|safe }}" 
+  class="inline-flex items-center font-medium transition-colors underline-offset-4 hover:underline
+  {% if variant == 'default' %}
+    text-gray-900 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-300
+  {% elif variant == 'primary' %}
+    text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-500
+  {% elif variant == 'muted' %}
+    text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300
+  {% endif %}
+  {{ classes|default:'' }}">
+  
+  {% if icon and icon_position == 'left' %}
+  <i data-lucide="{{ icon }}" class="w-4 h-4 mr-2"></i>
+  {% endif %}
+  
+  {{ text }}
+  
+  {% if icon and icon_position == 'right' %}
+  <i data-lucide="{{ icon }}" class="w-4 h-4 ml-2"></i>
+  {% endif %}
+</a>
+{% endif %}
+
+{% if not button_type %}
+    {% endwith %}
+{% endif %}
+{% if not as_button %}
+    {% endwith %}
+{% endif %}
+{% if not variant %}
+    {% endwith %}
+{% endif %}
+{% if not icon_position %}
+    {% endwith %}
+{% endif %}

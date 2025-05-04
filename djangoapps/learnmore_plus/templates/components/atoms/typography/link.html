@@ -1,0 +1,82 @@
+{% comment %}
+Link component (atom)
+Usage: {% include "components/atoms/typography/link.html" with text="Link Text" url="#" %}
+
+Parameters:
+- text: The link text (required)
+- url: URL to navigate to (can be a URL or a template tag like {% url 'name' %} - use with |safe filter)
+- variant: default (default), primary, muted
+- underline: always, hover (default), never
+- icon: Optional icon name for Lucide icons (e.g., "arrow-right")
+- icon_position: left (default) or right
+- classes: Optional additional CSS classes
+- external: Boolean, whether this is an external link (adds target="_blank" and rel attributes)
+{% endcomment %}
+
+{% if not variant %}
+    {% with variant="default" %}
+{% endif %}
+
+{% if not underline %}
+    {% with underline="hover" %}
+{% endif %}
+
+{% if not icon_position %}
+    {% with icon_position="left" %}
+{% endif %}
+
+{% if not external %}
+    {% with external=False %}
+{% endif %}
+
+<a 
+  href="{{ url|default:'#'|safe }}" 
+  {% if external %}target="_blank" rel="noopener noreferrer"{% endif %}
+  class="inline-flex items-center 
+  {% if underline == 'always' %}
+    underline underline-offset-4
+  {% elif underline == 'hover' %}
+    hover:underline underline-offset-4
+  {% endif %}
+  
+  {% if variant == 'default' %}
+    text-gray-900 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-300
+  {% elif variant == 'primary' %}
+    text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-500
+  {% elif variant == 'muted' %}
+    text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300
+  {% endif %}
+  
+  font-medium transition-colors
+  {{ classes|default:'' }}">
+  
+  {% if icon and icon_position == 'left' %}
+  <i data-lucide="{{ icon }}" class="w-4 h-4 mr-2"></i>
+  {% endif %}
+  
+  {{ text }}
+  
+  {% if icon and icon_position == 'right' %}
+  <i data-lucide="{{ icon }}" class="w-4 h-4 ml-2"></i>
+  {% endif %}
+  
+  {% if external %}
+  <i data-lucide="external-link" class="w-3.5 h-3.5 ml-1.5"></i>
+  {% endif %}
+</a>
+
+{% if not external %}
+    {% endwith %}
+{% endif %}
+
+{% if not icon_position %}
+    {% endwith %}
+{% endif %}
+
+{% if not underline %}
+    {% endwith %}
+{% endif %}
+
+{% if not variant %}
+    {% endwith %}
+{% endif %}

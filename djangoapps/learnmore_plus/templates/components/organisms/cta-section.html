@@ -1,0 +1,27 @@
+{% comment %}
+Call to Action Section component (organism)
+Usage: {% include "components/organisms/cta-section.html" with title="Ready to Get Started?" subtitle="Join thousands of users" button_text="Sign Up Now" button_url="/signup" %}
+
+Parameters:
+- title: CTA title 
+- subtitle: Optional subtitle text
+- button_text: Text for CTA button
+- button_url: URL for CTA button
+- classes: Optional additional CSS classes
+{% endcomment %}
+
+<section class="mx-4 my-20 {{ classes|default:'' }}">
+  <div class="container mx-auto bg-primary-600 dark:bg-primary-800 text-white py-16 px-8 rounded-xl shadow-lg">
+    <div class="flex flex-col md:flex-row justify-between items-center">
+      <div class="mb-6 md:mb-0">
+        <h2 class="text-2xl md:text-3xl font-bold mb-2">{{ title }}</h2>
+        {% if subtitle %}
+        <p class="text-white/80">{{ subtitle }}</p>
+        {% endif %}
+      </div>
+      <div>
+        {% include "components/atoms/button.html" with text=button_text url=button_url variant="outline" size="lg" classes="rounded-full font-semibold bg-white hover:bg-gray-100 text-primary-600 border-0" %}
+      </div>
+    </div>
+  </div>
+</section>

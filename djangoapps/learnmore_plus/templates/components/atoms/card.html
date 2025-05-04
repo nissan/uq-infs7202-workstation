@@ -1,0 +1,29 @@
+{% comment %}
+Card component (atomic)
+Usage: 
+{% include "components/atoms/card.html" with variant="default" %}
+  Content inside the card
+{% include "components/atoms/card.html" with end=True %}
+
+Parameters:
+- variant: default (default), hover, border
+- classes: Optional additional CSS classes
+{% endcomment %}
+
+{% with variant=variant|default:"default" %}
+
+{% if not end %}
+<div class="rounded-xl bg-white dark:bg-gray-800 overflow-hidden 
+    {% if variant == 'default' %}
+      shadow-sm
+    {% elif variant == 'hover' %}
+      shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1
+    {% elif variant == 'border' %}
+      border-2 border-gray-100 dark:border-gray-700
+    {% endif %}
+    {{ classes|default:'' }}">
+{% else %}
+</div>
+{% endif %}
+
+{% endwith %}

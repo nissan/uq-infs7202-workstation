@@ -1,0 +1,29 @@
+{% load static %}
+{% comment %}
+Steps Section component (organism)
+Usage: 
+{% include "components/organisms/sections/steps-section.html" %}
+{% endcomment %}
+
+<section class="py-20 bg-gray-50 dark:bg-gray-900" id="how-it-works">
+    <div class="container mx-auto px-4">
+        <h2 class="section-title text-center mx-auto text-3xl md:text-4xl lg:text-5xl font-bold mb-10 text-gray-900 dark:text-white relative pb-4 inline-block">How It Works</h2>
+        <p class="section-subtitle text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto text-center mb-14 leading-relaxed">
+            Our streamlined process makes it easy to create, share, and manage your educational content.
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mt-8">
+            {% include "components/molecules/cards/step-card.html" with step_number="1" title="Create" description="Build your course with our intuitive editor and AI-powered content suggestions." %}
+            
+            {% include "components/molecules/cards/step-card.html" with step_number="2" title="Share" description="Distribute your course with QR codes or direct links to your students." %}
+            
+            {% include "components/molecules/cards/step-card.html" with step_number="3" title="Teach" description="Engage with students through live sessions or let our AI tutor assist them." %}
+            
+            {% include "components/molecules/cards/step-card.html" with step_number="4" title="Analyze" description="Review detailed analytics to improve your teaching and student outcomes." last=True %}
+        </div>
+        
+        <div class="mt-16 text-center">
+            <img src="{% static 'images/course-placeholder.svg' %}" alt="Platform Workflow" class="rounded-lg shadow-lg inline-block max-w-4xl w-full">
+        </div>
+    </div>
+</section>

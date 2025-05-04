@@ -1,0 +1,36 @@
+{% comment %}
+Testimonials Section component (organism)
+Usage: 
+{% include "components/organisms/testimonials-section.html" with title="Testimonials" subtitle="What our users say" columns=3 %}
+  {% include "components/molecules/testimonial-card.html" with quote="Great product" name="John" role="User" initials="JD" %}
+  ...more testimonial cards...
+{% include "components/organisms/testimonials-section.html" with end=True %}
+
+Parameters:
+- title: Section title
+- subtitle: Optional section subtitle
+- columns: Number of columns (default: 3)
+- background: "light" or "dark" (default: "light")
+- classes: Optional additional CSS classes
+- end: Boolean to indicate end tag
+{% endcomment %}
+
+{% with columns=columns|default:"3" %}
+{% with background=background|default:"light" %}
+
+{% if not end %}
+<section class="py-20 {% if background == 'dark' %}bg-gray-50 dark:bg-gray-900{% endif %} {{ classes|default:'' }}">
+  <div class="container mx-auto px-4">
+    {% if title %}
+    {% include "components/molecules/section-heading.html" with title=title subtitle=subtitle %}
+    {% endif %}
+    
+    <div class="grid grid-cols-1 md:grid-cols-{{ columns }} gap-8">
+{% else %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endwith %}
+{% endwith %}

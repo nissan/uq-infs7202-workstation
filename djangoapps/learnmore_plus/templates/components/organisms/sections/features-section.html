@@ -1,0 +1,24 @@
+{% comment %}
+Features Section component (organism)
+Usage: 
+{% include "components/organisms/sections/features-section.html" %}
+{% endcomment %}
+
+<section class="py-20" id="features">
+    <div class="container mx-auto px-4">
+        <h2 class="section-title text-center mx-auto text-3xl md:text-4xl lg:text-5xl font-bold mb-10 text-gray-900 dark:text-white relative pb-4 inline-block">Powerful Features</h2>
+        <p class="section-subtitle text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto text-center mb-14 leading-relaxed">
+            Our platform combines cutting-edge technology with intuitive design to create the ultimate learning experience.
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {% include "components/molecules/cards/feature-card.html" with title="Course Creation" description="Build engaging courses with our intuitive editor. Add videos, quizzes, and interactive elements." icon="pencil" %}
+            
+            {% include "components/molecules/cards/feature-card.html" with title="QR Code Sharing" description="Share your courses instantly with QR codes. Students can access materials with a simple scan." icon="qr-code" %}
+            
+            {% include "components/molecules/cards/feature-card.html" with title="AI Tutoring" description="Provide 24/7 personalized support with our AI tutoring system that adapts to each student's learning style." icon="bot" %}
+            
+            {% include "components/molecules/cards/feature-card.html" with title="Advanced Analytics" description="Track student progress and engagement with detailed analytics and actionable insights." icon="line-chart" %}
+        </div>
+    </div>
+</section>
