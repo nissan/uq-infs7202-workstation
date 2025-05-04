@@ -495,12 +495,149 @@ After setting these variables, make sure to:
 
 For more details, see the comprehensive documentation in `docs/ai-tutor-feature.md` and `docs/ai-tutor-demo.md`.
 
+## Deployment
+
+### Railway.app Deployment
+
+This application is configured for easy deployment to Railway.app with the following setup:
+
+1. **Required Files** (already included):
+   - `Procfile` - Defines Railway application processes
+   - `requirements.txt` - Consolidated dependencies
+   - `runtime.txt` - Specifies Python version
+
+2. **Production Settings**:
+   - `learnmore_plus/settings/prod.py` is configured for Railway
+   - Includes WhiteNoise for static file serving
+   - Uses environment variables for configuration 
+   - Configured to use `DATABASE_URL` provided by Railway
+
+3. **Deployment Steps**:
+   ```bash
+   # Using Railway CLI (optional)
+   railway login
+   railway link
+   railway up
+   ```
+
+4. **Environment Variables to Set**:
+   - `DJANGO_SETTINGS_MODULE=learnmore_plus.settings.prod`
+   - `SECRET_KEY` (generate a new one for production)
+   - `ALLOWED_HOSTS` (your Railway domain)
+   - `OPENAI_API_KEY` (if using OpenAI for AI Tutor)
+
+For complete deployment instructions, see `docs/railway-deployment.md`.
+
 ## Development
 
 - Follow the development guidelines in `CONTRIBUTING.md`
 - Keep documentation up to date
 - Write tests for new features
 - Follow the code style guide
+
+## Testing
+
+We have a comprehensive test suite for all key features of the application. Our testing strategy includes both backend unit/integration tests and end-to-end browser testing.
+
+### Backend Testing
+
+To run the backend tests:
+
+```bash
+# Activate virtual environment first
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Run all tests with pytest (recommended)
+pytest
+
+# Run tests for specific apps
+pytest apps/core/
+pytest apps/ai_tutor/
+pytest apps/qr_codes/
+
+# Run with Django test runner
+python manage.py test
+
+# Run with coverage
+coverage run -m pytest
+coverage report
+```
+
+### End-to-End Testing with Playwright
+
+We've implemented Playwright for automated browser testing to ensure the application works from a user's perspective. To run the E2E tests:
+
+```bash
+# Navigate to the e2e test directory
+cd tests/e2e
+
+# Install dependencies (first time only)
+npm install
+npx playwright install
+
+# Run all tests
+npx playwright test
+
+# Run tests for a specific user type
+npx playwright test student-demo.spec.js
+npx playwright test instructor-demo.spec.js
+npx playwright test admin-demo.spec.js
+
+# Run tests in debug mode
+npx playwright test --debug
+```
+
+For more information on our Playwright testing setup, see `docs/playwright-testing.md`.
+
+### Key Test Areas
+
+The test suite covers:
+
+1. **UI Components**: Tests for our UI components in the flattened component structure (elements, sections)
+2. **AI Tutor**: Tests for the AI tutoring system, including LLM factory, content indexing, and tutoring services
+3. **QR Codes**: Tests for QR code generation, scanning, and statistics
+4. **Template Syntax**: Tests to ensure proper template tag nesting and conditional logic
+5. **Page Rendering**: Tests to ensure all key pages render without errors
+6. **URL Configuration**: Tests for proper routing and URL pattern handling
+7. **User Journeys**: End-to-end tests for different user types (admin, coordinator, instructor, student)
+
+#### Template Syntax Testing
+
+We have specific tests to catch template syntax issues that can break page rendering:
+
+```bash
+# Run the template syntax tests
+./run_tests.sh core TemplateSyntaxErrorTests
+
+# Manually check all templates for syntax issues
+python check_templates.py
+```
+
+The template syntax tests specifically verify:
+- Proper nesting of template tags (if/endif, with/endwith, etc.)
+- Correct pattern usage for default values in components
+- Proper indentation and spacing in templates
+- Matching open/close tags for all control structures
+
+For more information, see `docs/template-patterns.md` and `docs/template-fixes-summary.md`.
+
+### Marking Tests
+
+Tests can be marked with categories to organize and selectively run them:
+
+```bash
+# Run only unit tests
+pytest -m unit
+
+# Run only UI component tests
+pytest -m ui
+
+# Run only integration tests
+pytest -m integration
+
+# Skip slow tests
+pytest -m "not slow"
+```
 
 ## Documentation
 
