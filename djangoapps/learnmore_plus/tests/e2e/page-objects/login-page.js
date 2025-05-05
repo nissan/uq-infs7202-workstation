@@ -21,7 +21,13 @@ class LoginPage {
    * Navigate to the login page
    */
   async goto() {
+    // The actual login URL is configured in the Django URLs 
     await this.page.goto('/login/');
+    // If login page doesn't load, try the default Django auth URL as fallback
+    if (!await this.usernameInput.isVisible({ timeout: 2000 }).catch(() => false)) {
+      console.log('Could not find login form at /login/, trying /accounts/login/');
+      await this.page.goto('/accounts/login/');
+    }
   }
 
   /**
