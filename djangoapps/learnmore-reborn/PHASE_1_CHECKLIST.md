@@ -3,7 +3,7 @@
 This checklist covers the slice of work for migrating and validating the core data models and CRUD API.
 
 ## Models & Migrations
-- [ ] Verify `courses` and `progress` models match legacy requirements
+- [x] Verify `courses` and `progress` models match legacy requirements
 - [ ] Run `makemigrations` and commit migrations for both apps
 
 ## Admin
