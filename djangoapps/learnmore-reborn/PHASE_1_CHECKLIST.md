@@ -7,7 +7,7 @@ This checklist covers the slice of work for migrating and validating the core da
 - [ ] Run `makemigrations` and commit migrations for both apps
 
 ## Admin
-- [ ] Register `Course` and `Progress` in Django Admin
+- [x] Register `Course` and `Progress` in Django Admin
 
 ## API & Serializers
 - [ ] Confirm `CourseSerializer` and `ProgressSerializer` define correct fields
