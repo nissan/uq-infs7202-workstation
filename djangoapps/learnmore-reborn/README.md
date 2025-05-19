@@ -25,6 +25,10 @@ python -m venv venv
 source venv/bin/activate   # or venv\Scripts\activate on Windows
 ```
 
+## Phase 1 Migration Checklist
+
+Track the core data & CRUD migration tasks in [PHASE_1_CHECKLIST.md](PHASE_1_CHECKLIST.md).
+
 Install dependencies:
 
 ```bash
