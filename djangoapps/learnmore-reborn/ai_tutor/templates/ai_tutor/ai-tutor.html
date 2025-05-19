@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Tutor - Enhanced LearnMore</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Prism.js for code highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css" rel="stylesheet" />
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #7c3aed;
+            --primary-dark: #6d28d9;
+            --primary-light: #ede9fe;
+            --secondary: #64748b;
+            --light: #f8fafc;
+            --dark: #0f172a;
+            --accent: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --tutor-bg: #f5f3ff;
+            --user-msg-bg: #ede9fe;
+            --ai-msg-bg: #ffffff;
+            --system-msg-bg: #f1f5f9;
+            --panel-bg: #ffffff;
+            --border-color: #e2e8f0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark);
+            background-color: var(--tutor-bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+        
+        /* Header Styles */
+        .tutor-header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 0.75rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+        }
+        
+        .return-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .return-button:hover {
+            color: var(--primary);
+        }
+        
+        .session-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .session-control-btn {
+            background: none;
+            border: none;
+            color: var(--secondary);
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+        }
+        
+        .session-control-btn:hover {
+            color: var(--primary);
+            background-color: var(--primary-light);
+        }
+        
+        .session-title {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1.1rem;
+            margin: 0;
+        }
+        
+        /* Main Layout */
+        .tutor-container {
+            display: flex;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Panel Styles */
+        .panel {
+            background-color: var(--panel-bg);
+            transition: all 0.3s ease;
+            overflow-y: auto;
+            height: calc(100vh - 70px);
+        }
+        
+        .left-panel, .right-panel {
+            width: 320px;
+            border-right: 1px solid var(--border-color);
+            border-left: 1px solid var(--border-color);
+        }
+        
+        .left-panel {
+            border-right: 1px solid var(--border-color);
+            border-left: none;
+        }
+        
+        .right-panel {
+            border-left: 1px solid var(--border-color);
+            border-right: none;
+        }
+        
+        .center-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .panel-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .panel-title {
+            font-weight: 600;
+            margin: 0;
+            color: var(--dark);
+        }
+        
+        .panel-toggle {
+            background: none;
+            border: none;
+            color: var(--secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+        
+        .panel-toggle:hover {
+            color: var(--primary);
+            background-color: var(--primary-light);
+        }
+        
+        .panel-content {
+            padding: 1rem;
+        }
+        
+        /* Left Panel Styles */
+        .topic-search {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        
+        .topic-search input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+        
+        .topic-search input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
+        }
+        
+        .topic-search i {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary);
+            pointer-events: none;
+        }
+        
+        .module-outline {
+            margin-bottom: 1.5rem;
+        }
+        
+        .module-title {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .module-title .toggle-icon {
+            color: var(--secondary);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .module-title .toggle-icon.collapsed {
+            transform: rotate(180deg);
+        }
+        
+        .topic-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .topic-item {
+            margin-bottom: 0.25rem;
+        }
+        
+        .topic-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            color: var(--secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+        
+        .topic-link:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+        
+        .topic-link.active {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        .mastery-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        
+        .mastery-high {
+            background-color: var(--success);
+        }
+        
+        .mastery-medium {
+            background-color: var(--warning);
+        }
+        
+        .mastery-low {
+            background-color: var(--danger);
+        }
+        
+        .suggested-topics {
+            margin-bottom: 1.5rem;
+        }
+        
+        .suggested-title {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+        
+        .suggested-card {
+            padding: 0.75rem;
+            border-radius: 8px;
+            background-color: var(--primary-light);
+            margin-bottom: 0.75rem;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .suggested-card-title {
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: var(--primary-dark);
+            margin-bottom: 0.25rem;
+        }
+        
+        .suggested-card-text {
+            font-size: 0.75rem;
+            color: var(--secondary);
+            margin: 0;
+        }
+        
+        /* Chat Interface Styles */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 1rem;
+            border-radius: 12px;
+            position: relative;
+        }
+        
+        .message-user {
+            align-self: flex-end;
+            background-color: var(--user-msg-bg);
+            border-bottom-right-radius: 4px;
+            color: var(--dark);
+        }
+        
+        .message-ai {
+            align-self: flex-start;
+            background-color: var(--ai-msg-bg);
+            border-bottom-left-radius: 4px;
+            color: var(--dark);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .message-system {
+            align-self: center;
+            background-color: var(--system-msg-bg);
+            color: var(--secondary);
+            font-size: 0.875rem;
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        .message-content {
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .message-time {
+            font-size: 0.75rem;
+            color: var(--secondary);
+            margin-top: 0.5rem;
+            text-align: right;
+        }
+        
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .avatar-user {
+            background-color: var(--primary);
+            color: white;
+            right: -48px;
+        }
+        
+        .avatar-ai {
+            background-color: var(--accent);
+            color: white;
+            left: -48px;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background-color: var(--ai-msg-bg);
+            border-radius: 12px;
+            width: fit-content;
+            margin-top: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            animation: typing-animation 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing-animation {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-6px);
+            }
+        }
+        
+        .message-code {
+            margin-top: 1rem;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background-color: #f1f5f9;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .code-language {
+            font-weight: 500;
+            color: var(--secondary);
+            font-size: 0.75rem;
+        }
+        
+        .code-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .code-action {
+            background: none;
+            border: none;
+            color: var(--secondary);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .code-action:hover {
+            color: var(--primary);
+        }
+        
+        .code-content {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .code-content pre {
+            margin: 0;
+            border-radius: 0;
+        }
+        
+        .message-image {
+            margin-top: 1rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .message-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .image-caption {
+            padding: 0.75rem;
+            background-color: #f8fafc;
+            font-size: 0.75rem;
+            color: var(--secondary);
+            text-align: center;
+        }
+        
+        .chat-input-container {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            background-color: white;
+        }
+        
+        .chat-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.5rem 0.75rem;
+            transition: all 0.3s ease;
+        }
+        
+        .chat-input-wrapper:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
+        }
+        
+        .chat-input {
+            flex: 1;
+            border: none;
+            padding: 0.5rem;
+            font-size: 0.875rem;
+            resize: none;
+            max-height: 120px;
+            min-height: 40px;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+        }
+        
+        .chat-input-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .chat-input-action {
+            background: none;
+            border: none;
+            color: var(--secondary);
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+        }
+        
+        .chat-input-action:hover {
+            color: var(--primary);
+            background-color: var(--primary-light);
+        }
+        
+        .send-button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        
+        .send-button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        /* Right Panel Styles */
+        .reference-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .reference-title {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .reference-content {
+            font-size: 0.875rem;
+            color: var(--secondary);
+            line-height: 1.6;
+        }
+        
+        .key-term {
+            margin-bottom: 0.75rem;
+        }
+        
+        .key-term-title {
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        .key-term-definition {
+            font-size: 0.875rem;
+            color: var(--secondary);
+            margin: 0;
+        }
+        
+        .formula {
+            padding: 0.75rem;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .formula-title {
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        .formula-content {
+            font-size: 0.875rem;
+            color: var(--dark);
+            margin: 0;
+        }
+        
+        .example-problem {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-left: 3px solid var(--accent);
+            background-color: #f8fafc;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .example-title {
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        .example-content {
+            font-size: 0.875rem;
+            color: var(--secondary);
+            margin: 0;
+        }
+        
+        .quiz-button {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1.5rem;
+        }
+        
+        .quiz-button:hover {
+            background-color: #1e40af;
+            transform: translateY(-2px);
+        }
+        
+        /* Mobile Panel Toggle */
+        .mobile-panel-toggles {
+            display: none;
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1020;
+            background-color: white;
+            border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem;
+        }
+        
+        .mobile-toggle {
+            background: none;
+            border: none;
+            color: var(--secondary);
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+        }
+        
+        .mobile-toggle:hover, .mobile-toggle.active {
+            color: var(--primary);
+            background-color: var(--primary-light);
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 1199.98px) {
+            .left-panel, .right-panel {
+                width: 280px;
+            }
+        }
+        
+        @media (max-width: 991.98px) {
+            .left-panel, .right-panel {
+                position: fixed;
+                top: 70px;
+                height: calc(100vh - 70px);
+                z-index: 1020;
+                width: 320px;
+                max-width: 100%;
+                transform: translateX(-100%);
+            }
+            
+            .right-panel {
+                right: 0;
+                transform: translateX(100%);
+            }
+            
+            .left-panel.show, .right-panel.show {
+                transform: translateX(0);
+            }
+            
+            .panel-backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 1015;
+                display: none;
+            }
+            
+            .panel-backdrop.show {
+                display: block;
+            }
+            
+            .mobile-panel-toggles {
+                display: flex;
+                gap: 0.5rem;
+            }
+            
+            .message-avatar {
+                width: 28px;
+                height: 28px;
+                font-size: 0.75rem;
+            }
+            
+            .avatar-user {
+                right: -36px;
+            }
+            
+            .avatar-ai {
+                left: -36px;
+            }
+        }
+        
+        @media (max-width: 767.98px) {
+            .tutor-header {
+                padding: 0.75rem 1rem;
+            }
+            
+            .session-title {
+                font-size: 1rem;
+            }
+            
+            .chat-messages {
+                padding: 1rem;
+            }
+            
+            .message {
+                max-width: 85%;
+            }
+            
+            .message-avatar {
+                display: none;
+            }
+            
+            .chat-input-container {
+                padding: 0.75rem 1rem;
+            }
+        }
+        
+        @media (max-width: 575.98px) {
+            .message {
+                max-width: 90%;
+            }
+            
+            .mobile-panel-toggles {
+                bottom: 0.75rem;
+            }
+            
+            .mobile-toggle {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="tutor-header">
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="#" class="return-button">
+                <i class="bi bi-arrow-left"></i>
+                <span>Return to Course</span>
+            </a>
+            
+            <h1 class="session-title">Neural Networks - AI Tutor Session</h1>
+            
+            <div class="session-controls">
+                <button class="session-control-btn" title="Start New Session">
+                    <i class="bi bi-plus-lg"></i>
+                </button>
+                <button class="session-control-btn" title="Save Session">
+                    <i class="bi bi-bookmark"></i>
+                </button>
+                <button class="session-control-btn" title="Session Settings">
+                    <i class="bi bi-gear"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Layout -->
+    <div class="tutor-container">
+        <!-- Left Panel -->
+        <div class="panel left-panel" id="leftPanel">
+            <div class="panel-header">
+                <h2 class="panel-title">Topics</h2>
+                <button class="panel-toggle d-lg-none" id="closeLeftPanel">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            
+            <div class="panel-content">
+                <div class="topic-search">
+                    <input type="text" placeholder="Search topics...">
+                    <i class="bi bi-search"></i>
+                </div>
+                
+                <div class="module-outline">
+                    <div class="module-title">
+                        <span>Module 3: Neural Networks</span>
+                        <i class="bi bi-chevron-up toggle-icon" data-bs-toggle="collapse" data-bs-target="#moduleTopics"></i>
+                    </div>
+                    
+                    <div class="collapse show" id="moduleTopics">
+                        <ul class="topic-list">
+                            <li class="topic-item">
+                                <a href="#" class="topic-link">
+                                    <span>1. Module Overview</span>
+                                    <span class="mastery-indicator mastery-high"></span>
+                                </a>
+                            </li>
+                            <li class="topic-item">
+                                <a href="#" class="topic-link">
+                                    <span>2. Supervised Learning Models</span>
+                                    <span class="mastery-indicator mastery-high"></span>
+                                </a>
+                            </li>
+                            <li class="topic-item">
+                                <a href="#" class="topic-link active">
+                                    <span>3. Introduction to Neural Networks</span>
+                                    <span class="mastery-indicator mastery-medium"></span>
+                                </a>
+                            </li>
+                            <li class="topic-item">
+                                <a href="#" class="topic-link">
+                                    <span>4. Neural Network Architecture</span>
+                                    <span class="mastery-indicator mastery-low"></span>
+                                </a>
+                            </li>
+                            <li class="topic-item">
+                                <a href="#" class="topic-link">
+                                    <span>5. Training Neural Networks</span>
+                                </a>
+                            </li>
+                            <li class="topic-item">
+                                <a href="#" class="topic-link">
+                                    <span>6. Convolutional Neural Networks</span>
+                                </a>
+                            </li>
+                            <li class="topic-item">
+                                <a href="#" class="topic-link">
+                                    <span>7. Recurrent Neural Networks</span>
+                                </a>
+                            </li>
+                            <li class="topic-item">
+                                <a href="#" class="topic-link">
+                                    <span>8. Module Assessment</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="suggested-topics">
+                    <div class="suggested-title">Suggested Topics</div>
+                    
+                    <div class="suggested-card">
+                        <div class="suggested-card-title">Activation Functions</div>
+                        <p class="suggested-card-text">Your quiz results show you might need to review this topic.</p>
+                    </div>
+                    
+                    <div class="suggested-card">
+                        <div class="suggested-card-title">Backpropagation Algorithm</div>
+                        <p class="suggested-card-text">This will help you understand the upcoming lesson.</p>
+                    </div>
+                </div>
+                
+                <div class="module-outline">
+                    <div class="module-title">
+                        <span>Your Mastery</span>
+                        <i class="bi bi-chevron-up toggle-icon" data-bs-toggle="collapse" data-bs-target="#masteryTopics"></i>
+                    </div>
+                    
+                    <div class="collapse show" id="masteryTopics">
+                        <ul class="topic-list">
+                            <li class="topic-item">
+                                <a href="#" class="topic-link">
+                                    <span>Perceptrons</span>
+                                    <span class="mastery-indicator mastery-high"></span>
+                                </a>
+                            </li>
+                            <li class="topic-item">
+                                <a href="#" class="topic-link">
+                                    <span>Activation Functions</span>
+                                    <span class="mastery-indicator mastery-medium"></span>
+                                </a>
+                            </li>
+                            <li class="topic-item">
+                                <a href="#" class="topic-link">
+                                    <span>Backpropagation</span>
+                                    <span class="mastery-indicator mastery-low"></span>
+                                </a>
+                            </li>
+                            <li class="topic-item">
+                                <a href="#" class="topic-link">
+                                    <span>Gradient Descent</span>
+                                    <span class="mastery-indicator mastery-low"></span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Center Panel (Chat Interface) -->
+        <div class="panel center-panel">
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <!-- System Message -->
+                    <div class="message message-system">
+                        <p class="message-content">AI Tutor session started. I'm here to help you understand Neural Networks.</p>
+                    </div>
+                    
+                    <!-- User Message -->
+                    <div class="message message-user">
+                        <p class="message-content">Hi! I'm having trouble understanding how neural networks actually learn. Can you explain the backpropagation algorithm in simple terms?</p>
+                        <div class="message-time">2:34 PM</div>
+                        <div class="message-avatar avatar-user">JS</div>
+                    </div>
+                    
+                    <!-- AI Tutor Message -->
+                    <div class="message message-ai">
+                        <p class="message-content">Of course! Backpropagation is how neural networks learn from their mistakes. Think of it like learning to shoot a basketball:</p>
+                        <p class="message-content">1. You take a shot (forward pass)</p>
+                        <p class="message-content">2. You see how far off you were from the basket (calculate error)</p>
+                        <p class="message-content">3. You adjust your technique based on that error (backpropagation)</p>
+                        <p class="message-content">4. You keep making small adjustments until you get better (optimization)</p>
+                        
+                        <div class="message-image">
+                            <img src="https://placehold.co/600x300/7c3aed/ffffff?text=Backpropagation+Diagram" alt="Backpropagation Diagram">
+                            <div class="image-caption">Backpropagation adjusts weights based on calculated errors</div>
+                        </div>
+                        
+                        <div class="message-time">2:36 PM</div>
+                        <div class="message-avatar avatar-ai">AI</div>
+                    </div>
+                    
+                    <!-- User Message -->
+                    <div class="message message-user">
+                        <p class="message-content">That makes sense as an analogy, but how does it actually work mathematically? Can you show me some code?</p>
+                        <div class="message-time">2:38 PM</div>
+                        <div class="message-avatar avatar-user">JS</div>
+                    </div>
+                    
+                    <!-- AI Tutor Message with Code -->
+                    <div class="message message-ai">
+                        <p class="message-content">Here's a simplified implementation of backpropagation in Python. This is a basic example for a 2-layer neural network:</p>
+                        
+                        <div class="message-code">
+                            <div class="code-header">
+                                <div class="code-language">Python</div>
+                                <div class="code-actions">
+                                    <button class="code-action">
+                                        <i class="bi bi-clipboard"></i> Copy
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="code-content">
+                                <pre><code class="language-python">import numpy as np
+
+# Simple 2-layer neural network with backpropagation
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def sigmoid_derivative(x):
+    return x * (1 - x)
+
+# Input data
+X = np.array([[0, 0],
+              [0, 1],
+              [1, 0],
+              [1, 1]])
+
+# Output data (XOR operation)
+y = np.array([[0],
+              [1],
+              [1],
+              [0]])
+
+# Initialize weights randomly
+np.random.seed(1)
+weights_input_hidden = np.random.uniform(size=(2, 4))
+weights_hidden_output = np.random.uniform(size=(4, 1))
+
+# Learning rate
+learning_rate = 0.1
+
+# Training loop
+for epoch in range(10000):
+    # Forward pass
+    hidden_layer_input = np.dot(X, weights_input_hidden)
+    hidden_layer_output = sigmoid(hidden_layer_input)
+    
+    output_layer_input = np.dot(hidden_layer_output, weights_hidden_output)
+    predicted_output = sigmoid(output_layer_input)
+    
+    # Calculate error
+    error = y - predicted_output
+    
+    # Backpropagation
+    # Calculate gradients for output layer
+    d_predicted_output = error * sigmoid_derivative(predicted_output)
+    
+    # Calculate error for hidden layer
+    error_hidden_layer = d_predicted_output.dot(weights_hidden_output.T)
+    
+    # Calculate gradients for hidden layer
+    d_hidden_layer = error_hidden_layer * sigmoid_derivative(hidden_layer_output)
+    
+    # Update weights
+    weights_hidden_output += hidden_layer_output.T.dot(d_predicted_output) * learning_rate
+    weights_input_hidden += X.T.dot(d_hidden_layer) * learning_rate
+
+# Test the trained network
+print("Predicted output after training:")
+print(sigmoid(np.dot(sigmoid(np.dot(X, weights_input_hidden)), weights_hidden_output))
+</code></pre>
+                            </div>
+                        </div>
+                        
+                        <p class="message-content">The key steps in backpropagation are:</p>
+                        <p class="message-content">1. Calculate the error at the output layer</p>
+                        <p class="message-content">2. Propagate this error backward through the network</p>
+                        <p class="message-content">3. Calculate how much each weight contributed to the error</p>
+                        <p class="message-content">4. Update the weights to reduce the error</p>
+                        
+                        <div class="message-time">2:41 PM</div>
+                        <div class="message-avatar avatar-ai">AI</div>
+                    </div>
+                    
+                    <!-- System Message -->
+                    <div class="message message-system">
+                        <p class="message-content">Tip: Try modifying the learning rate to see how it affects training speed and accuracy.</p>
+                    </div>
+                    
+                    <!-- User Message -->
+                    <div class="message message-user">
+                        <p class="message-content">Thanks! What's the difference between this simple example and how neural networks are implemented in frameworks like TensorFlow or PyTorch?</p>
+                        <div class="message-time">2:43 PM</div>
+                        <div class="message-avatar avatar-user">JS</div>
+                    </div>
+                    
+                    <!-- AI Typing Indicator -->
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+                
+                <div class="chat-input-container">
+                    <div class="chat-input-wrapper">
+                        <textarea class="chat-input" placeholder="Type your question here..." rows="1"></textarea>
+                        
+                        <div class="chat-input-actions">
+                            <button class="chat-input-action" title="Attach File">
+                                <i class="bi bi-paperclip"></i>
+                            </button>
+                            <button class="chat-input-action" title="Voice Input">
+                                <i class="bi bi-mic"></i>
+                            </button>
+                        </div>
+                        
+                        <button class="send-button" title="Send Message">
+                            <i class="bi bi-send"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Panel -->
+        <div class="panel right-panel" id="rightPanel">
+            <div class="panel-header">
+                <h2 class="panel-title">Reference Material</h2>
+                <button class="panel-toggle d-lg-none" id="closeRightPanel">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            
+            <div class="panel-content">
+                <div class="reference-section">
+                    <div class="reference-title">
+                        <span>Current Topic: Neural Networks</span>
+                        <i class="bi bi-chevron-up toggle-icon" data-bs-toggle="collapse" data-bs-target="#topicContent"></i>
+                    </div>
+                    
+                    <div class="collapse show" id="topicContent">
+                        <div class="reference-content">
+                            <p>Neural networks are computational models inspired by the human brain. They consist of layers of interconnected nodes (neurons) that process information and learn patterns from data.</p>
+                            <p>The basic structure includes an input layer, one or more hidden layers, and an output layer. Each connection between neurons has a weight that is adjusted during training.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="reference-section">
+                    <div class="reference-title">
+                        <span>Key Terms</span>
+                        <i class="bi bi-chevron-up toggle-icon" data-bs-toggle="collapse" data-bs-target="#keyTerms"></i>
+                    </div>
+                    
+                    <div class="collapse show" id="keyTerms">
+                        <div class="key-term">
+                            <div class="key-term-title">Neuron</div>
+                            <p class="key-term-definition">The basic unit of a neural network that receives inputs, applies weights and an activation function, and produces an output.</p>
+                        </div>
+                        
+                        <div class="key-term">
+                            <div class="key-term-title">Activation Function</div>
+                            <p class="key-term-definition">A mathematical function that determines the output of a neuron based on its inputs. Common examples include ReLU, sigmoid, and tanh.</p>
+                        </div>
+                        
+                        <div class="key-term">
+                            <div class="key-term-title">Backpropagation</div>
+                            <p class="key-term-definition">An algorithm that calculates the gradient of the loss function with respect to the weights, allowing the network to learn by adjusting weights to minimize error.</p>
+                        </div>
+                        
+                        <div class="key-term">
+                            <div class="key-term-title">Gradient Descent</div>
+                            <p class="key-term-definition">An optimization algorithm that iteratively adjusts weights in the direction that reduces the error.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="reference-section">
+                    <div class="reference-title">
+                        <span>Formulas</span>
+                        <i class="bi bi-chevron-up toggle-icon" data-bs-toggle="collapse" data-bs-target="#formulas"></i>
+                    </div>
+                    
+                    <div class="collapse show" id="formulas">
+                        <div class="formula">
+                            <div class="formula-title">Neuron Output</div>
+                            <p class="formula-content">y = f(Σ(w_i * x_i) + b)</p>
+                        </div>
+                        
+                        <div class="formula">
+                            <div class="formula-title">Sigmoid Function</div>
+                            <p class="formula-content">σ(x) = 1 / (1 + e^(-x))</p>
+                        </div>
+                        
+                        <div class="formula">
+                            <div class="formula-title">ReLU Function</div>
+                            <p class="formula-content">ReLU(x) = max(0, x)</p>
+                        </div>
+                        
+                        <div class="formula">
+                            <div class="formula-title">Weight Update Rule</div>
+                            <p class="formula-content">w_new = w_old - learning_rate * ∂E/∂w</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="reference-section">
+                    <div class="reference-title">
+                        <span>Example Problems</span>
+                        <i class="bi bi-chevron-up toggle-icon" data-bs-toggle="collapse" data-bs-target="#examples"></i>
+                    </div>
+                    
+                    <div class="collapse show" id="examples">
+                        <div class="example-problem">
+                            <div class="example-title">XOR Problem</div>
+                            <p class="example-content">Implement a neural network to solve the XOR problem, where the output is 1 if exactly one input is 1, and 0 otherwise.</p>
+                        </div>
+                        
+                        <div class="example-problem">
+                            <div class="example-title">Handwritten Digit Recognition</div>
+                            <p class="example-content">Build a neural network to recognize handwritten digits from the MNIST dataset.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="quiz-button">
+                    <i class="bi bi-lightning-charge me-2"></i>
+                    Quiz Me on This Topic
+                </button>
+            </div>
+        </div>
+        
+        <!-- Panel Backdrop (Mobile) -->
+        <div class="panel-backdrop" id="panelBackdrop"></div>
+        
+        <!-- Mobile Panel Toggles -->
+        <div class="mobile-panel-toggles">
+            <button class="mobile-toggle" id="leftPanelToggle" title="Topics">
+                <i class="bi bi-list-ul"></i>
+            </button>
+            <button class="mobile-toggle" id="rightPanelToggle" title="Reference">
+                <i class="bi bi-book"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Prism.js for code highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Panel Toggle for Mobile
+        const leftPanelToggle = document.getElementById('leftPanelToggle');
+        const rightPanelToggle = document.getElementById('rightPanelToggle');
+        const leftPanel = document.getElementById('leftPanel');
+        const rightPanel = document.getElementById('rightPanel');
+        const panelBackdrop = document.getElementById('panelBackdrop');
+        const closeLeftPanel = document.getElementById('closeLeftPanel');
+        const closeRightPanel = document.getElementById('closeRightPanel');
+        
+        // Left Panel Toggle
+        leftPanelToggle.addEventListener('click', function() {
+            leftPanel.classList.add('show');
+            panelBackdrop.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            
+            // Toggle active state
+            leftPanelToggle.classList.add('active');
+            rightPanelToggle.classList.remove('active');
+            
+            // Hide right panel if open
+            rightPanel.classList.remove('show');
+        });
+        
+        // Right Panel Toggle
+        rightPanelToggle.addEventListener('click', function() {
+            rightPanel.classList.add('show');
+            panelBackdrop.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            
+            // Toggle active state
+            rightPanelToggle.classList.add('active');
+            leftPanelToggle.classList.remove('active');
+            
+            // Hide left panel if open
+            leftPanel.classList.remove('show');
+        });
+        
+        // Close Left Panel
+        closeLeftPanel.addEventListener('click', function() {
+            leftPanel.classList.remove('show');
+            panelBackdrop.classList.remove('show');
+            document.body.style.overflow = '';
+            leftPanelToggle.classList.remove('active');
+        });
+        
+        // Close Right Panel
+        closeRightPanel.addEventListener('click', function() {
+            rightPanel.classList.remove('show');
+            panelBackdrop.classList.remove('show');
+            document.body.style.overflow = '';
+            rightPanelToggle.classList.remove('active');
+        });
+        
+        // Close Panels on Backdrop Click
+        panelBackdrop.addEventListener('click', function() {
+            leftPanel.classList.remove('show');
+            rightPanel.classList.remove('show');
+            panelBackdrop.classList.remove('show');
+            document.body.style.overflow = '';
+            leftPanelToggle.classList.remove('active');
+            rightPanelToggle.classList.remove('active');
+        });
+        
+        // Auto-resize textarea
+        const chatInput = document.querySelector('.chat-input');
+        
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+        
+        // Initialize code highlighting
+        document.addEventListener('DOMContentLoaded', function() {
+            Prism.highlightAll();
+        });
+        
+        // Toggle icons for collapsible sections
+        const toggleIcons = document.querySelectorAll('.toggle-icon');
+        toggleIcons.forEach(icon => {
+            icon.addEventListener('click', function() {
+                this.classList.toggle('collapsed');
+            });
+        });
+        
+        // Simulate sending a message
+        const sendButton = document.querySelector('.send-button');
+        const chatMessages = document.getElementById('chatMessages');
+        
+        sendButton.addEventListener('click', function() {
+            if (chatInput.value.trim() !== '') {
+                // Create user message
+                const userMessage = document.createElement('div');
+                userMessage.className = 'message message-user';
+                
+                const messageContent = document.createElement('p');
+                messageContent.className = 'message-content';
+                messageContent.textContent = chatInput.value;
+                
+                const messageTime = document.createElement('div');
+                messageTime.className = 'message-time';
+                const now = new Date();
+                messageTime.textContent = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+                
+                const messageAvatar = document.createElement('div');
+                messageAvatar.className = 'message-avatar avatar-user';
+                messageAvatar.textContent = 'JS';
+                
+                userMessage.appendChild(messageContent);
+                userMessage.appendChild(messageTime);
+                userMessage.appendChild(messageAvatar);
+                
+                // Remove typing indicator if present
+                const typingIndicator = document.querySelector('.typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                
+                // Add user message to chat
+                chatMessages.appendChild(userMessage);
+                
+                // Clear input
+                chatInput.value = '';
+                chatInput.style.height = 'auto';
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Show typing indicator
+                const newTypingIndicator = document.createElement('div');
+                newTypingIndicator.className = 'typing-indicator';
+                
+                for (let i = 0; i < 3; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'typing-dot';
+                    newTypingIndicator.appendChild(dot);
+                }
+                
+                chatMessages.appendChild(newTypingIndicator);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        });
+        
+        // Allow Enter key to send message
+        chatInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendButton.click();
+            }
+        });
+    </script>
+</body>
+</html>
