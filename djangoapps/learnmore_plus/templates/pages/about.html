@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% load static %}
+{% load component_tags %}
+
+{% block title %}About Us - LearnMore Plus{% endblock %}
+
+{% block content %}
+    {% include "components/macros.html" %}
+    {% hero_section 
+        "About <span class=\"text-primary-600 dark:text-primary-400\">LearnMore Plus</span>"
+        "Learn more about our mission, our team, and how we're transforming the world of education."
+        image_url=static('images/course-placeholder.svg')
+        primary_button_text="Join Our Team"
+        primary_button_url="#careers"
+    %}
+
+    <section class="py-20 bg-white dark:bg-gray-900">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-10 text-gray-900 dark:text-white relative pb-4 inline-block mx-auto">
+                    Our Mission
+                    <span class="absolute bottom-0 left-0 right-0 w-24 h-1.5 bg-primary-500 dark:bg-primary-400 rounded mx-auto"></span>
+                </h2>
+            </div>
+            
+            <div class="max-w-3xl mx-auto">
+                <p class="text-lg text-gray-700 dark:text-gray-300 mb-6">
+                    At LearnMore Plus, we believe that education should be accessible, engaging, and personalized. Our mission is to transform how people teach and learn by providing innovative tools that enhance the educational experience.
+                </p>
+                <p class="text-lg text-gray-700 dark:text-gray-300 mb-6">
+                    We're committed to using cutting-edge technology, including artificial intelligence, to provide personalized learning experiences that adapt to each student's unique needs and learning style. Whether you're an instructor creating content, a coordinator managing courses, or a student eager to learn, our platform is designed to make your educational journey more effective and enjoyable.
+                </p>
+                <p class="text-lg text-gray-700 dark:text-gray-300">
+                    Founded in 2023, LearnMore Plus has already helped thousands of educators and learners across the globe. We're just getting started, and we're excited about the future of education.
+                </p>
+            </div>
+        </div>
+    </section>
+    
+    <section class="py-20 bg-gray-50 dark:bg-gray-800">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-10 text-gray-900 dark:text-white relative pb-4 inline-block mx-auto">
+                    Our Team
+                    <span class="absolute bottom-0 left-0 right-0 w-24 h-1.5 bg-primary-500 dark:bg-primary-400 rounded mx-auto"></span>
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
+                    Meet the passionate individuals behind LearnMore Plus.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+                {% for member in team_members %}
+                    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-md p-8 
+                              border-2 border-gray-100 dark:border-gray-700 transition-all duration-300 
+                              hover:shadow-xl hover:-translate-y-1 text-center">
+                        <div class="w-24 h-24 mx-auto rounded-full bg-primary-100 dark:bg-primary-900/30 
+                                 text-primary-600 dark:text-primary-400 flex items-center justify-center 
+                                 text-2xl font-bold mb-5 shadow-md">
+                            {{ member.avatar }}
+                        </div>
+                        <h3 class="text-xl font-semibold mb-1 text-gray-800 dark:text-white">{{ member.name }}</h3>
+                        <p class="text-sm text-primary-600 dark:text-primary-400 mb-4">{{ member.role }}</p>
+                        <p class="text-gray-700 dark:text-gray-300">{{ member.bio }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    
+    <section id="careers" class="py-20 bg-white dark:bg-gray-900">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-10 text-gray-900 dark:text-white relative pb-4 inline-block mx-auto">
+                    Join Our Team
+                    <span class="absolute bottom-0 left-0 right-0 w-24 h-1.5 bg-primary-500 dark:bg-primary-400 rounded mx-auto"></span>
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
+                    We're always looking for talented individuals who are passionate about education and technology.
+                </p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-8 shadow-md">
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Current Openings</h3>
+                    <div class="space-y-4">
+                        {% for i in "123" %}
+                            <div class="bg-white dark:bg-gray-700 rounded-lg p-6 hover:shadow-md transition-shadow">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-800 dark:text-white">
+                                            {% if forloop.counter == 1 %}
+                                                Senior Frontend Developer
+                                            {% elif forloop.counter == 2 %}
+                                                AI Engineer
+                                            {% else %}
+                                                Education Content Specialist
+                                            {% endif %}
+                                        </h4>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                                            {% if forloop.counter == 1 %}
+                                                Full Time • Remote
+                                            {% elif forloop.counter == 2 %}
+                                                Full Time • San Francisco, CA
+                                            {% else %}
+                                                Contract • Remote
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                    <span class="bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-300 
+                                              text-xs font-semibold py-1 px-2 rounded">
+                                        {% if forloop.counter == 1 %}
+                                            Engineering
+                                        {% elif forloop.counter == 2 %}
+                                            Research
+                                        {% else %}
+                                            Education
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <button class="mt-4 text-primary-600 dark:text-primary-400 hover:text-primary-700 
+                                              dark:hover:text-primary-300 font-semibold text-sm transition-colors">
+                                    View Details →
+                                </button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    {% cta_section
+        "Ready to Join the Future of Education?"
+        "Start creating engaging courses and connect with learners around the world."
+        button_text="Get Started Today"
+        button_url=home_url
+    %}
+{% endblock %}

@@ -16,7 +16,7 @@
 {% block tutor_content %}
 <div class="chat-container">
     <!-- Left Panel - Course/Module Navigation -->
-    <div class="panel left-panel bg-white border-r border-gray-200">
+    <div class="panel left-panel bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
         <div class="panel-header">
             <h2 class="panel-title">Course Content</h2>
             <button class="panel-toggle">
@@ -29,8 +29,8 @@
         <div class="panel-content">
             <!-- Search -->
             <div class="relative mb-4">
-                <input type="text" placeholder="Search topics..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <input type="text" placeholder="Search topics..." class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                <svg class="w-5 h-5 text-gray-400 dark:text-gray-300 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
             </div>
@@ -39,19 +39,19 @@
             {% if course %}
                 <div class="mb-6">
                     <div class="flex items-center justify-between mb-2">
-                        <h3 class="text-sm font-semibold text-gray-900">{{ course.title }}</h3>
-                        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Course</span>
+                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{ course.title }}</h3>
+                        <span class="text-xs bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-200 px-2 py-1 rounded">Course</span>
                     </div>
                     
                     <!-- Modules -->
                     <div class="space-y-3">
                         {% for mod in modules %}
-                            <div class="{% if mod.id == module.id %}bg-purple-50 border-l-4 border-purple-500{% endif %} rounded-r-lg">
+                            <div class="{% if mod.id == module.id %}bg-purple-50 dark:bg-purple-900/30 border-l-4 border-purple-500{% endif %} rounded-r-lg">
                                 <div class="flex items-center justify-between p-2">
-                                    <span class="text-sm font-medium {% if mod.id == module.id %}text-purple-800{% else %}text-gray-700{% endif %}">
+                                    <span class="text-sm font-medium {% if mod.id == module.id %}text-purple-800 dark:text-purple-300{% else %}text-gray-700 dark:text-gray-300{% endif %}">
                                         {{ mod.title }}
                                     </span>
-                                    <button class="text-gray-400 hover:text-purple-500 focus:outline-none module-toggle" data-module-id="{{ mod.id }}">
+                                    <button class="text-gray-400 dark:text-gray-500 hover:text-purple-500 dark:hover:text-purple-400 focus:outline-none module-toggle" data-module-id="{{ mod.id }}">
                                         <svg class="w-4 h-4 transform transition-transform {% if mod.id == module.id %}rotate-0{% else %}rotate-180{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                         </svg>
@@ -64,18 +64,18 @@
                                         {% for cont in mod.contents.all %}
                                             <li>
                                                 <a href="{% url 'ai_tutor:content_tutor' course.slug mod.order cont.order %}" 
-                                                   class="block py-1 px-2 text-xs rounded {% if cont.id == content.id %}bg-purple-100 text-purple-700 font-medium{% else %}text-gray-600 hover:bg-gray-100{% endif %}">
+                                                   class="block py-1 px-2 text-xs rounded {% if cont.id == content.id %}bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-medium{% else %}text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700{% endif %}">
                                                     {{ cont.title }}
                                                 </a>
                                             </li>
                                         {% empty %}
-                                            <li class="text-xs text-gray-500 py-1 px-2">No content available</li>
+                                            <li class="text-xs text-gray-500 dark:text-gray-400 py-1 px-2">No content available</li>
                                         {% endfor %}
                                     </ul>
                                 </div>
                             </div>
                         {% empty %}
-                            <p class="text-sm text-gray-500">No modules available</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">No modules available</p>
                         {% endfor %}
                     </div>
                 </div>
@@ -83,20 +83,20 @@
             
             <!-- Suggested Topics -->
             <div class="mb-6">
-                <h3 class="text-sm font-semibold text-gray-900 mb-3">Suggested Topics</h3>
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Suggested Topics</h3>
                 <div class="space-y-2">
                     {% if course %}
-                        <a href="{% url 'ai_tutor:course_tutor' course.slug %}" class="block p-3 bg-purple-50 border-l-3 border-purple-400 rounded-r-lg hover:bg-purple-100 transition-colors">
-                            <h4 class="text-sm font-medium text-gray-900">Course Overview</h4>
-                            <p class="text-xs text-gray-600 mt-1">Get a general understanding of the entire course</p>
+                        <a href="{% url 'ai_tutor:course_tutor' course.slug %}" class="block p-3 bg-purple-50 dark:bg-purple-900/30 border-l-3 border-purple-400 dark:border-purple-500 rounded-r-lg hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors">
+                            <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100">Course Overview</h4>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Get a general understanding of the entire course</p>
                         </a>
                     {% endif %}
                     
                     {% if context_items %}
                         {% for item in context_items|slice:":3" %}
-                            <div class="block p-3 bg-purple-50 border-l-3 border-purple-400 rounded-r-lg">
-                                <h4 class="text-sm font-medium text-gray-900">{{ item.title|truncatechars:30 }}</h4>
-                                <p class="text-xs text-gray-600 mt-1">Ask about this specific content</p>
+                            <div class="block p-3 bg-purple-50 dark:bg-purple-900/30 border-l-3 border-purple-400 dark:border-purple-500 rounded-r-lg">
+                                <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ item.title|truncatechars:30 }}</h4>
+                                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Ask about this specific content</p>
                             </div>
                         {% endfor %}
                     {% endif %}
@@ -105,19 +105,19 @@
             
             <!-- Mastery Levels -->
             <div>
-                <h3 class="text-sm font-semibold text-gray-900 mb-3">Your Progress</h3>
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Your Progress</h3>
                 <div class="space-y-2">
                     <div class="flex justify-between items-center text-sm">
-                        <span class="text-gray-700">Overall Mastery</span>
-                        <div class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <span class="text-gray-700 dark:text-gray-300">Overall Mastery</span>
+                        <div class="w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                             <div class="h-full bg-purple-500" style="width: 65%"></div>
                         </div>
                     </div>
                     
                     {% if module %}
                         <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-700">{{ module.title|truncatechars:20 }}</span>
-                            <div class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <span class="text-gray-700 dark:text-gray-300">{{ module.title|truncatechars:20 }}</span>
+                            <div class="w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                                 <div class="h-full bg-purple-500" style="width: 45%"></div>
                             </div>
                         </div>
@@ -125,8 +125,8 @@
                     
                     {% if content %}
                         <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-700">{{ content.title|truncatechars:20 }}</span>
-                            <div class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <span class="text-gray-700 dark:text-gray-300">{{ content.title|truncatechars:20 }}</span>
+                            <div class="w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                                 <div class="h-full bg-purple-500" style="width: 30%"></div>
                             </div>
                         </div>
@@ -138,28 +138,28 @@
     
     <!-- Center Panel - Chat Interface -->
     <div class="center-panel">
-        <div id="messageContainer" class="message-container bg-purple-50">
+        <div id="messageContainer" class="message-container bg-purple-50 dark:bg-gray-900">
             <!-- Welcome message -->
             <div class="message assistant-message">
                 <div class="flex items-start space-x-2">
-                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                         </svg>
                     </div>
                     <div>
-                        <div class="text-sm text-gray-500 mb-1">AI Tutor</div>
-                        <div class="prose prose-sm max-w-none">
-                            <p>Hello! I'm your AI tutor for {% if content %}{{ content.title }}{% elif module %}{{ module.title }}{% elif course %}{{ course.title }}{% else %}this session{% endif %}. What would you like to learn about today?</p>
+                        <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">AI Tutor</div>
+                        <div class="prose prose-sm dark:prose-invert max-w-none">
+                            <p class="text-gray-800 dark:text-gray-200">Hello! I'm your AI tutor for {% if content %}{{ content.title }}{% elif module %}{{ module.title }}{% elif course %}{{ course.title }}{% else %}this session{% endif %}. What would you like to learn about today?</p>
                             
                             {% if content %}
-                                <p>I can help explain concepts from "{{ content.title }}" or answer questions about this specific content.</p>
+                                <p class="text-gray-800 dark:text-gray-200">I can help explain concepts from "{{ content.title }}" or answer questions about this specific content.</p>
                             {% elif module %}
-                                <p>I can help with topics from the "{{ module.title }}" module or answer questions about any content within it.</p>
+                                <p class="text-gray-800 dark:text-gray-200">I can help with topics from the "{{ module.title }}" module or answer questions about any content within it.</p>
                             {% elif course %}
-                                <p>I can answer questions about "{{ course.title }}" or help you understand concepts from any module in this course.</p>
+                                <p class="text-gray-800 dark:text-gray-200">I can answer questions about "{{ course.title }}" or help you understand concepts from any module in this course.</p>
                             {% else %}
-                                <p>Feel free to ask about any topic you'd like to learn about.</p>
+                                <p class="text-gray-800 dark:text-gray-200">Feel free to ask about any topic you'd like to learn about.</p>
                             {% endif %}
                         </div>
                         <div class="text-xs text-gray-400 mt-1">Just now</div>
@@ -172,31 +172,31 @@
                 <div class="message {% if message.message_type == 'user' %}user-message{% else %}assistant-message{% endif %}">
                     <div class="flex items-start space-x-2">
                         {% if message.message_type == 'assistant' %}
-                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
+                                <svg class="w-5 h-5 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                                 </svg>
                             </div>
                         {% endif %}
                         <div>
-                            <div class="text-sm text-gray-500 mb-1">
+                            <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">
                                 {% if message.message_type == 'user' %}You{% else %}AI Tutor{% endif %}
                             </div>
-                            <div class="prose prose-sm max-w-none">
+                            <div class="prose prose-sm dark:prose-invert max-w-none">
                                 {{ message.content|linebreaks }}
                             </div>
-                            <div class="text-xs text-gray-400 mt-1">{{ message.created_at|date:"g:i a" }}</div>
+                            <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ message.created_at|date:"g:i a" }}</div>
                         </div>
                     </div>
                 </div>
             {% endfor %}
         </div>
         
-        <div class="message-input bg-white border-t border-gray-200">
+        <div class="message-input bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
             <form id="messageForm" class="flex items-end space-x-2">
                 {% csrf_token %}
                 <div class="flex-grow">
-                    <textarea id="messageText" placeholder="Type your message..." rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"></textarea>
+                    <textarea id="messageText" placeholder="Type your message..." rows="2" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"></textarea>
                 </div>
                 <div class="flex-shrink-0 pb-2">
                     <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-lg transition-colors">
@@ -210,7 +210,7 @@
     </div>
     
     <!-- Right Panel - Reference Material -->
-    <div class="panel right-panel bg-white border-l border-gray-200">
+    <div class="panel right-panel bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700">
         <div class="panel-header">
             <h2 class="panel-title">Reference Material</h2>
             <button class="panel-toggle">
@@ -223,8 +223,8 @@
         <div class="panel-content">
             {% if course %}
                 <div class="mb-6">
-                    <h3 class="text-sm font-semibold text-gray-900 mb-2">About this Course</h3>
-                    <div class="text-sm text-gray-700">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">About this Course</h3>
+                    <div class="text-sm text-gray-700 dark:text-gray-300">
                         {{ course.description|truncatewords:50 }}
                     </div>
                 </div>
@@ -232,9 +232,9 @@
             
             {% if module %}
                 <div class="mb-6">
-                    <h3 class="text-sm font-semibold text-gray-900 mb-2">Current Module</h3>
-                    <div class="text-sm text-gray-700">
-                        <h4 class="font-medium">{{ module.title }}</h4>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Current Module</h3>
+                    <div class="text-sm text-gray-700 dark:text-gray-300">
+                        <h4 class="font-medium dark:text-gray-200">{{ module.title }}</h4>
                         <p>{{ module.description|truncatewords:30 }}</p>
                     </div>
                 </div>
@@ -242,11 +242,11 @@
             
             {% if content %}
                 <div class="mb-6">
-                    <h3 class="text-sm font-semibold text-gray-900 mb-2">Current Content</h3>
-                    <div class="text-sm text-gray-700">
-                        <div class="bg-gray-50 p-3 rounded-lg">
-                            <h4 class="font-medium">{{ content.title }}</h4>
-                            <div class="text-xs text-gray-500 mb-2">{{ content.content_type }} • {% if content.estimated_time %}{{ content.estimated_time }} min{% else %}Unknown duration{% endif %}</div>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Current Content</h3>
+                    <div class="text-sm text-gray-700 dark:text-gray-300">
+                        <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+                            <h4 class="font-medium dark:text-gray-200">{{ content.title }}</h4>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">{{ content.content_type }} • {% if content.estimated_time %}{{ content.estimated_time }} min{% else %}Unknown duration{% endif %}</div>
                             <p>{{ content.content|truncatewords:50|linebreaks }}</p>
                         </div>
                     </div>
@@ -254,36 +254,36 @@
             {% endif %}
             
             <div class="mb-6">
-                <h3 class="text-sm font-semibold text-gray-900 mb-2">Key Concepts</h3>
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Key Concepts</h3>
                 <div class="space-y-2">
                     {% for item in context_items %}
-                        <div class="bg-gray-50 p-3 rounded-lg">
-                            <h4 class="text-sm font-medium text-gray-900">{{ item.title }}</h4>
-                            <p class="text-xs text-gray-600 mt-1">{{ item.content|truncatewords:20 }}</p>
+                        <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+                            <h4 class="text-sm font-medium text-gray-900 dark:text-gray-200">{{ item.title }}</h4>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">{{ item.content|truncatewords:20 }}</p>
                         </div>
                     {% empty %}
-                        <p class="text-sm text-gray-500">No key concepts available yet. The AI will find relevant context as you chat.</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">No key concepts available yet. The AI will find relevant context as you chat.</p>
                     {% endfor %}
                 </div>
             </div>
             
             <div>
-                <h3 class="text-sm font-semibold text-gray-900 mb-2">Session Management</h3>
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Session Management</h3>
                 <div class="space-y-2">
-                    <a href="{% url 'ai_tutor:manage_context' session.id %}" class="block p-2 text-sm text-gray-600 hover:bg-gray-50 rounded">
+                    <a href="{% url 'ai_tutor:manage_context' session.id %}" class="block p-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded">
                         <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
                         Manage Context
                     </a>
-                    <a href="{% url 'ai_tutor:session_list' %}" class="block p-2 text-sm text-gray-600 hover:bg-gray-50 rounded">
+                    <a href="{% url 'ai_tutor:session_list' %}" class="block p-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded">
                         <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                         </svg>
                         View All Sessions
                     </a>
-                    <a href="{% url 'ai_tutor:create_session' %}" class="block p-2 text-sm text-gray-600 hover:bg-gray-50 rounded">
+                    <a href="{% url 'ai_tutor:create_session' %}" class="block p-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded">
                         <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
@@ -373,8 +373,8 @@
             
             if (type === 'assistant') {
                 html += `
-                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                         </svg>
                     </div>
@@ -382,11 +382,11 @@
             }
             
             html += `<div>
-                <div class="text-sm text-gray-500 mb-1">${type === 'user' ? 'You' : 'AI Tutor'}</div>
-                <div class="prose prose-sm max-w-none">
+                <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">${type === 'user' ? 'You' : 'AI Tutor'}</div>
+                <div class="prose prose-sm dark:prose-invert max-w-none">
                     ${formatMessage(content)}
                 </div>
-                <div class="text-xs text-gray-400 mt-1">Just now</div>
+                <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">Just now</div>
             </div>
             </div>`;
             
@@ -403,17 +403,17 @@
             
             let html = `
                 <div class="flex items-start space-x-2">
-                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
-                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                         </svg>
                     </div>
                     <div>
-                        <div class="text-sm text-gray-500 mb-1">System</div>
-                        <div class="prose prose-sm max-w-none text-red-600">
+                        <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">System</div>
+                        <div class="prose prose-sm dark:prose-invert max-w-none text-red-600 dark:text-red-400">
                             ${error}
                         </div>
-                        <div class="text-xs text-gray-400 mt-1">Just now</div>
+                        <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">Just now</div>
                     </div>
                 </div>
             `;
@@ -432,18 +432,18 @@
             
             let html = `
                 <div class="flex items-start space-x-2">
-                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                         </svg>
                     </div>
                     <div>
-                        <div class="text-sm text-gray-500 mb-1">AI Tutor</div>
-                        <div class="prose prose-sm max-w-none">
+                        <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">AI Tutor</div>
+                        <div class="prose prose-sm dark:prose-invert max-w-none">
                             <div class="flex space-x-1">
-                                <div class="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
-                                <div class="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
-                                <div class="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style="animation-delay: 600ms"></div>
+                                <div class="w-2 h-2 bg-purple-600 dark:bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+                                <div class="w-2 h-2 bg-purple-600 dark:bg-purple-400 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+                                <div class="w-2 h-2 bg-purple-600 dark:bg-purple-400 rounded-full animate-bounce" style="animation-delay: 600ms"></div>
                             </div>
                         </div>
                     </div>

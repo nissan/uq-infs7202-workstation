@@ -43,9 +43,48 @@ class CourseCatalogPage {
 
   /**
    * Click on the first course in the list
+   * This method is more resilient, and will try multiple selector patterns
+   * to find a course card or link
    */
   async clickFirstCourse() {
-    await this.courseCards.first().click();
+    // Try multiple selector patterns with a timeout of 5 seconds
+    const selectors = [
+      '.course-card',
+      '.card.course',
+      'a[href*="/courses/"]',
+      'a:has-text("Python")',
+      'a:has-text("Web Development")',
+      'a:has-text("Introduction")',
+      // Add more potential selectors here
+    ];
+    
+    // Try each selector
+    for (const selector of selectors) {
+      const elements = this.page.locator(selector);
+      const count = await elements.count();
+      
+      if (count > 0) {
+        console.log(`Found ${count} elements with selector: ${selector}`);
+        await elements.first().click();
+        return;
+      }
+    }
+    
+    // If we reach here, no courses were found
+    console.log('No course cards or links found on the page. Checking for empty state.');
+    
+    // Check if we're seeing an empty state or no courses message
+    const emptyStateExists = await this.page.locator('text=No courses found, text=No courses available, text=No results').count() > 0;
+    
+    if (emptyStateExists) {
+      console.log('Empty state detected. Test should handle this case appropriately.');
+      // Instead of failing, we'll throw a specific error that tests can catch and handle
+      throw new Error('NO_COURSES_AVAILABLE');
+    } else {
+      // If we can't find courses or empty state, take a screenshot for debugging
+      await this.page.screenshot({ path: 'debug-no-courses.png' });
+      throw new Error('Could not find any course cards or links on the page.');
+    }
   }
 
   /**

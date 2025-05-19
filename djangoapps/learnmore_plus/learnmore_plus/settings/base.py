@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     # Local apps
     "apps.accounts.apps.AccountsConfig",
     "apps.core.apps.CoreConfig",
+    "apps.core.templatetags",  # Add templatetags explicitly
     "apps.dashboard.apps.DashboardConfig",
     "apps.courses.apps.CoursesConfig",
     "apps.qr_codes.apps.QrCodesConfig",
@@ -49,6 +50,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "apps.accounts.middleware.AdminPreferencesMiddleware",
+    "apps.courses.middleware.CourseViewErrorMiddleware",
 ]
 
 ROOT_URLCONF = "learnmore_plus.urls"
@@ -56,7 +58,11 @@ ROOT_URLCONF = "learnmore_plus.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, 'templates')],
+        "DIRS": [
+            os.path.join(BASE_DIR, 'templates'),
+            os.path.join(BASE_DIR, 'templates/pages'),
+            os.path.join(BASE_DIR, 'templates/components'),
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -65,6 +71,8 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "apps.accounts.context_processors.group_context",
+                "apps.core.context_processors.global_context",
+                "apps.core.context_processors.theme_processor",
             ],
         },
     },
@@ -109,8 +117,8 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Authentication settings
-LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'home'
+LOGIN_REDIRECT_URL = 'core:home'
+LOGOUT_REDIRECT_URL = 'core:home'
 LOGIN_URL = 'login'
 
 # django-allauth settings

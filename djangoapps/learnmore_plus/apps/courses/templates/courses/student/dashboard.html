@@ -4,50 +4,58 @@
 {% block title %}Student Dashboard{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <h1 class="mb-4">My Learning Dashboard</h1>
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">My Learning Dashboard</h1>
     
     {% if enrollments %}
         {% for enrollment in enrollments %}
-            <div class="card mb-4">
-                <div class="card-header bg-white">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <h2 class="h5 mb-0">{{ enrollment.course.title }}</h2>
-                        </div>
-                        <div class="col-md-4 text-md-end">
-                            <a href="{% url 'courses:course_learn' enrollment.course.slug %}" class="btn btn-primary">Continue Learning</a>
-                        </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md mb-6 overflow-hidden">
+                <div class="border-b border-gray-200 dark:border-gray-700 p-4">
+                    <div class="flex flex-col md:flex-row justify-between items-center">
+                        <h2 class="text-xl font-semibold mb-2 md:mb-0">{{ enrollment.course.title }}</h2>
+                        <a href="{% url 'courses:course_learn' enrollment.course.slug %}" 
+                           class="bg-primary-600 hover:bg-primary-700 text-white py-2 px-4 rounded transition-colors">
+                            Continue Learning
+                        </a>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
+                <div class="p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="md:col-span-1">
                             {% if enrollment.course.cover_image %}
-                                <img src="{{ enrollment.course.cover_image.url }}" class="img-fluid rounded mb-3" alt="{{ enrollment.course.title }}">
+                                <img src="{{ enrollment.course.cover_image.url }}" class="w-full rounded-md mb-4" alt="{{ enrollment.course.title }}">
+                            {% else %}
+                                <div class="bg-gray-200 dark:bg-gray-700 rounded-md h-40 flex items-center justify-center mb-4">
+                                    <i data-lucide="book" class="w-16 h-16 text-gray-400 dark:text-gray-500"></i>
+                                </div>
                             {% endif %}
-                            <p class="card-text">{{ enrollment.course.description|truncatewords:30 }}</p>
-                            <div class="progress mb-3">
-                                <div class="progress-bar" role="progressbar" style="width: {{ enrollment.progress }}%">
-                                    Overall Progress: {{ enrollment.progress }}%
+                            <p class="text-gray-700 dark:text-gray-300 mb-4">{{ enrollment.course.description|truncatewords:30 }}</p>
+                            <div class="mb-4">
+                                <p class="mb-1 text-sm font-medium">Overall Progress: {{ enrollment.progress }}%</p>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                    <div class="bg-primary-600 h-2.5 rounded-full" style="width: {{ enrollment.progress }}%"></div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-8">
-                            <h3 class="h6 mb-3">Module Progress</h3>
-                            <div class="list-group">
+                        <div class="md:col-span-2">
+                            <h3 class="text-lg font-medium mb-4">Module Progress</h3>
+                            <div class="space-y-3">
                                 {% for progress in enrollment.module_progress.all %}
-                                    <div class="list-group-item">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h4 class="h6 mb-0">{{ progress.module.title }}</h4>
-                                            <span class="badge {% if progress.status == 'completed' %}bg-success{% elif progress.status == 'in_progress' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-md p-3">
+                                        <div class="flex justify-between items-center">
+                                            <h4 class="font-medium">{{ progress.module.title }}</h4>
+                                            <span class="px-2 py-1 text-xs font-medium rounded-full 
+                                                {% if progress.status == 'completed' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300
+                                                {% elif progress.status == 'in_progress' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300
+                                                {% else %}bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-300{% endif %}">
                                                 {{ progress.status|title }}
                                             </span>
                                         </div>
                                         {% if progress.status == 'in_progress' %}
-                                            <div class="progress mt-2">
-                                                <div class="progress-bar" role="progressbar" style="width: {{ progress.progress }}%">
-                                                    {{ progress.progress }}%
+                                            <div class="mt-3">
+                                                <p class="text-xs mb-1">{{ progress.progress }}% complete</p>
+                                                <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5">
+                                                    <div class="bg-primary-600 h-1.5 rounded-full" style="width: {{ progress.progress }}%"></div>
                                                 </div>
                                             </div>
                                         {% endif %}
@@ -60,9 +68,9 @@
             </div>
         {% endfor %}
     {% else %}
-        <div class="alert alert-info">
+        <div class="bg-blue-50 dark:bg-blue-900 text-blue-800 dark:text-blue-100 p-4 rounded-md">
             You are not enrolled in any courses yet. 
-            <a href="{% url 'courses:course_catalog' %}" class="alert-link">Browse available courses</a>
+            <a href="{% url 'courses:course_catalog' %}" class="font-medium underline">Browse available courses</a>
         </div>
     {% endif %}
 </div>

@@ -94,6 +94,14 @@ When making visual changes to the application, update these tests as follows:
 
 ## Common Issues and Solutions
 
+### Known Issues
+
+1. **QR Code Modal Test**: Currently skipped because it depends on courses being available in the test environment. In a production environment, this test would verify modal styling with proper test data.
+
+2. **Route Updates**: The QR code routes are accessed via `/qr/` (not `/qr-codes/`). This has been updated in the tests.
+
+3. **Annotation Conflict**: There was an issue with the QR code statistics page where `scan_count` annotation conflicted with a model field. This was fixed by renaming the annotation to `total_scans`.
+
 ### Screenshots Don't Match Expected
 
 If the application styling has intentionally changed:

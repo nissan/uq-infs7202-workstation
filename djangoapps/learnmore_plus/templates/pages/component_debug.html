@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+{% load component_tags %}
+
+{% block title %}Component Debug - LearnMore Plus{% endblock %}
+
+{% block content %}
+    {% include "components/macros.html" %}
+    <div class="container mx-auto px-4 py-10">
+        <h1 class="text-3xl font-bold mb-8">Component Debug Page</h1>
+        
+        <div class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">Buttons</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-medium mb-2">Button Variants</h3>
+                    <div class="flex flex-wrap gap-4">
+                        {% button "Primary Button" url="#" variant="primary" %}
+                        {% button "Secondary Button" url="#" variant="secondary" %}
+                        {% button "Outline Button" url="#" variant="outline" %}
+                        {% button "Ghost Button" url="#" variant="ghost" %}
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-medium mb-2">Button Sizes</h3>
+                    <div class="flex flex-wrap gap-4 items-center">
+                        {% button "Small Button" url="#" size="sm" %}
+                        {% button "Medium Button" url="#" size="md" %}
+                        {% button "Large Button" url="#" size="lg" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">Cards</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {% card "Card Title" "This is a basic card with just text content. Cards are flexible components that can contain various types of content." %}
+                
+                {% card "Card with Button" "This card includes a button that can link to another page." button_text="Learn More" button_url="#" %}
+                
+                {% card "Card with Image" "This card includes an image at the top." button_text="View Details" button_url="#" image_url=image_path %}
+            </div>
+        </div>
+        
+        <div class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">Sections</h2>
+            
+            <div class="mb-8">
+                <h3 class="text-lg font-medium mb-2">Hero Section</h3>
+                {% hero_section 
+                    "Main <span class=\"text-primary-600\">Title</span> Here" 
+                    "This is a subtitle that provides additional context for the hero section."
+                    image_url=image_path
+                    primary_button_text="Primary CTA"
+                    primary_button_url="#"
+                    secondary_button_text="Secondary CTA"
+                    secondary_button_url="#"
+                %}
+            </div>
+            
+            <div class="mb-8">
+                <h3 class="text-lg font-medium mb-2">Features Section</h3>
+                {% feature_section "Custom Feature Title" "This is a custom subtitle for the features section." feature_items=feature_items %}
+            </div>
+            
+            <div class="mb-8">
+                <h3 class="text-lg font-medium mb-2">CTA Section</h3>
+                {% cta_section "Custom CTA Title" "This is a custom subtitle for the CTA." button_text="Click Me" button_url="#" %}
+            </div>
+        </div>
+        
+        <div class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">Component Macros</h2>
+            
+            <div class="mb-8">
+                <h3 class="text-lg font-medium mb-2">Feature Card Macro</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {{ feature_card("Feature Title", "This feature card was created using a macro.", "star") }}
+                </div>
+            </div>
+            
+            <div class="mb-8">
+                <h3 class="text-lg font-medium mb-2">Course Card Macro</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {{ course_card("Course Title", "This course card was created using a macro.", image_path, "$49", "Featured", "4.8", "12 weeks", "#") }}
+                </div>
+            </div>
+            
+            <div class="mb-8">
+                <h3 class="text-lg font-medium mb-2">Testimonial Card Macro</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {{ testimonial_card("This testimonial was created using a macro. It showcases what our users have to say about our platform.", "Jane Doe", "Software Engineer", "JD") }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

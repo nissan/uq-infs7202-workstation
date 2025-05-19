@@ -68,8 +68,8 @@ def qr_code_statistics(request):
     
     # Get top QR codes
     top_qr_codes = QRCode.objects.annotate(
-        scan_count=models.Count('scans')
-    ).order_by('-scan_count')[:5]
+        total_scans=models.Count('scans')  # Changed from scan_count to total_scans to avoid conflict
+    ).order_by('-total_scans')[:5]
     
     context = {
         'total_scans': QRCodeScan.objects.count(),

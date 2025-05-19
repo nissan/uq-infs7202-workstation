@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% load static %}
+{% load component_tags %}
+
+{% block title %}LearnMore Plus - Transform Your Learning Experience{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="py-16 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row items-center">
+            <div class="w-full md:w-1/2 mb-8 md:mb-0 md:pr-8">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+                    Transform Your Learning Experience
+                </h1>
+                <p class="text-xl mb-6 text-gray-700 dark:text-gray-300">
+                    LearnMore Plus brings AI-powered education to teachers and students. Create, share, and engage with interactive courses.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="{% url 'courses:course_catalog' %}" class="bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white py-2 px-6 rounded-full font-semibold transition-colors">
+                        Browse Courses
+                    </a>
+                    <a href="{% url 'register' %}" class="bg-white hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-primary-600 dark:text-primary-400 py-2 px-6 rounded-full font-semibold border border-gray-200 dark:border-gray-700 transition-colors">
+                        Sign Up Free
+                    </a>
+                </div>
+            </div>
+            <div class="w-full md:w-1/2">
+                <img src="{% static 'images/course-placeholder.svg' %}" alt="LearnMore Plus Hero" class="rounded-lg shadow-lg w-full">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-16 bg-white dark:bg-gray-900" id="features">
+    <div class="container mx-auto px-4">
+        <h2 class="text-center text-3xl md:text-4xl font-bold mb-8 text-gray-900 dark:text-white">Powerful Features</h2>
+        <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto text-center mb-12">
+            Our platform combines cutting-edge technology with intuitive design to create the ultimate learning experience.
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for feature in features %}
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-7 border-2 border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300">
+                {% if feature.icon %}
+                <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mb-4 text-primary-600 dark:text-primary-400">
+                    <i data-lucide="{{ feature.icon }}" class="w-6 h-6"></i>
+                </div>
+                {% endif %}
+                
+                <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">{{ feature.title }}</h3>
+                <p class="text-gray-600 dark:text-gray-400">{{ feature.description }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-16 bg-gray-50 dark:bg-gray-800" id="how-it-works">
+    <div class="container mx-auto px-4">
+        <h2 class="text-center text-3xl md:text-4xl font-bold mb-8 text-gray-900 dark:text-white">How It Works</h2>
+        <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto text-center mb-12">
+            Get started in minutes with our intuitive platform designed for both educators and students.
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white dark:bg-gray-900 rounded-xl shadow p-6 text-center">
+                <div class="w-16 h-16 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-primary-600 font-bold text-xl">1</span>
+                </div>
+                <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Create or Join</h3>
+                <p class="text-gray-600 dark:text-gray-400">Educators create courses, while students join using course codes or QR scans.</p>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-900 rounded-xl shadow p-6 text-center">
+                <div class="w-16 h-16 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-primary-600 font-bold text-xl">2</span>
+                </div>
+                <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Learn and Engage</h3>
+                <p class="text-gray-600 dark:text-gray-400">Access interactive content, take quizzes, and get help from our AI tutor when you need it.</p>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-900 rounded-xl shadow p-6 text-center">
+                <div class="w-16 h-16 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-primary-600 font-bold text-xl">3</span>
+                </div>
+                <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Track Progress</h3>
+                <p class="text-gray-600 dark:text-gray-400">Monitor performance with detailed analytics and earn certificates upon completion.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="py-16 bg-primary-600 dark:bg-primary-700 text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">Ready to transform your learning experience?</h2>
+        <p class="text-xl max-w-3xl mx-auto mb-8 opacity-90">
+            Join thousands of educators and students who are already using LearnMore Plus.
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+            <a href="{% url 'register' %}" class="bg-white text-primary-600 hover:bg-gray-100 py-3 px-8 rounded-full font-semibold transition-colors">
+                Get Started Free
+            </a>
+            <a href="{% url 'courses:course_catalog' %}" class="bg-transparent hover:bg-primary-700 text-white py-3 px-8 rounded-full font-semibold border border-white transition-colors">
+                Browse Courses
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-16 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+    <div class="container mx-auto px-4">
+        <h2 class="text-center text-3xl md:text-4xl font-bold mb-8 text-gray-900 dark:text-white">What Our Users Say</h2>
+        <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto text-center mb-12">
+            Thousands of educators and students are already using LearnMore Plus to transform their learning experience.
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 shadow-md">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-xl font-bold text-primary-600">JP</div>
+                    <div class="ml-4">
+                        <h3 class="font-bold">John Peterson</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">University Professor</p>
+                    </div>
+                </div>
+                <p class="text-gray-700 dark:text-gray-300 italic">"LearnMore Plus has revolutionized how I teach my courses. The AI tutor ensures my students get help 24/7, even when I'm not available."</p>
+            </div>
+            
+            <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 shadow-md">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-xl font-bold text-primary-600">SM</div>
+                    <div class="ml-4">
+                        <h3 class="font-bold">Sarah Miller</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Computer Science Student</p>
+                    </div>
+                </div>
+                <p class="text-gray-700 dark:text-gray-300 italic">"The interactive content and AI tutor helped me understand complex programming concepts that I struggled with for months. Highly recommended!"</p>
+            </div>
+            
+            <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 shadow-md">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-xl font-bold text-primary-600">RJ</div>
+                    <div class="ml-4">
+                        <h3 class="font-bold">Robert Johnson</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Education Administrator</p>
+                    </div>
+                </div>
+                <p class="text-gray-700 dark:text-gray-300 italic">"LearnMore Plus provides analytics that give us unprecedented insights into student performance and engagement. It's transformed our curriculum planning."</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

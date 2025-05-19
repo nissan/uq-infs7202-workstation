@@ -31,6 +31,7 @@ Our test suite is organized into several categories:
 | Course QR Code Generation | qr-codes.spec.js | should display and interact with QR code modal on course detail page | Implemented |
 | QR Code Analytics | qr-codes.spec.js | should display QR code statistics page with dark mode support | Implemented |
 | Mobile QR Code Scanning | qr-codes.spec.js | should generate printable QR code sheet | Implemented |
+| **Note:** QR code routes are accessed via `/qr/` (not `/qr-codes/`). There's a known issue with the statistics page that was fixed in the QRCode model's annotation. | | | |
 | **Admin System** | | | |
 | Activity Logging and Monitoring | admin-demo.spec.js | should access system admin and activity log | Implemented |
 | System Health Dashboard | admin-demo.spec.js | should access system health dashboard | Implemented |

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Component Debug Page{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-8">
+    <h1 class="text-3xl font-bold mb-6">Template Component Debug Page</h1>
+    
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h2 class="text-xl font-semibold mb-4">Component Loading Test</h2>
+        <p class="mb-4">This page tests if Django can properly load and render components.</p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-3">Button Component Test</h3>
+            <div class="p-4 border rounded-md bg-gray-50">
+                {% include "components/atoms/button.html" with text="Test Button" url="#" variant="primary" %}
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-3">Icon Component Test</h3>
+            <div class="p-4 border rounded-md bg-gray-50">
+                {% include "components/atoms/icon.html" with name="user" %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

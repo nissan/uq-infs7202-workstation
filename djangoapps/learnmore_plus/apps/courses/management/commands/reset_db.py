@@ -121,6 +121,14 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.WARNING('AI Tutor demo data seeding skipped. You can run it manually with:'))
                 self.stdout.write('python manage.py seed_ai_tutor_demo')
             
+            self.stdout.write(self.style.WARNING('Completing seed data for all demo scenarios...'))
+            try:
+                call_command('complete_seed_data')
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f'Error completing seed data: {str(e)}'))
+                self.stdout.write(self.style.WARNING('Demo scenario completion skipped. You can run it manually with:'))
+                self.stdout.write('python manage.py complete_seed_data')
+            
             # Print user information after successful seeding
             self.print_user_info()
     

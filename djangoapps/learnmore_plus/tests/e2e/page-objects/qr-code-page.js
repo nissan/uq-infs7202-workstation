@@ -51,7 +51,7 @@ class QRCodePage {
    * Navigate to QR code statistics page
    */
   async gotoStatistics() {
-    await this.page.goto('/qr-codes/statistics/');
+    await this.page.goto('/qr/statistics/');
   }
 
   /**
@@ -59,7 +59,7 @@ class QRCodePage {
    * @param {string} id - QR code ID 
    */
   async gotoQrCodeDetail(id) {
-    await this.page.goto(`/qr-codes/detail/${id}/`);
+    await this.page.goto(`/qr/detail/${id}/`);
   }
 
   /**

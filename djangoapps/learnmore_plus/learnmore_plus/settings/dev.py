@@ -16,13 +16,18 @@ DATABASES = {
     }
 }
 
-# Debug Toolbar
-INSTALLED_APPS += ['debug_toolbar']
-MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
+# Debug Toolbar and Django Extensions
+INSTALLED_APPS += ['django_extensions']  # Temporarily disabled debug_toolbar
+# MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE  # Temporarily disabled
 INTERNAL_IPS = ['127.0.0.1']
 
+import sys
+
+# Don't show debug toolbar during tests
 DEBUG_TOOLBAR_CONFIG = {
-    'SHOW_TOOLBAR_CALLBACK': lambda request: True,
+    'SHOW_TOOLBAR_CALLBACK': lambda request: True if 'test' not in sys.argv else False,
+    'RENDER_PANELS': False,
+    'DISABLE_PANELS': {'debug_toolbar.panels.redirects.RedirectsPanel'},
 }
 
 # Email
