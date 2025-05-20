@@ -2,9 +2,8 @@
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
-buildCommand = "mkdir -p /app/staticfiles && chmod 755 /app/staticfiles && pip install –r requirements.txt && python manage.py migrate && python manage.py collectstatic –noinput –clear && chmod -R 755 /app/staticfiles && python –c \"from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.filter(username='admin').exists() or User.objects.create_superuser('admin', 'admin@learnmore.com', '${DJANGO_ADMIN_PASSWORD}')\""
 
 [deploy]
-startCommand = "gunicorn learnmore.wsgi:application --bind 0.0.0.0:8080 --workers 2 --threads 8 --timeout 0"
+startCommand = "python manage.py migrate && python manage.py collectstatic --noinput && python -c \"from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.filter(username='admin').exists() or User.objects.create_superuser('admin', 'admin@learnmore.com', '${DJANGO_ADMIN_PASSWORD}')\" && gunicorn learnmore.wsgi:application --bind 0.0.0.0:8080 --workers 2 --threads 8 --timeout 0"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10 
