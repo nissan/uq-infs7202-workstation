@@ -1,1255 +1,402 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neural Networks Quiz - Enhanced LearnMore</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <!-- Custom CSS -->
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
-            --primary-light: #dbeafe;
-            --secondary: #64748b;
-            --light: #f8fafc;
-            --dark: #0f172a;
-            --accent: #7c3aed;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --quiz-bg: #f5f8ff;
-            --correct-bg: #ecfdf5;
-            --correct-border: #10b981;
-            --incorrect-bg: #fef2f2;
-            --incorrect-border: #ef4444;
-            --neutral-bg: #f8fafc;
-            --neutral-border: #e2e8f0;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: var(--dark);
-            background-color: var(--quiz-bg);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        /* Header Styles */
-        .quiz-header {
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            padding: 0.75rem 1.5rem;
-            position: sticky;
-            top: 0;
-            z-index: 1030;
-        }
-        
-        .return-button {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--secondary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .return-button:hover {
-            color: var(--primary);
-        }
-        
-        .quiz-title {
-            font-weight: 700;
-            color: var(--dark);
-            font-size: 1.25rem;
-            margin: 0;
-        }
-        
-        .quiz-controls {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-        
-        .timer {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--secondary);
-            font-weight: 500;
-        }
-        
-        .timer-icon {
-            color: var(--warning);
-        }
-        
-        .timer-text {
-            font-family: 'Courier New', monospace;
-            font-size: 1.1rem;
-        }
-        
-        .progress-indicator {
-            color: var(--secondary);
-            font-weight: 500;
-        }
-        
-        /* Main Content */
-        .quiz-container {
-            flex: 1;
-            padding: 2rem 0;
-        }
-        
-        .container {
-            max-width: 1400px;
-        }
-        
-        /* Question Area */
-        .question-area {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-        
-        .question-number {
-            color: var(--primary);
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            font-size: 1rem;
-        }
-        
-        .question-text {
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            color: var(--dark);
-            font-size: 1.5rem;
-        }
-        
-        .question-image {
-            margin: 1.5rem 0;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .question-image img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-        
-        .options-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        
-        .option-item {
-            border: 1px solid var(--neutral-border);
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            overflow: hidden;
-        }
-        
-        .option-item:hover {
-            border-color: var(--primary);
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
-        }
-        
-        .option-item.correct {
-            border-color: var(--correct-border);
-            background-color: var(--correct-bg);
-        }
-        
-        .option-item.incorrect {
-            border-color: var(--incorrect-border);
-            background-color: var(--incorrect-bg);
-        }
-        
-        .option-label {
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            padding: 1rem;
-            cursor: pointer;
-            width: 100%;
-            margin: 0;
-        }
-        
-        .option-radio {
-            margin-top: 0.25rem;
-            flex-shrink: 0;
-        }
-        
-        .option-text {
-            flex: 1;
-            color: var(--dark);
-        }
-        
-        .option-item.correct .option-text {
-            font-weight: 600;
-            color: var(--success);
-        }
-        
-        .option-item.incorrect .option-text {
-            color: var(--danger);
-        }
-        
-        .option-icon {
-            display: none;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 0.875rem;
-        }
-        
-        .option-item.correct .option-icon {
-            display: flex;
-            background-color: var(--success);
-        }
-        
-        .option-item.incorrect .option-icon {
-            display: flex;
-            background-color: var(--danger);
-        }
-        
-        .submit-button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            margin-top: 2rem;
-        }
-        
-        .submit-button:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-        
-        .next-button {
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            margin-top: 1rem;
-        }
-        
-        .next-button:hover {
-            background-color: #6d28d9;
-            transform: translateY(-2px);
-        }
-        
-        /* Explanation Panel */
-        .explanation-panel {
-            background-color: var(--neutral-bg);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-top: 1.5rem;
-            border-left: 4px solid var(--primary);
-            display: none;
-        }
-        
-        .explanation-panel.show {
-            display: block;
-            animation: slideDown 0.3s ease-out;
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .explanation-title {
-            font-weight: 700;
-            margin-bottom: 1rem;
-            color: var(--primary-dark);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .explanation-content {
-            color: var(--secondary);
-            line-height: 1.6;
-        }
-        
-        /* Side Panel */
-        .side-panel {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            padding: 1.5rem;
-            position: sticky;
-            top: 100px;
-        }
-        
-        .panel-title {
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            color: var(--dark);
-            font-size: 1.1rem;
-        }
-        
-        .question-nav {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .nav-button {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            background-color: var(--neutral-bg);
-            color: var(--secondary);
-            border: 1px solid var(--neutral-border);
-            position: relative;
-        }
-        
-        .nav-button:hover {
-            background-color: var(--primary-light);
-            color: var(--primary);
-            border-color: var(--primary-light);
-        }
-        
-        .nav-button.active {
-            background-color: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-        
-        .nav-button.answered {
-            background-color: var(--primary-light);
-            color: var(--primary);
-            border-color: var(--primary-light);
-        }
-        
-        .nav-button.flagged::after {
-            content: '';
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: var(--warning);
-        }
-        
-        .flag-button {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            background-color: var(--neutral-bg);
-            color: var(--secondary);
-            border: 1px solid var(--neutral-border);
-            font-weight: 500;
-            transition: all 0.3s ease;
-            margin-bottom: 1.5rem;
-            width: 100%;
-        }
-        
-        .flag-button:hover {
-            background-color: var(--warning);
-            color: white;
-            border-color: var(--warning);
-        }
-        
-        .flag-button.flagged {
-            background-color: var(--warning);
-            color: white;
-            border-color: var(--warning);
-        }
-        
-        .progress-overview {
-            background-color: var(--neutral-bg);
-            border-radius: 8px;
-            padding: 1rem;
-        }
-        
-        .progress-title {
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-            color: var(--dark);
-            font-size: 0.875rem;
-        }
-        
-        .progress-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-        }
-        
-        .stat-item {
-            background-color: white;
-            border-radius: 8px;
-            padding: 0.75rem;
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-weight: 700;
-            color: var(--dark);
-            font-size: 1.25rem;
-            margin-bottom: 0.25rem;
-        }
-        
-        .stat-label {
-            font-size: 0.75rem;
-            color: var(--secondary);
-        }
-        
-        .stat-answered .stat-value {
-            color: var(--primary);
-        }
-        
-        .stat-flagged .stat-value {
-            color: var(--warning);
-        }
-        
-        /* Results Summary */
-        .results-summary {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            padding: 2rem;
-            margin-bottom: 2rem;
-            display: none;
-        }
-        
-        .results-summary.show {
-            display: block;
-        }
-        
-        .results-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        
-        .results-title {
-            font-weight: 700;
-            color: var(--dark);
-            font-size: 1.75rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .results-subtitle {
-            color: var(--secondary);
-            font-size: 1.1rem;
-        }
-        
-        .score-display {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 2rem;
-        }
-        
-        .score-circle {
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            border: 10px solid var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            background-color: white;
-        }
-        
-        .score-value {
-            font-weight: 700;
-            color: var(--primary);
-            font-size: 2.5rem;
-            line-height: 1;
-        }
-        
-        .score-label {
-            font-size: 0.875rem;
-            color: var(--secondary);
-        }
-        
-        .results-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .detail-card {
-            background-color: var(--neutral-bg);
-            border-radius: 8px;
-            padding: 1.5rem;
-            text-align: center;
-        }
-        
-        .detail-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
-            font-size: 1.5rem;
-        }
-        
-        .detail-correct .detail-icon {
-            background-color: var(--correct-bg);
-            color: var(--success);
-        }
-        
-        .detail-incorrect .detail-icon {
-            background-color: var(--incorrect-bg);
-            color: var(--danger);
-        }
-        
-        .detail-time .detail-icon {
-            background-color: var(--primary-light);
-            color: var(--primary);
-        }
-        
-        .detail-value {
-            font-weight: 700;
-            color: var(--dark);
-            font-size: 1.5rem;
-            margin-bottom: 0.25rem;
-        }
-        
-        .detail-label {
-            color: var(--secondary);
-            font-size: 0.875rem;
-        }
-        
-        .results-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            justify-content: center;
-        }
-        
-        .result-button {
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .review-button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-        }
-        
-        .review-button:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-        
-        .return-course-button {
-            background-color: white;
-            color: var(--secondary);
-            border: 1px solid var(--neutral-border);
-        }
-        
-        .return-course-button:hover {
-            background-color: var(--neutral-bg);
-            color: var(--primary);
-            border-color: var(--primary-light);
-        }
-        
-        .share-button {
-            background-color: var(--accent);
-            color: white;
-            border: none;
-        }
-        
-        .share-button:hover {
-            background-color: #6d28d9;
-            transform: translateY(-2px);
-        }
-        
-        .questions-breakdown {
-            margin-top: 3rem;
-        }
-        
-        .breakdown-title {
-            font-weight: 700;
-            color: var(--dark);
-            font-size: 1.25rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-        
-        .breakdown-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1rem;
-        }
-        
-        .breakdown-item {
-            background-color: var(--neutral-bg);
-            border-radius: 8px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .breakdown-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-        
-        .breakdown-header {
-            padding: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .breakdown-item.correct .breakdown-header {
-            background-color: var(--correct-bg);
-            border-bottom: 1px solid var(--correct-border);
-        }
-        
-        .breakdown-item.incorrect .breakdown-header {
-            background-color: var(--incorrect-bg);
-            border-bottom: 1px solid var(--incorrect-border);
-        }
-        
-        .breakdown-question {
-            font-weight: 600;
-            color: var(--dark);
-        }
-        
-        .breakdown-status {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 0.75rem;
-        }
-        
-        .breakdown-item.correct .breakdown-status {
-            background-color: var(--success);
-        }
-        
-        .breakdown-item.incorrect .breakdown-status {
-            background-color: var(--danger);
-        }
-        
-        .breakdown-content {
-            padding: 1rem;
-        }
-        
-        .breakdown-text {
-            color: var(--secondary);
-            font-size: 0.875rem;
-            margin-bottom: 0.75rem;
-        }
-        
-        .breakdown-answer {
-            font-weight: 500;
-            color: var(--dark);
-            font-size: 0.875rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .breakdown-item.correct .breakdown-answer {
-            color: var(--success);
-        }
-        
-        .breakdown-item.incorrect .breakdown-answer {
-            color: var(--danger);
-        }
-        
-        /* Mobile Panel Toggle */
-        .mobile-panel-toggle {
-            display: none;
-            position: fixed;
-            bottom: 1rem;
-            right: 1rem;
-            z-index: 1020;
-            background-color: var(--primary);
-            color: white;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            border: none;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .mobile-panel-toggle:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-        
-        /* Responsive Styles */
-        @media (max-width: 991.98px) {
-            .side-panel {
-                position: fixed;
-                top: 70px;
-                right: 0;
-                bottom: 0;
-                width: 320px;
-                max-width: 100%;
-                border-radius: 0;
-                z-index: 1030;
-                transform: translateX(100%);
-                transition: transform 0.3s ease;
-                overflow-y: auto;
-            }
-            
-            .side-panel.show {
-                transform: translateX(0);
-            }
-            
-            .panel-backdrop {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: rgba(0, 0, 0, 0.5);
-                z-index: 1025;
-                display: none;
-            }
-            
-            .panel-backdrop.show {
-                display: block;
-            }
-            
-            .mobile-panel-toggle {
-                display: flex;
-            }
-            
-            .panel-close {
-                position: absolute;
-                top: 1rem;
-                right: 1rem;
-                background: none;
-                border: none;
-                color: var(--secondary);
-                font-size: 1.5rem;
-                cursor: pointer;
-                z-index: 1;
-            }
-        }
-        
-        @media (max-width: 767.98px) {
-            .quiz-header {
-                padding: 0.75rem 1rem;
-            }
-            
-            .quiz-title {
-                font-size: 1.1rem;
-            }
-            
-            .quiz-controls {
-                gap: 1rem;
-            }
-            
-            .timer-text {
-                font-size: 1rem;
-            }
-            
-            .question-area {
-                padding: 1.5rem;
-            }
-            
-            .question-text {
-                font-size: 1.25rem;
-            }
-            
-            .results-title {
-                font-size: 1.5rem;
-            }
-            
-            .score-circle {
-                width: 140px;
-                height: 140px;
-            }
-            
-            .score-value {
-                font-size: 2rem;
-            }
-            
-            .results-actions {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .result-button {
-                justify-content: center;
-            }
-        }
-        
-        @media (max-width: 575.98px) {
-            .quiz-controls {
-                flex-direction: column;
-                align-items: flex-end;
-                gap: 0.5rem;
-            }
-            
-            .question-nav {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            
-            .score-circle {
-                width: 120px;
-                height: 120px;
-                border-width: 8px;
-            }
-            
-            .score-value {
-                font-size: 1.75rem;
-            }
-            
-            .breakdown-list {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Header -->
-    <header class="quiz-header">
-        <div class="d-flex align-items-center justify-content-between">
-            <a href="#" class="return-button">
-                <i class="bi bi-arrow-left"></i>
-                <span>Return to Course</span>
-            </a>
-            
-            <h1 class="quiz-title">Neural Networks Assessment</h1>
-            
-            <div class="quiz-controls">
-                <div class="timer">
-                    <i class="bi bi-alarm timer-icon"></i>
-                    <span class="timer-text">14:32</span>
-                </div>
-                
-                <div class="progress-indicator">
-                    Question 3 of 10
-                </div>
-            </div>
-        </div>
-    </header>
-    
-    <!-- Main Content -->
-    <main class="quiz-container">
-        <div class="container">
-            <div class="row">
-                <!-- Question Area -->
-                <div class="col-lg-8">
-                    <!-- Current Question View -->
-                    <div class="question-area" id="currentQuestion">
-                        <div class="question-number">Question 3</div>
-                        <h2 class="question-text">Which of the following activation functions is most commonly used in hidden layers of deep neural networks due to its computational efficiency and ability to mitigate the vanishing gradient problem?</h2>
-                        
-                        <div class="question-image">
-                            <img src="https://placehold.co/800x400/2563eb/ffffff?text=Activation+Functions+Graph" alt="Activation Functions Graph">
-                        </div>
-                        
-                        <ul class="options-list">
-                            <li class="option-item">
-                                <label class="option-label">
-                                    <input type="radio" name="question3" class="option-radio">
-                                    <span class="option-text">Sigmoid Function</span>
-                                    <div class="option-icon">
-                                        <i class="bi bi-x"></i>
-                                    </div>
-                                </label>
-                            </li>
-                            <li class="option-item correct">
-                                <label class="option-label">
-                                    <input type="radio" name="question3" class="option-radio">
-                                    <span class="option-text">ReLU (Rectified Linear Unit)</span>
-                                    <div class="option-icon">
-                                        <i class="bi bi-check"></i>
-                                    </div>
-                                </label>
-                            </li>
-                            <li class="option-item">
-                                <label class="option-label">
-                                    <input type="radio" name="question3" class="option-radio">
-                                    <span class="option-text">Tanh Function</span>
-                                    <div class="option-icon">
-                                        <i class="bi bi-x"></i>
-                                    </div>
-                                </label>
-                            </li>
-                            <li class="option-item">
-                                <label class="option-label">
-                                    <input type="radio" name="question3" class="option-radio">
-                                    <span class="option-text">Softmax Function</span>
-                                    <div class="option-icon">
-                                        <i class="bi bi-x"></i>
-                                    </div>
-                                </label>
-                            </li>
-                        </ul>
-                        
-                        <div class="explanation-panel show">
-                            <div class="explanation-title">
-                                <i class="bi bi-lightbulb"></i>
-                                Explanation
-                            </div>
-                            <div class="explanation-content">
-                                <p>ReLU (Rectified Linear Unit) is the most commonly used activation function in hidden layers of deep neural networks for several reasons:</p>
-                                <ul>
-                                    <li>It's computationally efficient (simply returns max(0, x))</li>
-                                    <li>It helps mitigate the vanishing gradient problem that affects sigmoid and tanh functions</li>
-                                    <li>It introduces non-linearity without affecting the positive inputs</li>
-                                    <li>It allows for sparse activation (many neurons output 0)</li>
-                                </ul>
-                                <p>While sigmoid and tanh functions were popular in earlier neural networks, they suffer from saturation and vanishing gradient problems. Softmax is typically used in the output layer for multi-class classification problems, not in hidden layers.</p>
-                            </div>
-                        </div>
-                        
-                        <button class="next-button">
-                            Next Question <i class="bi bi-arrow-right ms-1"></i>
-                        </button>
-                    </div>
-                    
-                    <!-- Results Summary (Hidden by default) -->
-                    <div class="results-summary" id="resultsSummary">
-                        <div class="results-header">
-                            <h2 class="results-title">Assessment Complete!</h2>
-                            <p class="results-subtitle">Neural Networks Assessment</p>
-                        </div>
-                        
-                        <div class="score-display">
-                            <div class="score-circle">
-                                <div class="score-value">80%</div>
-                                <div class="score-label">Score</div>
-                            </div>
-                        </div>
-                        
-                        <div class="results-details">
-                            <div class="detail-card detail-correct">
-                                <div class="detail-icon">
-                                    <i class="bi bi-check-lg"></i>
-                                </div>
-                                <div class="detail-value">8</div>
-                                <div class="detail-label">Correct Answers</div>
-                            </div>
-                            
-                            <div class="detail-card detail-incorrect">
-                                <div class="detail-icon">
-                                    <i class="bi bi-x-lg"></i>
-                                </div>
-                                <div class="detail-value">2</div>
-                                <div class="detail-label">Incorrect Answers</div>
-                            </div>
-                            
-                            <div class="detail-card detail-time">
-                                <div class="detail-icon">
-                                    <i class="bi bi-clock"></i>
-                                </div>
-                                <div class="detail-value">12:45</div>
-                                <div class="detail-label">Time Taken</div>
-                            </div>
-                        </div>
-                        
-                        <div class="results-actions">
-                            <button class="result-button review-button">
-                                <i class="bi bi-eye"></i> Review Answers
-                            </button>
-                            
-                            <button class="result-button return-course-button">
-                                <i class="bi bi-arrow-left"></i> Return to Course
-                            </button>
-                            
-                            <button class="result-button share-button">
-                                <i class="bi bi-share"></i> Share Results
-                            </button>
-                        </div>
-                        
-                        <div class="questions-breakdown">
-                            <h3 class="breakdown-title">Questions Breakdown</h3>
-                            
-                            <ul class="breakdown-list">
-                                <li class="breakdown-item correct">
-                                    <div class="breakdown-header">
-                                        <div class="breakdown-question">Question 1</div>
-                                        <div class="breakdown-status">
-                                            <i class="bi bi-check"></i>
-                                        </div>
-                                    </div>
-                                    <div class="breakdown-content">
-                                        <p class="breakdown-text">What is the primary purpose of an activation function in neural networks?</p>
-                                        <div class="breakdown-answer">
-                                            <i class="bi bi-check-circle"></i> To introduce non-linearity
-                                        </div>
-                                    </div>
-                                </li>
-                                
-                                <li class="breakdown-item correct">
-                                    <div class="breakdown-header">
-                                        <div class="breakdown-question">Question 2</div>
-                                        <div class="breakdown-status">
-                                            <i class="bi bi-check"></i>
-                                        </div>
-                                    </div>
-                                    <div class="breakdown-content">
-                                        <p class="breakdown-text">Which algorithm is used to train neural networks by computing gradients?</p>
-                                        <div class="breakdown-answer">
-                                            <i class="bi bi-check-circle"></i> Backpropagation
-                                        </div>
-                                    </div>
-                                </li>
-                                
-                                <li class="breakdown-item correct">
-                                    <div class="breakdown-header">
-                                        <div class="breakdown-question">Question 3</div>
-                                        <div class="breakdown-status">
-                                            <i class="bi bi-check"></i>
-                                        </div>
-                                    </div>
-                                    <div class="breakdown-content">
-                                        <p class="breakdown-text">Which activation function is most commonly used in hidden layers?</p>
-                                        <div class="breakdown-answer">
-                                            <i class="bi bi-check-circle"></i> ReLU (Rectified Linear Unit)
-                                        </div>
-                                    </div>
-                                </li>
-                                
-                                <li class="breakdown-item incorrect">
-                                    <div class="breakdown-header">
-                                        <div class="breakdown-question">Question 4</div>
-                                        <div class="breakdown-status">
-                                            <i class="bi bi-x"></i>
-                                        </div>
-                                    </div>
-                                    <div class="breakdown-content">
-                                        <p class="breakdown-text">What is the purpose of dropout in neural networks?</p>
-                                        <div class="breakdown-answer">
-                                            <i class="bi bi-x-circle"></i> Your answer: To speed up training
-                                        </div>
-                                        <div class="breakdown-answer mt-1">
-                                            <i class="bi bi-check-circle"></i> Correct: To prevent overfitting
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Side Panel -->
-                <div class="col-lg-4">
-                    <div class="side-panel" id="sidePanel">
-                        <button class="panel-close d-lg-none" id="panelClose">
-                            <i class="bi bi-x-lg"></i>
-                        </button>
-                        
-                        <h2 class="panel-title">Question Navigation</h2>
-                        
-                        <div class="question-nav">
-                            <button class="nav-button answered">1</button>
-                            <button class="nav-button answered">2</button>
-                            <button class="nav-button active">3</button>
-                            <button class="nav-button">4</button>
-                            <button class="nav-button flagged">5</button>
-                            <button class="nav-button">6</button>
-                            <button class="nav-button">7</button>
-                            <button class="nav-button">8</button>
-                            <button class="nav-button">9</button>
-                            <button class="nav-button">10</button>
-                        </div>
-                        
-                        <button class="flag-button">
-                            <i class="bi bi-flag"></i> Flag for Review
-                        </button>
-                        
-                        <div class="progress-overview">
-                            <div class="progress-title">Your Progress</div>
-                            
-                            <div class="progress-stats">
-                                <div class="stat-item stat-answered">
-                                    <div class="stat-value">2</div>
-                                    <div class="stat-label">Answered</div>
-                                </div>
-                                
-                                <div class="stat-item stat-remaining">
-                                    <div class="stat-value">8</div>
-                                    <div class="stat-label">Remaining</div>
-                                </div>
-                                
-                                <div class="stat-item stat-flagged">
-                                    <div class="stat-value">1</div>
-                                    <div class="stat-label">Flagged</div>
-                                </div>
-                                
-                                <div class="stat-item stat-time">
-                                    <div class="stat-value">30%</div>
-                                    <div class="stat-label">Time Used</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-    
-    <!-- Panel Backdrop (Mobile) -->
-    <div class="panel-backdrop" id="panelBackdrop"></div>
-    
-    <!-- Mobile Panel Toggle -->
-    <button class="mobile-panel-toggle" id="mobilePanelToggle">
-        <i class="bi bi-list-ul"></i>
-    </button>
+{% extends 'base.html' %}
+{% load static %}
+{% load quiz_extras %}
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+{% block title %}{{ quiz.title }} - Assessment - LearnMore{% endblock %}
+
+{% block extra_css %}
+<style>
+    .quiz-timer {
+        font-family: monospace;
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
     
-    <!-- Custom JavaScript -->
-    <script>
-        // Panel Toggle for Mobile
-        const mobilePanelToggle = document.getElementById('mobilePanelToggle');
-        const sidePanel = document.getElementById('sidePanel');
-        const panelBackdrop = document.getElementById('panelBackdrop');
-        const panelClose = document.getElementById('panelClose');
-        
-        // Toggle Side Panel
-        mobilePanelToggle.addEventListener('click', function() {
-            sidePanel.classList.add('show');
-            panelBackdrop.classList.add('show');
-            document.body.style.overflow = 'hidden';
-        });
-        
-        // Close Side Panel
-        panelClose.addEventListener('click', function() {
-            sidePanel.classList.remove('show');
-            panelBackdrop.classList.remove('show');
-            document.body.style.overflow = '';
-        });
-        
-        // Close Panel on Backdrop Click
-        panelBackdrop.addEventListener('click', function() {
-            sidePanel.classList.remove('show');
-            panelBackdrop.classList.remove('show');
-            document.body.style.overflow = '';
-        });
-        
-        // Timer Functionality
-        let timerMinutes = 14;
-        let timerSeconds = 32;
-        const timerText = document.querySelector('.timer-text');
+    .question-nav-button {
+        width: 2.5rem;
+        height: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0.25rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .question-nav-button:hover {
+        transform: scale(1.05);
+    }
+    
+    .question-nav-button.active {
+        border-width: 2px;
+    }
+    
+    .choice-container {
+        transition: all 0.2s;
+    }
+    
+    .choice-container:hover {
+        background-color: #f0f9ff;
+    }
+    
+    .choice-label {
+        width: 100%;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Timer functionality 
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if quiz.time_limit_minutes %}
+        // Set up timer if there's a time limit
+        const timeLimit = {{ quiz.time_limit_minutes }} * 60; // Convert to seconds
+        let timeRemaining = timeLimit;
+        let timerInterval;
         
         function updateTimer() {
-            if (timerSeconds === 0) {
-                if (timerMinutes === 0) {
-                    clearInterval(timerInterval);
-                    return;
-                }
-                timerMinutes--;
-                timerSeconds = 59;
-            } else {
-                timerSeconds--;
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            document.getElementById('timer-display').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Update progress bar
+            const percentage = Math.round((timeRemaining / timeLimit) * 100);
+            document.getElementById('timer-progress').style.width = `${percentage}%`;
+            
+            // Change color as time runs out
+            if (percentage < 25) {
+                document.getElementById('timer-progress').classList.add('bg-red-600');
+                document.getElementById('timer-progress').classList.remove('bg-blue-600');
             }
             
-            timerText.textContent = `${timerMinutes}:${timerSeconds < 10 ? '0' : ''}${timerSeconds}`;
+            timeRemaining--;
+            
+            if (timeRemaining < 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timeout-form').submit();
+            }
         }
         
-        const timerInterval = setInterval(updateTimer, 1000);
+        // Initialize timer
+        updateTimer();
+        timerInterval = setInterval(updateTimer, 1000);
+        {% endif %}
         
-        // Question Navigation
-        const navButtons = document.querySelectorAll('.nav-button');
+        // Auto-save functionality
+        const form = document.getElementById('quiz-form');
+        const questions = document.querySelectorAll('.question-card');
+        const navigationLinks = document.querySelectorAll('.question-nav-item');
         
-        navButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                // Remove active class from all buttons
-                navButtons.forEach(btn => btn.classList.remove('active'));
+        // Function to mark a question as visited
+        function markAsVisited(questionIndex) {
+            navigationLinks[questionIndex].classList.add('visited');
+        }
+        
+        // Function to update question navigation
+        function updateQuestionNavigation() {
+            questions.forEach((question, index) => {
+                const inputs = question.querySelectorAll('input:checked, textarea[value]:not([value=""])');
+                if (inputs.length > 0) {
+                    navigationLinks[index].classList.add('answered');
+                }
+            });
+        }
+        
+        // Handle navigation between questions
+        document.querySelectorAll('.question-nav-link').forEach((link, index) => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
                 
-                // Add active class to clicked button
-                this.classList.add('active');
+                // Hide all questions
+                questions.forEach(q => q.classList.add('hidden'));
                 
-                // In a real implementation, this would load the corresponding question
-                // For this mockup, we'll just show a message
-                console.log(`Navigating to question ${this.textContent}`);
+                // Show the selected question
+                const targetId = this.getAttribute('href').substr(1);
+                document.getElementById(targetId).classList.remove('hidden');
+                
+                // Mark as visited
+                markAsVisited(index);
+                
+                // Update current question counter
+                document.getElementById('current-question').textContent = index + 1;
             });
         });
         
-        // Flag for Review
-        const flagButton = document.querySelector('.flag-button');
+        // Mark first question as visited on load
+        markAsVisited(0);
         
-        flagButton.addEventListener('click', function() {
-            this.classList.toggle('flagged');
+        // Set up auto-save on input changes
+        form.addEventListener('change', function() {
+            updateQuestionNavigation();
             
-            // In a real implementation, this would flag the current question
-            // For this mockup, we'll just toggle the button state
-            if (this.classList.contains('flagged')) {
-                this.innerHTML = '<i class="bi bi-flag-fill"></i> Flagged for Review';
-            } else {
-                this.innerHTML = '<i class="bi bi-flag"></i> Flag for Review';
-            }
+            // Here you would typically send an AJAX request to save the current state
+            // For this implementation, we're just updating the UI
         });
         
-        // Next Question Button
-        const nextButton = document.querySelector('.next-button');
-        
-        nextButton.addEventListener('click', function() {
-            // In a real implementation, this would load the next question
-            // For this mockup, we'll just show a message
-            console.log('Loading next question');
+        // Handle navigation buttons
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const currentVisible = document.querySelector('.question-card:not(.hidden)');
+                const currentIndex = Array.from(questions).indexOf(currentVisible);
+                let targetIndex;
+                
+                if (this.classList.contains('prev-btn') && currentIndex > 0) {
+                    targetIndex = currentIndex - 1;
+                } else if (this.classList.contains('next-btn') && currentIndex < questions.length - 1) {
+                    targetIndex = currentIndex + 1;
+                } else {
+                    return;
+                }
+                
+                // Hide current question
+                currentVisible.classList.add('hidden');
+                
+                // Show target question
+                questions[targetIndex].classList.remove('hidden');
+                
+                // Mark as visited
+                markAsVisited(targetIndex);
+                
+                // Update current question counter
+                document.getElementById('current-question').textContent = targetIndex + 1;
+            });
         });
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-8" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{% url 'course-detail' quiz.module.course.slug %}" class="text-gray-700 hover:text-blue-600">
+                    {{ quiz.module.course.title }}
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <a href="{% url 'module-detail' quiz.module.id %}" class="text-gray-700 hover:text-blue-600 ml-1 md:ml-2">
+                        {{ quiz.module.title }}
+                    </a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <a href="{% url 'quiz-detail' quiz.id %}" class="text-gray-700 hover:text-blue-600 ml-1 md:ml-2">
+                        {{ quiz.title }}
+                    </a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="text-blue-600 ml-1 md:ml-2">
+                        Assessment
+                    </span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+    
+    <!-- Quiz Header -->
+    <div class="bg-white shadow-md rounded-lg mb-6 p-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">{{ quiz.title }}</h1>
+                    <p class="text-sm text-gray-600">{{ quiz.module.title }} | Attempt #{{ attempt.attempt_number }}</p>
+                </div>
+                
+                {% if quiz.time_limit_minutes %}
+                <div class="text-center">
+                    <div class="flex items-center mb-1">
+                        <svg class="w-5 h-5 mr-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span id="timer-display" class="text-xl font-mono font-semibold">--:--</span>
+                    </div>
+                    <div class="w-32 bg-gray-200 rounded-full h-2.5">
+                        <div id="timer-progress" class="bg-blue-600 h-2.5 rounded-full" style="width: 100%"></div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="text-right">
+                    <div class="text-sm text-gray-600">Question</div>
+                    <div class="text-lg font-bold"><span id="current-question">1</span> of {{ questions|length }}</div>
+                </div>
+            </div>
+        </div>
         
-        // Toggle between Question View and Results Summary (for demo purposes)
-        const currentQuestion = document.getElementById('currentQuestion');
-        const resultsSummary = document.getElementById('resultsSummary');
-        
-        // Uncomment to show results summary instead of current question
-        // currentQuestion.style.display = 'none';
-        // resultsSummary.classList.add('show');
-    </script>
-</body>
-</html>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <!-- Question Navigation Sidebar -->
+            <div class="md:col-span-1">
+                <div class="bg-white shadow-md rounded-lg p-4 sticky top-4">
+                    <h2 class="text-lg font-semibold mb-4">Question Navigation</h2>
+                    
+                    <ul class="grid grid-cols-5 md:grid-cols-3 gap-2 mb-6">
+                        {% for question in questions %}
+                        <li class="question-nav-item">
+                            <a href="#question-{{ forloop.counter }}" 
+                               class="question-nav-link flex items-center justify-center w-full h-10 rounded-md border border-gray-300 text-sm font-medium
+                                     {% if forloop.first %}bg-blue-100 border-blue-500{% else %}bg-white hover:bg-gray-50{% endif %}">
+                                {{ forloop.counter }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    
+                    <div class="flex items-center justify-between text-sm text-gray-600 mb-3">
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
+                            <span>Current</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full bg-gray-300 mr-2"></div>
+                            <span>Not visited</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between text-sm text-gray-600">
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                            <span>Answered</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full bg-gray-500 mr-2"></div>
+                            <span>Visited</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="mt-6">
+                        <button type="button" 
+                                class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                                onclick="document.getElementById('complete-form').submit();">
+                            Submit Quiz
+                        </button>
+                    </div>
+                    
+                    <!-- Abandon Button -->
+                    <div class="mt-3">
+                        <button type="button" 
+                                class="w-full border border-red-300 text-red-700 py-2 px-4 rounded-md hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                onclick="if(confirm('Are you sure you want to abandon this quiz? Your progress will be lost.')) document.getElementById('abandon-form').submit();">
+                            Abandon Quiz
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Quiz Content -->
+            <div class="md:col-span-3">
+                <form id="quiz-form" method="post" action="{% url 'submit-response' attempt.id %}">
+                    {% csrf_token %}
+                    
+                    {% for question in questions %}
+                    <div id="question-{{ forloop.counter }}" class="question-card bg-white shadow-md rounded-lg p-6 mb-6 {% if not forloop.first %}hidden{% endif %}">
+                        <div class="mb-4">
+                            <span class="inline-block bg-gray-200 text-gray-800 text-xs font-semibold px-2.5 py-1 rounded-full">
+                                {% if question.question_type == 'multiple_choice' %}Multiple Choice{% else %}True/False{% endif %}
+                            </span>
+                            <span class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full ml-2">
+                                {{ question.points }} point{{ question.points|pluralize }}
+                            </span>
+                        </div>
+                        
+                        <h3 class="text-xl font-semibold mb-4">{{ question.text }}</h3>
+                        
+                        <input type="hidden" name="question_id" value="{{ question.id }}">
+                        <input type="hidden" name="time_spent" value="0">
+                        
+                        {% if question.question_type == 'multiple_choice' %}
+                            {% if question.allow_multiple %}
+                            <div class="text-sm text-gray-600 mb-3">Select all that apply</div>
+                            {% endif %}
+                            
+                            <div class="space-y-3">
+                                {% for choice in question.choices %}
+                                <div class="flex items-center">
+                                    <input type="{% if question.allow_multiple %}checkbox{% else %}radio{% endif %}" 
+                                           id="choice-{{ choice.id }}" 
+                                           name="{% if question.allow_multiple %}selected_choices[]{% else %}selected_choice{% endif %}" 
+                                           value="{{ choice.id }}"
+                                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded{% if question.allow_multiple %}-sm{% endif %}">
+                                    <label for="choice-{{ choice.id }}" class="ml-3 block text-gray-700">
+                                        {{ choice.text }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% elif question.question_type == 'true_false' %}
+                            <div class="space-y-3">
+                                <div class="flex items-center">
+                                    <input type="radio" id="true-{{ question.id }}" name="selected_answer" value="true"
+                                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                    <label for="true-{{ question.id }}" class="ml-3 block text-gray-700">
+                                        True
+                                    </label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="false-{{ question.id }}" name="selected_answer" value="false"
+                                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                    <label for="false-{{ question.id }}" class="ml-3 block text-gray-700">
+                                        False
+                                    </label>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="flex justify-between mt-8">
+                            <button type="button" class="nav-btn prev-btn inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" {% if forloop.first %}disabled{% endif %}>
+                                <svg class="mr-2 -ml-1 h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                </svg>
+                                Previous
+                            </button>
+                            
+                            <button type="submit" class="save-btn inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <svg class="mr-2 -ml-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                                </svg>
+                                Save Answer
+                            </button>
+                            
+                            <button type="button" class="nav-btn next-btn inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" {% if forloop.last %}disabled{% endif %}>
+                                Next
+                                <svg class="ml-2 -mr-1 h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </form>
+                
+                <!-- Hidden forms for quiz actions -->
+                <form id="complete-form" method="post" action="{% url 'complete-quiz' attempt.id %}" class="hidden">
+                    {% csrf_token %}
+                </form>
+                
+                <form id="abandon-form" method="post" action="{% url 'abandon-quiz' attempt.id %}" class="hidden">
+                    {% csrf_token %}
+                </form>
+                
+                <form id="timeout-form" method="post" action="{% url 'timeout-quiz' attempt.id %}" class="hidden">
+                    {% csrf_token %}
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

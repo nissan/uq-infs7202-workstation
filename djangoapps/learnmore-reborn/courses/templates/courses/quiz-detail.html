@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load quiz_extras %}
+
+{% block title %}{{ quiz.title }} - LearnMore{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-8" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{% url 'course-detail' quiz.module.course.slug %}" class="text-gray-700 hover:text-blue-600">
+                    {{ quiz.module.course.title }}
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <a href="{% url 'module-detail' quiz.module.id %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                        {{ quiz.module.title }}
+                    </a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="ml-1 text-gray-500 md:ml-2">{{ quiz.title }}</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Main Content -->
+        <div class="md:col-span-2">
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+                <div class="px-6 py-8">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-900">{{ quiz.title }}</h1>
+                            {% if quiz.is_survey %}
+                            <span class="inline-block mt-2 bg-purple-100 text-purple-800 text-sm px-3 py-1 rounded-full">Survey</span>
+                            {% else %}
+                            <span class="inline-block mt-2 bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">Quiz</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="prose max-w-none mb-8">
+                        <p class="text-lg text-gray-700">{{ quiz.description }}</p>
+                    </div>
+
+                    <div class="bg-gray-50 p-6 rounded-lg mb-8">
+                        <h2 class="text-xl font-semibold mb-4 text-gray-900">Instructions</h2>
+                        <div class="prose max-w-none text-gray-700">
+                            {% if quiz.instructions %}
+                            {{ quiz.instructions|linebreaks }}
+                            {% else %}
+                            <p>Complete all questions to the best of your ability.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-white border border-gray-200 rounded-lg p-5">
+                            <h3 class="font-semibold text-gray-900 mb-3">Quiz Details</h3>
+                            <ul class="space-y-3">
+                                <li class="flex justify-between">
+                                    <span class="text-gray-600">Questions:</span>
+                                    <span class="font-medium">{{ quiz.question_count }}</span>
+                                </li>
+                                <li class="flex justify-between">
+                                    <span class="text-gray-600">Time Limit:</span>
+                                    <span class="font-medium">
+                                        {% if quiz.time_limit_minutes %}
+                                        {{ quiz.time_limit_minutes }} minutes
+                                        {% else %}
+                                        No time limit
+                                        {% endif %}
+                                    </span>
+                                </li>
+                                <li class="flex justify-between">
+                                    <span class="text-gray-600">Passing Score:</span>
+                                    <span class="font-medium">{{ quiz.passing_score }}%</span>
+                                </li>
+                                <li class="flex justify-between">
+                                    <span class="text-gray-600">Multiple Attempts:</span>
+                                    <span class="font-medium">
+                                        {% if quiz.allow_multiple_attempts %}
+                                        Yes (Max: {% if quiz.max_attempts == 0 %}Unlimited{% else %}{{ quiz.max_attempts }}{% endif %})
+                                        {% else %}
+                                        No
+                                        {% endif %}
+                                    </span>
+                                </li>
+                                <li class="flex justify-between">
+                                    <span class="text-gray-600">Question Order:</span>
+                                    <span class="font-medium">
+                                        {% if quiz.randomize_questions %}
+                                        Randomized
+                                        {% else %}
+                                        Fixed
+                                        {% endif %}
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-white border border-gray-200 rounded-lg p-5">
+                            <h3 class="font-semibold text-gray-900 mb-3">Your Progress</h3>
+                            {% if user_attempts %}
+                            <ul class="space-y-3">
+                                <li class="flex justify-between">
+                                    <span class="text-gray-600">Attempts:</span>
+                                    <span class="font-medium">{{ user_attempts|length }}{% if quiz.max_attempts > 0 %}/{{ quiz.max_attempts }}{% endif %}</span>
+                                </li>
+                                <li class="flex justify-between">
+                                    <span class="text-gray-600">Best Score:</span>
+                                    <span class="font-medium {% if best_attempt.is_passed %}text-green-600{% else %}text-red-600{% endif %}">
+                                        {{ best_attempt.score }}/{{ best_attempt.max_score }} ({{ best_attempt.score_percentage }}%)
+                                    </span>
+                                </li>
+                                <li class="flex justify-between">
+                                    <span class="text-gray-600">Last Attempt:</span>
+                                    <span class="font-medium">{{ last_attempt.completed_at|date:"M d, Y" }}</span>
+                                </li>
+                                <li class="flex justify-between">
+                                    <span class="text-gray-600">Status:</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if any_attempt_passed %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                        {% if any_attempt_passed %}Passed{% else %}Not Passed{% endif %}
+                                    </span>
+                                </li>
+                            </ul>
+                            {% else %}
+                            <p class="text-gray-600">You haven't attempted this quiz yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between">
+                        <a href="{% url 'module-detail' quiz.module.id %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            <svg class="mr-2 -ml-1 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Return to Module
+                        </a>
+                        
+                        <div>
+                            {% if can_take_quiz %}
+                            <form method="post" action="{% url 'start-quiz' quiz.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    <svg class="mr-2 -ml-1 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Start Quiz
+                                </button>
+                            </form>
+                            {% else %}
+                            <button disabled class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-400 cursor-not-allowed">
+                                {% if max_attempts_reached %}Maximum attempts reached{% else %}Already in progress{% endif %}
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="md:col-span-1">
+            <!-- Previous Attempts Card -->
+            {% if user_attempts %}
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-6">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Previous Attempts</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <ul class="divide-y divide-gray-200">
+                        {% for attempt in user_attempts|slice:":5" %}
+                        <li class="py-3">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium text-gray-900">Attempt #{{ attempt.attempt_number }}</p>
+                                    <p class="text-sm text-gray-500">{{ attempt.completed_at|date:"M d, Y" }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if attempt.is_passed %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ attempt.score_percentage }}%
+                                    </span>
+                                    <p class="text-sm text-gray-500">{{ attempt.score }}/{{ attempt.max_score }}</p>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    
+                    {% if user_attempts|length > 5 %}
+                    <div class="mt-5 text-center">
+                        <a href="{% url 'quiz-attempt-history' quiz.id %}" class="text-sm font-medium text-blue-600 hover:text-blue-500">
+                            View all attempts
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Related Quizzes Card -->
+            {% if related_quizzes %}
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-6">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Related Quizzes</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <ul class="divide-y divide-gray-200">
+                        {% for related_quiz in related_quizzes %}
+                        <li class="py-3">
+                            <a href="{% url 'quiz-detail' related_quiz.id %}" class="block hover:bg-gray-50">
+                                <div class="flex items-center justify-between">
+                                    <div class="text-sm font-medium text-blue-600">{{ related_quiz.title }}</div>
+                                    <div>
+                                        {% if related_quiz.is_survey %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                            Survey
+                                        </span>
+                                        {% else %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            Quiz
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <p class="mt-1 text-sm text-gray-500">Module: {{ related_quiz.module.title }}</p>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

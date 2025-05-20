@@ -1,6 +1,10 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Course, Module, Quiz, Enrollment
+from .models import (
+    Course, Module, Quiz, Enrollment,
+    Question, MultipleChoiceQuestion, TrueFalseQuestion,
+    Choice, QuizAttempt, QuestionResponse
+)
 
 User = get_user_model()
 
@@ -44,11 +48,192 @@ class ModuleSerializer(serializers.ModelSerializer):
         """Return whether this module has prerequisites"""
         return obj.has_prerequisites
 
+# Choice serializers
+class ChoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Choice
+        fields = ['id', 'text', 'order', 'feedback']
+        read_only_fields = ['id']
+
+class ChoiceWithCorrectAnswerSerializer(ChoiceSerializer):
+    class Meta(ChoiceSerializer.Meta):
+        fields = ChoiceSerializer.Meta.fields + ['is_correct']
+
+# Question serializers
+class QuestionSerializer(serializers.ModelSerializer):
+    question_type_display = serializers.CharField(source='get_question_type_display', read_only=True)
+    
+    class Meta:
+        model = Question
+        fields = ['id', 'text', 'question_type', 'question_type_display', 'order', 'points', 'explanation']
+        read_only_fields = ['id', 'question_type_display']
+
+class MultipleChoiceQuestionSerializer(serializers.ModelSerializer):
+    choices = ChoiceSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = MultipleChoiceQuestion
+        fields = ['id', 'text', 'question_type', 'order', 'points', 'explanation', 'allow_multiple', 'choices']
+        read_only_fields = ['id', 'question_type']
+        
+class MultipleChoiceQuestionCreateSerializer(MultipleChoiceQuestionSerializer):
+    choices = ChoiceWithCorrectAnswerSerializer(many=True)
+    
+    class Meta(MultipleChoiceQuestionSerializer.Meta):
+        fields = MultipleChoiceQuestionSerializer.Meta.fields + ['quiz']
+        
+    def create(self, validated_data):
+        choices_data = validated_data.pop('choices', [])
+        question = MultipleChoiceQuestion.objects.create(**validated_data)
+        
+        for choice_data in choices_data:
+            Choice.objects.create(question=question, **choice_data)
+            
+        return question
+        
+    def update(self, instance, validated_data):
+        choices_data = validated_data.pop('choices', [])
+        
+        # Update question fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        
+        # Get existing choices
+        existing_choices = {choice.id: choice for choice in instance.choices.all()}
+        
+        # Update or create choices
+        for choice_data in choices_data:
+            choice_id = choice_data.get('id')
+            if choice_id and choice_id in existing_choices:
+                # Update existing choice
+                choice = existing_choices[choice_id]
+                for attr, value in choice_data.items():
+                    setattr(choice, attr, value)
+                choice.save()
+            else:
+                # Create new choice
+                Choice.objects.create(question=instance, **choice_data)
+                
+        return instance
+
+class TrueFalseQuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrueFalseQuestion
+        fields = ['id', 'text', 'question_type', 'order', 'points', 'explanation', 'correct_answer']
+        read_only_fields = ['id', 'question_type']
+        
+class TrueFalseQuestionCreateSerializer(TrueFalseQuestionSerializer):
+    class Meta(TrueFalseQuestionSerializer.Meta):
+        fields = TrueFalseQuestionSerializer.Meta.fields + ['quiz']
+
+# Quiz serializers
 class QuizSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
         fields = ['id', 'module', 'title', 'description', 'is_survey']
         read_only_fields = ['id']
+
+class QuizListSerializer(serializers.ModelSerializer):
+    module_title = serializers.CharField(source='module.title', read_only=True)
+    course_title = serializers.CharField(source='module.course.title', read_only=True)
+    question_count = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Quiz
+        fields = [
+            'id', 'title', 'description', 'module', 'module_title', 'course_title',
+            'time_limit_minutes', 'passing_score', 'question_count', 'is_published',
+            'is_survey', 'allow_multiple_attempts', 'max_attempts'
+        ]
+        read_only_fields = ['id', 'module_title', 'course_title', 'question_count']
+        
+    def get_question_count(self, obj):
+        return obj.questions.count()
+
+class QuizDetailSerializer(QuizListSerializer):
+    questions = serializers.SerializerMethodField()
+    
+    class Meta(QuizListSerializer.Meta):
+        fields = QuizListSerializer.Meta.fields + ['instructions', 'randomize_questions', 'questions', 'created_at', 'updated_at']
+        
+    def get_questions(self, obj):
+        # For instructor view - include correct answers
+        if self.context.get('show_answers', False):
+            questions = []
+            
+            for question in obj.questions.all().order_by('order'):
+                if question.question_type == 'multiple_choice':
+                    q = MultipleChoiceQuestionSerializer(question.multiplechoicequestion).data
+                    q['choices'] = ChoiceWithCorrectAnswerSerializer(
+                        question.multiplechoicequestion.choices.all().order_by('order'), 
+                        many=True
+                    ).data
+                    questions.append(q)
+                elif question.question_type == 'true_false':
+                    questions.append(TrueFalseQuestionSerializer(question.truefalsequestion).data)
+            
+            return questions
+            
+        # For student view - exclude correct answers
+        else:
+            questions = []
+            
+            for question in obj.questions.all().order_by('order'):
+                if question.question_type == 'multiple_choice':
+                    q = QuestionSerializer(question).data
+                    q['choices'] = ChoiceSerializer(
+                        question.multiplechoicequestion.choices.all().order_by('order'), 
+                        many=True
+                    ).data
+                    questions.append(q)
+                elif question.question_type == 'true_false':
+                    q = QuestionSerializer(question).data
+                    q['is_true_false'] = True
+                    questions.append(q)
+            
+            return questions
+
+# Quiz attempt serializers
+class QuestionResponseSerializer(serializers.ModelSerializer):
+    question_text = serializers.CharField(source='question.text', read_only=True)
+    question_type = serializers.CharField(source='question.question_type', read_only=True)
+    question = serializers.PrimaryKeyRelatedField(queryset=Question.objects.all())
+    
+    class Meta:
+        model = QuestionResponse
+        fields = [
+            'id', 'question', 'question_text', 'question_type', 'response_data',
+            'is_correct', 'points_earned', 'feedback', 'time_spent_seconds'
+        ]
+        read_only_fields = ['id', 'question_text', 'question_type', 'is_correct', 'points_earned', 'feedback']
+
+class QuizAttemptSerializer(serializers.ModelSerializer):
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    quiz_title = serializers.CharField(source='quiz.title', read_only=True)
+    score_percentage = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = QuizAttempt
+        fields = [
+            'id', 'quiz', 'quiz_title', 'user', 'started_at', 'completed_at',
+            'status', 'status_display', 'score', 'max_score', 'score_percentage',
+            'time_spent_seconds', 'is_passed', 'attempt_number'
+        ]
+        read_only_fields = ['id', 'quiz_title', 'started_at', 'completed_at', 'status_display',
+                           'score', 'max_score', 'score_percentage', 'time_spent_seconds',
+                           'is_passed', 'attempt_number']
+                           
+    def get_score_percentage(self, obj):
+        if obj.max_score > 0:
+            return round((obj.score / obj.max_score) * 100, 1)
+        return 0
+
+class QuizAttemptDetailSerializer(QuizAttemptSerializer):
+    responses = QuestionResponseSerializer(many=True, read_only=True)
+    
+    class Meta(QuizAttemptSerializer.Meta):
+        fields = QuizAttemptSerializer.Meta.fields + ['responses']
 
 class CourseSerializer(serializers.ModelSerializer):
     instructor_name = serializers.SerializerMethodField()

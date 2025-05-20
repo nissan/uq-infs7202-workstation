@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ attempt.quiz.title }} - Results{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-8" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{% url 'course-detail' attempt.quiz.module.course.slug %}" class="text-gray-700 hover:text-blue-600">
+                    {{ attempt.quiz.module.course.title }}
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <a href="{% url 'module-detail' attempt.quiz.module.id %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                        {{ attempt.quiz.module.title }}
+                    </a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <a href="{% url 'quiz-detail' attempt.quiz.id %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                        {{ attempt.quiz.title }}
+                    </a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="ml-1 text-gray-500 md:ml-2">Results</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8">
+        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-gray-900">{{ attempt.quiz.title }} - Results</h1>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {% if attempt.is_passed %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                    {% if attempt.is_passed %}Passed{% else %}Not Passed{% endif %}
+                </span>
+            </div>
+        </div>
+        
+        <div class="p-6">
+            <div class="flex flex-col md:flex-row items-center justify-center mb-8">
+                <div class="relative mb-6 md:mb-0 md:mr-12">
+                    <div class="w-36 h-36 rounded-full flex items-center justify-center border-8 {% if attempt.is_passed %}border-green-500{% else %}border-red-500{% endif %}">
+                        <div class="text-center">
+                            <div class="text-4xl font-bold {% if attempt.is_passed %}text-green-600{% else %}text-red-600{% endif %}">{{ attempt.score_percentage }}%</div>
+                            <div class="text-gray-500 text-sm">Score</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-2xl">
+                    <div class="bg-gray-50 rounded-lg p-4 text-center">
+                        <div class="text-xl font-bold text-gray-900">{{ attempt.score }}/{{ attempt.max_score }}</div>
+                        <div class="text-sm text-gray-500">Points</div>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4 text-center">
+                        <div class="text-xl font-bold text-gray-900">{{ correct_count }}/{{ total_questions }}</div>
+                        <div class="text-sm text-gray-500">Correct Answers</div>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4 text-center">
+                        <div class="text-xl font-bold text-gray-900">{{ time_spent_formatted }}</div>
+                        <div class="text-sm text-gray-500">Time Spent</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold mb-4">Attempt Details</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="text-sm text-gray-500">Attempt Number</div>
+                        <div class="font-semibold">{{ attempt.attempt_number }}</div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="text-sm text-gray-500">Started At</div>
+                        <div class="font-semibold">{{ attempt.started_at|date:"M d, Y H:i" }}</div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="text-sm text-gray-500">Completed At</div>
+                        <div class="font-semibold">{{ attempt.completed_at|date:"M d, Y H:i" }}</div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="text-sm text-gray-500">Status</div>
+                        <div class="font-semibold">{{ attempt.get_status_display }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold mb-4">Question Responses</h2>
+                <div class="space-y-6">
+                    {% for response in attempt.responses.all %}
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+                            <h3 class="font-semibold">Question {{ forloop.counter }}</h3>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if response.is_correct %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                {% if response.is_correct %}Correct{% else %}Incorrect{% endif %}
+                            </span>
+                        </div>
+                        
+                        <div class="p-4">
+                            <p class="text-gray-900 mb-4">{{ response.question.text }}</p>
+                            
+                            {% if response.question.question_type == 'multiple_choice' %}
+                            <div class="mb-4">
+                                <h4 class="text-sm font-medium text-gray-500 mb-2">Your Answer:</h4>
+                                <ul class="space-y-2">
+                                    {% for choice in response.question.multiplechoicequestion.choices.all %}
+                                    <li class="flex items-start">
+                                        <div class="flex-shrink-0 h-5 w-5 mt-0.5">
+                                            {% if choice.id in response.response_data.selected_choice|default:response.response_data.selected_choices %}
+                                                {% if choice.is_correct %}
+                                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                {% else %}
+                                                <svg class="h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                                {% endif %}
+                                            {% elif choice.is_correct %}
+                                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                            {% endif %}
+                                        </div>
+                                        <span class="ml-2 text-gray-700 {% if choice.is_correct %}font-medium{% endif %}">{{ choice.text }}</span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% elif response.question.question_type == 'true_false' %}
+                            <div class="mb-4">
+                                <h4 class="text-sm font-medium text-gray-500 mb-2">Your Answer:</h4>
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 h-5 w-5 mt-0.5">
+                                        {% if response.is_correct %}
+                                        <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        {% else %}
+                                        <svg class="h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                        {% endif %}
+                                    </div>
+                                    <span class="ml-2 text-gray-700">
+                                        {% if response.response_data.selected_answer == "true" %}True{% else %}False{% endif %}
+                                    </span>
+                                </div>
+                                
+                                {% if not response.is_correct %}
+                                <div class="mt-2">
+                                    <h4 class="text-sm font-medium text-gray-500 mb-1">Correct Answer:</h4>
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0 h-5 w-5 mt-0.5">
+                                            <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="ml-2 text-gray-700 font-medium">
+                                            {% if response.question.truefalsequestion.correct_answer %}True{% else %}False{% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                            
+                            {% if response.feedback %}
+                            <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-blue-500">
+                                <h4 class="font-medium text-gray-900 mb-1">Feedback:</h4>
+                                <p class="text-gray-700">{{ response.feedback }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if response.question.explanation %}
+                            <div class="mt-4 bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                                <h4 class="font-medium text-gray-900 mb-1">Explanation:</h4>
+                                <p class="text-gray-700">{{ response.question.explanation }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="flex justify-between">
+                <a href="{% url 'quiz-detail' attempt.quiz.id %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <svg class="mr-2 -ml-1 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Back to Quiz
+                </a>
+                
+                {% if attempt.quiz.allow_multiple_attempts and user_remaining_attempts > 0 %}
+                <form method="post" action="{% url 'start-quiz' attempt.quiz.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <svg class="mr-2 -ml-1 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Retake Quiz
+                        {% if attempt.quiz.max_attempts > 0 %}
+                        ({{ user_remaining_attempts }} attempt{{ user_remaining_attempts|pluralize }} left)
+                        {% endif %}
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

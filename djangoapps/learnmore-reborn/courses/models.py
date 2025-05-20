@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.text import slugify
+from django.db.models import Sum
 
 User = get_user_model()
 
@@ -138,14 +139,289 @@ class Module(models.Model):
         return completed_prereqs == prereq_modules.count()
 
 class Quiz(models.Model):
+    """
+    Represents a quiz or survey associated with a module.
+    
+    Quizzes can have time limits, passing scores, and other settings.
+    Surveys are a special type of quiz that don't count toward grades.
+    """
     module = models.ForeignKey('Module', related_name='quizzes', on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    is_survey = models.BooleanField(default=False)
-
+    instructions = models.TextField(blank=True, help_text='Instructions for taking the quiz')
+    time_limit_minutes = models.PositiveIntegerField(null=True, blank=True, 
+                                                     help_text='Time limit in minutes (leave blank for unlimited time)')
+    passing_score = models.PositiveIntegerField(default=70, help_text='Passing score percentage (0-100)')
+    randomize_questions = models.BooleanField(default=False, help_text='Randomize question order for each attempt')
+    allow_multiple_attempts = models.BooleanField(default=True)
+    max_attempts = models.PositiveIntegerField(default=3, help_text='Maximum number of attempts allowed (0 for unlimited)')
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
+    is_published = models.BooleanField(default=False)
+    is_survey = models.BooleanField(default=False, help_text='If true, this quiz is a survey and does not count toward grades')
+    
+    class Meta:
+        ordering = ['module__order', 'id']
+        verbose_name_plural = "quizzes"
+        
     def __str__(self):
         return f"{self.module.title} - {self.title}"
+        
+    def save(self, *args, **kwargs):
+        # Update updated_at on save
+        self.updated_at = timezone.now()
+        super().save(*args, **kwargs)
+        
+    def total_points(self):
+        """Calculate total possible points for this quiz"""
+        return self.questions.aggregate(total=Sum('points'))['total'] or 0
+        
+    def passing_points(self):
+        """Calculate minimum points needed to pass"""
+        return int(self.total_points() * (self.passing_score / 100))
 
+class Question(models.Model):
+    """
+    Base model for quiz questions.
+    
+    This is the parent class for different question types like
+    multiple choice and true/false questions.
+    """
+    QUESTION_TYPES = [
+        ('multiple_choice', 'Multiple Choice'),
+        ('true_false', 'True/False'),
+    ]
+    
+    quiz = models.ForeignKey('Quiz', related_name='questions', on_delete=models.CASCADE)
+    text = models.TextField()
+    question_type = models.CharField(max_length=20, choices=QUESTION_TYPES)
+    order = models.PositiveIntegerField(default=0)
+    points = models.PositiveIntegerField(default=1)
+    explanation = models.TextField(blank=True, help_text='Explanation shown after the question is answered')
+    correct_feedback = models.TextField(blank=True, help_text='Feedback shown when answered correctly')
+    incorrect_feedback = models.TextField(blank=True, help_text='Feedback shown when answered incorrectly')
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
+    
+    class Meta:
+        ordering = ['quiz', 'order']
+        
+    def __str__(self):
+        return f"{self.quiz.title} - Q{self.order}: {self.text[:50]}..."
+    
+    def save(self, *args, **kwargs):
+        # Update updated_at on save
+        self.updated_at = timezone.now()
+        super().save(*args, **kwargs)
+        
+    def check_answer(self, selected_choices):
+        """
+        Check if the selected choices are correct.
+        
+        Args:
+            selected_choices: List of choice IDs or single choice ID
+            
+        Returns:
+            tuple: (is_correct, points_earned, feedback)
+        """
+        raise NotImplementedError("Subclasses must implement check_answer()")
+
+class MultipleChoiceQuestion(Question):
+    """
+    A question with multiple choice answers.
+    
+    Can be configured for single correct answer or multiple correct answers.
+    """
+    allow_multiple = models.BooleanField(default=False, help_text='Allow selecting multiple correct answers')
+    
+    def save(self, *args, **kwargs):
+        self.question_type = 'multiple_choice'
+        super().save(*args, **kwargs)
+        
+    def check_answer(self, selected_choices):
+        if not isinstance(selected_choices, list):
+            selected_choices = [selected_choices]
+            
+        # Get all choices for this question
+        choices = Choice.objects.filter(question=self)
+        correct_choices = choices.filter(is_correct=True)
+        
+        # For questions with multiple correct answers
+        if self.allow_multiple:
+            selected_choices_objs = choices.filter(id__in=selected_choices)
+            
+            # Check if all selected choices are correct and all correct choices are selected
+            all_correct = all(c.is_correct for c in selected_choices_objs)
+            all_selected = len(selected_choices_objs) == len(correct_choices)
+            
+            is_correct = all_correct and all_selected
+            points_earned = self.points if is_correct else 0
+            
+        # For questions with a single correct answer
+        else:
+            if len(selected_choices) != 1:
+                is_correct = False
+                points_earned = 0
+            else:
+                choice = choices.filter(id=selected_choices[0]).first()
+                is_correct = choice is not None and choice.is_correct
+                points_earned = self.points if is_correct else 0
+        
+        feedback = self.correct_feedback if is_correct else self.incorrect_feedback
+        return (is_correct, points_earned, feedback)
+
+class TrueFalseQuestion(Question):
+    """
+    A question with a true or false answer.
+    """
+    correct_answer = models.BooleanField(default=True)
+    
+    def save(self, *args, **kwargs):
+        self.question_type = 'true_false'
+        super().save(*args, **kwargs)
+        
+    def check_answer(self, selected_answer):
+        if isinstance(selected_answer, list):
+            selected_answer = selected_answer[0] if selected_answer else None
+            
+        if selected_answer in ('true', 'True', True, 1, '1'):
+            user_answer = True
+        elif selected_answer in ('false', 'False', False, 0, '0'):
+            user_answer = False
+        else:
+            user_answer = None
+            
+        is_correct = user_answer == self.correct_answer
+        points_earned = self.points if is_correct else 0
+        feedback = self.correct_feedback if is_correct else self.incorrect_feedback
+        
+        return (is_correct, points_earned, feedback)
+
+class Choice(models.Model):
+    """
+    A choice for a multiple choice question.
+    """
+    question = models.ForeignKey('MultipleChoiceQuestion', related_name='choices', on_delete=models.CASCADE)
+    text = models.CharField(max_length=255)
+    is_correct = models.BooleanField(default=False)
+    feedback = models.TextField(blank=True, help_text='Feedback specific to this choice')
+    order = models.PositiveIntegerField(default=0)
+    
+    class Meta:
+        ordering = ['question', 'order']
+        
+    def __str__(self):
+        return f"{self.question}: {self.text[:30]}... {'(Correct)' if self.is_correct else ''}"
+
+class QuizAttempt(models.Model):
+    """
+    Represents a user's attempt at a quiz.
+    
+    Tracks start time, end time, and score.
+    """
+    STATUS_CHOICES = [
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+        ('timed_out', 'Timed Out'),
+        ('abandoned', 'Abandoned')
+    ]
+    
+    quiz = models.ForeignKey('Quiz', related_name='attempts', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='quiz_attempts', on_delete=models.CASCADE)
+    started_at = models.DateTimeField(default=timezone.now)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='in_progress')
+    score = models.PositiveIntegerField(default=0)
+    max_score = models.PositiveIntegerField(default=0)
+    time_spent_seconds = models.PositiveIntegerField(default=0)
+    is_passed = models.BooleanField(default=False)
+    attempt_number = models.PositiveIntegerField(default=1)
+    
+    class Meta:
+        ordering = ['-started_at']
+        unique_together = [['quiz', 'user', 'attempt_number']]
+        
+    def __str__(self):
+        return f"{self.user.username} - {self.quiz.title} (Attempt {self.attempt_number})"
+    
+    def calculate_score(self):
+        """Calculate the score based on answers"""
+        responses = self.responses.all()
+        total_earned = sum(response.points_earned for response in responses)
+        question_count = self.quiz.questions.count()
+        total_possible = self.quiz.total_points()
+        
+        self.score = total_earned
+        self.max_score = total_possible
+        
+        # Calculate if passed
+        if total_possible > 0:
+            percentage = (total_earned / total_possible) * 100
+            self.is_passed = percentage >= self.quiz.passing_score
+        else:
+            self.is_passed = True  # No questions = automatic pass
+            
+        return self.score, self.max_score
+    
+    def mark_completed(self, timed_out=False):
+        """Mark this attempt as completed"""
+        if self.status == 'in_progress':
+            self.status = 'timed_out' if timed_out else 'completed'
+            self.completed_at = timezone.now()
+            
+            # Calculate score
+            self.calculate_score()
+            
+            # Calculate time spent
+            if self.started_at:
+                time_diff = (self.completed_at - self.started_at).total_seconds()
+                self.time_spent_seconds = int(time_diff)
+                
+            self.save()
+        
+        return self.is_passed
+
+class QuestionResponse(models.Model):
+    """
+    Represents a user's response to a question.
+    """
+    attempt = models.ForeignKey('QuizAttempt', related_name='responses', on_delete=models.CASCADE)
+    question = models.ForeignKey('Question', related_name='responses', on_delete=models.CASCADE)
+    response_data = models.JSONField(default=dict, help_text='JSON data containing the user\'s response')
+    is_correct = models.BooleanField(default=False)
+    points_earned = models.PositiveIntegerField(default=0)
+    feedback = models.TextField(blank=True)
+    time_spent_seconds = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(default=timezone.now)
+    
+    class Meta:
+        ordering = ['attempt', 'question__order']
+        unique_together = [['attempt', 'question']]
+        
+    def __str__(self):
+        return f"Response to {self.question} by {self.attempt.user.username}"
+        
+    def check_answer(self):
+        """Check if the answer is correct and update fields"""
+        if self.question.question_type == 'multiple_choice':
+            # Handle both single choice and multiple choices formats
+            if 'selected_choice' in self.response_data:
+                choices = [self.response_data.get('selected_choice')]
+            else:
+                choices = self.response_data.get('selected_choices', [])
+            is_correct, points, feedback = self.question.multiplechoicequestion.check_answer(choices)
+        elif self.question.question_type == 'true_false':
+            answer = self.response_data.get('selected_answer')
+            is_correct, points, feedback = self.question.truefalsequestion.check_answer(answer)
+        else:
+            is_correct, points, feedback = False, 0, "Unknown question type"
+            
+        self.is_correct = is_correct
+        self.points_earned = points
+        self.feedback = feedback
+        self.save()
+        
+        return is_correct, points
 
 class Enrollment(models.Model):
     STATUS_CHOICES = [
