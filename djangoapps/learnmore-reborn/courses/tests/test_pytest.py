@@ -4,17 +4,23 @@ Example pytest-based tests for the courses app.
 This file demonstrates how to use pytest with Django REST framework
 to properly test both templates and API views, addressing authentication issues.
 """
+from django.test import TestCase
+
+# Define a fallback right away
+AuthDisabledTestCase = TestCase
+
 try:
     import pytest
     from django.urls import reverse
     from rest_framework import status
     import json
-    from django.test import TestCase
+    
     try:
         from test_auth_settings import AuthDisabledTestCase
-    except ImportError:
-        # Fallback if test_auth_settings is not in path
-        AuthDisabledTestCase = TestCase
+    except (ImportError, ModuleNotFoundError):
+        # Keep the fallback already defined
+        pass
+        
     from api_test_utils import APITestCaseBase
     from courses.models import Course
     
