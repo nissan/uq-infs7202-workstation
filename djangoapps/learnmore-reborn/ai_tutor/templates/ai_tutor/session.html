@@ -1,0 +1,547 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ session.title }} - AI Tutor{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-container {
+        height: calc(100vh - 200px);
+        min-height: 500px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .message {
+        max-width: 80%;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        position: relative;
+    }
+    
+    .message-user {
+        align-self: flex-end;
+        background-color: #e9ecef;
+        border-bottom-right-radius: 0.25rem;
+    }
+    
+    .message-tutor {
+        align-self: flex-start;
+        background-color: #f8f9fa;
+        border-bottom-left-radius: 0.25rem;
+    }
+    
+    .message-system {
+        align-self: center;
+        background-color: #e2e3e5;
+        color: #41464b;
+        font-size: 0.875rem;
+        max-width: 90%;
+        text-align: center;
+    }
+    
+    .message-time {
+        font-size: 0.75rem;
+        color: #6c757d;
+        margin-top: 0.5rem;
+        text-align: right;
+    }
+    
+    .message-content {
+        margin-bottom: 0;
+        white-space: pre-wrap;
+    }
+    
+    .chat-input-container {
+        padding: 1rem;
+        border-top: 1px solid #dee2e6;
+        background-color: white;
+    }
+    
+    .chat-input {
+        resize: none;
+        max-height: 120px;
+        min-height: 40px;
+    }
+    
+    .session-info {
+        font-size: 0.875rem;
+    }
+    
+    .typing-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.75rem;
+        width: fit-content;
+        margin-top: 0.5rem;
+        align-self: flex-start;
+        background-color: #f8f9fa;
+    }
+    
+    .typing-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #6c757d;
+        animation: typing-animation 1.4s infinite ease-in-out;
+    }
+    
+    .typing-dot:nth-child(1) {
+        animation-delay: 0s;
+    }
+    
+    .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    
+    .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+    
+    @keyframes typing-animation {
+        0%, 60%, 100% {
+            transform: translateY(0);
+        }
+        30% {
+            transform: translateY(-6px);
+        }
+    }
+    
+    .code-block {
+        background-color: #f8f9fa;
+        border-radius: 0.375rem;
+        padding: 0.75rem;
+        margin-top: 0.75rem;
+        margin-bottom: 0.75rem;
+        overflow-x: auto;
+    }
+    
+    .code-block pre {
+        margin-bottom: 0;
+    }
+    
+    .feedback-container {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        justify-content: flex-end;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'ai_tutor_dashboard' %}">AI Tutor</a></li>
+                    <li class="breadcrumb-item active">{{ session.title }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-3 col-lg-2 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Session Info</h5>
+                </div>
+                <div class="card-body">
+                    <div class="session-info mb-3">
+                        <p class="mb-1"><strong>Course:</strong> {{ session.course.title|default:"General" }}</p>
+                        <p class="mb-1"><strong>Module:</strong> {{ session.module.title|default:"N/A" }}</p>
+                        <p class="mb-1"><strong>Status:</strong> 
+                            {% if session.status == 'active' %}
+                            <span class="badge bg-success">Active</span>
+                            {% elif session.status == 'completed' %}
+                            <span class="badge bg-secondary">Completed</span>
+                            {% elif session.status == 'expired' %}
+                            <span class="badge bg-warning text-dark">Expired</span>
+                            {% endif %}
+                        </p>
+                        <p class="mb-0"><strong>Created:</strong> {{ session.created_at|date:"M d, Y" }}</p>
+                    </div>
+                    
+                    {% if session.status == 'active' %}
+                    <form method="post" action="{% url 'end_tutor_session' session_id=session.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-secondary btn-sm w-100 mb-2">
+                            <i class="bi bi-box-arrow-right me-1"></i> End Session
+                        </button>
+                    </form>
+                    {% endif %}
+                    
+                    <a href="{% url 'ai_tutor_dashboard' %}" class="btn btn-outline-primary btn-sm w-100">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+            
+            {% if courses %}
+            <div class="card shadow-sm mt-3">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">Related Topics</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% if session.course %}
+                            {% for module in modules %}
+                                <li class="list-group-item border-0 px-0">
+                                    <a href="#" class="topic-link" data-topic="{{ module.title }}">
+                                        {{ module.title }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                            {% for course in courses|slice:":3" %}
+                                <li class="list-group-item border-0 px-0">
+                                    <strong class="d-block mb-1">{{ course.title }}</strong>
+                                    {% for module in course.modules.all|slice:":2" %}
+                                        <a href="#" class="topic-link d-block ms-2 my-1" data-topic="{{ module.title }}">
+                                            {{ module.title }}
+                                        </a>
+                                    {% endfor %}
+                                </li>
+                            {% endfor %}
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-9 col-lg-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="card-title mb-0">{{ session.title }}</h5>
+                </div>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        {% for message in messages %}
+                            <div class="message message-{{ message.message_type }}">
+                                <p class="message-content">{{ message.content }}</p>
+                                <div class="message-time">{{ message.created_at|date:"h:i A" }}</div>
+                                
+                                {% if message.message_type == 'tutor' %}
+                                <div class="feedback-container">
+                                    <button class="btn btn-sm btn-outline-success feedback-btn" data-message-id="{{ message.id }}" data-helpful="true">
+                                        <i class="bi bi-hand-thumbs-up"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger feedback-btn" data-message-id="{{ message.id }}" data-helpful="false">
+                                        <i class="bi bi-hand-thumbs-down"></i>
+                                    </button>
+                                </div>
+                                {% endif %}
+                            </div>
+                        {% empty %}
+                            <div class="message message-system">
+                                <p class="message-content">Welcome to your AI Tutor session! Ask me anything about your course or learning topics.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="chat-input-container">
+                        {% if session.status == 'active' %}
+                        <form id="messageForm" method="post" action="{% url 'send_tutor_message' session_id=session.id %}">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <textarea class="form-control chat-input" name="message" placeholder="Type your message here..." required id="messageInput"></textarea>
+                                <button class="btn btn-primary" type="submit" id="sendButton">
+                                    <i class="bi bi-send"></i>
+                                </button>
+                            </div>
+                        </form>
+                        {% else %}
+                        <div class="alert alert-secondary mb-0">
+                            <i class="bi bi-info-circle me-2"></i>
+                            This session is {{ session.status }}. You cannot send new messages.
+                            <a href="{% url 'create_tutor_session' %}" class="alert-link">Start a new session</a> to continue.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Feedback Modal -->
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="feedbackModalLabel">Provide Feedback</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="feedbackForm" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" name="helpful" id="feedbackHelpful">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Rate the response:</label>
+                        <div class="rating">
+                            <div class="btn-group" role="group">
+                                {% for i in "12345" %}
+                                <input type="radio" class="btn-check" name="rating" id="rating{{ i }}" value="{{ i }}" autocomplete="off">
+                                <label class="btn btn-outline-primary" for="rating{{ i }}">{{ i }}</label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="feedbackComment" class="form-label">Additional comments:</label>
+                        <textarea class="form-control" id="feedbackComment" name="comment" rows="3" placeholder="What was helpful or unhelpful about this response?"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const messageForm = document.getElementById('messageForm');
+        const feedbackForm = document.getElementById('feedbackForm');
+        const feedbackBtns = document.querySelectorAll('.feedback-btn');
+        const topicLinks = document.querySelectorAll('.topic-link');
+        
+        // Scroll to the bottom of the chat
+        if (chatMessages) {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Auto-resize textarea
+        if (messageInput) {
+            messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+            
+            // Handle enter key to send message
+            messageInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    messageForm.submit();
+                }
+            });
+        }
+        
+        // Handle message submission via AJAX
+        if (messageForm) {
+            messageForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const messageContent = messageInput.value.trim();
+                
+                if (!messageContent) {
+                    return;
+                }
+                
+                // Add user message to chat immediately
+                const userMessageDiv = document.createElement('div');
+                userMessageDiv.className = 'message message-user';
+                
+                const messageContentP = document.createElement('p');
+                messageContentP.className = 'message-content';
+                messageContentP.textContent = messageContent;
+                
+                const messageTimeDiv = document.createElement('div');
+                messageTimeDiv.className = 'message-time';
+                const now = new Date();
+                messageTimeDiv.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                userMessageDiv.appendChild(messageContentP);
+                userMessageDiv.appendChild(messageTimeDiv);
+                
+                chatMessages.appendChild(userMessageDiv);
+                
+                // Add typing indicator
+                const typingIndicator = document.createElement('div');
+                typingIndicator.className = 'typing-indicator';
+                for (let i = 0; i < 3; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'typing-dot';
+                    typingIndicator.appendChild(dot);
+                }
+                chatMessages.appendChild(typingIndicator);
+                
+                // Clear input and scroll to bottom
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Send message to server
+                fetch(messageForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Remove typing indicator
+                    typingIndicator.remove();
+                    
+                    // Add AI response
+                    if (data.status === 'success') {
+                        const tutorMessageDiv = document.createElement('div');
+                        tutorMessageDiv.className = 'message message-tutor';
+                        
+                        const tutorContentP = document.createElement('p');
+                        tutorContentP.className = 'message-content';
+                        tutorContentP.textContent = data.tutor_message.content;
+                        
+                        const tutorTimeDiv = document.createElement('div');
+                        tutorTimeDiv.className = 'message-time';
+                        const responseTime = new Date(data.tutor_message.created_at);
+                        tutorTimeDiv.textContent = responseTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                        
+                        const feedbackDiv = document.createElement('div');
+                        feedbackDiv.className = 'feedback-container';
+                        
+                        const helpfulBtn = document.createElement('button');
+                        helpfulBtn.className = 'btn btn-sm btn-outline-success feedback-btn';
+                        helpfulBtn.dataset.messageId = data.tutor_message.id;
+                        helpfulBtn.dataset.helpful = 'true';
+                        helpfulBtn.innerHTML = '<i class="bi bi-hand-thumbs-up"></i>';
+                        
+                        const unhelpfulBtn = document.createElement('button');
+                        unhelpfulBtn.className = 'btn btn-sm btn-outline-danger feedback-btn';
+                        unhelpfulBtn.dataset.messageId = data.tutor_message.id;
+                        unhelpfulBtn.dataset.helpful = 'false';
+                        unhelpfulBtn.innerHTML = '<i class="bi bi-hand-thumbs-down"></i>';
+                        
+                        feedbackDiv.appendChild(helpfulBtn);
+                        feedbackDiv.appendChild(unhelpfulBtn);
+                        
+                        tutorMessageDiv.appendChild(tutorContentP);
+                        tutorMessageDiv.appendChild(tutorTimeDiv);
+                        tutorMessageDiv.appendChild(feedbackDiv);
+                        
+                        chatMessages.appendChild(tutorMessageDiv);
+                        
+                        // Add event listeners to new feedback buttons
+                        helpfulBtn.addEventListener('click', handleFeedbackClick);
+                        unhelpfulBtn.addEventListener('click', handleFeedbackClick);
+                        
+                        // Scroll to bottom
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    } else {
+                        // Show error
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'message message-system';
+                        errorDiv.textContent = 'Error: ' + data.message;
+                        chatMessages.appendChild(errorDiv);
+                    }
+                })
+                .catch(error => {
+                    // Remove typing indicator
+                    typingIndicator.remove();
+                    
+                    // Show error
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'message message-system';
+                    errorDiv.textContent = 'Error sending message. Please try again.';
+                    chatMessages.appendChild(errorDiv);
+                    
+                    console.error('Error:', error);
+                });
+            });
+        }
+        
+        // Handle feedback button clicks
+        function handleFeedbackClick(e) {
+            const messageId = this.dataset.messageId;
+            const helpful = this.dataset.helpful;
+            
+            // Set form action and hidden field
+            feedbackForm.action = `/ai-tutor/messages/${messageId}/feedback/`;
+            document.getElementById('feedbackHelpful').value = helpful;
+            
+            // Show modal
+            const feedbackModal = new bootstrap.Modal(document.getElementById('feedbackModal'));
+            feedbackModal.show();
+        }
+        
+        // Add event listeners to all feedback buttons
+        feedbackBtns.forEach(btn => {
+            btn.addEventListener('click', handleFeedbackClick);
+        });
+        
+        // Handle feedback form submission
+        if (feedbackForm) {
+            feedbackForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Close modal
+                    bootstrap.Modal.getInstance(document.getElementById('feedbackModal')).hide();
+                    
+                    // Show success message
+                    if (data.status === 'success') {
+                        // Reset form
+                        feedbackForm.reset();
+                        
+                        // Show success toast or message
+                        alert('Thank you for your feedback!');
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error submitting feedback. Please try again.');
+                });
+            });
+        }
+        
+        // Handle topic link clicks to insert into message input
+        topicLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                if (messageInput) {
+                    const topic = this.dataset.topic;
+                    messageInput.value = `Tell me about ${topic}`;
+                    messageInput.focus();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

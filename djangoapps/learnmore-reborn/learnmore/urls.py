@@ -49,6 +49,7 @@ urlpatterns = [
     path('users/', include('users.urls')),  # Template-based user routes
     path('progress/', include('progress.urls')),  # Progress tracking and learning interface
     path('analytics/', include('analytics.urls')),  # Analytics dashboards and data
+    path('ai-tutor/', include('ai_tutor.urls')),  # AI Tutor interface and API
     # API URLs
     path('api/courses/', include('courses.api_urls')),
     path('api/progress/', include('progress.api_urls')),
