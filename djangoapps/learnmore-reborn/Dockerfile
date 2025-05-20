@@ -24,11 +24,11 @@ RUN mkdir -p /app/staticfiles && chmod 755 /app/staticfiles
 RUN useradd -m appuser
 
 # Copy requirements first to leverage Docker cache
-COPY djangoapps/learnmore-reborn/requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the entire project directory
-COPY djangoapps/learnmore-reborn/ .
+COPY . .
 
 # Set proper permissions
 RUN chown -R appuser:appuser /app && \
