@@ -115,9 +115,21 @@
                     <div class="border border-gray-200 rounded-lg overflow-hidden">
                         <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
                             <h3 class="font-semibold">Question {{ forloop.counter }}</h3>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if response.is_correct %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
-                                {% if response.is_correct %}Correct{% else %}Incorrect{% endif %}
-                            </span>
+                            {% if response.question.question_type == 'essay' %}
+                                {% if response.graded_at %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if response.is_correct %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    Graded
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    Pending Grading
+                                </span>
+                                {% endif %}
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if response.is_correct %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    {% if response.is_correct %}Correct{% else %}Incorrect{% endif %}
+                                </span>
+                            {% endif %}
                         </div>
                         
                         <div class="p-4">
@@ -187,9 +199,51 @@
                                 </div>
                                 {% endif %}
                             </div>
+                            {% elif response.question.question_type == 'essay' %}
+                            <div class="mb-4">
+                                <h4 class="text-sm font-medium text-gray-500 mb-2">Your Response:</h4>
+                                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 whitespace-pre-wrap">
+                                    {{ response.response_data.essay_text }}
+                                </div>
+                                
+                                {% if response.response_data.attachment_url %}
+                                <div class="mt-2">
+                                    <h4 class="text-sm font-medium text-gray-500 mb-1">Attachment:</h4>
+                                    <a href="{{ response.response_data.attachment_url }}" 
+                                       class="inline-flex items-center text-blue-600 hover:text-blue-800" 
+                                       target="_blank">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        View attachment
+                                    </a>
+                                </div>
+                                {% endif %}
+                                
+                                {% if response.graded_at %}
+                                <div class="mt-4">
+                                    <h4 class="text-sm font-medium text-gray-500 mb-1">Score:</h4>
+                                    <div class="font-medium">{{ response.points_earned }} / {{ response.question.points }} points</div>
+                                </div>
+                                
+                                {% if response.instructor_comment %}
+                                <div class="mt-2">
+                                    <h4 class="text-sm font-medium text-gray-500 mb-1">Instructor Feedback:</h4>
+                                    <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400 whitespace-pre-wrap">
+                                        {{ response.instructor_comment }}
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% else %}
+                                <div class="mt-4 bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400">
+                                    <h4 class="font-medium text-yellow-800 mb-1">Pending Grading</h4>
+                                    <p class="text-yellow-700">This essay response is waiting to be graded by an instructor.</p>
+                                </div>
+                                {% endif %}
+                            </div>
                             {% endif %}
                             
-                            {% if response.feedback %}
+                            {% if response.feedback and response.question.question_type != 'essay' %}
                             <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-blue-500">
                                 <h4 class="font-medium text-gray-900 mb-1">Feedback:</h4>
                                 <p class="text-gray-700">{{ response.feedback }}</p>
