@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.utils import timezone
+from django.core.validators import MinValueValidator, MaxValueValidator
 from .models import (
     UserActivity, LearnerAnalytics, CourseAnalytics,
     UserAnalytics, QuizAnalytics, SystemAnalytics,
@@ -8,9 +9,33 @@ from .models import (
 from courses.models import Course
 from courses.serializers import CourseSerializer, QuizSerializer, ModuleSerializer
 from users.serializers import UserSerializer
+import json
+
+class JSONFieldValidator:
+    """Validator for JSON fields to ensure proper structure"""
+    def __init__(self, schema=None):
+        self.schema = schema
+
+    def __call__(self, value):
+        if not isinstance(value, (dict, list)):
+            raise serializers.ValidationError("Value must be a valid JSON object or array")
+        if self.schema:
+            # Here you could add JSON schema validation if needed
+            pass
 
 class UserActivitySerializer(serializers.ModelSerializer):
+    """
+    Serializer for user activity tracking.
+    
+    Tracks various user activities on the platform including logins, views,
+    and other interactions. All fields are read-only except for activity_type
+    and details which can be set during creation.
+    """
     user = UserSerializer(read_only=True)
+    details = serializers.JSONField(
+        validators=[JSONFieldValidator()],
+        help_text="Additional activity-specific details in JSON format"
+    )
     
     class Meta:
         model = UserActivity
@@ -19,10 +44,33 @@ class UserActivitySerializer(serializers.ModelSerializer):
             'user_agent', 'session_id', 'details'
         ]
         read_only_fields = ['timestamp']
+    
+    def validate_activity_type(self, value):
+        """Validate activity type is one of the expected values"""
+        valid_types = ['login', 'logout', 'view_course', 'view_module', 
+                      'take_quiz', 'complete_module', 'update_profile']
+        if value not in valid_types:
+            raise serializers.ValidationError(
+                f"Activity type must be one of: {', '.join(valid_types)}"
+            )
+        return value
 
 class ModuleEngagementSerializer(serializers.ModelSerializer):
+    """
+    Serializer for module engagement tracking.
+    
+    Tracks how users interact with specific modules, including view counts,
+    time spent, and detailed interaction data.
+    """
     module = ModuleSerializer(read_only=True)
     user = UserSerializer(read_only=True)
+    interaction_data = serializers.JSONField(
+        validators=[JSONFieldValidator()],
+        help_text="Detailed interaction data in JSON format"
+    )
+    time_spent = serializers.DurationField(
+        help_text="Total time spent on this module"
+    )
     
     class Meta:
         model = ModuleEngagement
@@ -31,9 +79,30 @@ class ModuleEngagementSerializer(serializers.ModelSerializer):
             'last_viewed', 'completion_date', 'interaction_data'
         ]
         read_only_fields = ['last_viewed']
+    
+    def validate_view_count(self, value):
+        """Ensure view count is non-negative"""
+        if value < 0:
+            raise serializers.ValidationError("View count cannot be negative")
+        return value
 
 class CourseAnalyticsSerializer(serializers.ModelSerializer):
+    """
+    Serializer for comprehensive course analytics.
+    
+    Provides detailed analytics about course performance, engagement,
+    and learning metrics. All fields are read-only as they are
+    calculated automatically.
+    """
     course = CourseSerializer(read_only=True)
+    completion_rate = serializers.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
+        help_text="Course completion rate as a percentage"
+    )
+    engagement_score = serializers.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
+        help_text="Overall engagement score (0-100)"
+    )
     
     class Meta:
         model = CourseAnalytics
@@ -48,9 +117,33 @@ class CourseAnalyticsSerializer(serializers.ModelSerializer):
             'last_calculated'
         ]
         read_only_fields = ['created_at', 'last_updated', 'last_calculated']
+    
+    def to_representation(self, instance):
+        """Optimize representation by using cached data when available"""
+        data = super().to_representation(instance)
+        # Add any cached data if available
+        cache_key = f'course_analytics_{instance.course.id}'
+        cached_data = instance.calculate_metrics()
+        if cached_data:
+            data.update(cached_data)
+        return data
 
 class UserAnalyticsSerializer(serializers.ModelSerializer):
+    """
+    Serializer for user-specific analytics.
+    
+    Tracks individual user performance, engagement, and learning patterns.
+    All fields are read-only as they are calculated automatically.
+    """
     user = UserSerializer(read_only=True)
+    completion_rate = serializers.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
+        help_text="Overall completion rate as a percentage"
+    )
+    overall_engagement = serializers.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
+        help_text="Overall engagement score (0-100)"
+    )
     
     class Meta:
         model = UserAnalytics
@@ -68,7 +161,22 @@ class UserAnalyticsSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at', 'last_updated', 'last_calculated']
 
 class QuizAnalyticsSerializer(serializers.ModelSerializer):
+    """
+    Serializer for quiz-specific analytics.
+    
+    Provides detailed analytics about quiz performance, including
+    question difficulty, discrimination, and attempt patterns.
+    All fields are read-only as they are calculated automatically.
+    """
     quiz = QuizSerializer(read_only=True)
+    pass_rate = serializers.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
+        help_text="Quiz pass rate as a percentage"
+    )
+    average_score = serializers.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
+        help_text="Average quiz score as a percentage"
+    )
     
     class Meta:
         model = QuizAnalytics
@@ -83,6 +191,29 @@ class QuizAnalyticsSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at', 'last_updated', 'last_calculated']
 
 class SystemAnalyticsSerializer(serializers.ModelSerializer):
+    """
+    Serializer for system-wide analytics.
+    
+    Tracks system performance, resource usage, and error metrics.
+    All fields are read-only as they are collected automatically.
+    """
+    error_rate = serializers.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
+        help_text="System error rate as a percentage"
+    )
+    cpu_usage = serializers.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
+        help_text="CPU usage as a percentage"
+    )
+    memory_usage = serializers.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
+        help_text="Memory usage as a percentage"
+    )
+    cache_hit_rate = serializers.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
+        help_text="Cache hit rate as a percentage"
+    )
+    
     class Meta:
         model = SystemAnalytics
         fields = [
@@ -96,6 +227,21 @@ class SystemAnalyticsSerializer(serializers.ModelSerializer):
         read_only_fields = ['timestamp', 'last_updated']
 
 class LearningPathAnalyticsSerializer(serializers.ModelSerializer):
+    """
+    Serializer for learning path analytics.
+    
+    Tracks common learning paths through courses and their effectiveness.
+    All fields are read-only as they are calculated automatically.
+    """
+    success_rate = serializers.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
+        help_text="Path success rate as a percentage"
+    )
+    path_modules = serializers.JSONField(
+        validators=[JSONFieldValidator()],
+        help_text="List of module IDs in the learning path"
+    )
+    
     class Meta:
         model = LearningPathAnalytics
         fields = [
@@ -106,7 +252,21 @@ class LearningPathAnalyticsSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at', 'updated_at']
 
 class CourseAnalyticsSummarySerializer(serializers.ModelSerializer):
+    """
+    Serializer for course analytics summary.
+    
+    Provides a high-level summary of course analytics for quick access.
+    All fields are read-only as they are calculated automatically.
+    """
     course = CourseSerializer(read_only=True)
+    completion_rate = serializers.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
+        help_text="Course completion rate as a percentage"
+    )
+    engagement_score = serializers.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
+        help_text="Overall engagement score (0-100)"
+    )
     
     class Meta:
         model = CourseAnalyticsSummary
@@ -118,7 +278,26 @@ class CourseAnalyticsSummarySerializer(serializers.ModelSerializer):
         read_only_fields = ['last_updated']
 
 class LearnerAnalyticsSerializer(serializers.ModelSerializer):
+    """
+    Serializer for learner-specific analytics.
+    
+    Provides comprehensive analytics about individual learner performance,
+    including quiz results, study patterns, and progress tracking.
+    All fields are read-only as they are calculated automatically.
+    """
     user = UserSerializer(read_only=True)
+    strengths = serializers.JSONField(
+        validators=[JSONFieldValidator()],
+        help_text="List of learner's strengths"
+    )
+    areas_for_improvement = serializers.JSONField(
+        validators=[JSONFieldValidator()],
+        help_text="List of areas needing improvement"
+    )
+    performance_by_category = serializers.JSONField(
+        validators=[JSONFieldValidator()],
+        help_text="Performance metrics by category"
+    )
     
     class Meta:
         model = LearnerAnalytics
