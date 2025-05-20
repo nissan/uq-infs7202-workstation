@@ -61,7 +61,7 @@ class CourseSerializer(serializers.ModelSerializer):
         model = Course
         fields = [
             'id', 'title', 'slug', 'description', 'status',
-            'enrollment_type', 'max_students', 'start_date', 'end_date',
+            'enrollment_type', 'course_type', 'max_students', 'start_date', 'end_date',
             'instructor', 'instructor_name', 'created_at', 'updated_at',
             'enrollment_count', 'is_full', 'is_active', 'enrolled'
         ]

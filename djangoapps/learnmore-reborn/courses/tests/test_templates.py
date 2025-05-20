@@ -142,7 +142,7 @@ class CourseTemplateTests(TestCase):
         request = self._authenticate_request(request)  # Anonymous user
         
         # Get the response directly from the view
-        response = ModuleDetailView.as_view()(request, pk=self.module.pk)
+        response = ModuleDetailView.as_view()(request, module_id=self.module.pk)
         
         # Check redirect to login
         self.assertEqual(response.status_code, 302)
@@ -164,7 +164,7 @@ class CourseTemplateTests(TestCase):
         settings.TEST_MODE = False  # Temporarily disable test mode
         
         try:
-            response = ModuleDetailView.as_view()(request, pk=self.module.pk)
+            response = ModuleDetailView.as_view()(request, module_id=self.module.pk)
             # Check redirect to course detail
             self.assertEqual(response.status_code, 302)
         finally:
@@ -186,7 +186,7 @@ class CourseTemplateTests(TestCase):
         request = self._authenticate_request(request, user=self.user)
         
         # Get the response directly from the view
-        response = ModuleDetailView.as_view()(request, pk=self.module.pk)
+        response = ModuleDetailView.as_view()(request, module_id=self.module.pk)
         
         # Check status code
         self.assertEqual(response.status_code, 200)

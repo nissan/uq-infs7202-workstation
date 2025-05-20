@@ -104,6 +104,7 @@ class CourseDetailView(DetailView):
 class ModuleDetailView(LoginRequiredMixin, DetailView):
     model = Module
     template_name = 'courses/module_detail.html'
+    pk_url_kwarg = 'module_id'
     
     def get(self, request, *args, **kwargs):
         """

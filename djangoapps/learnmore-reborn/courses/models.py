@@ -23,6 +23,12 @@ class Course(models.Model):
         ('restricted', 'Restricted')
     ]
     
+    COURSE_TYPE_CHOICES = [
+        ('standard', 'Standard'),
+        ('self_paced', 'Self-Paced'),
+        ('intensive', 'Intensive')
+    ]
+    
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True, blank=True)
     description = models.TextField(blank=True)
@@ -33,6 +39,7 @@ class Course(models.Model):
     # Catalog-specific fields
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     enrollment_type = models.CharField(max_length=20, choices=ENROLLMENT_TYPE_CHOICES, default='open')
+    course_type = models.CharField(max_length=20, choices=COURSE_TYPE_CHOICES, default='standard')
     max_students = models.PositiveIntegerField(default=0, help_text='Maximum enrollment capacity (0 for unlimited)')
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)

@@ -6,4 +6,5 @@ urlpatterns = [
     path('statistics/', views.learning_statistics_view, name='learning-statistics'),
     path('learner-progress/', views.learner_progress_view, name='learner-progress'),
     path('learner-progress/<int:course_id>/', views.learner_progress_view, name='learner-progress'),
+    path('dashboard/', views.learner_progress_view, name='learner-dashboard'),  # Alias for learner-progress
 ]

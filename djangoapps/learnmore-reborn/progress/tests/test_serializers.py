@@ -3,8 +3,8 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 from courses.models import Course
-from .models import Progress
-from .serializers import ProgressSerializer
+from progress.models import Progress
+from progress.serializers import ProgressSerializer
 
 User = get_user_model()
 

@@ -253,7 +253,7 @@ class TemplateViewTests(TestCase):
         request = self._authenticate_request(request)
         
         # Get the response directly from the view
-        response = ModuleDetailView.as_view()(request, pk=self.module.pk)
+        response = ModuleDetailView.as_view()(request, module_id=self.module.pk)
         
         # Verify the redirection to login page
         self.assertEqual(response.status_code, 302)
@@ -266,7 +266,7 @@ class TemplateViewTests(TestCase):
         request = self._authenticate_request(request, user=self.instructor)
         
         # Get the response directly from the view
-        response = ModuleDetailView.as_view()(request, pk=self.module.pk)
+        response = ModuleDetailView.as_view()(request, module_id=self.module.pk)
         
         # Check status code
         self.assertEqual(response.status_code, 200)
@@ -278,7 +278,7 @@ class TemplateViewTests(TestCase):
         request = self._authenticate_request(request, user=self.student)
         
         # Get the response directly from the view
-        response = ModuleDetailView.as_view()(request, pk=self.module.pk)
+        response = ModuleDetailView.as_view()(request, module_id=self.module.pk)
         
         # Check status code
         self.assertEqual(response.status_code, 200)
