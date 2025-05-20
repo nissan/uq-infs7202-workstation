@@ -4,38 +4,38 @@ This checklist covers migrating the learning interface and progress tracking fea
 
 ## Models & Migrations
 
-- [ ] Update `Progress` model in `progress/models.py` to track:
-  - [ ] Module-level progress
-  - [ ] Content completion status
-  - [ ] Timestamp for last activity
-  - [ ] Total duration spent
-- [ ] Add learning activity related fields to `Module` model:
-  - [ ] Content type (video, text, interactive)
-  - [ ] Estimated completion time
-  - [ ] Prerequisites (if any)
-- [ ] Run `makemigrations progress courses` and commit migrations
+- [x] Update `Progress` model in `progress/models.py` to track:
+  - [x] Module-level progress
+  - [x] Content completion status
+  - [x] Timestamp for last activity
+  - [x] Total duration spent
+- [x] Add learning activity related fields to `Module` model:
+  - [x] Content type (video, text, interactive)
+  - [x] Estimated completion time
+  - [x] Prerequisites (if any)
+- [x] Run `makemigrations progress courses` and commit migrations
 
 ## Admin
 
-- [ ] Register enhanced `Progress` model in Django Admin
-- [ ] Add learning progress management interface
-- [ ] Add module content management features:
-  - [ ] Content organization
-  - [ ] Prerequisites management
-  - [ ] Completion tracking overview
+- [x] Register enhanced `Progress` model in Django Admin
+- [x] Add learning progress management interface
+- [x] Add module content management features:
+  - [x] Content organization
+  - [x] Prerequisites management
+  - [x] Completion tracking overview
 
 ## API & Serializers
 
-- [ ] Create or update `ProgressSerializer` in `progress/serializers.py`
-- [ ] Update `ModuleSerializer` with learning-specific fields
-- [ ] Wire up DRF viewsets or APIViews for:
-  - [ ] `GET /api/progress/` (get all progress for user)
-  - [ ] `GET /api/progress/{course_id}/` (get progress for specific course)
-  - [ ] `POST /api/progress/{module_id}/` (update progress for module)
-  - [ ] `GET /api/progress/continue/` (get next incomplete module)
-  - [ ] `GET /api/progress/stats/` (get learning statistics)
-  - [ ] `POST /api/progress/reset/{course_id}/` (reset progress for course)
-- [ ] Add URL patterns in `progress/api_urls.py`
+- [x] Create or update `ProgressSerializer` in `progress/serializers.py`
+- [x] Update `ModuleSerializer` with learning-specific fields
+- [x] Wire up DRF viewsets or APIViews for:
+  - [x] `GET /api/progress/progress/` (get all progress for user)
+  - [x] `GET /api/progress/progress/course/?course_id={id}` (get progress for specific course)
+  - [x] `POST /api/progress/module-progress/{id}/complete/` (mark module as completed)
+  - [x] `GET /api/progress/progress/continue_learning/` (get next incomplete module)
+  - [x] `GET /api/progress/progress/stats/` (get learning statistics)
+  - [x] `POST /api/progress/progress/{id}/reset/` (reset progress for course)
+- [x] Add URL patterns in `progress/api_urls.py`
 
 ## UI Components
 
