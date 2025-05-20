@@ -6,8 +6,8 @@ buildCommand = "pip install -r requirements.txt"
 startCommand = "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn learnmore.wsgi:application"
 healthcheckPath = "/admin/"
 healthcheckTimeout = 100
-restartPolicyType = "on-failure"
+restartPolicyType = "always"
 restartPolicyMaxRetries = 10
 
-[deploy.env]
+[env]
 PYTHON_VERSION = "3.11" 
