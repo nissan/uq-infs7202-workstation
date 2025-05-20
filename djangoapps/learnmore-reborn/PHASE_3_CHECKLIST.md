@@ -47,19 +47,20 @@ This checklist covers migrating the course catalog and enrollment features into 
 
 ## Tests
 
-- [ ] Write unit tests for:
-  - [ ] Enrollment model
-  - [ ] Course catalog serializers
-  - [ ] Enrollment serializers
-- [ ] Write API tests for:
-  - [ ] Course catalog endpoints
-  - [ ] Search and filter functionality
-  - [ ] Enrollment operations
-- [ ] Add UI component tests
-- [ ] Test enrollment edge cases:
-  - [ ] Maximum capacity reached
-  - [ ] Restricted enrollment
-  - [ ] Concurrent enrollment attempts
+- [x] Write unit tests for:
+  - [x] Enrollment model
+  - [x] Course catalog serializers
+  - [x] Enrollment serializers
+- [x] Write API tests for:
+  - [x] Course catalog endpoints
+  - [x] Search and filter functionality
+  - [x] Enrollment operations
+- [x] Add UI component tests
+- [x] Test enrollment edge cases:
+  - [x] Maximum capacity reached
+  - [x] Restricted enrollment
+  - [x] Concurrent enrollment attempts
+- [x] Fixed issues with 'enrolled' attribute in CourseViewSet and CourseSerializer
 
 ## Docs
 

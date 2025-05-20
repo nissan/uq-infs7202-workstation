@@ -119,6 +119,20 @@ The application uses Django's built-in User model with a custom UserProfile exte
 
 The platform features a comprehensive course catalog with enrollment management capabilities. Users can browse courses, filter by enrollment type, search for specific courses, and enroll in courses of interest.
 
+## 📊 Learning Progress Tracking
+
+The platform includes a robust progress tracking system that allows users to track their learning journey through courses. Key features include:
+
+- **Course Progress**: Track overall completion percentage for each course
+- **Module-Level Progress**: Track completion status of individual modules
+- **Time Tracking**: Automatically track time spent on learning activities
+- **Prerequisites**: Module prerequisites enforcement ensures proper learning sequence
+- **Learning Statistics**: View comprehensive learning statistics across all courses
+- **Continue Learning**: Easily pick up where you left off in your learning journey
+- **Progress Reset**: Reset progress for a course to start over
+
+For detailed information on the progress tracking implementation, see [docs/PROGRESS_TRACKING.md](docs/PROGRESS_TRACKING.md).
+
 ### Available Endpoints
 
 - `POST /api/users/register/` - Register a new user
@@ -139,6 +153,19 @@ For detailed API documentation, see [users/API_DOCUMENTATION.md](users/API_DOCUM
 - `GET /api/courses/enrolled/` - List enrolled courses
 
 For detailed API documentation on course catalog and enrollment, see [courses/API_DOCUMENTATION.md](courses/API_DOCUMENTATION.md).
+
+### Progress Tracking Endpoints
+
+- `GET /api/progress/progress/` - List all progress records for the current user
+- `GET /api/progress/progress/{id}/` - Get details for a specific progress record
+- `GET /api/progress/progress/course/?course_id={id}` - Get progress for a specific course
+- `GET /api/progress/progress/continue_learning/` - Get the next incomplete module to continue learning
+- `GET /api/progress/progress/stats/` - Get learning statistics across all courses
+- `POST /api/progress/progress/{id}/reset/` - Reset progress for a specific course
+- `GET /api/progress/module-progress/` - List all module progress records for the current user
+- `POST /api/progress/module-progress/{id}/complete/` - Mark a module as completed
+- `POST /api/progress/module-progress/{id}/update_position/` - Update content position (for video/audio)
+- `POST /api/progress/module-progress/{id}/add_time/` - Add time spent on a module
 
 ### User Profile Fields
 

@@ -1,0 +1,689 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ course.title }} Progress | LearnMore{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Progress styles */
+    .progress-container {
+        margin-bottom: 2rem;
+    }
+    
+    .progress-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .progress-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+    }
+    
+    .progress-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .badge-completed {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    
+    .badge-in-progress {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .badge-not-started {
+        background-color: #f3f4f6;
+        color: #6b7280;
+    }
+    
+    .progress-bar-container {
+        height: 0.5rem;
+        background-color: #e5e7eb;
+        border-radius: 9999px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+    
+    .progress-bar {
+        height: 100%;
+        border-radius: 9999px;
+        transition: width 0.3s ease;
+        background-color: #3b82f6;
+    }
+    
+    .progress-stats {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+    
+    /* Module list styles */
+    .module-list {
+        background-color: white;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    }
+    
+    .module-item {
+        border-bottom: 1px solid #e5e7eb;
+        transition: background-color 0.2s ease;
+    }
+    
+    .module-item:last-child {
+        border-bottom: none;
+    }
+    
+    .module-item:hover {
+        background-color: #f9fafb;
+    }
+    
+    .module-header {
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+    }
+    
+    .module-title {
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .module-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.75rem;
+        height: 1.75rem;
+        border-radius: 9999px;
+        background-color: #f3f4f6;
+        color: #4b5563;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    
+    .module-icon {
+        width: 0.875rem;
+        transition: transform 0.2s ease;
+    }
+    
+    .module-content {
+        padding: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .module-content.open {
+        padding: 1rem 1.5rem;
+        max-height: 500px;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .module-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .module-detail {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .detail-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-bottom: 0.25rem;
+    }
+    
+    .detail-value {
+        font-size: 0.875rem;
+        color: #1f2937;
+        font-weight: 500;
+    }
+    
+    .module-actions {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+        margin-top: 1rem;
+    }
+    
+    .btn-action {
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-primary {
+        background-color: #3b82f6;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: #2563eb;
+    }
+    
+    .btn-secondary {
+        background-color: white;
+        color: #4b5563;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #f9fafb;
+    }
+    
+    .complete-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        color: #10b981;
+    }
+    
+    .locked-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        color: #9ca3af;
+    }
+    
+    /* Summary card styles */
+    .summary-card {
+        background-color: white;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        margin-bottom: 1.5rem;
+    }
+    
+    .summary-header {
+        padding: 1rem 1.5rem;
+        background-color: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .summary-title {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+    
+    .summary-body {
+        padding: 1.5rem;
+    }
+    
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .summary-stat {
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: #3b82f6;
+        margin-bottom: 0.25rem;
+    }
+    
+    .stat-label {
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+    
+    .summary-actions {
+        margin-top: 1.5rem;
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+    }
+    
+    .btn-danger {
+        background-color: #ef4444;
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background-color: #dc2626;
+    }
+    
+    /* Status indicators */
+    .status-indicator {
+        display: flex;
+        align-items: center;
+    }
+    
+    .status-dot {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 9999px;
+        margin-right: 0.5rem;
+    }
+    
+    .status-completed {
+        background-color: #10b981;
+    }
+    
+    .status-in-progress {
+        background-color: #3b82f6;
+    }
+    
+    .status-not-started {
+        background-color: #9ca3af;
+    }
+    
+    .status-locked {
+        background-color: #9ca3af;
+    }
+    
+    .status-text {
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .text-completed {
+        color: #10b981;
+    }
+    
+    .text-in-progress {
+        color: #3b82f6;
+    }
+    
+    .text-not-started {
+        color: #6b7280;
+    }
+    
+    .text-locked {
+        color: #6b7280;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="py-3">
+            <nav class="flex" aria-label="Breadcrumb">
+                <ol class="flex items-center space-x-4">
+                    <li>
+                        <div>
+                            <a href="{% url 'course-catalog' %}" class="text-gray-500 hover:text-gray-700">Courses</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <svg class="flex-shrink-0 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            <a href="{% url 'course-detail' slug=course.slug %}" class="ml-4 text-gray-500 hover:text-gray-700">{{ course.title }}</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <svg class="flex-shrink-0 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="ml-4 text-gray-500 font-medium">Progress</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main content area -->
+        <div class="lg:col-span-2">
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold text-gray-900">{{ course.title }} Progress</h1>
+                <p class="text-gray-600">Track your learning journey through this course</p>
+            </div>
+            
+            <!-- Progress overview -->
+            <div class="progress-container">
+                <div class="progress-heading">
+                    <h2 class="progress-title">Overall Progress</h2>
+                    {% if progress.is_completed %}
+                    <span class="progress-badge badge-completed">Completed</span>
+                    {% else %}
+                    <span class="progress-badge badge-in-progress">In Progress</span>
+                    {% endif %}
+                </div>
+                
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: {{ progress.completion_percentage }}%"></div>
+                </div>
+                
+                <div class="progress-stats">
+                    <span>{{ progress.completed_lessons }} of {{ progress.total_lessons }} modules completed</span>
+                    <span>{{ progress.completion_percentage|floatformat:0 }}%</span>
+                </div>
+            </div>
+            
+            <!-- Module list -->
+            <div class="module-list">
+                {% for mp in module_progress %}
+                <div class="module-item">
+                    <div class="module-header" data-module-id="{{ mp.module.id }}">
+                        <div class="module-title">
+                            <span class="module-number">{{ mp.module.order|add:"1" }}</span>
+                            <span>{{ mp.module.title }}</span>
+                            {% if mp.status == 'completed' %}
+                            <svg class="complete-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            {% elif not mp.module.is_accessible %}
+                            <svg class="locked-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                            </svg>
+                            {% endif %}
+                        </div>
+                        <div class="status-indicator">
+                            <div class="status-dot 
+                                {% if mp.status == 'completed' %}status-completed
+                                {% elif mp.status == 'in_progress' %}status-in-progress
+                                {% elif not mp.module.is_accessible %}status-locked
+                                {% else %}status-not-started{% endif %}">
+                            </div>
+                            <span class="status-text 
+                                {% if mp.status == 'completed' %}text-completed
+                                {% elif mp.status == 'in_progress' %}text-in-progress
+                                {% elif not mp.module.is_accessible %}text-locked
+                                {% else %}text-not-started{% endif %}">
+                                {% if mp.status == 'completed' %}Completed
+                                {% elif mp.status == 'in_progress' %}In Progress
+                                {% elif not mp.module.is_accessible %}Locked
+                                {% else %}Not Started{% endif %}
+                            </span>
+                            <svg class="module-icon ml-2 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-details">
+                            <div class="module-detail">
+                                <span class="detail-label">Status</span>
+                                <span class="detail-value">
+                                    {% if mp.status == 'completed' %}Completed
+                                    {% elif mp.status == 'in_progress' %}In Progress
+                                    {% else %}Not Started{% endif %}
+                                </span>
+                            </div>
+                            <div class="module-detail">
+                                <span class="detail-label">Content Type</span>
+                                <span class="detail-value">{{ mp.module.get_content_type_display }}</span>
+                            </div>
+                            <div class="module-detail">
+                                <span class="detail-label">Estimated Time</span>
+                                <span class="detail-value">{{ mp.module.estimated_time_minutes }} minutes</span>
+                            </div>
+                            <div class="module-detail">
+                                <span class="detail-label">Time Spent</span>
+                                <span class="detail-value">{{ mp.duration_seconds }} seconds</span>
+                            </div>
+                            {% if mp.completed_at %}
+                            <div class="module-detail">
+                                <span class="detail-label">Completed On</span>
+                                <span class="detail-value">{{ mp.completed_at|date:"M d, Y" }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="module-actions">
+                            {% if mp.status == 'completed' %}
+                            <a href="{% url 'learning-interface' module_id=mp.module.id %}" class="btn-action btn-secondary">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                Review
+                            </a>
+                            {% elif mp.module.is_accessible %}
+                            <a href="{% url 'learning-interface' module_id=mp.module.id %}" class="btn-action btn-primary">
+                                {% if mp.status == 'in_progress' %}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Continue
+                                {% else %}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Start
+                                {% endif %}
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+            <!-- Course summary card -->
+            <div class="summary-card">
+                <div class="summary-header">
+                    <h3 class="summary-title">Learning Summary</h3>
+                </div>
+                <div class="summary-body">
+                    <div class="summary-grid">
+                        <div class="summary-stat">
+                            <div class="stat-value">{{ progress.completed_lessons }}</div>
+                            <div class="stat-label">Modules Completed</div>
+                        </div>
+                        <div class="summary-stat">
+                            <div class="stat-value">{{ progress.total_duration }}</div>
+                            <div class="stat-label">Total Time Spent</div>
+                        </div>
+                        <div class="summary-stat">
+                            <div class="stat-value">{{ progress.completion_percentage|floatformat:0 }}%</div>
+                            <div class="stat-label">Completion Rate</div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-actions">
+                        <a href="{% url 'course-detail' slug=course.slug %}" class="btn-action btn-secondary">
+                            Back to Course
+                        </a>
+                        <button class="btn-action btn-danger" id="resetProgressBtn" data-course-id="{{ progress.id }}" data-course-title="{{ course.title }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Reset Progress
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Continue learning card -->
+            {% if not progress.is_completed %}
+            <div class="summary-card bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
+                <div class="summary-header border-blue-400 bg-opacity-10 bg-blue-600">
+                    <h3 class="summary-title text-white">Continue Learning</h3>
+                </div>
+                <div class="summary-body">
+                    {% if progress.next_module %}
+                    <p class="mb-4">Ready to pick up where you left off?</p>
+                    
+                    <div class="bg-white bg-opacity-10 p-4 rounded-lg mb-4">
+                        <h4 class="font-medium mb-1">Next up:</h4>
+                        <p class="text-lg mb-3">{{ progress.next_module.title }}</p>
+                        <div class="text-sm text-blue-100">{{ progress.next_module.get_content_type_display }} • {{ progress.next_module.estimated_time_minutes }} minutes</div>
+                    </div>
+                    
+                    <a href="{% url 'learning-interface' module_id=progress.next_module.id %}" class="w-full block text-center py-2 px-4 bg-white text-blue-600 rounded-md font-medium hover:bg-blue-50 transition">
+                        Start Learning
+                    </a>
+                    {% else %}
+                    <p>You have completed all modules in this course!</p>
+                    <a href="{% url 'course-catalog' %}" class="w-full block text-center py-2 px-4 mt-4 bg-white text-blue-600 rounded-md font-medium hover:bg-blue-50 transition">
+                        Explore More Courses
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Include reset confirmation modal -->
+{% include 'progress/reset-confirmation-modal.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Module accordion functionality
+        const moduleHeaders = document.querySelectorAll('.module-header');
+        moduleHeaders.forEach(header => {
+            header.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                const icon = this.querySelector('.module-icon');
+                
+                // Toggle content
+                content.classList.toggle('open');
+                
+                // Rotate icon
+                if (content.classList.contains('open')) {
+                    icon.style.transform = 'rotate(180deg)';
+                } else {
+                    icon.style.transform = 'rotate(0)';
+                }
+            });
+        });
+        
+        // Reset progress button
+        const resetBtn = document.getElementById('resetProgressBtn');
+        const modal = document.getElementById('resetProgressModal');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const closeModalBtn = document.getElementById('closeModal');
+        const cancelResetBtn = document.getElementById('cancelResetBtn');
+        const confirmResetBtn = document.getElementById('confirmResetBtn');
+        
+        // Show modal
+        resetBtn.addEventListener('click', function() {
+            const courseId = this.getAttribute('data-course-id');
+            const courseTitle = this.getAttribute('data-course-title');
+            
+            // Set course info in modal
+            document.getElementById('courseTitle').textContent = courseTitle;
+            document.getElementById('modulesCompleted').querySelector('span').textContent = 
+                "{{ progress.completed_lessons }} out of {{ progress.total_lessons }}";
+            document.getElementById('timeSpent').querySelector('span').textContent = 
+                "{{ progress.total_duration }}";
+            document.getElementById('courseCompletion').querySelector('span').textContent = 
+                "{{ progress.completion_percentage|floatformat:0 }}";
+            
+            // Store course ID for reset action
+            confirmResetBtn.setAttribute('data-progress-id', courseId);
+            
+            // Show modal
+            modal.classList.remove('hidden');
+        });
+        
+        // Hide modal
+        function hideModal() {
+            modal.classList.add('hidden');
+        }
+        
+        modalOverlay.addEventListener('click', hideModal);
+        closeModalBtn.addEventListener('click', hideModal);
+        cancelResetBtn.addEventListener('click', hideModal);
+        
+        // Handle reset confirmation
+        confirmResetBtn.addEventListener('click', function() {
+            const progressId = this.getAttribute('data-progress-id');
+            
+            // Show loading state
+            this.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Resetting...
+            `;
+            this.disabled = true;
+            
+            // Make API call to reset progress
+            fetch(`/api/progress/progress/${progressId}/reset/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to reset progress');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Redirect to the same page to refresh data
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to reset progress. Please try again.');
+                
+                // Reset button state
+                this.innerHTML = 'Reset Progress';
+                this.disabled = false;
+                
+                // Hide modal
+                hideModal();
+            });
+        });
+        
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
+{% endblock %}

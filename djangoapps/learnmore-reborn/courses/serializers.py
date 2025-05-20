@@ -10,10 +10,39 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'first_name', 'last_name']
 
 class ModuleSerializer(serializers.ModelSerializer):
+    course_title = serializers.CharField(source='course.title', read_only=True)
+    prerequisites_info = serializers.SerializerMethodField()
+    has_prerequisites = serializers.SerializerMethodField()
+    
     class Meta:
         model = Module
-        fields = ['id', 'course', 'title', 'description', 'order']
-        read_only_fields = ['id']
+        fields = [
+            'id', 'course', 'course_title', 'title', 'description', 'order',
+            'content_type', 'estimated_time_minutes', 'is_required',
+            'completion_criteria', 'content', 'prerequisites_info',
+            'has_prerequisites'
+        ]
+        read_only_fields = ['id', 'course_title', 'prerequisites_info', 'has_prerequisites']
+        
+    def get_prerequisites_info(self, obj):
+        """Return information about module prerequisites"""
+        prerequisites = obj.get_prerequisite_modules()
+        if not prerequisites.exists():
+            return []
+            
+        return [
+            {
+                'id': prereq.id,
+                'title': prereq.title,
+                'content_type': prereq.content_type,
+                'order': prereq.order
+            }
+            for prereq in prerequisites
+        ]
+        
+    def get_has_prerequisites(self, obj):
+        """Return whether this module has prerequisites"""
+        return obj.has_prerequisites
 
 class QuizSerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,14 +55,15 @@ class CourseSerializer(serializers.ModelSerializer):
     enrollment_count = serializers.SerializerMethodField()
     is_full = serializers.SerializerMethodField()
     is_active = serializers.SerializerMethodField()
+    enrolled = serializers.SerializerMethodField()
     
     class Meta:
         model = Course
         fields = [
             'id', 'title', 'slug', 'description', 'status',
-            'enrollment_type', 'max_students', 'start_date', 'end_date',
+            'enrollment_type', 'course_type', 'max_students', 'start_date', 'end_date',
             'instructor', 'instructor_name', 'created_at', 'updated_at',
-            'enrollment_count', 'is_full', 'is_active'
+            'enrollment_count', 'is_full', 'is_active', 'enrolled'
         ]
         read_only_fields = ['id', 'slug', 'created_at', 'updated_at']
     
@@ -48,6 +78,12 @@ class CourseSerializer(serializers.ModelSerializer):
     
     def get_is_active(self, obj):
         return obj.is_active
+        
+    def get_enrolled(self, obj):
+        request = self.context.get('request')
+        if request and hasattr(request, 'user') and request.user and getattr(request.user, 'is_authenticated', False):
+            return obj.enrollments.filter(user=request.user, status='active').exists()
+        return False
 
 class CourseDetailSerializer(CourseSerializer):
     modules = ModuleSerializer(many=True, read_only=True)

@@ -71,6 +71,27 @@ class CourseSerializerValidationTest(TestCase):
         serializer = CourseSerializer(data=invalid_data)
         self.assertFalse(serializer.is_valid())
         self.assertIn('enrollment_type', serializer.errors)
+        
+    def test_course_type_default_and_validation(self):
+        """Test that course_type has the correct default and validates choices."""
+        # Default value should be 'standard'
+        serializer = CourseSerializer(data=self.valid_data)
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(serializer.validated_data.get('course_type', 'standard'), 'standard')
+        
+        # Valid value should pass validation
+        valid_data = self.valid_data.copy()
+        valid_data['course_type'] = 'self_paced'
+        serializer = CourseSerializer(data=valid_data)
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(serializer.validated_data['course_type'], 'self_paced')
+        
+        # Invalid value should fail validation
+        invalid_data = self.valid_data.copy()
+        invalid_data['course_type'] = 'invalid_type'
+        serializer = CourseSerializer(data=invalid_data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('course_type', serializer.errors)
     
     def test_negative_max_students(self):
         """Test that negative max_students fails validation."""

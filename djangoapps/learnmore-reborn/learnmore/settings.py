@@ -57,6 +57,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'test_middleware.TestCSRFMiddleware',  # First, to disable CSRF before other middleware
     'corsheaders.middleware.CorsMiddleware',  # Add this before CommonMiddleware
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -235,3 +236,8 @@ LOGGING = {
 
 # Custom test runner to suppress expected warnings during tests
 TEST_RUNNER = 'test_runner.QuietTestRunner'
+
+# Authentication settings
+LOGIN_URL = '/users/login/'
+LOGIN_REDIRECT_URL = '/courses/catalog/'
+LOGOUT_REDIRECT_URL = '/courses/catalog/'

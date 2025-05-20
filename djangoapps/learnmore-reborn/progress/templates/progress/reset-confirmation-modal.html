@@ -1,0 +1,65 @@
+<!-- Progress reset confirmation modal -->
+<div id="resetProgressModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div class="absolute inset-0 bg-black bg-opacity-50" id="modalOverlay"></div>
+    <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden transform transition-all">
+        <!-- Modal header -->
+        <div class="bg-red-50 px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-medium text-red-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    Reset Progress
+                </h3>
+                <button type="button" class="text-gray-400 hover:text-gray-500" id="closeModal">
+                    <span class="sr-only">Close</span>
+                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="px-6 py-4">
+            <div class="mb-4">
+                <p class="text-gray-700 mb-3">Are you sure you want to reset your progress for <span id="courseTitle" class="font-semibold"></span>?</p>
+                <p class="text-gray-600 text-sm mb-4">This will delete all module progress, completion status, and time tracking data. This action <span class="font-bold text-red-600">cannot be undone</span>.</p>
+                
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-yellow-700">
+                                You will need to complete all modules again, and all time tracking will be reset to zero.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 p-3 rounded-lg mb-4" id="progressSummary">
+                    <div class="text-sm font-medium text-gray-700 mb-2">Current Progress Summary:</div>
+                    <ul class="text-sm text-gray-600 space-y-1 ml-2">
+                        <li id="modulesCompleted">• Completed modules: <span></span></li>
+                        <li id="timeSpent">• Time spent: <span></span></li>
+                        <li id="courseCompletion">• Course completion: <span></span>%</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal footer -->
+        <div class="bg-gray-50 px-6 py-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+            <button type="button" class="w-full sm:w-auto px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" id="cancelResetBtn">
+                Cancel
+            </button>
+            <button type="button" class="w-full sm:w-auto px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" id="confirmResetBtn">
+                Reset Progress
+            </button>
+        </div>
+    </div>
+</div>

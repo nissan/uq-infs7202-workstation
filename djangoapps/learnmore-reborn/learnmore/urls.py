@@ -42,7 +42,11 @@ def root_view(request):
 urlpatterns = [
     path('', root_view, name='root'),
     path('admin/', admin.site.urls),
+    # Template-based URLs
     path('courses/', include('courses.urls')),
+    path('users/', include('users.urls')),  # Template-based user routes
+    path('progress/', include('progress.urls')),  # Progress tracking and learning interface
+    # API URLs
     path('api/courses/', include('courses.api_urls')),
     path('api/progress/', include('progress.api_urls')),
     path('api/users/', include('users.api_urls')),

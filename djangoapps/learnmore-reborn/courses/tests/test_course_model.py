@@ -3,10 +3,12 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
 from courses.models import Course
+from test_auth_settings import AuthDisabledTestCase
+from api_test_utils import APITestCaseBase
 
 User = get_user_model()
 
-class CourseModelTest(TestCase):
+class CourseModelTest(AuthDisabledTestCase):
     """Tests for Course model CRUD operations."""
     
     def setUp(self):
@@ -170,3 +172,22 @@ class CourseModelTest(TestCase):
         """Test string representation of Course."""
         course = Course.objects.create(**self.course_data)
         self.assertEqual(str(course), self.course_data['title'])
+        
+    def test_course_type_field(self):
+        """Test that course_type field has the correct default and choices."""
+        course = Course.objects.create(**self.course_data)
+        
+        # Test default value
+        self.assertEqual(course.course_type, 'standard')
+        
+        # Test changing to other valid value
+        course.course_type = 'self_paced'
+        course.save()
+        course.refresh_from_db()
+        self.assertEqual(course.course_type, 'self_paced')
+        
+        # Test changing to another valid value
+        course.course_type = 'intensive'
+        course.save()
+        course.refresh_from_db()
+        self.assertEqual(course.course_type, 'intensive')

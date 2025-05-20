@@ -8,3 +8,6 @@ from courses.serializer_tests import (
     QuizSerializerValidationTest,
     EnrollmentSerializerValidationTest
 )
+from courses.template_tests import TemplateViewTests
+from test_auth_settings import AuthDisabledTestCase
+from api_test_utils import APITestCaseBase

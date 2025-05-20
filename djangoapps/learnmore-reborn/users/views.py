@@ -1,14 +1,93 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib.messages.storage.fallback import FallbackStorage
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
 from .serializers import UserSerializer, LoginSerializer, UserProfileSerializer, GoogleAuthSerializer
 from .models import UserProfile
+from .forms import UserRegistrationForm, UserProfileForm
 
-# Create your views here.
+# Template-based views
+
+@csrf_exempt
+def register_view(request):
+    """User registration view with form handling."""
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Profile is auto-created via signal
+            login(request, user)
+            messages.success(request, 'Registration successful! Welcome to LearnMore.')
+            return redirect('course-catalog')
+    else:
+        form = UserRegistrationForm()
+    
+    return render(request, 'users/register.html', {'form': form})
+
+@csrf_exempt
+def login_view(request):
+    """User login view with form handling."""
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            messages.success(request, f'Welcome back, {username}!')
+            
+            # Redirect based on user role
+            if user.profile.is_instructor:
+                return redirect('admin:index')
+            else:
+                return redirect('course-catalog')
+        else:
+            messages.error(request, 'Invalid username or password.')
+    
+    return render(request, 'users/login.html')
+
+@csrf_exempt
+def logout_view(request):
+    """User logout view."""
+    # Clear any existing messages
+    storage = FallbackStorage(request)
+    storage.used = True
+    
+    logout(request)
+    messages.success(request, 'You have been logged out successfully.')
+    return redirect('course-catalog')
+
+@csrf_exempt
+@login_required
+def profile_view(request):
+    """View for displaying user profile."""
+    return render(request, 'users/profile.html')
+
+@csrf_exempt
+@login_required
+def profile_edit_view(request):
+    """View for editing user profile."""
+    profile = request.user.profile
+    
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('profile')
+    else:
+        form = UserProfileForm(instance=profile)
+    
+    return render(request, 'users/profile_edit.html', {'form': form})
+
+# API Views
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
