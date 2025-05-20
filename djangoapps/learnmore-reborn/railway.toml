@@ -1,7 +1,7 @@
 # Railway configuration for Python/Django deployment
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile"
+dockerfilePath = "djangoapps/learnmore-reborn/Dockerfile"
 
 [deploy]
 startCommand = "python manage.py migrate && python manage.py collectstatic --noinput && python -c \"from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.filter(username='admin').exists() or User.objects.create_superuser('admin', 'admin@learnmore.com', '${DJANGO_ADMIN_PASSWORD}')\" && gunicorn learnmore.wsgi:application --bind 0.0.0.0:8080 --workers 2 --threads 8 --timeout 0"
