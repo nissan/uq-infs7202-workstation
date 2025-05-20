@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}{{ name }}'s Resume{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+
+    <div class="alert alert-light" role="alert">
+      Try the new interview coach chatbot!
+      <a class="btn btn-primary btn-sm" href="{% url 'chatui' user_id=user_id %}">
+          Help me practice for an interview
+      </a>
+    </div>
+
+    <h2>{{ name }}'s Resume</h2>
+  
+    <div class="text-center mb-4">
+      <blockquote class="blockquote">
+        <p>{{ bio|default:"No bio yet." }}</p>
+        <a class="btn btn-primary btn-sm" href="{% url 'suggest_bio' user_id=user_id %}">Suggest Alternatives</a>
+      </blockquote>
+    </div>
+
+    <p><strong>Mobile No:</strong> {{ mobileno }}</p>
+
+    <h3>Qualifications</h3>
+    <ul>
+      {% for qualification in qualifications %}
+        <li>{{ qualification.title }} from {{ qualification.university }} ({{ qualification.date_completed }})</li>
+      {% empty %}
+        <li>No qualifications found.</li>
+      {% endfor %}
+    </ul>
+
+    <h3>Work Experience</h3>
+    <ul>
+      {% for job in work_experience %}
+        <li>{{ job.job_title }} at {{ job.company }} ({{ job.start_date }} - {{ job.end_date|default:"Present" }})</li>
+      {% empty %}
+        <li>No work experience found.</li>
+      {% endfor %}
+    </ul>
+
+  </div>
+</section>
+{% endblock %}

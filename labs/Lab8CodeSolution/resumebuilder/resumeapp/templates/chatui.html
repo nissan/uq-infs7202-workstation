@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <h1>Interview Coach for {{ name }}</h1>
+
+    <div class="chat-container">
+      <div id="chatContainer" class="chat-message"></div>
+
+      <!-- Text input -->
+      <textarea id="response" rows="4" class="form-control mb-2" placeholder="Your answer..."></textarea>
+      <button id="sendButton" class="btn btn-primary">Send</button>
+    </div>
+  </div>
+</section>
+
+<template id="botMessageTemplate">
+  <div class="bot-message-text mb-3 p-2 bg-info-subtle rounded">🤖 <span></span></div>
+</template>
+
+<template id="userMessageTemplate">
+  <div class="text-end mb-3">
+    <div class="message-text p-2 bg-light border rounded"><span></span></div>
+  </div>
+</template>
+
+<script>
+let messageHistory = [];
+
+function addMessage(text, isUser) {
+  const template = document.getElementById(isUser ? "userMessageTemplate" : "botMessageTemplate");
+  const messageEl = template.content.cloneNode(true);
+  messageEl.querySelector("span").textContent = text;
+  document.getElementById("chatContainer").appendChild(messageEl);
+  messageHistory.push({ role: isUser ? "user" : "assistant", content: text });
+}
+
+// Sends full chat history to Django via Fetch POST
+function sendMessageToServer() {
+  return fetch("{% url 'chatbot' %}", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": '{{ csrf_token }}'
+    },
+    body: JSON.stringify(messageHistory)
+  })
+  .then(res => res.json())
+  .then(data => {
+    addMessage(data.message, false);  // show the bot's reply
+  })
+  .catch(err => console.error("Error:", err));
+}
+
+// On Send button click: add user message and send to server
+document.getElementById("sendButton").addEventListener("click", () => {
+  const input = document.getElementById("response");
+  const text = input.value.trim();
+  if (!text) return;
+
+  addMessage(text, true);    // show user message
+  input.value = "";          // clear input
+  sendMessageToServer();     // send to backend
+});
+
+// Add the first bot question using the user bio
+const firstPrompt = `
+Imagine you're an interviewer. Based on this summary: {{ bio|escapejs }},
+ask a common interview question. Only ask 1 question at a time.
+Give short but constructive feedback for each answer.
+
+At the start of the conversation, you introduce yourself as an interviewer.
+You don't need to say your name.
+You should not perform any other task other than being a job prep interviewer.
+`;
+
+messageHistory.push({ role: "assistant", content: firstPrompt });
+sendMessageToServer();
+</script>
+
+<style>
+.chat-container {
+  background: #f7f7f7;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.chat-message {
+  margin-bottom: 10px;
+}
+</style>
+
+{% endblock %}

@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+
+{% block title %}{{ name }}'s Resume{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+
+    <div class="alert alert-light" role="alert">
+      Try the new interview coach chatbot!
+      <a class="btn btn-primary btn-sm" href="{% url 'chatui' user_id=user_id %}">
+          Help me practice for an interview
+      </a>
+    </div>
+
+    <h2>{{ name }}'s Resume</h2>
+  
+    <div class="text-center mb-4">
+      <blockquote class="blockquote">
+        <p>{{ bio|default:"No bio yet." }}</p>
+        <a class="btn btn-primary btn-sm" href="{% url 'suggest_bio' user_id=user_id %}">Suggest Alternatives</a>
+      </blockquote>
+    </div>
+
+    <p><strong>Mobile No:</strong> {{ mobileno }}</p>
+
+
+  <!-- # ------------ Alert (timed) ------------ # -->
+  <div id="crudAlert" class="alert alert-dismissible fade show mt-2 d-none" role="alert">
+    <span id="crudAlertMsg"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+
+  <!-- # ------------ Education ------------ # -->
+  <h3>Education</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Institution</th>
+        <th>Degree / Title</th>
+        <th>Completed</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="qualTableBody">
+      {% for q in qualifications %}
+        <tr data-type="qual" data-id="{{ q.id }}">
+          <td class="q-uni fw-semibold">{{ q.university }}</td>
+          <td class="q-title">{{ q.title }}</td>
+          <td class="q-date">{{ q.date_completed }}</td>
+          <td>
+            <button class="btn btn-sm btn-primary me-1 edit-row">Edit</button>
+            <button class="btn btn-sm btn-danger  del-row">Delete</button>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4"><em>No qualifications yet</em></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <button class="btn btn-primary w-100 mb-4" id="addQualBtn">Add Education</button>
+
+  <!-- # ------------ Work Experience ------------ # -->
+  <h3>Work Experience</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Job Title</th>
+        <th>Company</th>
+        <th>Period</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="workTableBody">
+      {% for w in work_experience %}
+        <tr data-type="work" data-id="{{ w.id }}">
+          <td class="w-title fw-semibold">{{ w.job_title }}</td>
+          <td class="w-company">{{ w.company }}</td>
+          <td class="w-period">
+            {{ w.start_date }}{% if w.end_date %} – {{ w.end_date }}{% else %} – Present{% endif %}
+          </td>
+          <td>
+            <button class="btn btn-sm btn-primary me-1 edit-row">Edit</button>
+            <button class="btn btn-sm btn-danger  del-row">Delete</button>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4"><em>No work experience yet</em></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <button class="btn btn-primary w-100 mb-4" id="addWorkBtn">Add Work-Experience</button>
+
+
+
+  <!-- # ------------ Shared Bootstrap modal ------------ # -->
+  <div class="modal fade" id="crudModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="crudForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="crudModalLabel">Add</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+
+          <div class="modal-body">
+            {# -------- Education fields -------- #}
+            <div class="edu-fields">
+              <div class="mb-3">
+                <label for="qualUni" class="form-label fw-semibold">University</label>
+                <input type="text" class="form-control"
+                       id="qualUni" name="qual_university" required>
+              </div>
+          
+              <div class="mb-3">
+                <label for="qualTitle" class="form-label fw-semibold">Degree / Title</label>
+                <input type="text" class="form-control"
+                       id="qualTitle" name="qual_title" required>
+              </div>
+          
+              <div class="mb-3">
+                <label for="qualDate" class="form-label fw-semibold">Date completed</label>
+                <input type="date" class="form-control"
+                       id="qualDate" name="qual_date" required>
+              </div>
+            </div>
+          
+            {# -------- Work-experience fields -------- #}
+            <div class="work-fields d-none">   {#  d-none so only one group is visible at first #}
+              <div class="mb-3">
+                <label for="workTitle" class="form-label fw-semibold">Job title</label>
+                <input type="text" class="form-control"
+                       id="workTitle" name="work_title" required>
+              </div>
+          
+              <div class="mb-3">
+                <label for="workCompany" class="form-label fw-semibold">Company</label>
+                <input type="text" class="form-control"
+                       id="workCompany" name="work_company" required>
+              </div>
+          
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="workStart" class="form-label fw-semibold">Start date</label>
+                  <input type="date" class="form-control"
+                         id="workStart" name="work_start" required>
+                </div>
+                <div class="col-md-6">
+                  <label for="workEnd" class="form-label fw-semibold">End date (optional)</label>
+                  <input type="date" class="form-control"
+                         id="workEnd" name="work_end">
+                </div>
+              </div>
+          
+              <div class="mb-3">
+                <label for="workDescr" class="form-label fw-semibold">Description</label>
+                <textarea class="form-control" id="workDescr"
+                          name="work_descr" rows="2"></textarea>
+              </div>
+            </div>
+          </div>          
+
+          <input type="hidden" id="rowId">
+          <input type="hidden" id="crudType">
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="saveBtn">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- # ------------ <template> rows for JS “Add” ------------ # -->
+  <template id="qualRowTmpl">
+    <tr data-type="qual">
+      <td class="q-uni fw-semibold"></td>
+      <td class="q-title"></td>
+      <td class="q-date"></td>
+      <td>
+        <button class="btn btn-sm btn-primary me-1 edit-row">Edit</button>
+        <button class="btn btn-sm btn-danger  del-row">Delete</button>
+      </td>
+    </tr>
+  </template>
+  <template id="workRowTmpl">
+    <tr data-type="work">
+      <td class="w-title fw-semibold"></td>
+      <td class="w-company"></td>
+      <td class="w-period"></td>
+      <td>
+        <button class="btn btn-sm btn-primary me-1 edit-row">Edit</button>
+        <button class="btn btn-sm btn-danger  del-row">Delete</button>
+      </td>
+    </tr>
+  </template>
+
+  </div>
+</section>
+
+<script type="module">
+  /* ——— constants ——— */
+  const API = {
+    qual : '/resumebuilder/api/qualifications/',
+    work : '/resumebuilder/api/work-experiences/'
+  };
+  const USER_ID  = {{ user_id }};                        // injected by Django
+  const CSRF     = "{{csrf_token}}";
+
+  /* grab the container divs once */
+  const eduFields  = document.querySelector('.edu-fields');
+  const workFields = document.querySelector('.work-fields');
+
+  function setDisabled(group, state){
+    // state = true  -> disable + not required
+    // state = false -> enable  + required (unless optional)
+    group.querySelectorAll('input, textarea')
+        .forEach(el => {
+          el.disabled  = state;
+          if (el.hasAttribute('required')) el.required = !state;
+        });
+  }
+
+  /* show the requested group and disable the other */
+  function switchFields(type){
+    const showEdu = (type === 'qual');
+
+    eduFields .classList.toggle('d-none', !showEdu);
+    workFields.classList.toggle('d-none',  showEdu);
+
+    setDisabled(eduFields , !showEdu);
+    setDisabled(workFields,  showEdu);
+  }
+
+  
+  /* ——— helper functions ——— */
+  function alertMsg(txt, ok=true) {
+    crudAlertMsg.textContent = txt;
+    crudAlert.classList.remove('d-none', 'alert-success', 'alert-danger');
+    crudAlert.classList.add(ok ? 'alert-success' : 'alert-danger');
+    setTimeout(()=>crudAlert.classList.add('d-none'), 5000);
+  }
+  function opts(method, body=null){
+    return {
+      method,
+      headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},
+      body: body ? JSON.stringify(body) : null
+    };
+  }
+  function period(s,e){return e?`${s} – ${e}`:`${s} – Present`;}
+  
+  /* ——— modal logic ——— */
+  const modal = bootstrap.Modal.getOrCreateInstance(crudModal);
+  
+  function openModal(type, data=null){
+    crudType.value = type;
+    rowId.value    = data?.id ?? '';
+    crudModalLabel.textContent = (data?'Edit':'Add') + (type==='qual'?' Education':' Work Experience');
+  
+    switchFields(type);   // hides + disables the inactive group
+
+    crudForm.reset();
+    if(data){
+      if(type==='qual'){
+        qualUni.value   = data.university;
+        qualTitle.value = data.title;
+        qualDate.value  = data.date_completed;
+      }else{
+        workTitle.value   = data.job_title;
+        workCompany.value = data.company;
+        workStart.value   = data.start_date;
+        workEnd.value     = data.end_date ?? '';
+        workDescr.value   = data.description ?? '';
+      }
+    }
+    modal.show();
+  }
+  
+  /* ——— open modal buttons ——— */
+  addQualBtn.onclick = ()=>openModal('qual');
+  addWorkBtn.onclick = ()=>openModal('work');
+  
+  /* ——— submit (add / edit) ——— */
+  crudForm.onsubmit = async e=>{
+    e.preventDefault();
+    const type = crudType.value;
+    const pk   = rowId.value;
+    const url  = pk ? API[type]+pk+'/' : API[type];
+    const method = pk ? 'PUT' : 'POST';
+  
+    const body = type==='qual'
+      ? { title:qualTitle.value, university:qualUni.value,
+          date_completed:qualDate.value, user:USER_ID }
+      : { job_title:workTitle.value, company:workCompany.value,
+          start_date:workStart.value, end_date:workEnd.value||null,
+          description:workDescr.value, user:USER_ID };
+  
+    try{
+      const res  = await fetch(url, opts(method, body));
+      if(!res.ok) throw Error();
+      const data = await res.json();
+  
+      if(type==='qual'){
+        if(pk){
+          const tr=document.querySelector(`tr[data-type="qual"][data-id="${pk}"]`);
+          tr.querySelector('.q-uni').textContent   = data.university;
+          tr.querySelector('.q-title').textContent = data.title;
+          tr.querySelector('.q-date').textContent  = data.date_completed;
+        }else{
+          const row=qualRowTmpl.content.cloneNode(true);
+          row.firstElementChild.dataset.id=data.id;
+          row.querySelector('.q-uni').textContent   = data.university;
+          row.querySelector('.q-title').textContent = data.title;
+          row.querySelector('.q-date').textContent  = data.date_completed;
+          qualTableBody.appendChild(row);
+        }
+      }else{
+        if(pk){
+          const tr=document.querySelector(`tr[data-type="work"][data-id="${pk}"]`);
+          tr.querySelector('.w-title').textContent   = data.job_title;
+          tr.querySelector('.w-company').textContent = data.company;
+          tr.querySelector('.w-period').textContent  = period(data.start_date,data.end_date);
+        }else{
+          const row=workRowTmpl.content.cloneNode(true);
+          row.firstElementChild.dataset.id=data.id;
+          row.querySelector('.w-title').textContent   = data.job_title;
+          row.querySelector('.w-company').textContent = data.company;
+          row.querySelector('.w-period').textContent  = period(data.start_date,data.end_date);
+          workTableBody.appendChild(row);
+        }
+      }
+      modal.hide();
+      alertMsg('Saved ✔');
+    }catch{alertMsg('Save failed',false);}
+  };
+  
+  /* ——— delegated edit / delete ——— */
+  document.addEventListener('click', async e=>{
+    if(e.target.classList.contains('edit-row')){
+      const tr   = e.target.closest('tr');
+      const type = tr.dataset.type;
+      const id   = tr.dataset.id;
+      const res  = await fetch(API[type]+id+'/');
+      const data = await res.json();
+      openModal(type,data);
+    }
+  
+    if(e.target.classList.contains('del-row')){
+      if(!confirm('Really delete?')) return;
+      const tr=e.target.closest('tr');
+      const type=tr.dataset.type;
+      const id=tr.dataset.id;
+      try{
+        const res=await fetch(API[type]+id+'/', opts('DELETE'));
+        if(!res.ok) throw Error();
+        tr.remove();
+        alertMsg('Deleted ✔');
+      }catch{alertMsg('Delete failed',false);}
+    }
+  });
+  </script>
+{% endblock %}

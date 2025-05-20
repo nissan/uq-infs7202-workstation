@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Welcome to ResumeBuilder{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-6">
+        <h1 class="display-4">Create Professional Resumes Effortlessly</h1>
+        <p class="lead">ResumeBuilder simplifies the process of creating stunning resumes that stand out.</p>
+        <a href="#" class="btn btn-primary btn-lg">Get Started</a>
+      </div>
+      <div class="col-lg-6">
+        <img src="{% static 'resumeapp/images/resumebuilder.png' %}" alt="ResumeBuilder Screenshot" class="img-fluid rounded shadow">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">Key Features</h2>
+    <div class="row">
+      <div class="col-lg-4 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h4 class="card-title">Customizable Templates</h4>
+            <p class="card-text">Choose from a variety of professionally designed resume templates.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h4 class="card-title">Easy-to-Use Interface</h4>
+            <p class="card-text">Our intuitive interface makes it simple to create and edit your resume.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h4 class="card-title">PDF & Word Downloads</h4>
+            <p class="card-text">Easily download your resume in PDF or Word format for sharing.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
