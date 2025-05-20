@@ -49,20 +49,20 @@ This checklist covers migrating the learning interface and progress tracking fea
 
 ## Tests
 
-- [ ] Write unit tests for:
-  - [ ] Progress model
-  - [ ] Learning interface serializers
-  - [ ] Progress tracking logic
-- [ ] Write API tests for:
-  - [ ] Progress endpoints
-  - [ ] Continue learning functionality
-  - [ ] Progress statistics
-- [ ] Add UI component tests
-- [ ] Test progress tracking edge cases:
-  - [ ] Partial module completion
-  - [ ] Course completion
-  - [ ] Concurrent progress updates
-  - [ ] Progress reset functionality
+- [x] Write unit tests for:
+  - [x] Progress model
+  - [x] Learning interface serializers
+  - [x] Progress tracking logic
+- [x] Write API tests for:
+  - [x] Progress endpoints
+  - [x] Continue learning functionality
+  - [x] Progress statistics
+- [x] Add UI component tests
+- [x] Test progress tracking edge cases:
+  - [x] Partial module completion
+  - [x] Course completion
+  - [x] Concurrent progress updates
+  - [x] Progress reset functionality
 
 ## Docs
 

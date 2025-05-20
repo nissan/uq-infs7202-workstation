@@ -103,7 +103,6 @@ class Module(models.Model):
         """Return True if this module has prerequisites"""
         return self.prerequisites.exists()
         
-    @property
     def is_accessible(self, user):
         """
         Check if the module is accessible to the user.
