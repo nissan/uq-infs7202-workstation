@@ -65,10 +65,24 @@ class AuthDisabledTestCase(TestCase):
     @classmethod
     def tearDownClass(cls):
         """Tear down the test case and stop patchers."""
-        # Stop patchers
-        cls.drf_patcher.stop()
-        cls.drf_auth_patcher.stop()
-        cls.middleware_patcher.stop()
+        # Only stop patchers if they were successfully started
+        if hasattr(cls, 'drf_patcher') and cls.drf_patcher:
+            try:
+                cls.drf_patcher.stop()
+            except AttributeError:
+                pass
+                
+        if hasattr(cls, 'drf_auth_patcher') and cls.drf_auth_patcher:
+            try:
+                cls.drf_auth_patcher.stop()
+            except AttributeError:
+                pass
+                
+        if hasattr(cls, 'middleware_patcher') and cls.middleware_patcher:
+            try:
+                cls.middleware_patcher.stop()
+            except AttributeError:
+                pass
         
         super().tearDownClass()
         

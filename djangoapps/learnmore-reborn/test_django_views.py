@@ -14,10 +14,14 @@ class DjangoViewsTestCase(APITestCaseBase):
         # Call parent setUp
         super().setUp()
         
+        import random
+        # Generate unique usernames for each test run
+        unique_id = random.randint(10000, 99999)
+        
         # Create an instructor user
         self.instructor = User.objects.create_user(
-            username='instructor',
-            email='instructor@example.com',
+            username=f'instructor_{unique_id}',
+            email=f'instructor_{unique_id}@example.com',
             password='instructorpass'
         )
         self.instructor.profile.is_instructor = True
@@ -25,8 +29,8 @@ class DjangoViewsTestCase(APITestCaseBase):
         
         # Create a student user
         self.student = User.objects.create_user(
-            username='student',
-            email='student@example.com',
+            username=f'student_{unique_id}',
+            email=f'student_{unique_id}@example.com',
             password='studentpass'
         )
         
@@ -228,15 +232,20 @@ class DjangoViewsTestCase(APITestCaseBase):
     
     def test_enroll_new_student(self):
         """Test successful enrollment for a new student"""
-        # Create a new student
+        # Create a new student with unique username
+        import time
+        import random
+        unique_id = f"{int(time.time())}_{random.randint(1000, 9999)}"
+        username = f'newstudent_{unique_id}'
+        
         new_student = User.objects.create_user(
-            username='newstudent',
-            email='new@example.com',
+            username=username,
+            email=f'new_{unique_id}@example.com',
             password='newpass'
         )
         
         # Login as new student
-        self.client.login(username='newstudent', password='newpass')
+        self.client.login(username=username, password='newpass')
         
         url = reverse('course-enroll', kwargs={'slug': self.published_course.slug})
         response = self.client.get(url, follow=True)
@@ -259,7 +268,7 @@ class DjangoViewsTestCase(APITestCaseBase):
     def test_enroll_already_enrolled(self):
         """Test enrollment when student is already enrolled"""
         # Login as student (already enrolled)
-        self.client.login(username='student', password='studentpass')
+        self.login_api(self.student)
         
         url = reverse('course-enroll', kwargs={'slug': self.published_course.slug})
         response = self.client.get(url, follow=True)
@@ -277,7 +286,7 @@ class DjangoViewsTestCase(APITestCaseBase):
     def test_enroll_draft_course(self):
         """Test enrollment in a draft course is prevented"""
         # Login as student
-        self.client.login(username='student', password='studentpass')
+        self.login_api(self.student)
         
         url = reverse('course-enroll', kwargs={'slug': self.draft_course.slug})
         response = self.client.get(url, follow=True)
@@ -315,7 +324,7 @@ class DjangoViewsTestCase(APITestCaseBase):
     def test_unenroll_enrolled_student(self):
         """Test successful unenrollment for an enrolled student"""
         # Login as student (already enrolled)
-        self.client.login(username='student', password='studentpass')
+        self.login_api(self.student)
         
         url = reverse('course-unenroll', kwargs={'slug': self.published_course.slug})
         response = self.client.get(url, follow=True)

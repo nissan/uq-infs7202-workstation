@@ -29,17 +29,22 @@ class AuthenticatedTestCase(AuthDisabledTestCase):
         self.client = Client()
         self.api_client = APIClient()
         
+        import random
+        import time
+        # Generate unique usernames for each test run
+        unique_id = f"{int(time.time())}_{random.randint(1000, 9999)}"
+        
         # Create a test user if one doesn't exist
         self.user = User.objects.create_user(
-            username='testuser',
-            email='test@example.com',
+            username=f'testuser_{unique_id}',
+            email=f'test_{unique_id}@example.com',
             password='testpassword'
         )
         
         # Create a test admin user
         self.admin_user = User.objects.create_user(
-            username='admin',
-            email='admin@example.com',
+            username=f'admin_{unique_id}',
+            email=f'admin_{unique_id}@example.com',
             password='adminpassword',
             is_staff=True,
             is_superuser=True
@@ -47,8 +52,8 @@ class AuthenticatedTestCase(AuthDisabledTestCase):
         
         # Create a test instructor
         self.instructor = User.objects.create_user(
-            username='instructor',
-            email='instructor@example.com',
+            username=f'instructor_{unique_id}',
+            email=f'instructor_{unique_id}@example.com',
             password='instructorpass'
         )
         # Set instructor flag if profile exists

@@ -20,18 +20,22 @@ class TemplateViewTests(AuthDisabledTestCase):
     def setUp(self):
         super().setUp()
         
+        import random
+        # Generate unique usernames for each test run
+        unique_id = random.randint(10000, 99999)
+        
         # Create test users
         self.instructor = User.objects.create_user(
-            username='instructor',
-            email='instructor@example.com',
+            username=f'instructor_template_{unique_id}',
+            email=f'instructor_template_{unique_id}@example.com',
             password='instructorpass'
         )
         self.instructor.profile.is_instructor = True
         self.instructor.profile.save()
         
         self.student = User.objects.create_user(
-            username='student',
-            email='student@example.com',
+            username=f'student_template_{unique_id}',
+            email=f'student_template_{unique_id}@example.com',
             password='studentpass'
         )
         
