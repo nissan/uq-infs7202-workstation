@@ -1,106 +1,169 @@
 # Phase 5: Quiz System - Basics Checklist
 
-This checklist covers migrating the basic quiz system features into the `learnmore-reborn` app, focusing on multiple-choice and true/false questions with auto-grading.
+This checklist covers implementing the basic quiz system with multiple-choice and true/false questions, along with auto-grading functionality in the `learnmore-reborn` app.
 
 ## Models & Migrations
 
-- [ ] Create `Quiz` model in `courses/models.py` with:
-  - [ ] Title, description, instructions
-  - [ ] Time limit (optional)
-  - [ ] Passing score
-  - [ ] Randomization settings
-  - [ ] Relation to modules
-- [ ] Create `Question` model as base class for:
-  - [ ] Question text, order, points
-  - [ ] Question type (MCQ, T/F)
-  - [ ] Feedback for correct/incorrect answers
-- [ ] Create `Choice` model for multiple-choice questions:
-  - [ ] Choice text
-  - [ ] Is correct flag
-  - [ ] Feedback specific to this choice
-- [ ] Create `QuizAttempt` model to track:
-  - [ ] User information
-  - [ ] Start and end times
-  - [ ] Score and completion status
-- [ ] Create `QuestionResponse` model to track:
-  - [ ] Selected choices
-  - [ ] Auto-grading results
-  - [ ] Time spent on question
+- [ ] Enhance the existing `Quiz` model with additional fields:
+  - [ ] `title`, `description`, `instructions` fields
+  - [ ] `time_limit_minutes`, `passing_score` settings
+  - [ ] `randomize_questions`, `allow_multiple_attempts`, `max_attempts` options
+  - [ ] `is_published` status and `is_survey` flag
+  - [ ] Add helper methods (`total_points()`, `passing_points()`)
+- [ ] Create `Question` model as an abstract base class with:
+  - [ ] Question text, type, order, points
+  - [ ] Explanation and feedback fields
+  - [ ] `check_answer()` abstract method
+- [ ] Create `MultipleChoiceQuestion` model:
+  - [ ] Implement `allow_multiple` flag for multiple answers
+  - [ ] Override `check_answer()` for single/multiple answer scoring
+- [ ] Create `TrueFalseQuestion` model:
+  - [ ] Store `correct_answer` as boolean
+  - [ ] Override `check_answer()` for true/false validation
+- [ ] Create `Choice` model for answer options:
+  - [ ] Link to multiple-choice questions
+  - [ ] Store text, correctness, and order
+  - [ ] Include feedback for each choice
+- [ ] Create `QuizAttempt` model:
+  - [ ] Track quiz session status and score
+  - [ ] Store start/completion timestamps and duration
+  - [ ] Implement `calculate_score()` and `mark_completed()` methods
+  - [ ] Support multiple attempts with attempt numbering
+- [ ] Create `QuestionResponse` model:
+  - [ ] Store user's answers as JSON in `response_data`
+  - [ ] Calculate correctness and points earned
+  - [ ] Track time spent per question
+  - [ ] Implement `check_answer()` to evaluate responses
 - [ ] Run `makemigrations courses` and commit migrations
 
 ## Admin
 
-- [ ] Register quiz models in Django Admin
-- [ ] Add quiz management interface with:
-  - [ ] Inline formsets for questions and choices
-  - [ ] Preview option for quizzes
-  - [ ] Bulk question/choice operations
-- [ ] Add attempt review interface for instructor feedback
+- [ ] Register all quiz models in Django Admin
+- [ ] Create `QuizAdmin` with:
+  - [ ] List display with course, module, question count
+  - [ ] Appropriate filters and search fields
+  - [ ] Question inline for editing questions
+- [ ] Create `MultipleChoiceQuestionAdmin` with:
+  - [ ] Choice inline for editing options
+  - [ ] Filter by course and quiz
+- [ ] Create `TrueFalseQuestionAdmin`
+- [ ] Create `QuizAttemptAdmin` with:
+  - [ ] Read-only fields for attempt data
+  - [ ] QuestionResponse inline for viewing responses
+  - [ ] Score display with color coding
+- [ ] Add quiz statistics to course/module admin dashboard
 
 ## API & Serializers
 
-- [ ] Create `QuizSerializer` in `courses/serializers.py`
-- [ ] Create serializers for questions and choices
-- [ ] Create `QuizAttemptSerializer` for tracking attempts
-- [ ] Wire up DRF viewsets or APIViews for:
-  - [ ] `GET /api/courses/quizzes/` (list all quizzes)
-  - [ ] `GET /api/courses/quizzes/{id}/` (get quiz details with questions)
-  - [ ] `POST /api/courses/quizzes/{id}/start/` (start a quiz attempt)
-  - [ ] `POST /api/courses/quizzes/{id}/submit/` (submit answers)
-  - [ ] `GET /api/courses/quizzes/{id}/result/` (get quiz results)
-  - [ ] `GET /api/courses/quizzes/attempts/` (get quiz attempt history)
+- [ ] Create serializers for choices:
+  - [ ] `ChoiceSerializer` (without correct answer)
+  - [ ] `ChoiceWithCorrectAnswerSerializer` (with correct answer)
+- [ ] Create question serializers:
+  - [ ] Base `QuestionSerializer`
+  - [ ] `MultipleChoiceQuestionSerializer` with choices
+  - [ ] `MultipleChoiceQuestionCreateSerializer` for creating questions with choices
+  - [ ] `TrueFalseQuestionSerializer`
+- [ ] Create quiz serializers:
+  - [ ] `QuizListSerializer` with basic information
+  - [ ] `QuizDetailSerializer` with questions and context-aware correct answers
+- [ ] Create attempt serializers:
+  - [ ] `QuestionResponseSerializer`
+  - [ ] `QuizAttemptSerializer` with basic stats
+  - [ ] `QuizAttemptDetailSerializer` with response details
+- [ ] Wire up DRF viewsets:
+  - [ ] `QuizViewSet` with permission handling
+  - [ ] `MultipleChoiceQuestionViewSet` and `TrueFalseQuestionViewSet`
+  - [ ] `QuizAttemptViewSet` for attempt management
+- [ ] Implement custom actions:
+  - [ ] `start_attempt` action for quiz
+  - [ ] `attempts` action to list attempts
+  - [ ] `submit_response` action for recording answers
+  - [ ] `complete` action for finishing attempts
+  - [ ] `result` action for viewing scores
 - [ ] Add URL patterns in `courses/api_urls.py`
-- [ ] Connect quiz completion to module progress API
 
 ## UI Components
 
-- [ ] Create quiz listing template
-- [ ] Implement quiz assessment interface:
-  - [ ] Timer for timed quizzes
-  - [ ] Multiple-choice question display
-  - [ ] True/False question display
-  - [ ] Navigation between questions
-  - [ ] Progress indicator for quiz
-- [ ] Create quiz results and feedback page
-- [ ] Add quiz attempt history view
-- [ ] Implement quiz preview for instructors
-- [ ] Add responsive design for mobile-friendly quizzes
+- [ ] Create quiz list template:
+  - [ ] Implement filtering and search
+  - [ ] Add responsive quiz cards
+  - [ ] Show quiz metadata (time limit, passing score)
+  - [ ] Display attempt history indicators
+- [ ] Create quiz detail template:
+  - [ ] Display quiz instructions and parameters
+  - [ ] Show previous attempt summary
+  - [ ] Add start quiz button with attempt limit check
+  - [ ] List related quizzes in course
+- [ ] Create quiz assessment interface:
+  - [ ] Implement timer with auto-submit
+  - [ ] Create question navigation and progress bar
+  - [ ] Handle different question types (MCQ, T/F)
+  - [ ] Add auto-save on navigation
+  - [ ] Create finish and abandon quiz modals
+- [ ] Create quiz results template:
+  - [ ] Display overall score and pass/fail status
+  - [ ] Show detailed question-level feedback
+  - [ ] Include explanations and correct answers
+  - [ ] Provide retake option when allowed
+- [ ] Create quiz attempt history template:
+  - [ ] List all attempts with stats
+  - [ ] Show performance metrics
+  - [ ] Provide access to detailed results
 
 ## Auto-Grading Logic
 
-- [ ] Implement auto-grading for MCQ questions
-- [ ] Implement auto-grading for T/F questions
-- [ ] Calculate scores and passing status
-- [ ] Provide immediate feedback option
-- [ ] Record granular question-level results
+- [ ] Implement `check_answer()` in `MultipleChoiceQuestion`:
+  - [ ] Handle single correct answer case
+  - [ ] Handle multiple correct answers case
+  - [ ] Return correctness, points, and feedback
+- [ ] Implement `check_answer()` in `TrueFalseQuestion`:
+  - [ ] Convert various input formats to boolean
+  - [ ] Compare with correct answer
+  - [ ] Return correctness, points, and feedback
+- [ ] Implement `QuestionResponse.check_answer()`:
+  - [ ] Dispatch to appropriate question type
+  - [ ] Store results and feedback
+- [ ] Implement `QuizAttempt.calculate_score()`:
+  - [ ] Sum points from responses
+  - [ ] Calculate percentage against maximum
+  - [ ] Determine pass/fail status
+- [ ] Connect quiz completion to module progress
 
 ## Tests
 
-- [ ] Write unit tests for:
+- [ ] Write model tests for:
   - [ ] Quiz and question models
-  - [ ] Auto-grading logic
-  - [ ] Quiz serializers
+  - [ ] Choice validation
+  - [ ] Scoring algorithms for different question types
+  - [ ] QuizAttempt and QuestionResponse functionality
+- [ ] Write serializer tests for:
+  - [ ] Correct handling of question types
+  - [ ] Permission-based content filtering
+  - [ ] Error handling for invalid inputs
 - [ ] Write API tests for:
-  - [ ] Quiz listing and detail endpoints
-  - [ ] Quiz attempt endpoints
-  - [ ] Quiz result endpoints
-- [ ] Add UI component tests
+  - [ ] Quiz creation and management
+  - [ ] Question creation with choices
+  - [ ] Quiz attempt workflow
+  - [ ] Response submission and auto-grading
+  - [ ] Quiz completion and results calculation
 - [ ] Test quiz edge cases:
   - [ ] Time limit expiration
-  - [ ] Partial completions
-  - [ ] Multiple attempts
-  - [ ] Instructor review
+  - [ ] Multiple correct answers
+  - [ ] Randomized question order
+  - [ ] Maximum attempt limits
+  - [ ] Concurrent quiz attempts
 
 ## Docs
 
-- [ ] Update `README.md` with quiz system information
-- [ ] Document API endpoints for quiz interaction
-- [ ] Add quiz system implementation details
-- [ ] Create quiz authoring guide for instructors
+- [ ] Update `README.md` with quiz system setup
+- [ ] Document API endpoints for quiz functionality
+- [ ] Add quiz creation and management guide
+- [ ] Document question types and scoring rules
+- [ ] Create template patterns for quiz UI components
 
 ## Integration
 
 - [ ] Connect quiz completion to module progress
-- [ ] Link quiz results to user dashboard
-- [ ] Add quiz analytics to course statistics
-- [ ] Implement quiz availability based on module progress
+- [ ] Update course navigation to include quiz links
+- [ ] Add quiz analytics to learner statistics
+- [ ] Implement quiz availability based on module prerequisites
