@@ -2,6 +2,7 @@ import time
 from django.utils import timezone
 from django.core.cache import cache
 from .models import UserActivity, SystemAnalytics
+from django.conf import settings
 
 class AnalyticsMiddleware:
     """Middleware for collecting analytics data"""
@@ -16,16 +17,24 @@ class AnalyticsMiddleware:
         # Process the request
         response = self.get_response(request)
         
-        # Only collect analytics for authenticated users and non-admin paths
-        if hasattr(request, 'user') and request.user is not None and request.user.is_authenticated and not request.path.startswith('/admin/'):
-            # Calculate request processing time
-            processing_time = (time.time() - start_time) * 1000  # Convert to milliseconds
+        # Only collect analytics if enabled in settings
+        if not getattr(settings, 'ANALYTICS_SETTINGS', {}).get('ENABLE_ANALYTICS', True):
+            return response
             
-            # Record user activity
-            self._record_user_activity(request, response, processing_time)
-            
-            # Update system metrics
+        # Calculate request processing time
+        processing_time = (time.time() - start_time) * 1000  # Convert to milliseconds
+        
+        # Update system metrics for all requests
+        if getattr(settings, 'ANALYTICS_SETTINGS', {}).get('COLLECT_SYSTEM_METRICS', True):
             self._update_system_metrics(request, response, processing_time)
+        
+        # Only collect user activity for authenticated users and non-admin paths
+        if (getattr(settings, 'ANALYTICS_SETTINGS', {}).get('COLLECT_USER_ACTIVITY', True) and
+            hasattr(request, 'user') and 
+            request.user is not None and 
+            request.user.is_authenticated and 
+            not request.path.startswith('/admin/')):
+            self._record_user_activity(request, response, processing_time)
         
         return response
     
@@ -35,18 +44,23 @@ class AnalyticsMiddleware:
             # Determine activity type based on request path and method
             activity_type = self._determine_activity_type(request)
             
+            # Get session key safely
+            session_key = None
+            if hasattr(request, 'session') and request.session is not None:
+                session_key = getattr(request.session, 'session_key', None)
+            
             # Create activity record
             UserActivity.objects.create(
                 user=request.user,
                 activity_type=activity_type,
                 ip_address=self._get_client_ip(request),
                 user_agent=request.META.get('HTTP_USER_AGENT', ''),
-                session_id=request.session.session_key,
+                session_id=session_key,
                 details={
                     'path': request.path,
                     'method': request.method,
                     'processing_time': processing_time,
-                    'status_code': response.status_code,
+                    'status_code': getattr(response, 'status_code', None),
                     'referrer': request.META.get('HTTP_REFERER', ''),
                 }
             )
@@ -58,23 +72,28 @@ class AnalyticsMiddleware:
         """Update system-wide metrics"""
         try:
             # Get or create current system metrics
-            metrics, created = SystemAnalytics.objects.get_or_create(
-                timestamp__date=timezone.now().date(),
-                defaults={'timestamp': timezone.now()}
-            )
+            metrics = SystemAnalytics.get_current_metrics()
             
-            # Update metrics
-            metrics.update_metrics({
+            # Prepare metrics update data
+            update_data = {
                 'request_count': 1,
                 'processing_time': processing_time,
-                'status_code': response.status_code,
                 'path': request.path,
                 'method': request.method,
-            })
+            }
+            
+            # Safely add status code if available
+            if response is not None:
+                update_data['status_code'] = getattr(response, 'status_code', None)
+            
+            # Update metrics
+            metrics.update_metrics(update_data)
             
             # Cache current metrics for quick access
             cache_key = 'system_metrics_current'
-            cache.set(cache_key, metrics.to_dict(), timeout=300)  # Cache for 5 minutes
+            cache_timeout = getattr(settings, 'ANALYTICS_SETTINGS', {}).get(
+                'CACHE_TIMEOUTS', {}).get('system_metrics', 300)  # Default 5 minutes
+            cache.set(cache_key, metrics.to_dict(), timeout=cache_timeout)
             
         except Exception as e:
             # Log error but don't interrupt request processing
