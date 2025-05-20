@@ -69,13 +69,67 @@ class Course(models.Model):
         return self.max_students > 0 and self.enrollment_count >= self.max_students
     
 class Module(models.Model):
+    CONTENT_TYPE_CHOICES = [
+        ('text', 'Text'),
+        ('video', 'Video'),
+        ('interactive', 'Interactive'),
+        ('quiz', 'Quiz'),
+        ('assignment', 'Assignment'),
+        ('mixed', 'Mixed Content'),
+    ]
+    
     course = models.ForeignKey('Course', related_name='modules', on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     order = models.PositiveIntegerField(default=0)
-
+    
+    # Learning activity related fields
+    content_type = models.CharField(max_length=20, choices=CONTENT_TYPE_CHOICES, default='text')
+    estimated_time_minutes = models.PositiveIntegerField(default=30, help_text='Estimated time to complete in minutes')
+    prerequisites = models.ManyToManyField('self', symmetrical=False, blank=True, related_name='required_for')
+    is_required = models.BooleanField(default=True, help_text='Is this module required for course completion')
+    completion_criteria = models.JSONField(default=dict, blank=True, help_text='Criteria for marking as complete (e.g. {"video_watched": true, "quiz_completed": true})')
+    content = models.TextField(blank=True, help_text='Module content in markdown format')
+    
     def __str__(self):
         return f"{self.course.title} - {self.title}"
+        
+    def get_prerequisite_modules(self):
+        """Return a queryset of all prerequisite modules"""
+        return self.prerequisites.all().order_by('order')
+        
+    @property
+    def has_prerequisites(self):
+        """Return True if this module has prerequisites"""
+        return self.prerequisites.exists()
+        
+    @property
+    def is_accessible(self, user):
+        """
+        Check if the module is accessible to the user.
+        A module is accessible if:
+        1. It has no prerequisites, or
+        2. All its prerequisites have been completed by the user
+        """
+        if not self.has_prerequisites:
+            return True
+            
+        # Get the progress record for the user and course
+        from progress.models import Progress, ModuleProgress
+        try:
+            progress = Progress.objects.get(user=user, course=self.course)
+        except Progress.DoesNotExist:
+            return False
+            
+        # Check if all prerequisites are completed
+        prereq_modules = self.get_prerequisite_modules()
+        completed_prereqs = ModuleProgress.objects.filter(
+            progress=progress,
+            module__in=prereq_modules,
+            status='completed'
+        ).count()
+        
+        return completed_prereqs == prereq_modules.count()
 
 class Quiz(models.Model):
     module = models.ForeignKey('Module', related_name='quizzes', on_delete=models.CASCADE)
