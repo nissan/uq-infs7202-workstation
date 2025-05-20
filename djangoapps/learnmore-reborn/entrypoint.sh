@@ -9,14 +9,23 @@ check_env_var() {
     fi
 }
 
+# Function to run a command and check its status
+run_command() {
+    echo "Running: $1"
+    eval "$1"
+    if [ $? -ne 0 ]; then
+        echo "Error: Command failed: $1"
+        exit 1
+    fi
+}
+
 echo "Starting application..."
 echo "Current directory: $(pwd)"
 echo "Directory contents: $(ls -la)"
 
-# Check required environment variables
+# Check only essential environment variables
 echo "Checking required environment variables..."
 check_env_var "DATABASE_URL"
-check_env_var "DJANGO_ADMIN_PASSWORD"
 check_env_var "DJANGO_SECRET_KEY"
 check_env_var "ALLOWED_HOSTS"
 
@@ -24,11 +33,11 @@ echo "Environment variables:"
 env | sort
 
 echo "Checking Python and Django installation..."
-python --version
-python -c "import django; print(f'Django version: {django.__version__}')"
+run_command "python --version"
+run_command "python -c \"import django; print(f'Django version: {django.__version__}')\""
 
 echo "Checking database connection..."
-python -c "
+run_command "python -c \"
 import os
 import sys
 import django
@@ -46,16 +55,18 @@ except OperationalError as e:
 except Exception as e:
     print(f'Unexpected error during database connection: {e}')
     sys.exit(1)
-"
+\""
 
 echo "Running migrations..."
-python manage.py migrate
+run_command "python manage.py migrate"
 
 echo "Collecting static files..."
-python manage.py collectstatic --noinput --verbosity 2
+run_command "python manage.py collectstatic --noinput --verbosity 2"
 
-echo "Creating admin user if needed..."
-python -c "
+# Only attempt to create admin user if DJANGO_ADMIN_PASSWORD is set
+if [ -n "${DJANGO_ADMIN_PASSWORD}" ]; then
+    echo "Creating admin user..."
+    run_command "python -c \"
 import os
 import sys
 from django.contrib.auth import get_user_model
@@ -66,9 +77,6 @@ try:
     if not User.objects.filter(username='admin').exists():
         print('Creating admin user...')
         password = os.environ.get('DJANGO_ADMIN_PASSWORD')
-        if not password:
-            print('Error: DJANGO_ADMIN_PASSWORD not set')
-            sys.exit(1)
         User.objects.create_superuser('admin', 'admin@learnmore.com', password)
         print('Admin user created successfully')
     else:
@@ -79,7 +87,20 @@ except OperationalError as e:
 except Exception as e:
     print(f'Unexpected error during admin user creation: {e}')
     sys.exit(1)
-"
+\""
+else
+    echo "Skipping admin user creation (DJANGO_ADMIN_PASSWORD not set)"
+fi
+
+echo "Checking static files..."
+run_command "python -c \"
+import os
+from django.conf import settings
+print(f'STATIC_ROOT: {settings.STATIC_ROOT}')
+print(f'STATIC_ROOT exists: {os.path.exists(settings.STATIC_ROOT)}')
+print(f'STATIC_ROOT contents: {os.listdir(settings.STATIC_ROOT) if os.path.exists(settings.STATIC_ROOT) else \"Directory not found\"}')
+\""
 
 echo "Starting Gunicorn on port $PORT..."
+echo "Gunicorn command: gunicorn learnmore.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 8 --timeout 0 --log-level debug --access-logfile - --error-logfile -"
 exec gunicorn learnmore.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 8 --timeout 0 --log-level debug --access-logfile - --error-logfile - 
