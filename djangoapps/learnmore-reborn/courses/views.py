@@ -847,7 +847,7 @@ def pending_essay_grading(request, quiz_id):
 
 @login_required
 def grade_essay_response(request, response_id):
-    """Grade an essay response"""
+    """Grade an essay response using simple scoring or rubric-based grading"""
     response = get_object_or_404(QuestionResponse, id=response_id)
     quiz = response.question.quiz
     
@@ -856,7 +856,7 @@ def grade_essay_response(request, response_id):
         messages.error(request, "The selected response is not an essay question.")
         return redirect('quiz-detail', pk=quiz.id)
     
-    # Only the course instructor can grade essays
+    # Only instructors can grade essays
     if not hasattr(request.user, 'profile') or not request.user.profile.is_instructor:
         messages.error(request, "Only instructors can grade essays.")
         return redirect('quiz-detail', pk=quiz.id)
@@ -865,18 +865,57 @@ def grade_essay_response(request, response_id):
     essay_question = response.question.essayquestion
     
     if request.method == 'POST':
-        # Get grading data
-        points = int(request.POST.get('points', 0))
         feedback = request.POST.get('feedback', '')
         
-        # Validate points
-        if points < 0:
-            points = 0
-        if points > essay_question.points:
-            points = essay_question.points
-        
-        # Grade the response
-        essay_question.grade_response(response, points, feedback, request.user)
+        # Handle rubric-based scoring if enabled
+        if essay_question.use_detailed_rubric and essay_question.scoring_rubric:
+            # Collect scores for each criterion
+            criterion_scores = {}
+            
+            for criterion in essay_question.scoring_rubric.criteria.all():
+                criterion_id = str(criterion.id)
+                
+                # Get the points and comments for this criterion
+                points_key = f'criterion_{criterion_id}_points'
+                comments_key = f'criterion_{criterion_id}_comments'
+                level_key = f'criterion_{criterion_id}_level'
+                
+                if points_key in request.POST:
+                    points = int(request.POST.get(points_key, 0))
+                    comments = request.POST.get(comments_key, '')
+                    level = request.POST.get(level_key, '')
+                    
+                    criterion_scores[criterion_id] = {
+                        'points': points,
+                        'comments': comments,
+                        'level': level
+                    }
+            
+            # Grade using the rubric criteria
+            essay_question.grade_response(
+                response=response,
+                points=0,  # Will be calculated based on criteria
+                feedback=feedback,
+                graded_by=request.user,
+                criterion_scores=criterion_scores
+            )
+        else:
+            # Simple point-based grading
+            points = int(request.POST.get('points', 0))
+            
+            # Validate points
+            if points < 0:
+                points = 0
+            if points > essay_question.points:
+                points = essay_question.points
+            
+            # Grade the response with simple scoring
+            essay_question.grade_response(
+                response=response,
+                points=points,
+                feedback=feedback,
+                graded_by=request.user
+            )
         
         # Check if there are any more pending essays for this quiz
         next_pending = QuestionResponse.objects.filter(

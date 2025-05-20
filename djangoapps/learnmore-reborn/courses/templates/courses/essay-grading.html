@@ -249,7 +249,102 @@
                         
                         <form method="post" action="{% url 'grade-essay-response' current_response.id %}">
                             {% csrf_token %}
-                            <div class="space-y-4">
+                            <div class="space-y-6">
+                                {% with essay_question=current_response.question.essayquestion %}
+                                {% if essay_question.use_detailed_rubric and essay_question.scoring_rubric %}
+                                <!-- Rubric-based Grading -->
+                                <div class="bg-white rounded-lg border border-gray-200 mb-4">
+                                    <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                                        <h3 class="text-lg font-medium text-gray-900">
+                                            Grading Rubric: {{ essay_question.scoring_rubric.name }}
+                                        </h3>
+                                        {% if essay_question.scoring_rubric.description %}
+                                        <p class="mt-1 text-sm text-gray-600">
+                                            {{ essay_question.scoring_rubric.description }}
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="divide-y divide-gray-200">
+                                        {% for criterion in essay_question.get_scoring_criteria %}
+                                        <div class="px-4 py-4">
+                                            <div class="flex justify-between items-start mb-2">
+                                                <div>
+                                                    <h4 class="text-md font-semibold text-gray-900">{{ criterion.name }}</h4>
+                                                    <p class="text-sm text-gray-600">{{ criterion.description }}</p>
+                                                </div>
+                                                <span class="text-sm font-medium text-gray-600">
+                                                    Max points: {{ criterion.max_points }}
+                                                </span>
+                                            </div>
+                                            
+                                            <!-- Performance Level Selection -->
+                                            <div class="mt-3 mb-3">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                                    Performance Level
+                                                </label>
+                                                <select
+                                                    id="criterion_{{ criterion.id }}_level"
+                                                    name="criterion_{{ criterion.id }}_level"
+                                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 performance-level-select"
+                                                    data-criterion-id="{{ criterion.id }}"
+                                                    data-max-points="{{ criterion.max_points }}"
+                                                >
+                                                    <option value="">Select a level...</option>
+                                                    {% for level, data in criterion.performance_levels.items %}
+                                                    <option value="{{ level }}" data-points="{{ data.points }}">
+                                                        {{ level }} ({{ data.points }} points)
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            
+                                            <!-- Points Input -->
+                                            <div class="mt-3 mb-3">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                                    Points (0-{{ criterion.max_points }})
+                                                </label>
+                                                <input 
+                                                    type="number"
+                                                    id="criterion_{{ criterion.id }}_points"
+                                                    name="criterion_{{ criterion.id }}_points"
+                                                    min="0"
+                                                    max="{{ criterion.max_points }}"
+                                                    value="0"
+                                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 criterion-points"
+                                                    data-criterion-id="{{ criterion.id }}"
+                                                >
+                                            </div>
+                                            
+                                            <!-- Criterion-specific Comments -->
+                                            <div class="mt-3">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                                    Comments on this criterion
+                                                </label>
+                                                <textarea
+                                                    id="criterion_{{ criterion.id }}_comments"
+                                                    name="criterion_{{ criterion.id }}_comments"
+                                                    rows="2"
+                                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                ></textarea>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    <!-- Total Score Display -->
+                                    <div class="bg-gray-50 px-4 py-3 border-t border-gray-200">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-md font-medium">Total Score:</span>
+                                            <span id="total-rubric-score" class="text-lg font-bold text-blue-600">0</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                                            <div id="score-progress" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <!-- Simple Point-Based Grading -->
                                 <div>
                                     <label for="points" class="block text-sm font-medium text-gray-700 mb-1">
                                         Points (0-{{ current_response.question.points }})
@@ -262,10 +357,13 @@
                                            value="{% if current_response.graded_at %}{{ current_response.points_earned }}{% else %}0{% endif %}"
                                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                 </div>
+                                {% endif %}
+                                {% endwith %}
                                 
+                                <!-- Overall Feedback -->
                                 <div>
                                     <label for="feedback" class="block text-sm font-medium text-gray-700 mb-1">
-                                        Feedback to Student
+                                        Overall Feedback to Student
                                     </label>
                                     <textarea id="feedback" 
                                               name="feedback" 
@@ -273,6 +371,7 @@
                                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{% if current_response.instructor_comment %}{{ current_response.instructor_comment }}{% endif %}</textarea>
                                 </div>
                                 
+                                <!-- Form Controls -->
                                 <div class="flex justify-between">
                                     <button type="button" 
                                             onclick="window.history.back()" 
@@ -331,6 +430,59 @@
         if (filterValue) {
             filterSelect.value = filterValue;
         }
+        
+        // Rubric grading functionality
+        const performanceLevelSelects = document.querySelectorAll('.performance-level-select');
+        const criterionPointsInputs = document.querySelectorAll('.criterion-points');
+        const totalRubricScoreElement = document.getElementById('total-rubric-score');
+        const scoreProgressBar = document.getElementById('score-progress');
+        
+        // Function to update total score display
+        function updateTotalScore() {
+            // Calculate total points
+            let totalPoints = 0;
+            let maxPoints = 0;
+            
+            criterionPointsInputs.forEach(input => {
+                totalPoints += parseInt(input.value || 0);
+                maxPoints += parseInt(input.getAttribute('max') || 0);
+            });
+            
+            if (totalRubricScoreElement) {
+                totalRubricScoreElement.textContent = totalPoints;
+            }
+            
+            if (scoreProgressBar && maxPoints > 0) {
+                const percentage = (totalPoints / maxPoints) * 100;
+                scoreProgressBar.style.width = `${percentage}%`;
+            }
+        }
+        
+        // Set up event listeners for performance level selection
+        performanceLevelSelects.forEach(select => {
+            select.addEventListener('change', function() {
+                const criterionId = this.getAttribute('data-criterion-id');
+                const selectedOption = this.options[this.selectedIndex];
+                const pointsValue = selectedOption.getAttribute('data-points');
+                
+                if (pointsValue) {
+                    const pointsInput = document.getElementById(`criterion_${criterionId}_points`);
+                    if (pointsInput) {
+                        pointsInput.value = pointsValue;
+                        updateTotalScore();
+                    }
+                }
+            });
+        });
+        
+        // Set up event listeners for points inputs
+        criterionPointsInputs.forEach(input => {
+            input.addEventListener('change', updateTotalScore);
+            input.addEventListener('input', updateTotalScore);
+        });
+        
+        // Initialize total score display
+        updateTotalScore();
     });
 </script>
 {% endblock %}

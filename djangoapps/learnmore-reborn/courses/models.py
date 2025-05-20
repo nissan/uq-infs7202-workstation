@@ -455,12 +455,20 @@ class TrueFalseQuestion(Question):
 class EssayQuestion(Question):
     """
     A question that requires a written response and manual grading.
+    
+    Can be graded using a simple point system or with a detailed rubric
+    for more objective and consistent grading.
     """
     min_word_count = models.PositiveIntegerField(default=0, help_text='Minimum word count required (0 for no minimum)')
     max_word_count = models.PositiveIntegerField(default=0, help_text='Maximum word count allowed (0 for no maximum)')
-    rubric = models.TextField(blank=True, help_text='Grading rubric or guidelines for instructors')
+    rubric = models.TextField(blank=True, help_text='Legacy text rubric for simple grading')
+    scoring_rubric = models.ForeignKey('ScoringRubric', on_delete=models.SET_NULL, 
+                                     null=True, blank=True, related_name='essay_questions',
+                                     help_text='Advanced rubric with criteria for detailed grading')
     example_answer = models.TextField(blank=True, help_text='Example of a good answer (visible only to instructors)')
     allow_attachments = models.BooleanField(default=False, help_text='Allow students to upload attachments')
+    use_detailed_rubric = models.BooleanField(default=False, 
+                                             help_text='If true, use structured rubric instead of simple point allocation')
     
     def save(self, *args, **kwargs):
         self.question_type = 'essay'
@@ -494,23 +502,63 @@ class EssayQuestion(Question):
         
         # Mark as pending grading
         return (False, 0, "Response submitted successfully. Waiting for instructor grading.")
+    
+    def get_scoring_criteria(self):
+        """
+        Get the scoring criteria for this essay question.
         
-    def grade_response(self, response, points, feedback, graded_by):
+        Returns:
+            list: The criteria if using a detailed rubric, otherwise an empty list
+        """
+        if self.use_detailed_rubric and self.scoring_rubric:
+            return self.scoring_rubric.criteria.all().order_by('order')
+        return []
+        
+    def grade_response(self, response, points, feedback, graded_by, criterion_scores=None):
         """
         Grade an essay response.
         
         Args:
             response: QuestionResponse object
-            points: Points to award
+            points: Points to award (used for simple grading)
             feedback: Instructor feedback
             graded_by: User who graded the response
+            criterion_scores: Optional dict of criterion_id -> score (for detailed rubric grading)
             
         Returns:
             QuestionResponse: The updated response object
         """
+        # For detailed rubric grading
+        if self.use_detailed_rubric and self.scoring_rubric and criterion_scores:
+            # Save individual criterion feedback
+            for criterion_id, score_data in criterion_scores.items():
+                criterion = self.scoring_rubric.criteria.filter(id=criterion_id).first()
+                if criterion:
+                    # Create or update the criterion feedback
+                    rubric_feedback, created = RubricFeedback.objects.update_or_create(
+                        response=response,
+                        criterion=criterion,
+                        defaults={
+                            'points_earned': min(score_data['points'], criterion.max_points),
+                            'comments': score_data.get('comments', ''),
+                            'performance_level': score_data.get('level', '')
+                        }
+                    )
+            
+            # Calculate total score based on criterion scores
+            total_score, max_score, percentage = self.scoring_rubric.calculate_score(
+                {int(k): v['points'] for k, v in criterion_scores.items()}
+            )
+            
+            # Scale the score to the question's total points
+            scaled_points = int((percentage / 100) * self.points)
+            points = min(scaled_points, self.points)
+        
+        # Ensure points don't exceed the maximum
         if points > self.points:
             points = self.points
             
+        # Update the response
         response.is_correct = (points > 0)
         response.points_earned = points
         response.feedback = feedback
@@ -880,6 +928,130 @@ class QuestionAnalytics(models.Model):
         self.last_calculated_at = timezone.now()
         self.save()
 
+
+class ScoringRubric(models.Model):
+    """
+    A rubric for scoring essay questions.
+    
+    A rubric consists of multiple criteria, each with a weight and description.
+    Instructors use these criteria to objectively grade essay responses.
+    """
+    name = models.CharField(max_length=255, help_text='Name of the rubric')
+    description = models.TextField(blank=True, help_text='Description of the rubric and its purpose')
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_rubrics')
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_public = models.BooleanField(default=False, help_text='If true, this rubric can be used by all instructors')
+    total_points = models.PositiveIntegerField(default=0, help_text='Total possible points for this rubric')
+    
+    class Meta:
+        verbose_name = 'Scoring Rubric'
+        verbose_name_plural = 'Scoring Rubrics'
+    
+    def __str__(self):
+        return self.name
+    
+    def save(self, *args, **kwargs):
+        # Calculate total points from criteria
+        if self.pk:  # Only if the rubric already exists
+            self.total_points = sum(criterion.max_points for criterion in self.criteria.all())
+        super().save(*args, **kwargs)
+    
+    def calculate_score(self, criterion_scores):
+        """
+        Calculate the total score based on scores for each criterion.
+        
+        Args:
+            criterion_scores: Dict mapping criterion IDs to scores
+            
+        Returns:
+            tuple: (total_score, max_score, percentage)
+        """
+        total_score = 0
+        max_score = 0
+        
+        for criterion in self.criteria.all():
+            max_score += criterion.max_points
+            if criterion.id in criterion_scores:
+                total_score += min(criterion_scores[criterion.id], criterion.max_points)
+        
+        percentage = (total_score / max_score) * 100 if max_score > 0 else 0
+        return total_score, max_score, percentage
+
+class RubricCriterion(models.Model):
+    """
+    A criterion for a scoring rubric.
+    
+    Each criterion represents a specific aspect to evaluate in an essay response.
+    """
+    rubric = models.ForeignKey(ScoringRubric, on_delete=models.CASCADE, related_name='criteria')
+    name = models.CharField(max_length=255, help_text='Name of the criterion')
+    description = models.TextField(help_text='Description of what to evaluate')
+    max_points = models.PositiveIntegerField(default=10, help_text='Maximum points for this criterion')
+    weight = models.FloatField(default=1.0, help_text='Weight of this criterion in the total score')
+    order = models.PositiveIntegerField(default=0, help_text='Display order')
+    
+    # Performance levels (e.g., Excellent, Good, Fair, Poor)
+    performance_levels = models.JSONField(default=dict, blank=True, 
+                                         help_text='JSON definition of performance levels and point ranges')
+    
+    class Meta:
+        ordering = ['rubric', 'order']
+        verbose_name = 'Rubric Criterion'
+        verbose_name_plural = 'Rubric Criteria'
+    
+    def __str__(self):
+        return f"{self.name} ({self.max_points} pts)"
+    
+    def save(self, *args, **kwargs):
+        # Create default performance levels if none exist
+        if not self.performance_levels:
+            self.performance_levels = {
+                "Excellent": {
+                    "points": self.max_points,
+                    "description": f"Excellent level of achievement for {self.name}"
+                },
+                "Good": {
+                    "points": int(self.max_points * 0.75),
+                    "description": f"Good level of achievement for {self.name}"
+                },
+                "Satisfactory": {
+                    "points": int(self.max_points * 0.5),
+                    "description": f"Satisfactory level of achievement for {self.name}"
+                },
+                "Needs Improvement": {
+                    "points": int(self.max_points * 0.25),
+                    "description": f"Needs improvement for {self.name}"
+                },
+                "Unsatisfactory": {
+                    "points": 0,
+                    "description": f"Unsatisfactory level of achievement for {self.name}"
+                }
+            }
+        
+        super().save(*args, **kwargs)
+        
+        # Update the total points in the parent rubric
+        if self.rubric:
+            self.rubric.save()
+
+class RubricFeedback(models.Model):
+    """
+    Feedback for a specific criterion of a response.
+    
+    Stores instructor's evaluation and comments for each criterion.
+    """
+    response = models.ForeignKey('QuestionResponse', on_delete=models.CASCADE, related_name='criterion_feedback')
+    criterion = models.ForeignKey(RubricCriterion, on_delete=models.CASCADE, related_name='feedback')
+    points_earned = models.PositiveIntegerField(default=0)
+    comments = models.TextField(blank=True)
+    performance_level = models.CharField(max_length=100, blank=True)
+    
+    class Meta:
+        unique_together = [['response', 'criterion']]
+    
+    def __str__(self):
+        return f"Feedback for {self.criterion} on {self.response}"
 
 class QuizAnalytics(models.Model):
     """
