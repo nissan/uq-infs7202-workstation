@@ -17,7 +17,7 @@ class AnalyticsMiddleware:
         response = self.get_response(request)
         
         # Only collect analytics for authenticated users and non-admin paths
-        if request.user.is_authenticated and not request.path.startswith('/admin/'):
+        if hasattr(request, 'user') and request.user is not None and request.user.is_authenticated and not request.path.startswith('/admin/'):
             # Calculate request processing time
             processing_time = (time.time() - start_time) * 1000  # Convert to milliseconds
             

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Student Analytics Comparison</h1>
+<p>Comparing analytics for: <strong>{{ student.get_full_name }}</strong></p>
+
+<!-- Placeholder for student analytics summary -->
+<div class="student-comparison-summary">
+  <strong>Analytics:</strong> (To be filled with selected student's analytics data)
+</div>
+
+<!-- Placeholder for comparison charts -->
+<div class="student-comparison-charts">
+  <em>[Comparison charts for progress, scores, engagement, etc. will go here]</em>
+</div>
+
+<!-- Placeholder for back link -->
+<div class="back-section">
+  <a href="javascript:history.back()" class="btn btn-secondary">Back</a>
+</div>
+{% endblock %} 

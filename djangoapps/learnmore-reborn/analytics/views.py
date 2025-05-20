@@ -14,8 +14,14 @@ from django.core.cache import cache
 from django.http import HttpResponse
 import csv
 import json
-import xlsxwriter
 from io import BytesIO
+
+# Try to import xlsxwriter, but make it optional
+try:
+    import xlsxwriter
+    XLSXWRITER_AVAILABLE = True
+except ImportError:
+    XLSXWRITER_AVAILABLE = False
 
 from .models import (
     UserActivity,
@@ -316,6 +322,13 @@ class AnalyticsExportViewSet(viewsets.ViewSet):
         export_format = data['format']
         include_details = data['include_details']
         
+        # Check if Excel export is requested but not available
+        if export_format == 'xlsx' and not XLSXWRITER_AVAILABLE:
+            return Response(
+                {'error': 'Excel export is not available. Please install xlsxwriter package or use JSON/CSV format.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         # Get the appropriate queryset based on analytics type
         if analytics_type == 'course':
             queryset = CourseAnalytics.objects.all()
@@ -348,8 +361,13 @@ class AnalyticsExportViewSet(viewsets.ViewSet):
             return self._export_json(export_data, analytics_type)
         elif export_format == 'csv':
             return self._export_csv(export_data, analytics_type)
-        else:  # xlsx
+        elif export_format == 'xlsx' and XLSXWRITER_AVAILABLE:
             return self._export_xlsx(export_data, analytics_type)
+        else:
+            return Response(
+                {'error': f'Unsupported export format: {export_format}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
     
     def _export_json(self, data, analytics_type):
         """Export data as JSON"""

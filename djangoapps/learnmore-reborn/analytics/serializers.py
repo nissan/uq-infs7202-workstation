@@ -3,8 +3,9 @@ from django.utils import timezone
 from .models import (
     UserActivity, LearnerAnalytics, CourseAnalytics,
     UserAnalytics, QuizAnalytics, SystemAnalytics,
-    ModuleEngagement, LearningPathAnalytics
+    ModuleEngagement, LearningPathAnalytics, CourseAnalyticsSummary
 )
+from courses.models import Course
 from courses.serializers import CourseSerializer, QuizSerializer, ModuleSerializer
 from users.serializers import UserSerializer
 
@@ -104,6 +105,34 @@ class LearningPathAnalyticsSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['created_at', 'updated_at']
 
+class CourseAnalyticsSummarySerializer(serializers.ModelSerializer):
+    course = CourseSerializer(read_only=True)
+    
+    class Meta:
+        model = CourseAnalyticsSummary
+        fields = [
+            'id', 'course', 'total_enrollments', 'active_learners',
+            'completion_rate', 'average_rating', 'engagement_score',
+            'engagement_trend', 'last_updated'
+        ]
+        read_only_fields = ['last_updated']
+
+class LearnerAnalyticsSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    
+    class Meta:
+        model = LearnerAnalytics
+        fields = [
+            'id', 'user', 'total_quizzes_taken', 'total_quizzes_passed',
+            'total_questions_answered', 'total_correct_answers',
+            'average_time_per_question', 'total_study_time',
+            'strengths', 'areas_for_improvement', 'learning_pattern_data',
+            'quiz_performance_history', 'progress_over_time',
+            'performance_by_category', 'course_completion_data',
+            'percentile_ranking', 'created_at', 'last_updated'
+        ]
+        read_only_fields = ['created_at', 'last_updated']
+
 class AnalyticsExportSerializer(serializers.Serializer):
     """Serializer for analytics export requests"""
     start_date = serializers.DateTimeField(required=False)
@@ -139,3 +168,54 @@ class AnalyticsRecalculationSerializer(serializers.Serializer):
                 "Specific IDs list cannot be empty"
             )
         return data
+
+class CourseDashboardSerializer(serializers.ModelSerializer):
+    analytics = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Course
+        fields = ['id', 'title', 'analytics']
+    
+    def get_analytics(self, obj):
+        # Try to get the related CourseAnalyticsSummary or CourseAnalytics
+        summary = getattr(obj, 'analytics_summary', None)
+        if summary:
+            return {
+                'total_enrollments': summary.total_enrollments,
+                'active_learners': summary.active_learners,
+                'completion_rate': summary.completion_rate,
+            }
+        # Fallback: return zeros
+        return {
+            'total_enrollments': 0,
+            'active_learners': 0,
+            'completion_rate': 0.0,
+        }
+
+class LearnerComparisonSerializer(serializers.Serializer):
+    """Serializer for comparing learner analytics data"""
+    user = UserSerializer(read_only=True)
+    percentile_rankings = serializers.DictField(
+        child=serializers.FloatField(),
+        help_text='Percentile rankings by category'
+    )
+    relative_performance = serializers.DictField(
+        child=serializers.FloatField(),
+        help_text='Performance relative to peer average (0-100)'
+    )
+    category_comparisons = serializers.DictField(
+        child=serializers.DictField(),
+        help_text='Detailed comparisons by category'
+    )
+    time_comparisons = serializers.DictField(
+        child=serializers.FloatField(),
+        help_text='Time-based metrics compared to peers'
+    )
+    strengths_relative = serializers.ListField(
+        child=serializers.CharField(),
+        help_text='Areas where learner performs better than peers'
+    )
+    areas_for_improvement_relative = serializers.ListField(
+        child=serializers.CharField(),
+        help_text='Areas where learner performs worse than peers'
+    )

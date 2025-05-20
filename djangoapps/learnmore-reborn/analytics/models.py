@@ -709,6 +709,53 @@ class SystemAnalytics(models.Model):
         """Calculate current system metrics"""
         # ... implementation details ...
 
+    def update_metrics(self, data):
+        """Update system metrics fields from a dictionary and save the instance."""
+        # List of fields that can be updated
+        updatable_fields = [
+            'active_users', 'concurrent_sessions', 'average_response_time', 'error_rate',
+            'cpu_usage', 'memory_usage', 'database_connections', 'cache_hit_rate',
+            'error_counts', 'error_trends', 'critical_errors',
+            'total_sessions', 'average_session_duration', 'session_distribution'
+        ]
+        updated = False
+        for field in updatable_fields:
+            if field in data:
+                setattr(self, field, data[field])
+                updated = True
+        if updated:
+            self.save()
+        return updated
+
+    def to_dict(self):
+        """Convert analytics data to dictionary format"""
+        return {
+            'system_performance': {
+                'active_users': self.active_users,
+                'concurrent_sessions': self.concurrent_sessions,
+                'average_response_time': self.average_response_time,
+                'error_rate': self.error_rate
+            },
+            'resource_usage': {
+                'cpu_usage': self.cpu_usage,
+                'memory_usage': self.memory_usage,
+                'database_connections': self.database_connections,
+                'cache_hit_rate': self.cache_hit_rate
+            },
+            'error_tracking': {
+                'error_counts': self.error_counts,
+                'error_trends': self.error_trends,
+                'critical_errors': self.critical_errors
+            },
+            'user_sessions': {
+                'total_sessions': self.total_sessions,
+                'average_session_duration': str(self.average_session_duration) if self.average_session_duration else None,
+                'session_distribution': self.session_distribution
+            },
+            'timestamp': self.timestamp.isoformat() if self.timestamp else None,
+            'last_updated': self.last_updated.isoformat() if self.last_updated else None
+        }
+
 # Add analytics fields to Course model
 Course.add_to_class('analytics_enabled', models.BooleanField(default=True))
 Course.add_to_class('analytics_settings', models.JSONField(default=dict, blank=True))
