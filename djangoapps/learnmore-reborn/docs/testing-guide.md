@@ -18,7 +18,8 @@ Tests in LearnMore Reborn are organized into the following structure:
 app_name/
   tests/
     __init__.py
-    test_models.py       # Tests for models
+    test_models.py       # Test runner for all model tests
+    test_model_name.py   # Tests for specific model
     test_views.py        # Tests for views
     test_api.py          # Tests for API endpoints
     test_forms.py        # Tests for forms
@@ -198,58 +199,72 @@ class CourseViewTest(TestCase):
 
 ### Running All Tests
 
+To run all tests for the LearnMore Reborn application:
+
 ```bash
 python manage.py test
 ```
 
 ### Running App-Specific Tests
 
+To run tests for a specific app:
+
 ```bash
 python manage.py test courses
+python manage.py test progress
+python manage.py test users
 ```
 
-### Running Specific Test Classes
+### Running Model Tests Only
+
+To run only model tests across all apps:
 
 ```bash
-python manage.py test courses.tests.test_models.CourseModelTest
+python manage.py test courses.tests.test_models progress.tests.test_models users.tests.test_models
 ```
 
-### Running a Specific Test Method
+### Running Specific Model Tests
+
+To run tests for a specific model:
 
 ```bash
-python manage.py test courses.tests.test_models.CourseModelTest.test_create_course
+python manage.py test courses.tests.test_course_model
+python manage.py test courses.tests.test_module_model
+python manage.py test courses.tests.test_quiz_model
+python manage.py test courses.tests.test_enrollment_model
+python manage.py test progress.tests.test_progress_model
+python manage.py test users.tests.test_userprofile_model
 ```
+
+### Running Specific Test Methods
+
+To run a specific test method:
+
+```bash
+python manage.py test courses.tests.test_course_model.CourseModelTest.test_create_course
+```
+
+### Using the Provided Test Script
+
+For convenience, you can use the included test script to run all model tests:
+
+```bash
+./run_model_tests.sh
+```
+
+This script will:
+1. Activate the virtual environment if it exists
+2. Run all model tests for courses, progress, and users apps
+3. Run tests with coverage report if coverage is installed
 
 ## Best Practices
 
 1. **Test Coverage**: Aim for high test coverage, especially for models and API endpoints
 2. **Isolation**: Each test should be independent and not rely on other tests
-3. **Fixtures**: Use Django fixtures or factory-boy for complex test data
+3. **Fixtures**: Use TestCase.setUp or pytest fixtures for complex test data
 4. **Mocking**: Use mocking for external services
 5. **Documentation**: Document the purpose of test classes and methods
 6. **Maintenance**: Update tests when the codebase changes
-
-## Test Tags
-
-Tests can be organized with tags that allow running specific groups of tests:
-
-```python
-from django.test import tag
-
-@tag('models')
-class CourseModelTest(TestCase):
-    # Tests...
-
-@tag('api')
-class CourseAPITest(APITestCase):
-    # Tests...
-```
-
-Run tests with a specific tag:
-
-```bash
-python manage.py test --tag=models
-```
 
 ## Writing Testable Code
 

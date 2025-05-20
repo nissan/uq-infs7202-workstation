@@ -12,6 +12,7 @@ This is the initial scaffold for the Enhanced LearnMore project, a Django-based 
 - Basic app structure: `courses`, `progress`, `users`
 - Initial `Course` and `Progress` models
 - Admin user created
+- Comprehensive test suite
 - `requirements.txt` frozen
 
 ---
@@ -57,6 +58,58 @@ Run development server:
 ```bash
 python manage.py runserver
 Visit: http://127.0.0.1:8000/admin/
+
+## 🧪 Test Suite
+
+The application includes comprehensive tests for models, serializers, and API endpoints:
+
+### Testing Framework
+- Django's built-in `TestCase` for model and serializer tests
+- `APITestCase` from Django REST Framework for API endpoint testing
+- Comprehensive API authentication tests using JWT tokens
+
+### Running Tests
+```bash
+# Run all tests
+python manage.py test
+
+# Run tests for a specific app
+python manage.py test courses
+python manage.py test users
+python manage.py test progress
+
+# Run a specific test module or class
+python manage.py test courses.api_tests
+python manage.py test courses.tests.test_models
+python manage.py test courses.api_tests.CourseAPITest
+```
+
+#### Custom Test Runner
+
+The application uses a custom test runner (`QuietTestRunner`) to suppress expected warnings during tests. This runner temporarily adjusts the logging level during test execution to hide warnings that are expected as part of testing API validation:
+
+- 400 Bad Request responses (when testing validation)
+- 401 Unauthorized responses (when testing authentication)
+- Other expected error responses that are part of test cases
+
+This makes the test output cleaner while still ensuring proper test coverage of error cases.
+
+### Test Structure
+The test suite is organized into different categories:
+
+1. **API Tests**: Tests for API endpoints and serializers
+   - `api_tests.py` in each app
+   - Test API endpoints, request/response handling, and authentication
+
+2. **Model Tests**: Tests for models and database operations
+   - Located in `tests/` directory in each app
+   - Test model validation, fields, and methods
+
+### Test Coverage
+- **User Tests**: Authentication (register, login, logout), profile management, Google OAuth
+- **Course Tests**: Course CRUD operations, catalog listing, searching, enrollment
+- **Progress Tests**: Progress tracking, serialization, and updates
+- **Serializer Tests**: Validation of serializer fields and behavior
 
 ## 🔐 Authentication & Profile Management
 

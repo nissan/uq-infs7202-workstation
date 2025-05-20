@@ -6,6 +6,12 @@ from django.utils.text import slugify
 User = get_user_model()
 
 class Course(models.Model):
+    """
+    Represents a course in the learning platform.
+    
+    The Course model automatically generates and updates its slug based on the title.
+    Whenever a course title is changed, the slug will be automatically updated to match.
+    """
     STATUS_CHOICES = [
         ('draft', 'Draft'),
         ('published', 'Published'),
@@ -35,8 +41,14 @@ class Course(models.Model):
         return self.title
     
     def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.title)
+        """
+        Override save method to automatically generate slug from title.
+        
+        The slug is always generated from the title, ensuring that it stays
+        in sync when the title is updated.
+        """
+        # Always generate the slug from the title
+        self.slug = slugify(self.title)
         super().save(*args, **kwargs)
     
     @property

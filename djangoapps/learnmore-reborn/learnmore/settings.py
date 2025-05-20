@@ -227,8 +227,11 @@ LOGGING = {
         },
         'django.request': {
             'handlers': ['console'],
-            'level': 'DEBUG',  # Set to DEBUG to see all request errors
+            'level': 'INFO',  # Changed from DEBUG to INFO to reduce noise during tests
             'propagate': False,
         },
     },
 }
+
+# Custom test runner to suppress expected warnings during tests
+TEST_RUNNER = 'test_runner.QuietTestRunner'
