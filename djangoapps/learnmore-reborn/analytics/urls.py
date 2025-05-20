@@ -1,11 +1,21 @@
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
+
+router = DefaultRouter()
+router.register(r'user-activities', views.UserActivityViewSet, basename='user-activity')
+router.register(r'course-analytics', views.CourseAnalyticsViewSet, basename='course-analytics')
+router.register(r'user-analytics', views.UserAnalyticsViewSet, basename='user-analytics')
+router.register(r'quiz-analytics', views.QuizAnalyticsViewSet, basename='quiz-analytics')
+router.register(r'system-analytics', views.SystemAnalyticsViewSet, basename='system-analytics')
+router.register(r'export', views.AnalyticsExportViewSet, basename='analytics-export')
+router.register(r'recalculate', views.AnalyticsRecalculationViewSet, basename='analytics-recalculate')
 
 app_name = 'analytics'
 
 urlpatterns = [
-    # Include API URLs
-    path('api/', include('analytics.api_urls')),
+    path('api/', include(router.urls)),
+    path('api/auth/', include('rest_framework.urls')),
     
     # Web interface URLs
     path('dashboard/', views.InstructorAnalyticsDashboardView.as_view(), name='instructor_dashboard'),

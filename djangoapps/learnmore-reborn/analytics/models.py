@@ -1,7 +1,12 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from django.core.cache import cache
+from django.db.models import Count, Sum, Avg, F, Q, Case, When, Window, FloatField
+from django.db.models.functions import Rank, PercentRank
 from courses.models import Course, Module, Quiz, QuizAttempt, Question
+import json
+from datetime import timedelta
 
 class UserActivity(models.Model):
     """Tracks general user activity on the platform"""
@@ -31,7 +36,7 @@ class LearnerAnalytics(models.Model):
     This model aggregates information about an individual learner's performance
     to provide insights into their progress, strengths, weaknesses, and learning patterns.
     """
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='analytics')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='learner_analytics')
     
     # Overall metrics
     total_quizzes_taken = models.PositiveIntegerField(default=0)
@@ -413,3 +418,306 @@ class LearningPathAnalytics(models.Model):
         # This would be implemented to analyze progress data
         # and identify common paths through the modules
         pass
+
+class CourseAnalytics(models.Model):
+    """Comprehensive analytics for course performance and engagement"""
+    course = models.OneToOneField(Course, on_delete=models.CASCADE, related_name='course_analytics')
+    
+    # Enrollment statistics
+    total_enrollments = models.PositiveIntegerField(default=0)
+    active_enrollments = models.PositiveIntegerField(default=0)  # Active in last 30 days
+    new_enrollments = models.PositiveIntegerField(default=0)  # New enrollments in last 30 days
+    enrollment_trend = models.JSONField(default=dict, blank=True)  # Daily/weekly/monthly trends
+    
+    # Completion rates
+    completion_rate = models.FloatField(default=0.0)  # Overall completion rate
+    module_completion_rates = models.JSONField(default=dict, blank=True)  # Per-module completion rates
+    average_completion_time = models.DurationField(null=True, blank=True)
+    
+    # Performance metrics
+    average_score = models.FloatField(default=0.0)  # Average quiz score
+    score_distribution = models.JSONField(default=dict, blank=True)  # Score distribution data
+    module_performance = models.JSONField(default=dict, blank=True)  # Performance by module
+    
+    # Time spent metrics
+    average_time_per_module = models.DurationField(null=True, blank=True)
+    total_learning_time = models.DurationField(default=timedelta)
+    time_distribution = models.JSONField(default=dict, blank=True)  # Time spent patterns
+    
+    # Engagement metrics
+    engagement_score = models.FloatField(default=0.0)  # Composite engagement score
+    active_users = models.PositiveIntegerField(default=0)  # Users active in last 7 days
+    interaction_rates = models.JSONField(default=dict, blank=True)  # Various interaction metrics
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+    last_calculated = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        verbose_name = 'Course Analytics'
+        verbose_name_plural = 'Course Analytics'
+        indexes = [
+            models.Index(fields=['course', 'last_updated']),
+            models.Index(fields=['completion_rate']),
+            models.Index(fields=['engagement_score']),
+        ]
+    
+    def __str__(self):
+        return f"Analytics for {self.course.title}"
+    
+    def calculate_metrics(self):
+        """Calculate all analytics metrics for the course"""
+        # Cache key for this course's analytics
+        cache_key = f'course_analytics_{self.course.id}'
+        
+        # Try to get from cache first
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            return json.loads(cached_data)
+        
+        # Calculate enrollment statistics
+        self._calculate_enrollment_metrics()
+        
+        # Calculate completion rates
+        self._calculate_completion_metrics()
+        
+        # Calculate performance metrics
+        self._calculate_performance_metrics()
+        
+        # Calculate time metrics
+        self._calculate_time_metrics()
+        
+        # Calculate engagement metrics
+        self._calculate_engagement_metrics()
+        
+        # Update timestamps
+        self.last_calculated = timezone.now()
+        self.save()
+        
+        # Cache the results
+        cache.set(cache_key, json.dumps(self.to_dict()), timeout=3600)  # Cache for 1 hour
+        
+        return self.to_dict()
+    
+    def _calculate_enrollment_metrics(self):
+        """Calculate enrollment-related metrics"""
+        # ... implementation details ...
+    
+    def _calculate_completion_metrics(self):
+        """Calculate completion-related metrics"""
+        # ... implementation details ...
+    
+    def _calculate_performance_metrics(self):
+        """Calculate performance-related metrics"""
+        # ... implementation details ...
+    
+    def _calculate_time_metrics(self):
+        """Calculate time-related metrics"""
+        # ... implementation details ...
+    
+    def _calculate_engagement_metrics(self):
+        """Calculate engagement-related metrics"""
+        # ... implementation details ...
+    
+    def to_dict(self):
+        """Convert analytics data to dictionary format"""
+        return {
+            'enrollment_stats': {
+                'total': self.total_enrollments,
+                'active': self.active_enrollments,
+                'new': self.new_enrollments,
+                'trend': self.enrollment_trend
+            },
+            'completion_rates': {
+                'overall': self.completion_rate,
+                'by_module': self.module_completion_rates,
+                'avg_time': str(self.average_completion_time) if self.average_completion_time else None
+            },
+            'performance': {
+                'average_score': self.average_score,
+                'score_distribution': self.score_distribution,
+                'module_performance': self.module_performance
+            },
+            'time_metrics': {
+                'avg_time_per_module': str(self.average_time_per_module) if self.average_time_per_module else None,
+                'total_learning_time': str(self.total_learning_time),
+                'distribution': self.time_distribution
+            },
+            'engagement': {
+                'score': self.engagement_score,
+                'active_users': self.active_users,
+                'interaction_rates': self.interaction_rates
+            },
+            'last_updated': self.last_updated.isoformat() if self.last_updated else None
+        }
+
+class UserAnalytics(models.Model):
+    """Comprehensive analytics for individual user performance and engagement"""
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_analytics')
+    
+    # Learning progress
+    courses_enrolled = models.PositiveIntegerField(default=0)
+    courses_completed = models.PositiveIntegerField(default=0)
+    current_courses = models.JSONField(default=list, blank=True)  # List of active course IDs
+    completion_rate = models.FloatField(default=0.0)
+    
+    # Activity patterns
+    last_active = models.DateTimeField(null=True, blank=True)
+    active_days = models.PositiveIntegerField(default=0)  # Days active in last 30 days
+    average_session_duration = models.DurationField(null=True, blank=True)
+    activity_heatmap = models.JSONField(default=dict, blank=True)  # Activity by hour/day
+    
+    # Performance metrics
+    average_score = models.FloatField(default=0.0)
+    quiz_completion_rate = models.FloatField(default=0.0)
+    module_completion_rate = models.FloatField(default=0.0)
+    performance_by_category = models.JSONField(default=dict, blank=True)
+    
+    # Engagement scores
+    overall_engagement = models.FloatField(default=0.0)
+    course_engagement = models.JSONField(default=dict, blank=True)  # Engagement by course
+    interaction_frequency = models.JSONField(default=dict, blank=True)
+    
+    # Learning patterns
+    preferred_learning_times = models.JSONField(default=dict, blank=True)
+    study_duration_patterns = models.JSONField(default=dict, blank=True)
+    content_preferences = models.JSONField(default=dict, blank=True)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+    last_calculated = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        verbose_name = 'User Analytics'
+        verbose_name_plural = 'User Analytics'
+        indexes = [
+            models.Index(fields=['user', 'last_active']),
+            models.Index(fields=['overall_engagement']),
+            models.Index(fields=['completion_rate']),
+        ]
+    
+    def __str__(self):
+        return f"Analytics for {self.user.username}"
+    
+    def calculate_metrics(self):
+        """Calculate all analytics metrics for the user"""
+        # ... implementation details ...
+
+class QuizAnalytics(models.Model):
+    """Analytics for quiz performance and effectiveness"""
+    quiz = models.OneToOneField(Quiz, on_delete=models.CASCADE, related_name='quiz_analytics')
+    
+    # Question performance
+    question_difficulty = models.JSONField(default=dict, blank=True)  # Difficulty by question
+    question_discrimination = models.JSONField(default=dict, blank=True)  # Discrimination index
+    question_statistics = models.JSONField(default=dict, blank=True)  # Detailed stats per question
+    
+    # Attempt patterns
+    total_attempts = models.PositiveIntegerField(default=0)
+    unique_attempters = models.PositiveIntegerField(default=0)
+    average_attempts = models.FloatField(default=0.0)
+    attempt_distribution = models.JSONField(default=dict, blank=True)
+    
+    # Score distributions
+    average_score = models.FloatField(default=0.0)
+    score_distribution = models.JSONField(default=dict, blank=True)
+    pass_rate = models.FloatField(default=0.0)
+    
+    # Time analysis
+    average_completion_time = models.DurationField(null=True, blank=True)
+    time_distribution = models.JSONField(default=dict, blank=True)
+    time_by_question = models.JSONField(default=dict, blank=True)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+    last_calculated = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        verbose_name = 'Quiz Analytics'
+        verbose_name_plural = 'Quiz Analytics'
+        indexes = [
+            models.Index(fields=['quiz', 'last_updated']),
+            models.Index(fields=['average_score']),
+            models.Index(fields=['pass_rate']),
+        ]
+    
+    def __str__(self):
+        return f"Analytics for {self.quiz.title}"
+    
+    def calculate_metrics(self):
+        """Calculate all analytics metrics for the quiz"""
+        # ... implementation details ...
+
+class SystemAnalytics(models.Model):
+    """System-wide analytics and monitoring"""
+    # System performance
+    active_users = models.PositiveIntegerField(default=0)  # Users active in last hour
+    concurrent_sessions = models.PositiveIntegerField(default=0)
+    average_response_time = models.FloatField(default=0.0)  # In milliseconds
+    error_rate = models.FloatField(default=0.0)  # Percentage of requests with errors
+    
+    # Resource usage
+    cpu_usage = models.FloatField(default=0.0)  # Percentage
+    memory_usage = models.FloatField(default=0.0)  # Percentage
+    database_connections = models.PositiveIntegerField(default=0)
+    cache_hit_rate = models.FloatField(default=0.0)  # Percentage
+    
+    # Error tracking
+    error_counts = models.JSONField(default=dict, blank=True)  # Counts by error type
+    error_trends = models.JSONField(default=dict, blank=True)  # Error trends over time
+    critical_errors = models.JSONField(default=list, blank=True)  # List of critical errors
+    
+    # User sessions
+    total_sessions = models.PositiveIntegerField(default=0)  # In last hour
+    average_session_duration = models.DurationField(null=True, blank=True)
+    session_distribution = models.JSONField(default=dict, blank=True)  # By hour/day
+    
+    # Timestamps
+    timestamp = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'System Analytics'
+        verbose_name_plural = 'System Analytics'
+        indexes = [
+            models.Index(fields=['timestamp']),
+            models.Index(fields=['active_users']),
+            models.Index(fields=['error_rate']),
+        ]
+        get_latest_by = 'timestamp'
+    
+    def __str__(self):
+        return f"System Analytics at {self.timestamp}"
+    
+    @classmethod
+    def get_current_metrics(cls):
+        """Get or create current system metrics"""
+        # Try to get the latest metrics
+        latest = cls.objects.order_by('-timestamp').first()
+        
+        # If no metrics exist or they're more than 5 minutes old, create new ones
+        if not latest or (timezone.now() - latest.timestamp) > timedelta(minutes=5):
+            latest = cls.objects.create()
+            latest.calculate_metrics()
+        
+        return latest
+    
+    def calculate_metrics(self):
+        """Calculate current system metrics"""
+        # ... implementation details ...
+
+# Add analytics fields to Course model
+Course.add_to_class('analytics_enabled', models.BooleanField(default=True))
+Course.add_to_class('analytics_settings', models.JSONField(default=dict, blank=True))
+
+# Add analytics fields to UserProfile model
+from users.models import UserProfile
+UserProfile.add_to_class('tracking_consent', models.BooleanField(default=True))
+UserProfile.add_to_class('analytics_preferences', models.JSONField(default=dict, blank=True))
+
+# Add analytics fields to Module model
+Module.add_to_class('performance_metrics', models.JSONField(default=dict, blank=True))
+Module.add_to_class('engagement_metrics', models.JSONField(default=dict, blank=True))
