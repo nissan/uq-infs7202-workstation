@@ -822,6 +822,311 @@ class QuizResultView(LoginRequiredMixin, DetailView):
             return f"{int(minutes)}m {int(seconds)}s"
         else:
             return f"{int(seconds)}s"
+            
+@method_decorator(csrf_exempt, name='dispatch')
+class QuizDetailedBreakdownView(LoginRequiredMixin, DetailView):
+    """View for detailed quiz attempt analysis and score breakdown"""
+    model = QuizAttempt
+    template_name = 'courses/quiz-detailed-breakdown.html'
+    pk_url_kwarg = 'attempt_id'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        attempt = self.get_object()
+        quiz = attempt.quiz
+        user = self.request.user
+        
+        # Security check - only allow the user who took the attempt
+        if attempt.user != user:
+            raise PermissionDenied("You don't have permission to access this quiz result.")
+        
+        # Get responses with questions and answers
+        responses = attempt.responses.all().select_related('question')
+        
+        # Calculate score percentage
+        score_percentage = round((attempt.score / attempt.max_score) * 100 if attempt.max_score > 0 else 0, 1)
+        
+        # Calculate average time per question
+        total_time = attempt.time_spent_seconds
+        total_questions = responses.count()
+        avg_question_time = '0s'
+        if total_questions > 0:
+            avg_seconds = total_time / total_questions
+            minutes, seconds = divmod(int(avg_seconds), 60)
+            if minutes > 0:
+                avg_question_time = f"{minutes}m {seconds}s"
+            else:
+                avg_question_time = f"{seconds}s"
+        
+        # Calculate time utilization percentage if quiz has time limit
+        time_utilization_percentage = 0
+        if quiz.time_limit_minutes:
+            # Add time extension if any
+            total_allowed_time = (quiz.time_limit_minutes + attempt.time_extension_minutes) * 60
+            time_utilization_percentage = round((total_time / total_allowed_time) * 100 if total_allowed_time > 0 else 0, 1)
+        
+        # Time efficiency calculation
+        time_efficiency = None
+        if total_time > 0 and attempt.max_score > 0:
+            # Points per minute as efficiency metric
+            points_per_minute = (attempt.score / (total_time / 60))
+            max_points_per_minute = (attempt.max_score / (total_time / 60))
+            efficiency_percentage = min(100, round((points_per_minute / max_points_per_minute) * 100, 1))
+            
+            # Label based on efficiency percentage
+            if efficiency_percentage >= 80:
+                efficiency_label = "Excellent"
+            elif efficiency_percentage >= 60:
+                efficiency_label = "Good"
+            elif efficiency_percentage >= 40:
+                efficiency_label = "Average"
+            else:
+                efficiency_label = "Needs improvement"
+                
+            time_efficiency = {
+                'percentage': efficiency_percentage,
+                'label': efficiency_label
+            }
+        
+        # Points utilization calculation
+        points_utilization = {
+            'earned': attempt.score,
+            'available': attempt.max_score,
+            'percentage': score_percentage
+        }
+        
+        # Color based on percentage
+        if score_percentage >= 80:
+            points_utilization['color'] = 'bg-green-500'
+        elif score_percentage >= 60:
+            points_utilization['color'] = 'bg-blue-500'
+        elif score_percentage >= 40:
+            points_utilization['color'] = 'bg-yellow-500'
+        else:
+            points_utilization['color'] = 'bg-red-500'
+        
+        # Count correct answers
+        correct_count = sum(1 for response in responses if response.is_correct)
+        
+        # Group questions by type for performance analysis
+        question_categories = []
+        question_types = {}
+        
+        for response in responses:
+            q_type = response.question.question_type
+            if q_type not in question_types:
+                question_types[q_type] = {
+                    'correct': 0,
+                    'total': 0,
+                    'name': response.question.get_question_type_display(),
+                    'time_spent_seconds': 0
+                }
+            
+            question_types[q_type]['total'] += 1
+            question_types[q_type]['time_spent_seconds'] += response.time_spent_seconds
+            if response.is_correct:
+                question_types[q_type]['correct'] += 1
+        
+        # Calculate percentages and averages for each question type
+        for q_type, data in question_types.items():
+            data['percentage'] = round((data['correct'] / data['total']) * 100 if data['total'] > 0 else 0, 1)
+            
+            # Calculate average time for this question type
+            avg_time = data['time_spent_seconds'] / data['total'] if data['total'] > 0 else 0
+            minutes, seconds = divmod(int(avg_time), 60)
+            if minutes > 0:
+                data['avg_time'] = f"{minutes}m {seconds}s"
+            else:
+                data['avg_time'] = f"{seconds}s"
+                
+            question_categories.append(data)
+        
+        # Sort categories by percentage for finding strongest/weakest
+        sorted_categories = sorted(question_categories, key=lambda x: x['percentage'], reverse=True)
+        strongest_category = sorted_categories[0] if sorted_categories else None
+        weakest_category = sorted_categories[-1] if len(sorted_categories) > 1 else None
+        
+        # Score distribution segments if there are different scoring levels
+        score_distribution = []
+        
+        if quiz.conditional_feedback:
+            # Extract score ranges from conditional feedback
+            score_ranges = []
+            for score_range in quiz.conditional_feedback.keys():
+                try:
+                    start, end = map(int, score_range.split('-'))
+                    score_ranges.append((start, end))
+                except (ValueError, AttributeError):
+                    continue
+            
+            # Sort ranges by start value
+            score_ranges.sort(key=lambda x: x[0])
+            
+            # Create segment data
+            for i, (start, end) in enumerate(score_ranges):
+                if i == 0:
+                    # First segment - from 0 to first range start
+                    if start > 0:
+                        score_distribution.append({
+                            'start': 0,
+                            'end': start,
+                            'width': start,
+                            'color': 'bg-red-500'
+                        })
+                
+                # Add current segment
+                segment_width = end - start
+                
+                # Determine color based on position
+                if end < quiz.passing_score:
+                    color = 'bg-red-500'
+                elif start < quiz.passing_score <= end:
+                    color = 'bg-yellow-500'
+                elif end < 80:
+                    color = 'bg-blue-500'
+                else:
+                    color = 'bg-green-500'
+                
+                score_distribution.append({
+                    'start': start,
+                    'end': end,
+                    'width': segment_width,
+                    'color': color
+                })
+                
+                # Gap between this segment and next
+                if i < len(score_ranges) - 1 and score_ranges[i+1][0] > end:
+                    gap_width = score_ranges[i+1][0] - end
+                    score_distribution.append({
+                        'start': end,
+                        'end': score_ranges[i+1][0],
+                        'width': gap_width,
+                        'color': 'bg-gray-300'
+                    })
+                
+                # Last segment - from last range end to 100
+                if i == len(score_ranges) - 1 and end < 100:
+                    score_distribution.append({
+                        'start': end,
+                        'end': 100,
+                        'width': 100 - end,
+                        'color': 'bg-green-500'
+                    })
+        
+        # Detailed response data
+        response_details = []
+        for response in responses:
+            # Get question type display name
+            question_type = response.question.get_question_type_display()
+            
+            # Calculate points percentage
+            points_percentage = round((response.points_earned / response.question.points) * 100 if response.question.points > 0 else 0)
+            
+            # Determine status
+            if response.question.question_type == 'essay' and not response.graded_at:
+                status = 'pending'
+            elif response.is_correct:
+                status = 'correct'
+            elif response.points_earned > 0:
+                status = 'partial'
+            else:
+                status = 'incorrect'
+            
+            # Format time spent
+            time_spent = self.format_time_spent(response.time_spent_seconds)
+            
+            # Time efficiency for this question
+            time_efficiency = None
+            if response.time_spent_seconds > 0 and response.question.points > 0:
+                points_per_second = response.points_earned / response.time_spent_seconds
+                max_points_per_second = response.question.points / response.time_spent_seconds
+                
+                # Determine if time was used efficiently
+                is_efficient = (points_per_second / max_points_per_second) >= 0.5 if max_points_per_second > 0 else False
+                
+                # Label based on efficiency
+                if is_efficient:
+                    if status == 'correct':
+                        label = "Time well spent"
+                    else:
+                        label = "Good effort"
+                else:
+                    if status == 'correct':
+                        label = "Quick success"
+                    else:
+                        label = "Too rushed"
+                
+                time_efficiency = {
+                    'is_efficient': is_efficient,
+                    'label': label
+                }
+            
+            response_details.append({
+                'question_text': response.question.text,
+                'question_type': question_type,
+                'points_earned': response.points_earned,
+                'total_points': response.question.points,
+                'points_percentage': points_percentage,
+                'time_spent': time_spent,
+                'time_efficiency': time_efficiency,
+                'status': status
+            })
+        
+        # Generate improvement recommendations based on performance
+        improvement_areas = []
+        
+        # Time management recommendation
+        if time_utilization_percentage > 90:
+            improvement_areas.append({
+                'title': 'Time Management',
+                'description': 'You used most of the available time. Consider practicing with timed quizzes to improve your speed without sacrificing accuracy.'
+            })
+        
+        # Question type specific recommendations
+        for category in question_categories:
+            if category['percentage'] < 60:
+                improvement_areas.append({
+                    'title': f"Review {category['name']} Questions",
+                    'description': f"Your performance on {category['name']} questions was lower than other types. Consider focusing on these topics in your studies."
+                })
+        
+        # Get conditional feedback based on score
+        conditional_feedback = attempt.get_conditional_feedback()
+                
+        # Add to context
+        context.update({
+            'quiz': quiz,
+            'responses': responses,
+            'score_percentage': score_percentage,
+            'correct_count': correct_count,
+            'total_questions': total_questions,
+            'avg_question_time': avg_question_time,
+            'time_spent_formatted': self.format_time_spent(attempt.time_spent_seconds),
+            'time_utilization_percentage': time_utilization_percentage,
+            'time_efficiency': time_efficiency,
+            'points_utilization': points_utilization,
+            'question_categories': question_categories,
+            'strongest_category': strongest_category,
+            'weakest_category': weakest_category,
+            'score_distribution': score_distribution,
+            'response_details': response_details,
+            'improvement_areas': improvement_areas,
+            'conditional_feedback': conditional_feedback
+        })
+        
+        return context
+        
+    def format_time_spent(self, seconds):
+        """Format seconds into a human-readable time string"""
+        hours, remainder = divmod(seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        
+        if hours > 0:
+            return f"{int(hours)}h {int(minutes)}m {int(seconds)}s"
+        elif minutes > 0:
+            return f"{int(minutes)}m {int(seconds)}s"
+        else:
+            return f"{int(seconds)}s"
 
 @method_decorator(csrf_exempt, name='dispatch')
 class QuizAttemptHistoryView(LoginRequiredMixin, ListView):

@@ -1,0 +1,567 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ attempt.quiz.title }} - Detailed Score Breakdown{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chart-container {
+        height: 300px;
+        position: relative;
+    }
+    
+    .data-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+    
+    .score-box {
+        border-left: 4px solid transparent;
+        transition: transform 0.2s;
+    }
+    
+    .score-box:hover {
+        transform: translateY(-2px);
+    }
+    
+    .score-box.excellent {
+        border-color: #10B981;
+    }
+    
+    .score-box.good {
+        border-color: #3B82F6;
+    }
+    
+    .score-box.average {
+        border-color: #F59E0B;
+    }
+    
+    .score-box.poor {
+        border-color: #EF4444;
+    }
+    
+    .breakdown-table th,
+    .breakdown-table td {
+        padding: 0.75rem 1rem;
+    }
+    
+    .breakdown-table tbody tr {
+        transition: background-color 0.2s;
+    }
+    
+    .breakdown-table tbody tr:hover {
+        background-color: rgba(243, 244, 246, 0.8);
+    }
+    
+    .tag {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border-radius: 9999px;
+    }
+    
+    .feedback-card {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .feedback-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+    }
+    
+    .feedback-card.correct::before {
+        background-color: #10B981;
+    }
+    
+    .feedback-card.incorrect::before {
+        background-color: #EF4444;
+    }
+    
+    .feedback-card.partial::before {
+        background-color: #F59E0B;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ attempt.quiz.title }}</h1>
+            <div class="flex flex-wrap items-center gap-2 text-sm text-gray-500">
+                <span>Attempt {{ attempt.attempt_number }}</span>
+                <span>•</span>
+                <span>{{ attempt.completed_at|date:"F j, Y" }}</span>
+                <span>•</span>
+                <span>{{ time_spent_formatted }}</span>
+            </div>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <a href="{% url 'quiz-result' attempt.id %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="mr-2 -ml-1 h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Results
+            </a>
+        </div>
+    </div>
+    
+    <!-- Overall Score Card -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+        <div class="p-6">
+            <div class="flex flex-col md:flex-row items-center gap-8">
+                <div class="flex-shrink-0">
+                    <div class="relative">
+                        <!-- Circle Background -->
+                        <svg class="w-36 h-36" viewBox="0 0 36 36">
+                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" 
+                                fill="none" 
+                                stroke="#E5E7EB" 
+                                stroke-width="3" 
+                                stroke-dasharray="100, 100" />
+                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" 
+                                fill="none" 
+                                stroke="{% if attempt.is_passed %}#10B981{% else %}#EF4444{% endif %}" 
+                                stroke-width="3" 
+                                stroke-dasharray="{{ attempt.score_percentage }}, 100" />
+                        </svg>
+                        <!-- Score Text -->
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+                            <div class="text-4xl font-bold {% if attempt.is_passed %}text-green-600{% else %}text-red-600{% endif %}">{{ attempt.score_percentage }}%</div>
+                            <div class="text-xs text-gray-500">Final Score</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 flex-grow">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="text-sm text-gray-500 mb-1">Points</div>
+                        <div class="text-xl font-bold">{{ attempt.score }}/{{ attempt.max_score }}</div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="text-sm text-gray-500 mb-1">Correct</div>
+                        <div class="text-xl font-bold">{{ correct_count }}/{{ total_questions }}</div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="text-sm text-gray-500 mb-1">Time</div>
+                        <div class="text-xl font-bold">{{ time_spent_formatted }}</div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="text-sm text-gray-500 mb-1">Result</div>
+                        <div class="text-xl font-bold {% if attempt.is_passed %}text-green-600{% else %}text-red-600{% endif %}">
+                            {% if attempt.is_passed %}Passed{% else %}Not Passed{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Score Distribution Detail -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <h2 class="text-xl font-semibold text-gray-800">Score Distribution Analysis</h2>
+            <div class="text-sm text-gray-500">
+                Minimum passing score: {{ attempt.quiz.passing_score }}%
+            </div>
+        </div>
+        
+        <div class="p-6">
+            <!-- Score Distribution Bar -->
+            <div class="mb-8">
+                <h3 class="text-lg font-medium text-gray-700 mb-3">Overall Performance</h3>
+                
+                <!-- Score Breakdown -->
+                <div class="h-6 bg-gray-200 rounded-full overflow-hidden mb-1">
+                    <!-- Passing threshold line -->
+                    <div class="h-6 absolute border-r-2 border-dashed border-gray-500" 
+                         style="left: calc({{ attempt.quiz.passing_score }}% + 4px); z-index: 10;"></div>
+                    
+                    <!-- Score segments -->
+                    {% if score_distribution %}
+                        {% for segment in score_distribution %}
+                            <div class="h-full float-left {{ segment.color }}" style="width: {{ segment.width }}%"></div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="h-full {% if attempt.is_passed %}bg-green-500{% else %}bg-red-500{% endif %}" 
+                             style="width: {{ attempt.score_percentage }}%"></div>
+                    {% endif %}
+                </div>
+                
+                <div class="flex justify-between text-xs text-gray-500">
+                    <span>0%</span>
+                    <span>{{ attempt.quiz.passing_score }}% (Passing)</span>
+                    <span>100%</span>
+                </div>
+            </div>
+            
+            <!-- Performance Metrics -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Time Performance -->
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <h4 class="text-sm font-medium text-gray-500 mb-2">Time Performance</h4>
+                    <div class="text-lg font-medium">{{ avg_question_time }} per question</div>
+                    
+                    {% if attempt.quiz.time_limit_minutes %}
+                    <div class="mt-1 text-sm text-gray-600">
+                        {{ time_utilization_percentage }}% of time limit used
+                    </div>
+                    
+                    {% if time_efficiency %}
+                    <div class="mt-2">
+                        <div class="text-sm">Time Efficiency:</div>
+                        <div class="flex items-center">
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="h-2 rounded-full bg-blue-600" style="width: {{ time_efficiency.percentage }}%"></div>
+                            </div>
+                            <span class="text-xs ml-2">{{ time_efficiency.label }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                </div>
+                
+                <!-- Point Utilization -->
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <h4 class="text-sm font-medium text-gray-500 mb-2">Point Utilization</h4>
+                    <div class="text-lg font-medium">{{ points_utilization.percentage }}%</div>
+                    
+                    <div class="mt-1 text-sm text-gray-600">
+                        {{ points_utilization.earned }} out of {{ points_utilization.available }} possible points
+                    </div>
+                    
+                    <div class="mt-2">
+                        <div class="flex items-center">
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="h-2 rounded-full {{ points_utilization.color }}" style="width: {{ points_utilization.percentage }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Question Type Performance -->
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <h4 class="text-sm font-medium text-gray-500 mb-2">Strongest Question Type</h4>
+                    
+                    {% if strongest_category %}
+                    <div class="text-lg font-medium">{{ strongest_category.name }}</div>
+                    <div class="mt-1 text-sm text-gray-600">
+                        {{ strongest_category.correct }}/{{ strongest_category.total }} correct ({{ strongest_category.percentage }}%)
+                    </div>
+                    
+                    <div class="mt-2">
+                        <div class="flex items-center">
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="h-2 rounded-full bg-green-500" style="width: {{ strongest_category.percentage }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-lg font-medium">N/A</div>
+                    <div class="mt-1 text-sm text-gray-600">Not enough data</div>
+                    {% endif %}
+                </div>
+                
+                <!-- Improvement Area -->
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <h4 class="text-sm font-medium text-gray-500 mb-2">Needs Improvement</h4>
+                    
+                    {% if weakest_category %}
+                    <div class="text-lg font-medium">{{ weakest_category.name }}</div>
+                    <div class="mt-1 text-sm text-gray-600">
+                        {{ weakest_category.correct }}/{{ weakest_category.total }} correct ({{ weakest_category.percentage }}%)
+                    </div>
+                    
+                    <div class="mt-2">
+                        <div class="flex items-center">
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="h-2 rounded-full bg-red-500" style="width: {{ weakest_category.percentage }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-lg font-medium">N/A</div>
+                    <div class="mt-1 text-sm text-gray-600">Not enough data</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Question Category Breakdown -->
+    {% if question_categories %}
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Performance by Question Type</h2>
+        </div>
+        
+        <div class="p-6">
+            <div class="chart-container mb-8">
+                <canvas id="categoryChart"></canvas>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for category in question_categories %}
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <h4 class="font-medium text-gray-800 mb-1">{{ category.name }}</h4>
+                    
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm text-gray-500">{{ category.correct }}/{{ category.total }} correct</span>
+                        <span class="font-semibold {% if category.percentage >= 80 %}text-green-600{% elif category.percentage >= 60 %}text-blue-600{% elif category.percentage >= 40 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                            {{ category.percentage }}%
+                        </span>
+                    </div>
+                    
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="h-2 rounded-full {% if category.percentage >= 80 %}bg-green-500{% elif category.percentage >= 60 %}bg-blue-500{% elif category.percentage >= 40 %}bg-yellow-500{% else %}bg-red-500{% endif %}" 
+                             style="width: {{ category.percentage }}%"></div>
+                    </div>
+                    
+                    <!-- Average time information -->
+                    {% if category.avg_time %}
+                    <div class="mt-2 text-xs text-gray-500">
+                        <span>Avg. time: {{ category.avg_time }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Question-by-Question Breakdown -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Detailed Question Analysis</h2>
+        </div>
+        
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 breakdown-table">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Question
+                            </th>
+                            <th scope="col" class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Type
+                            </th>
+                            <th scope="col" class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Points
+                            </th>
+                            <th scope="col" class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Time
+                            </th>
+                            <th scope="col" class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Performance
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for response in response_details %}
+                        <tr>
+                            <td class="text-sm font-medium text-gray-900">
+                                <div class="truncate max-w-xs">
+                                    Q{{ forloop.counter }}: {{ response.question_text }}
+                                </div>
+                            </td>
+                            <td class="text-sm text-gray-500">
+                                {{ response.question_type }}
+                            </td>
+                            <td class="text-sm text-gray-900">
+                                <span class="font-medium">{{ response.points_earned }}</span>
+                                <span class="text-gray-500">/{{ response.total_points }}</span>
+                                
+                                {% if response.points_percentage != 100 and response.points_percentage != 0 %}
+                                <div class="text-xs text-yellow-600">(Partial credit)</div>
+                                {% endif %}
+                            </td>
+                            <td class="text-sm text-gray-500">
+                                {{ response.time_spent }}
+                                
+                                {% if response.time_efficiency %}
+                                <div class="text-xs {% if response.time_efficiency.is_efficient %}text-green-600{% else %}text-red-600{% endif %}">
+                                    {{ response.time_efficiency.label }}
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="flex items-center">
+                                    {% if response.status == 'correct' %}
+                                    <span class="tag bg-green-100 text-green-800">
+                                        Correct
+                                    </span>
+                                    {% elif response.status == 'partial' %}
+                                    <span class="tag bg-yellow-100 text-yellow-800">
+                                        Partial
+                                    </span>
+                                    {% elif response.status == 'incorrect' %}
+                                    <span class="tag bg-red-100 text-red-800">
+                                        Incorrect
+                                    </span>
+                                    {% elif response.status == 'pending' %}
+                                    <span class="tag bg-gray-100 text-gray-800">
+                                        Pending
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Feedback Section -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Feedback & Recommendations</h2>
+        </div>
+        
+        <div class="p-6">
+            {% if attempt.quiz.general_feedback or conditional_feedback %}
+            <div class="mb-6">
+                <h3 class="text-lg font-medium text-gray-700 mb-3">Instructor Feedback</h3>
+                
+                {% if conditional_feedback %}
+                <div class="feedback-card {% if attempt.is_passed %}correct{% else %}incorrect{% endif %} p-4 bg-gray-50 rounded-lg">
+                    <h4 class="font-medium text-gray-900 mb-2">Score-based Feedback</h4>
+                    <div class="text-gray-700">{{ conditional_feedback }}</div>
+                </div>
+                {% endif %}
+                
+                {% if attempt.quiz.general_feedback %}
+                <div class="feedback-card mt-4 p-4 bg-gray-50 rounded-lg">
+                    <h4 class="font-medium text-gray-900 mb-2">General Feedback</h4>
+                    <div class="text-gray-700">{{ attempt.quiz.general_feedback }}</div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <!-- Improvement Recommendations -->
+            <div>
+                <h3 class="text-lg font-medium text-gray-700 mb-3">Recommendations</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% if improvement_areas %}
+                        {% for area in improvement_areas %}
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <h4 class="font-medium text-gray-800 mb-2">{{ area.title }}</h4>
+                            <p class="text-sm text-gray-600">{{ area.description }}</p>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 col-span-full">
+                            <h4 class="font-medium text-gray-800 mb-2">Keep up the good work!</h4>
+                            <p class="text-sm text-gray-600">
+                                {% if attempt.is_passed %}
+                                You've demonstrated a good understanding of the material in this quiz. Continue to review the content regularly to maintain your knowledge.
+                                {% else %}
+                                Focus on reviewing the material for the questions you missed. Consider seeking additional help or resources for the topics you found challenging.
+                                {% endif %}
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Navigation buttons -->
+    <div class="flex justify-between">
+        <a href="{% url 'quiz-result' attempt.id %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            <svg class="mr-2 -ml-1 h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back to Results
+        </a>
+        
+        <a href="{% url 'quiz-detail' attempt.quiz.id %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            <svg class="mr-2 -ml-1 h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+            Quiz Details
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Category breakdown chart
+        const ctx = document.getElementById('categoryChart');
+        
+        if (ctx) {
+            const categoryChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [{% for category in question_categories %}'{{ category.name }}',{% endfor %}],
+                    datasets: [
+                        {
+                            label: 'Accuracy (%)',
+                            data: [{% for category in question_categories %}{{ category.percentage }},{% endfor %}],
+                            backgroundColor: [
+                                {% for category in question_categories %}
+                                    {% if category.percentage >= 80 %}'rgba(16, 185, 129, 0.6)'{% elif category.percentage >= 60 %}'rgba(59, 130, 246, 0.6)'{% elif category.percentage >= 40 %}'rgba(245, 158, 11, 0.6)'{% else %}'rgba(239, 68, 68, 0.6)'{% endif %},
+                                {% endfor %}
+                            ],
+                            borderColor: [
+                                {% for category in question_categories %}
+                                    {% if category.percentage >= 80 %}'rgba(16, 185, 129, 1)'{% elif category.percentage >= 60 %}'rgba(59, 130, 246, 1)'{% elif category.percentage >= 40 %}'rgba(245, 158, 11, 1)'{% else %}'rgba(239, 68, 68, 1)'{% endif %},
+                                {% endfor %}
+                            ],
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.formattedValue + '% accuracy';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
