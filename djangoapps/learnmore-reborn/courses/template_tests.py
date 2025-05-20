@@ -1,0 +1,375 @@
+from django.test import TestCase, Client
+from django.urls import reverse
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
+from django.contrib.messages import get_messages
+import json
+
+from .models import Course, Module, Quiz, Enrollment
+
+User = get_user_model()
+
+class TemplateViewTests(TestCase):
+    """Tests for template views in the courses app"""
+    
+    def setUp(self):
+        # Create test users
+        self.instructor = User.objects.create_user(
+            username='instructor',
+            email='instructor@example.com',
+            password='instructorpass'
+        )
+        self.instructor.profile.is_instructor = True
+        self.instructor.profile.save()
+        
+        self.student = User.objects.create_user(
+            username='student',
+            email='student@example.com',
+            password='studentpass'
+        )
+        
+        # Create courses
+        self.published_course = Course.objects.create(
+            title='Published Course',
+            slug='published-course',
+            description='Description for published course',
+            instructor=self.instructor,
+            status='published',
+            enrollment_type='open',
+            max_students=10
+        )
+        
+        self.draft_course = Course.objects.create(
+            title='Draft Course',
+            slug='draft-course',
+            description='Description for draft course',
+            instructor=self.instructor,
+            status='draft',
+            enrollment_type='open',
+            max_students=10
+        )
+        
+        # Create modules
+        self.module = Module.objects.create(
+            course=self.published_course,
+            title='Test Module',
+            description='Module description',
+            order=1
+        )
+        
+        # Create quiz
+        self.quiz = Quiz.objects.create(
+            module=self.module,
+            title='Test Quiz',
+            description='Quiz description',
+            is_survey=False
+        )
+        
+        # Create enrollment for student
+        self.enrollment = Enrollment.objects.create(
+            user=self.student,
+            course=self.published_course,
+            status='active'
+        )
+    
+    # Course Catalog Tests
+    def test_course_catalog_anonymous(self):
+        """Test course catalog view as anonymous user"""
+        url = reverse('course-catalog')
+        response = self.client.get(url, follow=True)
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'courses/course-catalog.html')
+        
+        # Only published courses should be visible
+        self.assertEqual(len(response.context['courses']), 1)
+        self.assertEqual(response.context['courses'][0].title, 'Published Course')
+    
+    def test_course_catalog_instructor(self):
+        """Test course catalog view as instructor with status filter"""
+        # Login as instructor
+        self.client.login(username='instructor', password='instructorpass')
+        
+        # Request with status filters that instructors can see
+        url = reverse('course-catalog') + '?status=draft&status=published'
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, 200)
+        # Both courses should be visible with status filter
+        self.assertEqual(len(response.context['courses']), 2)
+        
+        # Logout
+        self.client.logout()
+    
+    def test_course_catalog_search(self):
+        """Test course catalog search"""
+        url = reverse('course-catalog') + '?search=Published'
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['courses']), 1)
+        self.assertEqual(response.context['courses'][0].title, 'Published Course')
+        
+        # Search that returns no results
+        url = reverse('course-catalog') + '?search=Nonexistent'
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['courses']), 0)
+    
+    # Course Detail Tests
+    def test_course_detail_published(self):
+        """Test course detail view for published course"""
+        url = reverse('course-detail', kwargs={'slug': self.published_course.slug})
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'courses/course-detail.html')
+        self.assertEqual(response.context['course'].title, 'Published Course')
+    
+    def test_course_detail_draft(self):
+        """Test course detail view for draft course"""
+        url = reverse('course-detail', kwargs={'slug': self.draft_course.slug})
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'courses/course-detail.html')
+    
+    def test_course_detail_enrolled(self):
+        """Test course detail view when user is enrolled"""
+        # Login as student who is enrolled
+        self.client.login(username='student', password='studentpass')
+        
+        url = reverse('course-detail', kwargs={'slug': self.published_course.slug})
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['is_enrolled'])
+        
+        # Logout
+        self.client.logout()
+    
+    # Module Tests
+    def test_module_detail_unauthenticated(self):
+        """Test module detail view redirects unauthenticated users to login"""
+        url = reverse('module-detail', kwargs={'pk': self.module.pk})
+        response = self.client.get(url)
+        
+        # Should redirect to login
+        self.assertRedirects(
+            response, 
+            f'/accounts/login/?next={url}',
+            fetch_redirect_response=False
+        )
+    
+    def test_module_detail_instructor(self):
+        """Test module detail view for instructor"""
+        # Login as instructor
+        self.client.login(username='instructor', password='instructorpass')
+        
+        url = reverse('module-detail', kwargs={'pk': self.module.pk})
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'courses/module_detail.html')
+        
+        # Logout
+        self.client.logout()
+    
+    def test_module_detail_enrolled_student(self):
+        """Test module detail view for enrolled student"""
+        # Login as student
+        self.client.login(username='student', password='studentpass')
+        
+        url = reverse('module-detail', kwargs={'pk': self.module.pk})
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'courses/module_detail.html')
+        self.assertTrue(response.context['is_enrolled'])
+        
+        # Logout
+        self.client.logout()
+    
+    # Quiz Tests
+    def test_quiz_detail_unauthenticated(self):
+        """Test quiz detail view redirects unauthenticated users to login"""
+        url = reverse('quiz-detail', kwargs={'pk': self.quiz.pk})
+        response = self.client.get(url)
+        
+        # Should redirect to login
+        self.assertRedirects(
+            response, 
+            f'/accounts/login/?next={url}',
+            fetch_redirect_response=False
+        )
+    
+    def test_quiz_detail_instructor(self):
+        """Test quiz detail view for instructor"""
+        # Login as instructor
+        self.client.login(username='instructor', password='instructorpass')
+        
+        url = reverse('quiz-detail', kwargs={'pk': self.quiz.pk})
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'courses/quiz_detail.html')
+        
+        # Logout
+        self.client.logout()
+    
+    def test_quiz_detail_enrolled_student(self):
+        """Test quiz detail view for enrolled student"""
+        # Login as student
+        self.client.login(username='student', password='studentpass')
+        
+        url = reverse('quiz-detail', kwargs={'pk': self.quiz.pk})
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'courses/quiz_detail.html')
+        
+        # Logout
+        self.client.logout()
+    
+    # Enrollment Tests
+    def test_enroll_unauthenticated(self):
+        """Test enrollment redirects unauthenticated users to login"""
+        url = reverse('course-enroll', kwargs={'slug': self.published_course.slug})
+        response = self.client.get(url)
+        
+        # Should redirect to login
+        self.assertRedirects(
+            response, 
+            f'/accounts/login/?next={url}',
+            fetch_redirect_response=False
+        )
+    
+    def test_enroll_new_student(self):
+        """Test successful enrollment for a new student"""
+        # Create a new student
+        new_student = User.objects.create_user(
+            username='newstudent',
+            email='new@example.com',
+            password='newpass'
+        )
+        
+        # Login as new student
+        self.client.login(username='newstudent', password='newpass')
+        
+        url = reverse('course-enroll', kwargs={'slug': self.published_course.slug})
+        response = self.client.get(url, follow=True)
+        
+        # Should create enrollment and redirect to course detail
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'courses/course-detail.html')
+        
+        # Check for success message
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(any(message.message.startswith("You have successfully enrolled") for message in messages))
+        
+        # Check enrollment in database
+        self.assertTrue(
+            Enrollment.objects.filter(
+                user=new_student,
+                course=self.published_course,
+                status='active'
+            ).exists()
+        )
+        
+        # Logout
+        self.client.logout()
+    
+    def test_enroll_already_enrolled(self):
+        """Test enrollment when student is already enrolled"""
+        # Login as student (already enrolled)
+        self.client.login(username='student', password='studentpass')
+        
+        url = reverse('course-enroll', kwargs={'slug': self.published_course.slug})
+        response = self.client.get(url, follow=True)
+        
+        # Should redirect to course detail with message
+        self.assertEqual(response.status_code, 200)
+        
+        # Check for info message
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(any(message.message.startswith("You are already enrolled") for message in messages))
+        
+        # Logout
+        self.client.logout()
+    
+    def test_enroll_draft_course(self):
+        """Test enrollment in a draft course is prevented"""
+        # Login as student
+        self.client.login(username='student', password='studentpass')
+        
+        url = reverse('course-enroll', kwargs={'slug': self.draft_course.slug})
+        response = self.client.get(url, follow=True)
+        
+        # Should redirect to catalog with error message
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'courses/course-catalog.html')
+        
+        # Check for error message
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(any(message.message.startswith("You cannot enroll in an unpublished course") for message in messages))
+        
+        # Logout
+        self.client.logout()
+    
+    # Unenrollment Tests
+    def test_unenroll_unauthenticated(self):
+        """Test unenrollment redirects unauthenticated users to login"""
+        url = reverse('course-unenroll', kwargs={'slug': self.published_course.slug})
+        response = self.client.get(url)
+        
+        # Should redirect to login
+        self.assertRedirects(
+            response, 
+            f'/accounts/login/?next={url}',
+            fetch_redirect_response=False
+        )
+    
+    def test_unenroll_enrolled_student(self):
+        """Test successful unenrollment for an enrolled student"""
+        # Login as student (already enrolled)
+        self.client.login(username='student', password='studentpass')
+        
+        url = reverse('course-unenroll', kwargs={'slug': self.published_course.slug})
+        response = self.client.get(url, follow=True)
+        
+        # Should update enrollment status and redirect to course catalog
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'courses/course-catalog.html')
+        
+        # Check for success message
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(any(message.message.startswith("You have been unenrolled") for message in messages))
+        
+        # Check enrollment status in database
+        enrollment = Enrollment.objects.get(
+            user=self.student,
+            course=self.published_course
+        )
+        self.assertEqual(enrollment.status, 'dropped')
+        
+        # Logout
+        self.client.logout()
+    
+    def test_unenroll_not_enrolled(self):
+        """Test unenrollment when student is not enrolled"""
+        # Login as instructor (not enrolled)
+        self.client.login(username='instructor', password='instructorpass')
+        
+        url = reverse('course-unenroll', kwargs={'slug': self.published_course.slug})
+        response = self.client.get(url, follow=True)
+        
+        # Should redirect to course detail with error message
+        self.assertEqual(response.status_code, 200)
+        
+        # Check for error message
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(any(message.message.startswith("You are not enrolled") for message in messages))
+        
+        # Logout
+        self.client.logout()
