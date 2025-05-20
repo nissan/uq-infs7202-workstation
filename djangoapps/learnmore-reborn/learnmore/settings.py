@@ -140,6 +140,10 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
+# Media files (uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Temporarily disable WhiteNoise to debug static files
 # if not DEBUG:
 #     MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')

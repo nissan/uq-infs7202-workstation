@@ -2,8 +2,9 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import (
     Course, Module, Quiz, Enrollment,
-    Question, MultipleChoiceQuestion, TrueFalseQuestion,
-    Choice, QuizAttempt, QuestionResponse
+    Question, MultipleChoiceQuestion, TrueFalseQuestion, EssayQuestion,
+    Choice, QuizAttempt, QuestionResponse, QuizPrerequisite,
+    QuestionAnalytics, QuizAnalytics
 )
 
 User = get_user_model()
@@ -50,30 +51,53 @@ class ModuleSerializer(serializers.ModelSerializer):
 
 # Choice serializers
 class ChoiceSerializer(serializers.ModelSerializer):
+    has_image = serializers.SerializerMethodField()
+    
     class Meta:
         model = Choice
-        fields = ['id', 'text', 'order', 'feedback']
-        read_only_fields = ['id']
+        fields = ['id', 'text', 'order', 'feedback', 'image', 'image_alt_text', 'has_image']
+        read_only_fields = ['id', 'has_image']
+    
+    def get_has_image(self, obj):
+        return bool(obj.image)
 
 class ChoiceWithCorrectAnswerSerializer(ChoiceSerializer):
     class Meta(ChoiceSerializer.Meta):
-        fields = ChoiceSerializer.Meta.fields + ['is_correct']
+        fields = ChoiceSerializer.Meta.fields + [
+            'is_correct', 'points_value', 'is_neutral'
+        ]
 
 # Question serializers
 class QuestionSerializer(serializers.ModelSerializer):
     question_type_display = serializers.CharField(source='get_question_type_display', read_only=True)
+    has_image = serializers.SerializerMethodField()
+    has_external_media = serializers.SerializerMethodField()
     
     class Meta:
         model = Question
-        fields = ['id', 'text', 'question_type', 'question_type_display', 'order', 'points', 'explanation']
-        read_only_fields = ['id', 'question_type_display']
+        fields = [
+            'id', 'text', 'question_type', 'question_type_display', 
+            'order', 'points', 'explanation', 'image', 'image_alt_text',
+            'external_media_url', 'media_caption', 'has_image', 'has_external_media'
+        ]
+        read_only_fields = ['id', 'question_type_display', 'has_image', 'has_external_media']
+    
+    def get_has_image(self, obj):
+        return bool(obj.image)
+    
+    def get_has_external_media(self, obj):
+        return bool(obj.external_media_url)
 
 class MultipleChoiceQuestionSerializer(serializers.ModelSerializer):
     choices = ChoiceSerializer(many=True, read_only=True)
     
     class Meta:
         model = MultipleChoiceQuestion
-        fields = ['id', 'text', 'question_type', 'order', 'points', 'explanation', 'allow_multiple', 'choices']
+        fields = [
+            'id', 'text', 'question_type', 'order', 'points', 'explanation', 
+            'allow_multiple', 'use_partial_credit', 'minimum_score', 'choices',
+            'image', 'image_alt_text', 'external_media_url', 'media_caption'
+        ]
         read_only_fields = ['id', 'question_type']
         
 class MultipleChoiceQuestionCreateSerializer(MultipleChoiceQuestionSerializer):
@@ -127,12 +151,53 @@ class TrueFalseQuestionCreateSerializer(TrueFalseQuestionSerializer):
     class Meta(TrueFalseQuestionSerializer.Meta):
         fields = TrueFalseQuestionSerializer.Meta.fields + ['quiz']
 
+class EssayQuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EssayQuestion
+        fields = [
+            'id', 'text', 'question_type', 'order', 'points', 'explanation',
+            'min_word_count', 'max_word_count', 'rubric', 'allow_attachments'
+        ]
+        read_only_fields = ['id', 'question_type']
+
+class EssayQuestionCreateSerializer(EssayQuestionSerializer):
+    class Meta(EssayQuestionSerializer.Meta):
+        fields = EssayQuestionSerializer.Meta.fields + ['quiz', 'example_answer']
+
+class EssayResponseSerializer(serializers.Serializer):
+    essay_text = serializers.CharField(allow_blank=True)
+    attachments = serializers.ListField(child=serializers.FileField(), required=False)
+
+class EssayGradingSerializer(serializers.Serializer):
+    points_awarded = serializers.IntegerField(min_value=0)
+    feedback = serializers.CharField(allow_blank=True)
+
+# Quiz prerequisite serializers
+class QuizPrerequisiteSerializer(serializers.ModelSerializer):
+    prerequisite_title = serializers.CharField(source='prerequisite_quiz.title', read_only=True)
+    
+    class Meta:
+        model = QuizPrerequisite
+        fields = [
+            'id', 'quiz', 'prerequisite_quiz', 'prerequisite_title',
+            'required_passing', 'bypass_for_instructors'
+        ]
+        read_only_fields = ['id', 'prerequisite_title']
+
 # Quiz serializers
 class QuizSerializer(serializers.ModelSerializer):
+    has_prerequisites = serializers.SerializerMethodField()
+    
     class Meta:
         model = Quiz
-        fields = ['id', 'module', 'title', 'description', 'is_survey']
-        read_only_fields = ['id']
+        fields = [
+            'id', 'module', 'title', 'description', 'is_survey',
+            'has_prerequisites'
+        ]
+        read_only_fields = ['id', 'has_prerequisites']
+    
+    def get_has_prerequisites(self, obj):
+        return obj.has_prerequisites()
 
 class QuizListSerializer(serializers.ModelSerializer):
     module_title = serializers.CharField(source='module.title', read_only=True)
@@ -153,9 +218,33 @@ class QuizListSerializer(serializers.ModelSerializer):
 
 class QuizDetailSerializer(QuizListSerializer):
     questions = serializers.SerializerMethodField()
+    prerequisites = serializers.SerializerMethodField()
+    prerequisites_satisfied = serializers.SerializerMethodField()
     
     class Meta(QuizListSerializer.Meta):
-        fields = QuizListSerializer.Meta.fields + ['instructions', 'randomize_questions', 'questions', 'created_at', 'updated_at']
+        fields = QuizListSerializer.Meta.fields + [
+            'instructions', 'randomize_questions', 'randomize_choices',
+            'show_feedback_after', 'grace_period_minutes', 'allow_time_extension',
+            'access_code', 'available_from', 'available_until',
+            'questions', 'prerequisites', 'prerequisites_satisfied',
+            'created_at', 'updated_at'
+        ]
+    
+    def get_prerequisites(self, obj):
+        # Return prerequisite information
+        prereqs = obj.prerequisites.all()
+        if not prereqs.exists():
+            return []
+            
+        return QuizPrerequisiteSerializer(prereqs, many=True).data
+        
+    def get_prerequisites_satisfied(self, obj):
+        # Check if current user has satisfied prerequisites
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return False
+            
+        return obj.are_prerequisites_satisfied(request.user)
         
     def get_questions(self, obj):
         # For instructor view - include correct answers
@@ -172,6 +261,9 @@ class QuizDetailSerializer(QuizListSerializer):
                     questions.append(q)
                 elif question.question_type == 'true_false':
                     questions.append(TrueFalseQuestionSerializer(question.truefalsequestion).data)
+                elif question.question_type == 'essay':
+                    # For instructors, include the example answer and full rubric
+                    questions.append(EssayQuestionCreateSerializer(question.essayquestion).data)
             
             return questions
             
@@ -191,6 +283,13 @@ class QuizDetailSerializer(QuizListSerializer):
                     q = QuestionSerializer(question).data
                     q['is_true_false'] = True
                     questions.append(q)
+                elif question.question_type == 'essay':
+                    q = QuestionSerializer(question).data
+                    q['is_essay'] = True
+                    q['min_word_count'] = question.essayquestion.min_word_count
+                    q['max_word_count'] = question.essayquestion.max_word_count
+                    q['allow_attachments'] = question.essayquestion.allow_attachments
+                    questions.append(q)
             
             return questions
 
@@ -199,14 +298,25 @@ class QuestionResponseSerializer(serializers.ModelSerializer):
     question_text = serializers.CharField(source='question.text', read_only=True)
     question_type = serializers.CharField(source='question.question_type', read_only=True)
     question = serializers.PrimaryKeyRelatedField(queryset=Question.objects.all())
+    pending_grading = serializers.SerializerMethodField()
     
     class Meta:
         model = QuestionResponse
         fields = [
             'id', 'question', 'question_text', 'question_type', 'response_data',
-            'is_correct', 'points_earned', 'feedback', 'time_spent_seconds'
+            'is_correct', 'points_earned', 'feedback', 'time_spent_seconds',
+            'pending_grading', 'instructor_comment', 'graded_at'
         ]
-        read_only_fields = ['id', 'question_text', 'question_type', 'is_correct', 'points_earned', 'feedback']
+        read_only_fields = [
+            'id', 'question_text', 'question_type', 'is_correct', 'points_earned', 
+            'feedback', 'pending_grading', 'instructor_comment', 'graded_at'
+        ]
+    
+    def get_pending_grading(self, obj):
+        """Check if this is an essay question that needs grading"""
+        return (obj.question.question_type == 'essay' and 
+                obj.graded_at is None and 
+                'essay_text' in obj.response_data)
 
 class QuizAttemptSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source='get_status_display', read_only=True)
@@ -275,6 +385,43 @@ class CourseDetailSerializer(CourseSerializer):
     
     class Meta(CourseSerializer.Meta):
         fields = CourseSerializer.Meta.fields + ['modules']
+
+# Analytics serializers
+class QuestionAnalyticsSerializer(serializers.ModelSerializer):
+    question_text = serializers.CharField(source='question.text', read_only=True)
+    question_type = serializers.CharField(source='question.question_type', read_only=True)
+    
+    class Meta:
+        model = QuestionAnalytics
+        fields = [
+            'id', 'question', 'question_text', 'question_type',
+            'total_attempts', 'correct_attempts', 'incorrect_attempts',
+            'avg_time_seconds', 'difficulty_index', 'discrimination_index',
+            'choice_distribution', 'last_attempted_at', 'last_calculated_at'
+        ]
+        read_only_fields = fields
+
+class QuizAnalyticsSerializer(serializers.ModelSerializer):
+    quiz_title = serializers.CharField(source='quiz.title', read_only=True)
+    passing_rate = serializers.SerializerMethodField()
+    completion_rate = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = QuizAnalytics
+        fields = [
+            'id', 'quiz', 'quiz_title', 'total_attempts', 'completed_attempts',
+            'passing_attempts', 'passing_rate', 'completion_rate',
+            'avg_completion_time', 'avg_score', 'lowest_scoring_questions',
+            'highest_scoring_questions', 'score_distribution',
+            'last_attempted_at', 'last_calculated_at'
+        ]
+        read_only_fields = fields
+    
+    def get_passing_rate(self, obj):
+        return (obj.passing_attempts / obj.completed_attempts * 100) if obj.completed_attempts > 0 else 0
+    
+    def get_completion_rate(self, obj):
+        return (obj.completed_attempts / obj.total_attempts * 100) if obj.total_attempts > 0 else 0
 
 class EnrollmentSerializer(serializers.ModelSerializer):
     user_username = serializers.SerializerMethodField()
