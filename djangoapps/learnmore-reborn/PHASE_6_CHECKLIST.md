@@ -27,11 +27,11 @@ This checklist outlines the advanced quiz system features to be implemented in P
   - [x] Add permissions for instructor-only grading access
 
 ### Templates
-- [ ] Update templates:
-  - [ ] Add essay question type to quiz creation interface
-  - [ ] Create essay response interface in quiz-assessment.html
-  - [ ] Create instructor grading interface
-  - [ ] Update quiz results view to display essay responses and feedback
+- [x] Update templates:
+  - [x] Add essay question type to quiz creation interface
+  - [x] Create essay response interface in quiz-assessment.html
+  - [x] Create instructor grading interface
+  - [x] Update quiz results view to display essay responses and feedback
 
 ### Tests
 - [ ] Write comprehensive tests:
