@@ -1,20 +1,15 @@
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
+from django.test import override_settings
 
 from courses.models import Course, Module, Quiz, Enrollment
+from test_auth_settings import test_settings_override
 
 User = get_user_model()
 
-# Override REST framework settings to allow unauthenticated access during testing
-@override_settings(
-    REST_FRAMEWORK={
-        'DEFAULT_AUTHENTICATION_CLASSES': [],
-        'DEFAULT_PERMISSION_CLASSES': [],
-        'UNAUTHENTICATED_USER': lambda: None,
-    }
-)
+@test_settings_override
 class DjangoViewsTestCase(TestCase):
     """Tests for Django template views with DRF authentication disabled"""
     

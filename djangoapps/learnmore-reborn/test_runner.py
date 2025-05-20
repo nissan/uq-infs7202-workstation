@@ -8,6 +8,7 @@ class QuietTestRunner(DiscoverRunner):
     A test runner that:
     1. Suppresses logging output below ERROR level during tests
     2. Uses test_settings.py for all tests
+    3. Disables authentication for tests
     
     This is useful for eliminating warnings that are expected during tests,
     such as 400/401 responses from deliberately invalid API requests.
@@ -31,6 +32,14 @@ class QuietTestRunner(DiscoverRunner):
         
         # Suppress warnings during tests
         warnings.simplefilter('ignore')
+        
+        # Explicitly patch settings for DRF tests
+        from django.conf import settings
+        settings.REST_FRAMEWORK = {
+            'DEFAULT_AUTHENTICATION_CLASSES': [],
+            'DEFAULT_PERMISSION_CLASSES': [],
+            'UNAUTHENTICATED_USER': None
+        }
     
     def teardown_test_environment(self, **kwargs):
         # Restore the original logging level

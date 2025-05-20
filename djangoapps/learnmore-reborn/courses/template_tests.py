@@ -5,10 +5,12 @@ from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
 import json
 
+from test_auth_settings import test_settings_override
 from .models import Course, Module, Quiz, Enrollment
 
 User = get_user_model()
 
+@test_settings_override
 class TemplateViewTests(TestCase):
     """Tests for template views in the courses app"""
     
