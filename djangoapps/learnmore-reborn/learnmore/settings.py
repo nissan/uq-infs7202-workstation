@@ -157,6 +157,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'UNAUTHENTICATED_USER': None,  # This ensures unauthenticated requests return 401 instead of 400
 }
 
 # JWT settings
@@ -172,10 +173,12 @@ SIMPLE_JWT = {
 }
 
 # CORS settings
-CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only for development
+CORS_ALLOW_ALL_ORIGINS = False  # Always False in production
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://learnmore-reborn-prod.up.railway.app",
+    "https://*.up.railway.app",
 ]
 CORS_ALLOW_CREDENTIALS = True
 

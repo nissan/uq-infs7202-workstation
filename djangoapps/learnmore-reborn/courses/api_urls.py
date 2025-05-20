@@ -1,7 +1,8 @@
-from rest_framework.routers import DefaultRouter
-from .api_views import CourseViewSet
+from django.urls import path
+from rest_framework.permissions import AllowAny
+from .views import CourseListView, CourseDetailView
 
-router = DefaultRouter()
-router.register(r'', CourseViewSet)
-
-urlpatterns = router.urls
+urlpatterns = [
+    path('', CourseListView.as_view(permission_classes=[AllowAny]), name='course-list'),
+    path('<int:pk>/', CourseDetailView.as_view(), name='course-detail'),
+]
