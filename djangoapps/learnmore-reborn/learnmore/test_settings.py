@@ -49,12 +49,19 @@ logging.disable(logging.CRITICAL)
 # Set DEBUG to True for testing to see more error details
 DEBUG = True
 
-# Remove CORS and CSRF middleware for tests
+# Flag to identify test mode
+TEST_MODE = True
+
+# Completely replace middleware for tests
 MIDDLEWARE = [
-    m for m in MIDDLEWARE if m not in [
-        'corsheaders.middleware.CorsMiddleware', 
-        'django.middleware.csrf.CsrfViewMiddleware'
-    ]
+    'test_middleware.TestCSRFMiddleware',  # Our test middleware first
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    # No CSRF middleware
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 # Configure CORS settings

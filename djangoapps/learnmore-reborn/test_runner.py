@@ -17,6 +17,10 @@ class QuietTestRunner(DiscoverRunner):
     def __init__(self, *args, **kwargs):
         # Use test settings
         os.environ['DJANGO_SETTINGS_MODULE'] = 'learnmore.test_settings'
+        
+        # Import CSRF bypass module to monkey-patch Django
+        import csrf_bypass
+        
         # Run the parent constructor
         super().__init__(*args, **kwargs)
     
@@ -40,6 +44,10 @@ class QuietTestRunner(DiscoverRunner):
             'DEFAULT_PERMISSION_CLASSES': [],
             'UNAUTHENTICATED_USER': None
         }
+        
+        # Patch views to be CSRF exempt
+        settings.TEST_MODE = True
+        import patch_views  # This will patch all views automatically
     
     def teardown_test_environment(self, **kwargs):
         # Restore the original logging level

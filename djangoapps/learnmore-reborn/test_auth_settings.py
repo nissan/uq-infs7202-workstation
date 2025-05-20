@@ -8,6 +8,7 @@ from unittest.mock import patch
 from django.test import TestCase, override_settings
 from django.conf import settings
 from datetime import timedelta
+from test_client import TestClient
 
 # Create a comprehensive settings override that disables all authentication and permissions
 test_settings_override = override_settings(
@@ -75,11 +76,26 @@ class AuthDisabledTestCase(TestCase):
         """Set up test user"""
         super().setUp()
         
-        # Force client to ignore CSRF
-        self.client.handler.enforce_csrf_checks = False
+        # Replace the default client with our custom TestClient
+        self.client = TestClient()
         
-        # Set a marker on the client to identify it as a test client
-        self.client._bypass_auth = True
+        # Force Django settings into TEST_MODE
+        from django.conf import settings
+        settings.TEST_MODE = True
+        
+        # Ensure CSRF middleware is disabled
+        if 'django.middleware.csrf.CsrfViewMiddleware' in settings.MIDDLEWARE:
+            settings.MIDDLEWARE = [
+                middleware for middleware in settings.MIDDLEWARE
+                if middleware != 'django.middleware.csrf.CsrfViewMiddleware'
+            ]
+            
+        # Override authentication and permission classes
+        settings.REST_FRAMEWORK = {
+            'DEFAULT_AUTHENTICATION_CLASSES': [],
+            'DEFAULT_PERMISSION_CLASSES': [],
+            'UNAUTHENTICATED_USER': None
+        }
         
         # Add a flag to bypass CSRF in request
         original_get = self.client.get

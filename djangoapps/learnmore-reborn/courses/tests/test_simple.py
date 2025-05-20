@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 
 from rest_framework import status
+from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 from courses.models import Course, Module, Quiz, Enrollment
 from test_auth_settings import AuthDisabledTestCase
@@ -117,16 +118,17 @@ class SimpleAPITest(AuthDisabledTestCase):
         )
         
         # Set up API client
-        self.client.handler.enforce_csrf_checks = False
+        self.api_client = APIClient()
+        self.api_client.enforce_csrf_checks = False
         
         # Get tokens for the user
         refresh = RefreshToken.for_user(self.user)
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+        self.api_client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
     
     def test_course_catalog_api(self):
         """Test the course catalog API returns correct data"""
         # Get the page
-        response = self.client.get('/api/courses/catalog/')
+        response = self.api_client.get('/api/courses/catalog/')
         
         # Check status code
         self.assertEqual(response.status_code, status.HTTP_200_OK)

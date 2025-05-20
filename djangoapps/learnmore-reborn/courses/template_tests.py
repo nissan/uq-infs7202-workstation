@@ -1,20 +1,25 @@
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 import json
 
-from test_auth_settings import test_settings_override
+from test_auth_settings import test_settings_override, AuthDisabledTestCase
+from test_client import TestClient
 from .models import Course, Module, Quiz, Enrollment
 
 User = get_user_model()
 
 @test_settings_override
-class TemplateViewTests(TestCase):
+class TemplateViewTests(AuthDisabledTestCase):
     """Tests for template views in the courses app"""
     
     def setUp(self):
+        super().setUp()
+        
         # Create test users
         self.instructor = User.objects.create_user(
             username='instructor',

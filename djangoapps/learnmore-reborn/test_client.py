@@ -1,27 +1,42 @@
 """
 Custom test client for testing.
 
-This module provides a test client that disables CSRF checking for tests.
+This module provides a test client that combines Django and REST Framework capabilities.
 """
 from django.test.client import Client
+from rest_framework.test import APIClient
 
-class NoCSRFClient(Client):
-    """A test client that ignores CSRF checks."""
+class TestClient(Client):
+    """
+    A test client that combines Django and DRF capabilities, with CSRF checks disabled.
+    
+    This client can be used for both template tests and API tests with the same interface.
+    """
     
     def __init__(self, *args, **kwargs):
-        """Initialize the client with CSRF checks disabled."""
         # Ensure that CSRF checks are disabled
         enforce_csrf_checks = kwargs.pop('enforce_csrf_checks', False)
         super().__init__(enforce_csrf_checks=enforce_csrf_checks, *args, **kwargs)
+        
+        # Create a DRF API client
+        self.api = APIClient()
+        self.api.enforce_csrf_checks = False
+        
+        # Mark this client as a test client
+        self._bypass_auth = True
+        self.api._bypass_auth = True
     
-    def post(self, *args, **kwargs):
-        """
-        Request a response from the server using POST, with CSRF checks disabled.
-        """
-        return super().post(*args, **kwargs)
+    def credentials(self, **kwargs):
+        """Set credentials for DRF authentication."""
+        self.api.credentials(**kwargs)
+        # Try to set cookies for Django authentication too
+        if 'HTTP_AUTHORIZATION' in kwargs:
+            self.defaults.update({'HTTP_AUTHORIZATION': kwargs['HTTP_AUTHORIZATION']})
+        return self
     
-    def get(self, *args, **kwargs):
-        """
-        Request a response from the server using GET, with CSRF checks disabled.
-        """
-        return super().get(*args, **kwargs)
+    def force_authenticate(self, user=None, token=None):
+        """Force authentication for both clients."""
+        self.api.force_authenticate(user=user, token=token)
+        if user:
+            self.force_login(user)
+        return self

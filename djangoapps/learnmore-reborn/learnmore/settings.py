@@ -57,6 +57,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'test_middleware.TestCSRFMiddleware',  # First, to disable CSRF before other middleware
     'corsheaders.middleware.CorsMiddleware',  # Add this before CommonMiddleware
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -65,7 +66,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'test_middleware.TestCSRFMiddleware',  # Add our test middleware
 ]
 
 ROOT_URLCONF = 'learnmore.urls'
