@@ -140,6 +140,7 @@ The project follows a typical Django architecture with apps for different functi
    - Two parallel test systems: Django TestCase and pytest
    - pytest is preferred as it uses special test settings with authentication bypass
    - Tests are organized into categories using pytest markers: api, template, integration, unit, slow
+   - Tests should follow the same pattern, and prefer Django's test runner over pytest for better compatibility and simpler test structure
 
 4. **Authentication System**:
    - JWT-based authentication using Simple JWT
