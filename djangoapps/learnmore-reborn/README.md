@@ -133,6 +133,25 @@ The platform includes a robust progress tracking system that allows users to tra
 
 For detailed information on the progress tracking implementation, see [docs/PROGRESS_TRACKING.md](docs/PROGRESS_TRACKING.md).
 
+## 📝 Quiz System
+
+The platform features a comprehensive quiz system integrated with courses and progress tracking:
+
+- **Multiple Quiz Types**: Support for both graded quizzes and ungraded surveys
+- **Question Formats**: Multiple-choice and True/False questions with individual feedback
+- **Time Limits**: Optional time limits for quiz completion
+- **Multiple Attempts**: Configure how many times learners can take a quiz
+- **Randomization**: Option to randomize question order for each attempt
+- **Detailed Analytics**: Track scores, time spent, and passing rates
+- **Progress Integration**: Quizzes are integrated with the progress tracking system
+- **Instructor Controls**: Instructors can create, edit, and manage quizzes for their courses
+
+Key features include:
+- Dynamic scoring and feedback for each question
+- Automatic pass/fail evaluation based on configurable passing scores
+- Time tracking for each question and overall quiz attempts
+- Support for multiple correct answers in multiple-choice questions
+
 ### Available Endpoints
 
 - `POST /api/users/register/` - Register a new user
@@ -166,6 +185,22 @@ For detailed API documentation on course catalog and enrollment, see [courses/AP
 - `POST /api/progress/module-progress/{id}/complete/` - Mark a module as completed
 - `POST /api/progress/module-progress/{id}/update_position/` - Update content position (for video/audio)
 - `POST /api/progress/module-progress/{id}/add_time/` - Add time spent on a module
+
+### Quiz System Endpoints
+
+- `GET /api/quizzes/` - List all quizzes available to the user
+- `GET /api/quizzes/{id}/` - Get details for a specific quiz
+- `POST /api/quizzes/{id}/start-attempt/` - Start a new quiz attempt
+- `GET /api/quizzes/{id}/attempts/` - List all attempts for a specific quiz
+- `GET /api/quiz-attempts/` - List all quiz attempts for the current user
+- `GET /api/quiz-attempts/{id}/` - Get details for a specific quiz attempt
+- `POST /api/quiz-attempts/{id}/submit-response/` - Submit an answer to a question
+- `POST /api/quiz-attempts/{id}/complete/` - Mark a quiz attempt as completed
+- `POST /api/quiz-attempts/{id}/timeout/` - Mark a quiz attempt as timed out
+- `POST /api/quiz-attempts/{id}/abandon/` - Mark a quiz attempt as abandoned
+- `GET /api/quiz-attempts/{id}/result/` - Get results for a completed quiz attempt
+- `GET /api/multiple-choice-questions/` - List multiple-choice questions (instructors only)
+- `GET /api/true-false-questions/` - List true/false questions (instructors only)
 
 ### User Profile Fields
 
@@ -218,27 +253,39 @@ The application uses two types of secret keys:
 ```bash
 learnmore_reborn/
 ├── courses/
-│   ├── models.py
-│   ├── serializers.py
-│   ├── views.py
+│   ├── models.py           # Course, Module, Quiz, Question models
+│   ├── serializers.py      # Course, Quiz, Question serializers
+│   ├── views.py            # Core course views
+│   ├── api_views.py        # Course API endpoints
+│   ├── quiz_views.py       # Quiz API endpoints
+│   ├── module_quiz_views.py # Module quiz integration
 │   ├── admin.py
 │   ├── apps.py
-│   ├── tests.py
+│   ├── tests/              # Test directory
+│   │   ├── test_models.py
+│   │   ├── test_quiz_model.py
+│   │   └── ...
+│   ├── templates/
+│   │   ├── courses/
+│   │   │   ├── quiz-detail.html
+│   │   │   ├── quiz-list.html
+│   │   │   └── ...
 │   └── migrations/
 ├── progress/
 │   ├── models.py
 │   ├── serializers.py
 │   ├── views.py
+│   ├── api_views.py
 │   ├── admin.py
 │   ├── apps.py
-│   ├── tests.py
+│   ├── tests/
 │   └── migrations/
 ├── users/
 │   ├── models.py
 │   ├── views.py
 │   ├── admin.py
 │   ├── apps.py
-│   ├── tests.py
+│   ├── tests/
 │   └── migrations/
 ├── analytics/
 │   ├── models.py

@@ -408,7 +408,7 @@ class QuestionResponse(models.Model):
             is_correct, points, feedback = self.question.multiplechoicequestion.check_answer(choices)
         elif self.question.question_type == 'true_false':
             answer = self.response_data.get('selected_answer')
-            is_correct, points, feedback = self.question.truefalsquestion.check_answer(answer)
+            is_correct, points, feedback = self.question.truefalsequestion.check_answer(answer)
         else:
             is_correct, points, feedback = False, 0, "Unknown question type"
             

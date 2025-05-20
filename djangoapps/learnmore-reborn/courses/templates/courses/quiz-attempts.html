@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load quiz_extras %}
+
+{% block title %}Quiz Attempts: {{ quiz.title }} - LearnMore{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-8" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{% url 'course-detail' quiz.module.course.slug %}" class="text-gray-700 hover:text-blue-600">
+                    {{ quiz.module.course.title }}
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <a href="{% url 'module-detail' quiz.module.id %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                        {{ quiz.module.title }}
+                    </a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <a href="{% url 'quiz-detail' quiz.id %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                        {{ quiz.title }}
+                    </a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="ml-1 text-gray-500 md:ml-2">Attempt History</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <div class="mb-6 flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Quiz Attempt History</h1>
+            <p class="text-lg text-gray-600">{{ quiz.title }}</p>
+        </div>
+        
+        {% if quiz.allow_multiple_attempts and attempts.count < quiz.max_attempts or quiz.max_attempts == 0 %}
+        <form method="post" action="{% url 'start-quiz' quiz.id %}">
+            {% csrf_token %}
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                <svg class="mr-2 -ml-1 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                New Attempt
+            </button>
+        </form>
+        {% endif %}
+    </div>
+
+    <!-- Summary Card -->
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8">
+        <div class="px-6 py-5">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Quiz Summary</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                    <h3 class="font-semibold text-gray-800 mb-2">Total Attempts</h3>
+                    <p class="text-3xl font-bold text-gray-900">{{ attempts.count }}</p>
+                    <p class="text-sm text-gray-500 mt-1">
+                        {% if quiz.max_attempts > 0 %}
+                        Maximum: {{ quiz.max_attempts }}
+                        {% else %}
+                        No limit
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                    <h3 class="font-semibold text-gray-800 mb-2">Best Score</h3>
+                    {% with best_attempt=attempts|dictsort:"score"|last %}
+                    <p class="text-3xl font-bold {% if best_attempt.is_passed %}text-green-600{% else %}text-red-600{% endif %}">
+                        {% if best_attempt.max_score > 0 %}
+                        {{ best_attempt.score|floatformat:0 }}/{{ best_attempt.max_score }}
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </p>
+                    <p class="text-sm text-gray-500 mt-1">
+                        {% if best_attempt.max_score > 0 %}
+                        {{ best_attempt.score|floatformat:0|mul:100|div:best_attempt.max_score|floatformat:1 }}%
+                        {% endif %}
+                    </p>
+                    {% endwith %}
+                </div>
+                
+                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                    <h3 class="font-semibold text-gray-800 mb-2">Status</h3>
+                    {% if attempts.filter.is_passed %}
+                    <p class="text-3xl font-bold text-green-600">Passed</p>
+                    <p class="text-sm text-gray-500 mt-1">
+                        Required: {{ quiz.passing_score }}%
+                    </p>
+                    {% else %}
+                    <p class="text-3xl font-bold text-red-600">Not Passed</p>
+                    <p class="text-sm text-gray-500 mt-1">
+                        Required: {{ quiz.passing_score }}%
+                    </p>
+                    {% endif %}
+                </div>
+                
+                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                    <h3 class="font-semibold text-gray-800 mb-2">Average Time</h3>
+                    {% with avg_time=attempts|mapattr:'time_spent_seconds'|sum|div:attempts.count %}
+                    <p class="text-3xl font-bold text-gray-900">
+                        {% if avg_time %}
+                        {% if avg_time < 60 %}
+                        {{ avg_time|floatformat:0 }}s
+                        {% else %}
+                        {{ avg_time|floatformat:0|div:60|floatformat:0 }}m {{ avg_time|floatformat:0|mod:60 }}s
+                        {% endif %}
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </p>
+                    <p class="text-sm text-gray-500 mt-1">
+                        {% if quiz.time_limit_minutes %}
+                        Limit: {{ quiz.time_limit_minutes }} minutes
+                        {% else %}
+                        No time limit
+                        {% endif %}
+                    </p>
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attempt List -->
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">All Attempts</h2>
+        </div>
+        
+        {% if attempts %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Attempt
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Date
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Score
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Time Spent
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Action
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for attempt in attempts %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">#{{ attempt.attempt_number }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ attempt.started_at|date:"M j, Y" }}</div>
+                            <div class="text-sm text-gray-500">{{ attempt.started_at|time:"g:i A" }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if attempt.status == 'completed' and attempt.is_passed %}bg-green-100 text-green-800
+                                {% elif attempt.status == 'completed' %}bg-yellow-100 text-yellow-800
+                                {% elif attempt.status == 'in_progress' %}bg-blue-100 text-blue-800
+                                {% elif attempt.status == 'timed_out' %}bg-orange-100 text-orange-800
+                                {% elif attempt.status == 'abandoned' %}bg-red-100 text-red-800{% endif %}">
+                                {{ attempt.get_status_display }}
+                                {% if attempt.status == 'completed' and attempt.is_passed %} (Passed){% endif %}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if attempt.status == 'in_progress' %}
+                            <div class="text-sm text-gray-500">In progress</div>
+                            {% else %}
+                            <div class="text-sm font-medium 
+                                {% if attempt.is_passed %}text-green-600{% else %}text-red-600{% endif %}">
+                                {{ attempt.score }}/{{ attempt.max_score }}
+                                ({{ attempt.score|mul:100|div:attempt.max_score|floatformat:1 }}%)
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                {% if attempt.time_spent_seconds %}
+                                {% if attempt.time_spent_seconds < 60 %}
+                                {{ attempt.time_spent_seconds }}s
+                                {% else %}
+                                {{ attempt.time_spent_seconds|div:60|floatformat:0 }}m {{ attempt.time_spent_seconds|mod:60 }}s
+                                {% endif %}
+                                {% elif attempt.status == 'in_progress' %}
+                                In progress
+                                {% else %}
+                                N/A
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {% if attempt.status == 'in_progress' %}
+                            <a href="{% url 'take-quiz' attempt.id %}" class="text-blue-600 hover:text-blue-900">
+                                Continue
+                            </a>
+                            {% else %}
+                            <a href="{% url 'quiz-result' attempt.id %}" class="text-blue-600 hover:text-blue-900">
+                                View Results
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="px-6 py-4 text-center">
+            <p class="text-gray-600">No quiz attempts found.</p>
+        </div>
+        {% endif %}
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="px-6 py-4 border-t border-gray-200">
+            <nav class="flex justify-center">
+                <ul class="inline-flex items-center -space-x-px">
+                    {% if page_obj.has_previous %}
+                    <li>
+                        <a href="?page={{ page_obj.previous_page_number }}" class="block px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700">
+                            <span class="sr-only">Previous</span>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for i in paginator.page_range %}
+                    {% if page_obj.number == i %}
+                    <li>
+                        <span class="px-3 py-2 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700">
+                            {{ i }}
+                        </span>
+                    </li>
+                    {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+                    <li>
+                        <a href="?page={{ i }}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">
+                            {{ i }}
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li>
+                        <a href="?page={{ page_obj.next_page_number }}" class="block px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700">
+                            <span class="sr-only">Next</span>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10l3.293-3.293a1 1 0 011.414 1.414l-4 4a1 1 0 010 1.414l4 4a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+        
+        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+            <a href="{% url 'quiz-detail' quiz.id %}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="mr-2 -ml-1 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Quiz
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
