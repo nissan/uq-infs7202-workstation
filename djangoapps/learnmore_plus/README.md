@@ -645,13 +645,14 @@ For more information on our Playwright testing setup, see `docs/playwright-testi
 
 The test suite covers:
 
-1. **UI Components**: Tests for our UI components in the flattened component structure (elements, sections)
-2. **AI Tutor**: Tests for the AI tutoring system, including LLM factory, content indexing, and tutoring services
-3. **QR Codes**: Tests for QR code generation, scanning, and statistics
-4. **Template Syntax**: Tests to ensure proper template tag nesting and conditional logic
-5. **Page Rendering**: Tests to ensure all key pages render without errors
-6. **URL Configuration**: Tests for proper routing and URL pattern handling
-7. **User Journeys**: End-to-end tests for different user types (admin, coordinator, instructor, student)
+1. **Model CRUD Operations**: Tests for all database models' Create, Read, Update, and Delete operations (see `docs/model-testing-guide.md`)
+2. **UI Components**: Tests for our UI components in the flattened component structure (elements, sections)
+3. **AI Tutor**: Tests for the AI tutoring system, including LLM factory, content indexing, and tutoring services
+4. **QR Codes**: Tests for QR code generation, scanning, and statistics
+5. **Template Syntax**: Tests to ensure proper template tag nesting and conditional logic
+6. **Page Rendering**: Tests to ensure all key pages render without errors
+7. **URL Configuration**: Tests for proper routing and URL pattern handling
+8. **User Journeys**: End-to-end tests for different user types (admin, coordinator, instructor, student)
 
 #### Template Syntax Testing
 

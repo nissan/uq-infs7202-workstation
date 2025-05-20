@@ -58,8 +58,10 @@ def sample_course(instructor_user):
     """Create and return a sample course."""
     return Course.objects.create(
         title='Test Course',
+        slug='test-course',
         description='A test course',
-        created_by=instructor_user
+        coordinator=instructor_user,
+        status='published'
     )
 
 
