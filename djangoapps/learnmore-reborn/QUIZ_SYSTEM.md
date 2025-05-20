@@ -47,6 +47,7 @@ Extends Question with:
 - Choice ordering
 - Individual feedback per choice
 - Partial credit options
+- Score normalization methods (Z-score, Min-Max, Custom)
 
 ### TrueFalseQuestion
 Extends Question with:
@@ -373,7 +374,11 @@ Scoring options include:
 - Minimum score thresholds
 - Weighted questions
 - Custom scoring rubrics for essays
-- Score normalization options
+- Score normalization options:
+  - Z-score normalization (standardizes scores around a mean)
+  - Min-Max scaling (transforms scores to a specific range)
+  - Percentile ranking (based on historical performance)
+  - Custom mapping (for specialized curves and grading scales)
 
 ### Security Features
 

@@ -211,6 +211,104 @@
                         </div>
                     </div>
                     
+                    <!-- Score Normalization Section -->
+                    <div class="mb-4">
+                        <label for="normalization_method" class="block text-sm font-medium text-gray-700 mb-1">Score Normalization</label>
+                        <select id="normalization_method" name="normalization_method" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="none" {% if question and question.multiplechoicequestion.normalization_method == 'none' %}selected{% endif %}>No Normalization</option>
+                            <option value="zscore" {% if question and question.multiplechoicequestion.normalization_method == 'zscore' %}selected{% endif %}>Z-Score Normalization</option>
+                            <option value="minmax" {% if question and question.multiplechoicequestion.normalization_method == 'minmax' %}selected{% endif %}>Min-Max Scaling</option>
+                            <option value="percentile" {% if question and question.multiplechoicequestion.normalization_method == 'percentile' %}selected{% endif %}>Percentile Ranking</option>
+                            <option value="custom" {% if question and question.multiplechoicequestion.normalization_method == 'custom' %}selected{% endif %}>Custom Normalization</option>
+                        </select>
+                        <p class="mt-1 text-sm text-gray-500">Choose a method to normalize scores across different questions or attempts.</p>
+                    </div>
+                    
+                    <div id="normalization_settings" class="mb-4 ml-6 p-4 border border-gray-200 rounded-lg bg-white" {% if not question or question.multiplechoicequestion.normalization_method == 'none' %}style="display: none;"{% endif %}>
+                        <!-- Z-Score Settings -->
+                        <div id="zscore_settings" class="normalization-options" {% if not question or question.multiplechoicequestion.normalization_method != 'zscore' %}style="display: none;"{% endif %}>
+                            <div class="mb-4">
+                                <label for="norm_zscore_mean" class="block text-sm font-medium text-gray-700 mb-1">Mean</label>
+                                <input type="number" id="norm_zscore_mean" name="norm_zscore_mean" step="0.1" 
+                                       value="{{ question.multiplechoicequestion.normalization_parameters.mean|default:'' }}" 
+                                       class="block w-40 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                       placeholder="Default: points/2">
+                                <p class="mt-1 text-sm text-gray-500">The mean value for normalization (leave empty for default).</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="norm_zscore_std_dev" class="block text-sm font-medium text-gray-700 mb-1">Standard Deviation</label>
+                                <input type="number" id="norm_zscore_std_dev" name="norm_zscore_std_dev" step="0.1" 
+                                       value="{{ question.multiplechoicequestion.normalization_parameters.std_dev|default:'' }}" 
+                                       class="block w-40 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                       placeholder="Default: points/6">
+                                <p class="mt-1 text-sm text-gray-500">The standard deviation for normalization (leave empty for default).</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Min-Max Settings -->
+                        <div id="minmax_settings" class="normalization-options" {% if not question or question.multiplechoicequestion.normalization_method != 'minmax' %}style="display: none;"{% endif %}>
+                            <div class="mb-4">
+                                <label for="norm_input_min" class="block text-sm font-medium text-gray-700 mb-1">Input Minimum</label>
+                                <input type="number" id="norm_input_min" name="norm_input_min" 
+                                       value="{{ question.multiplechoicequestion.normalization_parameters.input_min|default:'0' }}" 
+                                       class="block w-40 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <p class="mt-1 text-sm text-gray-500">The minimum expected input score.</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="norm_input_max" class="block text-sm font-medium text-gray-700 mb-1">Input Maximum</label>
+                                <input type="number" id="norm_input_max" name="norm_input_max" 
+                                       value="{{ question.multiplechoicequestion.normalization_parameters.input_max|default:'' }}" 
+                                       class="block w-40 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                       placeholder="Default: points">
+                                <p class="mt-1 text-sm text-gray-500">The maximum expected input score.</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="norm_output_min" class="block text-sm font-medium text-gray-700 mb-1">Output Minimum</label>
+                                <input type="number" id="norm_output_min" name="norm_output_min" 
+                                       value="{{ question.multiplechoicequestion.normalization_parameters.output_min|default:'0' }}" 
+                                       class="block w-40 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <p class="mt-1 text-sm text-gray-500">The minimum output score after normalization.</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="norm_output_max" class="block text-sm font-medium text-gray-700 mb-1">Output Maximum</label>
+                                <input type="number" id="norm_output_max" name="norm_output_max" 
+                                       value="{{ question.multiplechoicequestion.normalization_parameters.output_max|default:'' }}" 
+                                       class="block w-40 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                       placeholder="Default: points">
+                                <p class="mt-1 text-sm text-gray-500">The maximum output score after normalization.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Percentile Settings -->
+                        <div id="percentile_settings" class="normalization-options" {% if not question or question.multiplechoicequestion.normalization_method != 'percentile' %}style="display: none;"{% endif %}>
+                            <p class="text-sm text-gray-700 mb-2">Percentile Mapping</p>
+                            <p class="text-sm text-gray-500 mb-4">The percentile ranking will be calculated automatically based on attempts when enough data is available.</p>
+                            
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Custom Percentile Bins (Optional)</label>
+                                <textarea id="percentile_bins" name="percentile_bins" rows="3" 
+                                          class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                          placeholder="Format: 25:D, 50:C, 75:B, 90:A- 100:A">{{ question.multiplechoicequestion.normalization_parameters.percentiles|default:'' }}</textarea>
+                                <p class="mt-1 text-sm text-gray-500">Define custom percentile bins in format: percentile:value, e.g., "25:60, 50:70, 75:85, 90:95"</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Custom Settings -->
+                        <div id="custom_settings" class="normalization-options" {% if not question or question.multiplechoicequestion.normalization_method != 'custom' %}style="display: none;"{% endif %}>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Custom Mapping</label>
+                                <textarea id="custom_mapping" name="custom_mapping" rows="3" 
+                                          class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                          placeholder="Format: raw_score:normalized_score, e.g., 1:2, 2:3, 3:5">{{ question.multiplechoicequestion.normalization_parameters.mapping|default:'' }}</textarea>
+                                <p class="mt-1 text-sm text-gray-500">Define custom score mapping in format: raw_score:normalized_score, e.g., "1:2, 2:3, 3:5"</p>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Choices</label>
                         <div id="choices-container">
@@ -402,6 +500,29 @@
         }
         
         usePartialCreditCheckbox.addEventListener('change', togglePartialCredit);
+        
+        // Toggle normalization settings
+        const normalizationMethodSelect = document.getElementById('normalization_method');
+        const normalizationSettings = document.getElementById('normalization_settings');
+        const normalizationOptions = document.querySelectorAll('.normalization-options');
+        
+        function toggleNormalizationSettings() {
+            const selectedMethod = normalizationMethodSelect.value;
+            
+            // Show/hide main normalization settings
+            normalizationSettings.style.display = selectedMethod === 'none' ? 'none' : 'block';
+            
+            // Show/hide specific settings for the selected method
+            normalizationOptions.forEach(option => {
+                option.style.display = 'none';
+            });
+            
+            if (selectedMethod !== 'none') {
+                document.getElementById(selectedMethod + '_settings').style.display = 'block';
+            }
+        }
+        
+        normalizationMethodSelect.addEventListener('change', toggleNormalizationSettings);
         
         // Add new choice
         const addChoiceButton = document.getElementById('add-choice');

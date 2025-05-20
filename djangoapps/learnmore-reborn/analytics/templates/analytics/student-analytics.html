@@ -1,0 +1,689 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Learning Analytics{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">My Learning Analytics</h1>
+    
+    <!-- Loading State -->
+    <div id="loading-state" class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <span class="ml-3 text-gray-600">Loading your analytics data...</span>
+    </div>
+    
+    <!-- Error State -->
+    <div id="error-state" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md mb-6">
+        <span id="error-message">Something went wrong when loading analytics.</span>
+    </div>
+    
+    <!-- Analytics Content -->
+    <div id="analytics-content" class="hidden"> 
+        <!-- Overview Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold mb-2">Quizzes Taken</h3>
+                <p class="text-3xl font-bold text-blue-600" id="quizzes-taken">-</p>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold mb-2">Pass Rate</h3>
+                <p class="text-3xl font-bold text-green-600" id="pass-rate">-</p>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold mb-2">Accuracy</h3>
+                <p class="text-3xl font-bold text-indigo-600" id="accuracy-rate">-</p>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold mb-2">Study Time</h3>
+                <p class="text-3xl font-bold text-purple-600" id="study-time">-</p>
+            </div>
+        </div>
+        
+        <!-- Performance Over Time -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">Performance Over Time</h2>
+            <div id="performance-chart" class="h-80 w-full"></div>
+        </div>
+        
+        <!-- Performance By Question Type -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">Performance By Question Type</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-md font-medium mb-3">Accuracy by Question Type</h3>
+                    <div id="question-type-chart" class="h-64 w-full"></div>
+                </div>
+                <div>
+                    <h3 class="text-md font-medium mb-3">Average Time by Question Type</h3>
+                    <div id="time-by-type-chart" class="h-64 w-full"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Strengths and Areas for Improvement -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">Your Strengths</h2>
+                <div id="strengths-container">
+                    <p class="text-gray-500">No strength data available yet. Take more quizzes to see your strengths.</p>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">Areas for Improvement</h2>
+                <div id="improvements-container">
+                    <p class="text-gray-500">No improvement data available yet. Take more quizzes to see areas for improvement.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Class Comparison -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">How You Compare to Your Peers</h2>
+            <div id="comparison-chart" class="h-80 w-full"></div>
+            <div id="no-comparison-data" class="hidden text-center py-6 text-gray-500">
+                Not enough data to generate comparison metrics.
+            </div>
+        </div>
+        
+        <!-- Recent Quiz Performance -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">Recent Quiz Performance</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="py-3 px-4 text-left">Quiz</th>
+                            <th class="py-3 px-4 text-left">Date</th>
+                            <th class="py-3 px-4 text-left">Score</th>
+                            <th class="py-3 px-4 text-left">Time Spent</th>
+                            <th class="py-3 px-4 text-left">Result</th>
+                            <th class="py-3 px-4 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recent-quizzes-table">
+                        <tr>
+                            <td colspan="6" class="py-4 px-4 text-center text-gray-500">
+                                No recent quiz attempts found.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Time Analysis -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Time Analysis</h2>
+            <div id="time-analysis-container">
+                <p class="text-gray-500">Loading time analysis data...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Global variables
+    let analyticsData = null;
+    let timeAnalysisData = null;
+    let recentQuizzes = [];
+    let charts = {};
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        loadAnalyticsData();
+    });
+    
+    function loadAnalyticsData() {
+        // Show loading state
+        document.getElementById('loading-state').classList.remove('hidden');
+        document.getElementById('analytics-content').classList.add('hidden');
+        document.getElementById('error-state').classList.add('hidden');
+        
+        // Fetch learner analytics data
+        fetch('/api/analytics/learner-analytics/me/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch analytics data');
+                }
+                return response.json();
+            })
+            .then(data => {
+                analyticsData = data;
+                updateAnalyticsView();
+                
+                // Next, fetch time analysis data
+                return fetch('/api/analytics/learner-analytics/time_analysis/');
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch time analysis data');
+                }
+                return response.json();
+            })
+            .then(data => {
+                timeAnalysisData = data;
+                updateTimeAnalysis();
+                
+                // Next, fetch recent quizzes
+                return fetch('/api/courses/quiz-attempts/?user={{ request.user.id }}&limit=5');
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch recent quizzes');
+                }
+                return response.json();
+            })
+            .then(data => {
+                recentQuizzes = data.results || [];
+                updateRecentQuizzes();
+            })
+            .catch(error => {
+                console.error('Error loading analytics:', error);
+                showError(error.message || 'Failed to load analytics data');
+            })
+            .finally(() => {
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('analytics-content').classList.remove('hidden');
+            });
+    }
+    
+    function updateAnalyticsView() {
+        // Update overview cards
+        document.getElementById('quizzes-taken').textContent = analyticsData.total_quizzes_taken || 0;
+        
+        const passRate = analyticsData.total_quizzes_taken > 0
+            ? ((analyticsData.total_quizzes_passed / analyticsData.total_quizzes_taken) * 100).toFixed(1) + '%'
+            : 'N/A';
+        document.getElementById('pass-rate').textContent = passRate;
+        
+        document.getElementById('accuracy-rate').textContent = 
+            (analyticsData.accuracy_rate || 0).toFixed(1) + '%';
+        
+        const studyTimeHours = Math.floor(analyticsData.total_study_time / 3600);
+        document.getElementById('study-time').textContent = 
+            studyTimeHours > 0 ? `${studyTimeHours}h` : 'N/A';
+        
+        // Update performance charts
+        updatePerformanceChart();
+        updateQuestionTypeCharts();
+        
+        // Update strengths and weaknesses
+        updateStrengthsWeaknesses();
+        
+        // Update comparison chart
+        updateComparisonChart();
+    }
+    
+    function updatePerformanceChart() {
+        if (!analyticsData.progress_over_time || 
+            !analyticsData.progress_over_time.dates || 
+            analyticsData.progress_over_time.dates.length === 0) {
+            return;
+        }
+        
+        const ctx = document.getElementById('performance-chart').getContext('2d');
+        
+        charts.performance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: analyticsData.progress_over_time.dates,
+                datasets: [
+                    {
+                        label: 'Quiz Score',
+                        data: analyticsData.progress_over_time.scores,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Cumulative Average',
+                        data: analyticsData.progress_over_time.cumulative_avg,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        tension: 0.1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Score (%)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    function updateQuestionTypeCharts() {
+        if (!analyticsData.performance_by_category || 
+            Object.keys(analyticsData.performance_by_category).length === 0) {
+            return;
+        }
+        
+        const types = Object.keys(analyticsData.performance_by_category);
+        
+        // Format labels for better display
+        const formattedTypes = types.map(type => 
+            type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+        );
+        
+        const accuracyData = types.map(type => 
+            analyticsData.performance_by_category[type].accuracy || 0
+        );
+        
+        const timeData = types.map(type => 
+            analyticsData.performance_by_category[type].avg_time_seconds || 0
+        );
+        
+        // Create accuracy chart
+        const ctxAccuracy = document.getElementById('question-type-chart').getContext('2d');
+        charts.accuracy = new Chart(ctxAccuracy, {
+            type: 'bar',
+            data: {
+                labels: formattedTypes,
+                datasets: [{
+                    label: 'Accuracy (%)',
+                    data: accuracyData,
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(153, 102, 255, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Accuracy (%)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Create time chart
+        const ctxTime = document.getElementById('time-by-type-chart').getContext('2d');
+        charts.time = new Chart(ctxTime, {
+            type: 'bar',
+            data: {
+                labels: formattedTypes,
+                datasets: [{
+                    label: 'Avg. Time (seconds)',
+                    data: timeData,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(255, 159, 64, 0.6)',
+                        'rgba(255, 205, 86, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 205, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Time (seconds)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    function updateStrengthsWeaknesses() {
+        // Update strengths
+        const strengthsContainer = document.getElementById('strengths-container');
+        
+        if (analyticsData.strengths && analyticsData.strengths.length > 0) {
+            strengthsContainer.innerHTML = '';
+            
+            analyticsData.strengths.forEach(strength => {
+                const strengthCard = document.createElement('div');
+                strengthCard.className = 'p-3 bg-green-50 rounded-md mb-3 border border-green-200';
+                
+                const categoryName = strength.category
+                    .split('_')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+                
+                strengthCard.innerHTML = `
+                    <h3 class="font-medium text-green-800">${categoryName}</h3>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-sm text-gray-600">Accuracy</span>
+                        <span class="font-bold text-green-700">${strength.accuracy.toFixed(1)}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                        <div class="bg-green-600 h-2.5 rounded-full" style="width: ${strength.accuracy}%"></div>
+                    </div>
+                `;
+                
+                strengthsContainer.appendChild(strengthCard);
+            });
+        } else {
+            strengthsContainer.innerHTML = `
+                <p class="text-gray-500">No strengths data available yet. Take more quizzes to see your strengths.</p>
+            `;
+        }
+        
+        // Update areas for improvement
+        const improvementsContainer = document.getElementById('improvements-container');
+        
+        if (analyticsData.areas_for_improvement && analyticsData.areas_for_improvement.length > 0) {
+            improvementsContainer.innerHTML = '';
+            
+            analyticsData.areas_for_improvement.forEach(area => {
+                const areaCard = document.createElement('div');
+                areaCard.className = 'p-3 bg-red-50 rounded-md mb-3 border border-red-200';
+                
+                const categoryName = area.category
+                    .split('_')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+                
+                areaCard.innerHTML = `
+                    <h3 class="font-medium text-red-800">${categoryName}</h3>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-sm text-gray-600">Accuracy</span>
+                        <span class="font-bold text-red-700">${area.accuracy.toFixed(1)}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                        <div class="bg-red-600 h-2.5 rounded-full" style="width: ${area.accuracy}%"></div>
+                    </div>
+                `;
+                
+                improvementsContainer.appendChild(areaCard);
+            });
+            
+            // Add improvement tips
+            const tipsCard = document.createElement('div');
+            tipsCard.className = 'p-3 bg-blue-50 rounded-md mt-4 border border-blue-200';
+            tipsCard.innerHTML = `
+                <h3 class="font-medium text-blue-800">Improvement Tips</h3>
+                <ul class="list-disc pl-5 mt-2 text-sm text-gray-700">
+                    <li>Focus on reviewing topics in your areas for improvement</li>
+                    <li>Spend extra time practicing these question types</li>
+                    <li>Consider seeking help from your instructor on challenging topics</li>
+                </ul>
+            `;
+            
+            improvementsContainer.appendChild(tipsCard);
+        } else {
+            improvementsContainer.innerHTML = `
+                <p class="text-gray-500">No improvement data available yet. Take more quizzes to see areas for improvement.</p>
+            `;
+        }
+    }
+    
+    function updateComparisonChart() {
+        if (!analyticsData.percentile_ranking || 
+            !analyticsData.percentile_ranking.overall) {
+            document.getElementById('comparison-chart').classList.add('hidden');
+            document.getElementById('no-comparison-data').classList.remove('hidden');
+            return;
+        }
+        
+        document.getElementById('comparison-chart').classList.remove('hidden');
+        document.getElementById('no-comparison-data').classList.add('hidden');
+        
+        const percentileData = analyticsData.percentile_ranking.overall;
+        const ctx = document.getElementById('comparison-chart').getContext('2d');
+        
+        // Create comparison data
+        const labels = ['Score', 'Percentile Ranking'];
+        const userData = [percentileData.user_score, percentileData.percentile];
+        const classData = [percentileData.median_score, 50]; // Median score, 50th percentile
+        
+        charts.comparison = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Your Performance',
+                        data: userData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                        pointRadius: 4
+                    },
+                    {
+                        label: 'Class Median',
+                        data: classData,
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+                        pointRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: {
+                            display: true
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: 100
+                    }
+                }
+            }
+        });
+    }
+    
+    function updateTimeAnalysis() {
+        if (!timeAnalysisData) {
+            return;
+        }
+        
+        const container = document.getElementById('time-analysis-container');
+        
+        // Create time analysis content
+        const overallMetrics = timeAnalysisData.overall_metrics;
+        const questionMetrics = timeAnalysisData.question_metrics;
+        
+        let content = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <h3 class="text-md font-medium mb-3">Quiz Time Metrics</h3>
+                    <ul class="space-y-2">
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Average Quiz Time:</span>
+                            <span class="font-semibold">${formatTime(overallMetrics.average_time)}</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Fastest Quiz Completion:</span>
+                            <span class="font-semibold">${formatTime(overallMetrics.minimum_time)}</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Longest Quiz Time:</span>
+                            <span class="font-semibold">${formatTime(overallMetrics.maximum_time)}</span>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-md font-medium mb-3">Question Time Metrics</h3>
+                    <ul class="space-y-2">
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Average Time per Question:</span>
+                            <span class="font-semibold">${formatTime(questionMetrics.average_time)}</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Fastest Question Response:</span>
+                            <span class="font-semibold">${formatTime(questionMetrics.minimum_time)}</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Longest Question Response:</span>
+                            <span class="font-semibold">${formatTime(questionMetrics.maximum_time)}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        `;
+        
+        // Add time by question type if available
+        if (timeAnalysisData.question_type_data && Object.keys(timeAnalysisData.question_type_data).length > 0) {
+            content += `
+                <h3 class="text-md font-medium mb-3">Time by Question Type</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200 mb-6">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="py-2 px-4 text-left border-b">Question Type</th>
+                                <th class="py-2 px-4 text-left border-b">Average Time</th>
+                                <th class="py-2 px-4 text-left border-b">Number of Responses</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            Object.entries(timeAnalysisData.question_type_data).forEach(([type, data]) => {
+                const typeFormatted = type
+                    .split('_')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+                
+                content += `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="py-2 px-4">${typeFormatted}</td>
+                        <td class="py-2 px-4">${formatTime(data.avg_time)}</td>
+                        <td class="py-2 px-4">${data.response_count}</td>
+                    </tr>
+                `;
+            });
+            
+            content += `
+                    </tbody>
+                </table>
+            </div>
+            `;
+        }
+        
+        // Add time efficiency insights
+        content += `
+            <div class="bg-blue-50 p-4 rounded-md border border-blue-200">
+                <h3 class="text-md font-medium text-blue-800 mb-2">Time Management Insights</h3>
+                <ul class="list-disc pl-5 text-sm text-gray-700 space-y-1">
+                    <li>Your average time per question is ${formatTime(questionMetrics.average_time)}.</li>
+                    <li>Try to manage your time effectively, balancing speed with accuracy.</li>
+                    <li>Consider practicing with timed exercises to improve your time management.</li>
+                </ul>
+            </div>
+        `;
+        
+        container.innerHTML = content;
+    }
+    
+    function updateRecentQuizzes() {
+        const tableBody = document.getElementById('recent-quizzes-table');
+        tableBody.innerHTML = '';
+        
+        if (!recentQuizzes || recentQuizzes.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="py-4 px-4 text-center text-gray-500">
+                        No recent quiz attempts found.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        recentQuizzes.forEach(attempt => {
+            const row = document.createElement('tr');
+            row.classList.add('border-b', 'hover:bg-gray-50');
+            
+            const date = new Date(attempt.completed_at);
+            const formattedDate = date.toLocaleDateString();
+            
+            const scorePercent = attempt.max_score > 0
+                ? ((attempt.score / attempt.max_score) * 100).toFixed(1) + '%'
+                : 'N/A';
+                
+            const isPassed = attempt.is_passed ? 'Passed' : 'Failed';
+            const resultClass = attempt.is_passed ? 'text-green-600' : 'text-red-600';
+            
+            row.innerHTML = `
+                <td class="py-3 px-4">${attempt.quiz_title || 'Unknown Quiz'}</td>
+                <td class="py-3 px-4">${formattedDate}</td>
+                <td class="py-3 px-4">${attempt.score}/${attempt.max_score} (${scorePercent})</td>
+                <td class="py-3 px-4">${formatTime(attempt.time_spent_seconds)}</td>
+                <td class="py-3 px-4 font-medium ${resultClass}">${isPassed}</td>
+                <td class="py-3 px-4">
+                    <a href="/courses/quiz/${attempt.quiz}/results/${attempt.id}/" class="text-blue-600 hover:underline">
+                        View Details
+                    </a>
+                </td>
+            `;
+            
+            tableBody.appendChild(row);
+        });
+    }
+    
+    function formatTime(seconds) {
+        if (!seconds) return 'N/A';
+        
+        seconds = Math.round(seconds);
+        if (seconds < 60) {
+            return `${seconds}s`;
+        }
+        
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes}m ${remainingSeconds}s`;
+    }
+    
+    function showError(message) {
+        const errorState = document.getElementById('error-state');
+        const errorMessage = document.getElementById('error-message');
+        
+        errorMessage.textContent = message;
+        errorState.classList.remove('hidden');
+    }
+</script>
+{% endblock %}

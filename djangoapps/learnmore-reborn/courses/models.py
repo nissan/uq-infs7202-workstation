@@ -354,11 +354,23 @@ class MultipleChoiceQuestion(Question):
     A question with multiple choice answers.
     
     Can be configured for single correct answer or multiple correct answers.
-    Supports partial credit scoring.
+    Supports partial credit scoring and score normalization.
     """
+    NORMALIZATION_METHODS = [
+        ('none', 'No Normalization'),
+        ('zscore', 'Z-Score Normalization'),
+        ('minmax', 'Min-Max Scaling'),
+        ('percentile', 'Percentile Ranking'),
+        ('custom', 'Custom Normalization')
+    ]
+    
     allow_multiple = models.BooleanField(default=False, help_text='Allow selecting multiple correct answers')
     use_partial_credit = models.BooleanField(default=False, help_text='Use partial credit scoring')
     minimum_score = models.IntegerField(default=0, help_text='Minimum score even with negative points')
+    normalization_method = models.CharField(max_length=20, choices=NORMALIZATION_METHODS, default='none',
+                                         help_text='Method to normalize scores across questions')
+    normalization_parameters = models.JSONField(default=dict, blank=True,
+                                              help_text='Parameters for the normalization method (e.g., {"mean": 0.5, "std_dev": 0.1})')
     
     def save(self, *args, **kwargs):
         self.question_type = 'multiple_choice'
@@ -422,8 +434,101 @@ class MultipleChoiceQuestion(Question):
                 is_correct = choice is not None and choice.is_correct
                 points_earned = self.points if is_correct else 0
         
+        # Apply score normalization if enabled
+        if self.normalization_method != 'none':
+            points_earned = self.normalize_score(points_earned)
+        
         feedback = self.correct_feedback if is_correct else self.incorrect_feedback
         return (is_correct, points_earned, feedback)
+        
+    def normalize_score(self, points_earned):
+        """Normalize the score based on the selected normalization method.
+        
+        Args:
+            points_earned: The original points earned
+            
+        Returns:
+            int: The normalized points score
+        """
+        # If no points or maximum points, normalization isn't needed
+        if points_earned == 0 or points_earned == self.points:
+            return points_earned
+            
+        # Get parameters with defaults if not specified
+        params = self.normalization_parameters
+        
+        if self.normalization_method == 'zscore':
+            # Z-score normalization: (x - mean) / std_dev
+            # Default: mean = points/2, std_dev = points/6 (for a normal distribution)
+            mean = params.get('mean', self.points / 2)
+            std_dev = params.get('std_dev', self.points / 6)
+            
+            if std_dev == 0:  # Avoid division by zero
+                std_dev = 1
+                
+            z_score = (points_earned - mean) / std_dev
+            
+            # Convert z-score back to points (centered around points/2)
+            normalized = int(round((z_score * (self.points / 4)) + (self.points / 2)))
+            
+        elif self.normalization_method == 'minmax':
+            # Min-Max scaling to [min, max] range
+            output_min = params.get('output_min', 0)
+            output_max = params.get('output_max', self.points)
+            input_min = params.get('input_min', 0)
+            input_max = params.get('input_max', self.points)
+            
+            # Avoid division by zero
+            if input_max == input_min:
+                normalized = output_min
+            else:
+                normalized = output_min + ((points_earned - input_min) * 
+                                          (output_max - output_min) / 
+                                          (input_max - input_min))
+            normalized = int(round(normalized))
+            
+        elif self.normalization_method == 'percentile':
+            # Percentile ranking using historical data
+            # This requires analytics data for the question
+            percentiles = params.get('percentiles', {})
+            
+            if not percentiles:  # Fall back to linear if no percentile data
+                normalized = points_earned
+            else:
+                # Find the appropriate percentile
+                score_percentage = (points_earned / self.points) * 100
+                
+                # Convert percentiles from string keys to float
+                percentile_map = {float(k): v for k, v in percentiles.items()}
+                
+                # Get all percentile points
+                percentile_points = sorted(percentile_map.keys())
+                
+                # Find the closest percentile point
+                closest_percentile = min(percentile_points, 
+                                        key=lambda x: abs(x - score_percentage))
+                
+                # Get the normalized value for this percentile
+                normalized = int(round((percentile_map[closest_percentile] / 100) * self.points))
+                
+        elif self.normalization_method == 'custom':
+            # Custom function defined in normalization_parameters
+            # Default to original value if no custom function
+            normalized = points_earned
+            
+            # Example structure for a custom mapping:
+            # {"mapping": {"1": 2, "2": 3, "3": 5}}
+            mapping = params.get('mapping', {})
+            
+            if mapping and str(points_earned) in mapping:
+                normalized = int(mapping[str(points_earned)])
+        else:
+            # No normalization or unknown method
+            normalized = points_earned
+            
+        # Ensure normalized score is within bounds
+        normalized = max(0, min(normalized, self.points))
+        return normalized
 
 class TrueFalseQuestion(Question):
     """

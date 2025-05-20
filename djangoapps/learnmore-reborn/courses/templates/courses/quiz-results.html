@@ -185,30 +185,142 @@
         </div>
         
         <div class="p-6">
-            <div class="flex flex-col md:flex-row items-center justify-center mb-8">
-                <div class="relative mb-6 md:mb-0 md:mr-12">
-                    <div class="w-36 h-36 rounded-full flex items-center justify-center border-8 {% if attempt.is_passed %}border-green-500{% else %}border-red-500{% endif %}">
-                        <div class="text-center">
-                            <div class="text-4xl font-bold {% if attempt.is_passed %}text-green-600{% else %}text-red-600{% endif %}">{{ attempt.score_percentage }}%</div>
-                            <div class="text-gray-500 text-sm">Score</div>
+            <div class="flex flex-col mb-8">
+                <!-- Score Summary (Top Section) -->
+                <div class="flex flex-col md:flex-row items-center justify-center mb-6">
+                    <div class="relative mb-6 md:mb-0 md:mr-12">
+                        <div class="w-36 h-36 rounded-full flex items-center justify-center border-8 {% if attempt.is_passed %}border-green-500{% else %}border-red-500{% endif %}">
+                            <div class="text-center">
+                                <div class="text-4xl font-bold {% if attempt.is_passed %}text-green-600{% else %}text-red-600{% endif %}">{{ attempt.score_percentage }}%</div>
+                                <div class="text-gray-500 text-sm">Score</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-2xl">
+                        <div class="bg-gray-50 rounded-lg p-4 text-center">
+                            <div class="text-xl font-bold text-gray-900">{{ attempt.score }}/{{ attempt.max_score }}</div>
+                            <div class="text-sm text-gray-500">Points</div>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-lg p-4 text-center">
+                            <div class="text-xl font-bold text-gray-900">{{ correct_count }}/{{ total_questions }}</div>
+                            <div class="text-sm text-gray-500">Correct Answers</div>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-lg p-4 text-center">
+                            <div class="text-xl font-bold text-gray-900">{{ time_spent_formatted }}</div>
+                            <div class="text-sm text-gray-500">Time Spent</div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-2xl">
-                    <div class="bg-gray-50 rounded-lg p-4 text-center">
-                        <div class="text-xl font-bold text-gray-900">{{ attempt.score }}/{{ attempt.max_score }}</div>
-                        <div class="text-sm text-gray-500">Points</div>
+                <!-- Detailed Score Visualization -->
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Detailed Score Breakdown</h3>
+                    
+                    <!-- Score Distribution Bar Chart -->
+                    <div class="mb-6">
+                        <h4 class="text-sm font-medium text-gray-700 mb-2">Score Distribution</h4>
+                        <div class="w-full bg-gray-200 rounded-full h-4 mb-1">
+                            <div class="h-4 rounded-full {% if attempt.is_passed %}bg-green-500{% else %}bg-red-500{% endif %}" 
+                                 style="width: {{ attempt.score_percentage }}%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500">
+                            <span>0%</span>
+                            <span>{{ attempt.quiz.passing_score }}% (Passing)</span>
+                            <span>100%</span>
+                        </div>
                     </div>
                     
-                    <div class="bg-gray-50 rounded-lg p-4 text-center">
-                        <div class="text-xl font-bold text-gray-900">{{ correct_count }}/{{ total_questions }}</div>
-                        <div class="text-sm text-gray-500">Correct Answers</div>
+                    <!-- Question Category Performance -->
+                    {% if question_categories %}
+                    <div class="mb-6">
+                        <h4 class="text-sm font-medium text-gray-700 mb-2">Performance by Question Type</h4>
+                        <div class="space-y-3">
+                            {% for category in question_categories %}
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm font-medium text-gray-700">{{ category.name }}</span>
+                                    <span class="text-sm text-gray-600">{{ category.correct }}/{{ category.total }} ({{ category.percentage }}%)</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="h-2.5 rounded-full {% if category.percentage >= 70 %}bg-green-500{% elif category.percentage >= 50 %}bg-yellow-500{% else %}bg-red-500{% endif %}"
+                                         style="width: {{ category.percentage }}%"></div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Time Performance Analysis -->
+                    <div class="mb-6">
+                        <h4 class="text-sm font-medium text-gray-700 mb-3">Time Analysis</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <div class="text-sm text-gray-500 mb-1">Avg. Time per Question</div>
+                                <div class="text-lg font-semibold">{{ avg_question_time }}</div>
+                            </div>
+                            
+                            {% if attempt.quiz.time_limit_minutes %}
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <div class="text-sm text-gray-500 mb-1">Time Utilization</div>
+                                <div class="text-lg font-semibold">
+                                    {{ time_utilization_percentage }}% of time limit
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
                     
-                    <div class="bg-gray-50 rounded-lg p-4 text-center">
-                        <div class="text-xl font-bold text-gray-900">{{ time_spent_formatted }}</div>
-                        <div class="text-sm text-gray-500">Time Spent</div>
+                    <!-- Points Distribution -->
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-700 mb-3">Points Distribution</h4>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time Spent</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    {% for response in attempt.responses.all %}
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">Q{{ forloop.counter }}: {{ response.question.text|truncatechars:40 }}</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">{{ response.points_earned }} / {{ response.question.points }}</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">{{ response.time_spent_seconds|timeformat }}</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            {% if response.question.question_type == 'essay' %}
+                                                {% if response.graded_at %}
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if response.is_correct %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                                    Graded
+                                                </span>
+                                                {% else %}
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                    Pending
+                                                </span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if response.is_correct %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                                    {% if response.is_correct %}Correct{% else %}Incorrect{% endif %}
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>

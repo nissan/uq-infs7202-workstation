@@ -2,23 +2,26 @@ from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils import timezone
-from django.db.models import Count, F, Sum, Avg
+from django.db.models import Count, F, Sum, Avg, Min, Max, StdDev
 from datetime import timedelta
 
 from .models import (
     UserActivity,
     CourseAnalyticsSummary,
     ModuleEngagement,
-    LearningPathAnalytics
+    LearningPathAnalytics,
+    LearnerAnalytics
 )
 from .serializers import (
     UserActivitySerializer,
     CourseAnalyticsSummarySerializer,
     ModuleEngagementSerializer,
     LearningPathAnalyticsSerializer,
-    CourseDashboardSerializer
+    CourseDashboardSerializer,
+    LearnerAnalyticsSerializer,
+    LearnerComparisonSerializer
 )
-from courses.models import Course, Module, Quiz, QuizAttempt
+from courses.models import Course, Module, Quiz, QuizAttempt, QuestionResponse
 from progress.models import Progress, ModuleProgress
 
 class UserActivityViewSet(viewsets.ModelViewSet):
@@ -293,3 +296,186 @@ class LearningPathAnalyticsViewSet(viewsets.ReadOnlyModelViewSet):
                 {'detail': str(e)}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+class LearnerAnalyticsViewSet(viewsets.ReadOnlyModelViewSet):
+    """API endpoint for learner analytics"""
+    queryset = LearnerAnalytics.objects.all()
+    serializer_class = LearnerAnalyticsSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        """
+        Filter analytics based on permissions:
+        - Regular users can only see their own analytics
+        - Instructors can see analytics for their students
+        - Superusers can see all analytics
+        """
+        user = self.request.user
+        queryset = LearnerAnalytics.objects.all()
+        
+        # Filter by user if specified
+        user_id = self.request.query_params.get('user_id')
+        if user_id:
+            queryset = queryset.filter(user_id=user_id)
+            
+        # Apply permissions-based filtering
+        if user.is_superuser:
+            return queryset
+        elif hasattr(user, 'profile') and user.profile.is_instructor:
+            # Instructors can see analytics for their students
+            instructor_courses = Course.objects.filter(instructor=user)
+            enrolled_users = []
+            for course in instructor_courses:
+                enrolled_users.extend(course.enrollments.values_list('user_id', flat=True))
+            return queryset.filter(user_id__in=enrolled_users)
+        else:
+            # Regular users can only see their own analytics
+            return queryset.filter(user=user)
+    
+    @action(detail=False, methods=['get'])
+    def me(self, request):
+        """Get analytics for the current user"""
+        try:
+            # Get or create analytics for the current user
+            analytics, created = LearnerAnalytics.objects.get_or_create(user=request.user)
+            
+            # If new or needs updating, calculate metrics
+            if created or (timezone.now() - analytics.last_updated).days > 0:
+                analytics.recalculate_all()
+                
+            serializer = self.get_serializer(analytics)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response(
+                {'detail': str(e)}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    
+    @action(detail=True, methods=['post'])
+    def recalculate(self, request, pk=None):
+        """Recalculate analytics for a specific user"""
+        analytics = self.get_object()
+        analytics.recalculate_all()
+        return Response({'status': 'analytics recalculated'})
+    
+    @action(detail=True, methods=['get'])
+    def comparison(self, request, pk=None):
+        """Get comparative analytics for a user"""
+        analytics = self.get_object()
+        
+        # Check permissions
+        if not (request.user.is_superuser or 
+               (hasattr(request.user, 'profile') and 
+                request.user.profile.is_instructor) or
+               request.user == analytics.user):
+            return Response(
+                {'detail': 'You do not have permission to access this data.'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Create comparison data
+        serializer = LearnerComparisonSerializer(analytics)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def time_analysis(self, request):
+        """Get time analysis data for quiz attempts"""
+        # Get the user to analyze
+        user_id = request.query_params.get('user_id')
+        if user_id:
+            # Check permissions
+            if not (request.user.is_superuser or 
+                   (hasattr(request.user, 'profile') and request.user.profile.is_instructor) or
+                   str(request.user.id) == user_id):
+                return Response(
+                    {'detail': 'You do not have permission to access this data.'}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            user = user_id
+        else:
+            # Default to current user
+            user = request.user.id
+        
+        # Get all completed quiz attempts for this user
+        attempts = QuizAttempt.objects.filter(
+            user_id=user,
+            status__in=['completed', 'timed_out']
+        )
+        
+        if not attempts.exists():
+            return Response({'detail': 'No quiz attempts found'})
+        
+        # Get time metrics for all attempts
+        time_metrics = attempts.aggregate(
+            avg_time=Avg('time_spent_seconds'),
+            min_time=Min('time_spent_seconds'),
+            max_time=Max('time_spent_seconds'),
+            std_dev=StdDev('time_spent_seconds')
+        )
+        
+        # Get question response time metrics
+        responses = QuestionResponse.objects.filter(attempt__in=attempts)
+        q_time_metrics = responses.aggregate(
+            avg_q_time=Avg('time_spent_seconds'),
+            min_q_time=Min('time_spent_seconds'),
+            max_q_time=Max('time_spent_seconds'),
+            std_dev_q=StdDev('time_spent_seconds')
+        )
+        
+        # Time data by quiz type
+        quiz_type_data = []
+        for quiz in Quiz.objects.filter(attempts__in=attempts).distinct():
+            quiz_attempts = attempts.filter(quiz=quiz)
+            if quiz_attempts.exists():
+                avg_time = quiz_attempts.aggregate(avg=Avg('time_spent_seconds'))['avg']
+                quiz_type_data.append({
+                    'quiz_id': quiz.id,
+                    'quiz_title': quiz.title,
+                    'avg_time': avg_time,
+                    'attempt_count': quiz_attempts.count()
+                })
+        
+        # Time data by question type
+        question_type_data = {}
+        for q_type in ['multiple_choice', 'true_false', 'essay']:
+            type_responses = responses.filter(question__question_type=q_type)
+            if type_responses.exists():
+                avg_time = type_responses.aggregate(avg=Avg('time_spent_seconds'))['avg']
+                question_type_data[q_type] = {
+                    'avg_time': avg_time,
+                    'response_count': type_responses.count()
+                }
+        
+        # Learning efficiency over time (plot data)
+        time_series_data = {
+            'dates': [],
+            'times': [],
+            'scores': []
+        }
+        
+        for attempt in attempts.order_by('completed_at'):
+            if attempt.completed_at and attempt.max_score > 0:
+                time_series_data['dates'].append(attempt.completed_at.strftime('%Y-%m-%d'))
+                time_series_data['times'].append(attempt.time_spent_seconds)
+                time_series_data['scores'].append((attempt.score / attempt.max_score) * 100)
+        
+        # Combine all data
+        result = {
+            'overall_metrics': {
+                'average_time': time_metrics['avg_time'],
+                'minimum_time': time_metrics['min_time'],
+                'maximum_time': time_metrics['max_time'],
+                'std_deviation': time_metrics['std_dev']
+            },
+            'question_metrics': {
+                'average_time': q_time_metrics['avg_q_time'],
+                'minimum_time': q_time_metrics['min_q_time'],
+                'maximum_time': q_time_metrics['max_q_time'],
+                'std_deviation': q_time_metrics['std_dev_q']
+            },
+            'quiz_type_data': quiz_type_data,
+            'question_type_data': question_type_data,
+            'time_series_data': time_series_data
+        }
+        
+        return Response(result)

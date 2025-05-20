@@ -1,0 +1,651 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Instructor Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Instructor Analytics Dashboard</h1>
+    
+    <!-- Course Selector -->
+    <div class="mb-8 bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold mb-4">Select Course</h2>
+        <div class="flex flex-wrap gap-4">
+            <select id="course-selector" class="form-select w-full md:w-1/2 p-2 border border-gray-300 rounded-md">
+                <option value="">Select a course...</option>
+                {% for course in instructor_courses %}
+                    <option value="{{ course.id }}">{{ course.title }}</option>
+                {% endfor %}
+            </select>
+            <button id="load-analytics" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md">
+                Load Analytics
+            </button>
+        </div>
+    </div>
+    
+    <!-- Loading State -->
+    <div id="loading-state" class="hidden flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+    
+    <!-- Error State -->
+    <div id="error-state" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md mb-6">
+        <span id="error-message">Something went wrong when loading analytics.</span>
+    </div>
+    
+    <!-- Analytics Dashboard Content -->
+    <div id="dashboard-content" class="hidden"> 
+        <!-- Course Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold mb-2">Total Enrollments</h3>
+                <p class="text-3xl font-bold text-blue-600" id="total-enrollments">-</p>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold mb-2">Active Learners</h3>
+                <p class="text-3xl font-bold text-green-600" id="active-learners">-</p>
+                <p class="text-sm text-gray-500">Past 30 days</p>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold mb-2">Completion Rate</h3>
+                <p class="text-3xl font-bold text-indigo-600" id="completion-rate">-</p>
+            </div>
+        </div>
+        
+        <!-- Quiz Performance -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">Quiz Performance</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="py-3 px-4 text-left">Quiz</th>
+                            <th class="py-3 px-4 text-left">Attempts</th>
+                            <th class="py-3 px-4 text-left">Pass Rate</th>
+                            <th class="py-3 px-4 text-left">Avg Score</th>
+                            <th class="py-3 px-4 text-left">Avg Time</th>
+                            <th class="py-3 px-4 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="quiz-performance-table">
+                        <tr>
+                            <td colspan="6" class="py-4 px-4 text-center text-gray-500">
+                                Select a course to view quiz performance.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Student Progress -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">Student Progress</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="py-3 px-4 text-left">Student</th>
+                            <th class="py-3 px-4 text-left">Quizzes Taken</th>
+                            <th class="py-3 px-4 text-left">Quizzes Passed</th>
+                            <th class="py-3 px-4 text-left">Accuracy Rate</th>
+                            <th class="py-3 px-4 text-left">Avg Time</th>
+                            <th class="py-3 px-4 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-progress-table">
+                        <tr>
+                            <td colspan="6" class="py-4 px-4 text-center text-gray-500">
+                                Select a course to view student progress.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Module Engagement -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">Module Engagement</h2>
+            <div id="module-engagement-chart" class="h-80 w-full"></div>
+        </div>
+        
+        <!-- Student Comparison -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">Compare Students</h2>
+            <div class="flex flex-wrap gap-4 mb-4">
+                <select id="student-selector-1" class="form-select w-full md:w-1/3 p-2 border border-gray-300 rounded-md">
+                    <option value="">Select first student...</option>
+                </select>
+                <select id="student-selector-2" class="form-select w-full md:w-1/3 p-2 border border-gray-300 rounded-md">
+                    <option value="">Select second student...</option>
+                </select>
+                <button id="compare-students" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md">
+                    Compare
+                </button>
+            </div>
+            
+            <div id="comparison-container" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div id="student1-data" class="border rounded-md p-4">
+                        <h3 class="text-lg font-semibold mb-3 student-name">Student 1</h3>
+                        <div class="mb-2">
+                            <span class="font-medium">Quizzes Taken:</span>
+                            <span class="quizzes-taken">-</span>
+                        </div>
+                        <div class="mb-2">
+                            <span class="font-medium">Pass Rate:</span>
+                            <span class="pass-rate">-</span>
+                        </div>
+                        <div class="mb-2">
+                            <span class="font-medium">Accuracy:</span>
+                            <span class="accuracy">-</span>
+                        </div>
+                        <div class="mb-2">
+                            <span class="font-medium">Average Time:</span>
+                            <span class="avg-time">-</span>
+                        </div>
+                        <div class="mt-4">
+                            <h4 class="font-medium mb-2">Strengths:</h4>
+                            <ul class="list-disc pl-5 strengths-list">
+                                <li>No data available</li>
+                            </ul>
+                        </div>
+                        <div class="mt-3">
+                            <h4 class="font-medium mb-2">Areas for Improvement:</h4>
+                            <ul class="list-disc pl-5 improvements-list">
+                                <li>No data available</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div id="student2-data" class="border rounded-md p-4">
+                        <h3 class="text-lg font-semibold mb-3 student-name">Student 2</h3>
+                        <div class="mb-2">
+                            <span class="font-medium">Quizzes Taken:</span>
+                            <span class="quizzes-taken">-</span>
+                        </div>
+                        <div class="mb-2">
+                            <span class="font-medium">Pass Rate:</span>
+                            <span class="pass-rate">-</span>
+                        </div>
+                        <div class="mb-2">
+                            <span class="font-medium">Accuracy:</span>
+                            <span class="accuracy">-</span>
+                        </div>
+                        <div class="mb-2">
+                            <span class="font-medium">Average Time:</span>
+                            <span class="avg-time">-</span>
+                        </div>
+                        <div class="mt-4">
+                            <h4 class="font-medium mb-2">Strengths:</h4>
+                            <ul class="list-disc pl-5 strengths-list">
+                                <li>No data available</li>
+                            </ul>
+                        </div>
+                        <div class="mt-3">
+                            <h4 class="font-medium mb-2">Areas for Improvement:</h4>
+                            <ul class="list-disc pl-5 improvements-list">
+                                <li>No data available</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Global variables to store data
+    let courseData = {};
+    let studentData = {};
+    let moduleEngagementChart = null;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const loadButton = document.getElementById('load-analytics');
+        const compareButton = document.getElementById('compare-students');
+        
+        loadButton.addEventListener('click', loadCourseAnalytics);
+        compareButton.addEventListener('click', compareStudents);
+    });
+    
+    function loadCourseAnalytics() {
+        const courseId = document.getElementById('course-selector').value;
+        if (!courseId) {
+            showError('Please select a course');
+            return;
+        }
+        
+        // Show loading state
+        document.getElementById('loading-state').classList.remove('hidden');
+        document.getElementById('dashboard-content').classList.add('hidden');
+        document.getElementById('error-state').classList.add('hidden');
+        
+        // Fetch course analytics data
+        fetch(`/api/analytics/course-analytics/dashboard/?course_id=${courseId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch course analytics');
+                }
+                return response.json();
+            })
+            .then(data => {
+                courseData = data[0]; // Get the first course (should be the only one)
+                updateDashboard();
+                
+                // Next, fetch enrolled students for this course
+                return fetch(`/api/courses/enrollments/?course=${courseId}`);
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch enrollments');
+                }
+                return response.json();
+            })
+            .then(enrollments => {
+                // Populate student selectors and fetch their analytics
+                populateStudentSelectors(enrollments.results);
+                
+                // Get analytics for all enrolled students
+                const studentPromises = enrollments.results.map(enrollment => {
+                    return fetch(`/api/analytics/learner-analytics/?user_id=${enrollment.user}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                return null; // Skip this student if analytics not available
+                            }
+                            return response.json();
+                        });
+                });
+                
+                return Promise.all(studentPromises);
+            })
+            .then(studentsAnalytics => {
+                // Filter out null responses and flat map results
+                studentData = studentsAnalytics
+                    .filter(data => data && data.results && data.results.length > 0)
+                    .flatMap(data => data.results);
+                
+                updateStudentTable();
+            })
+            .catch(error => {
+                console.error('Error loading analytics:', error);
+                showError(error.message || 'Failed to load analytics data');
+            })
+            .finally(() => {
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('dashboard-content').classList.remove('hidden');
+            });
+    }
+    
+    function updateDashboard() {
+        // Update course overview metrics
+        const analytics = courseData.analytics;
+        document.getElementById('total-enrollments').textContent = analytics.total_enrollments || 0;
+        document.getElementById('active-learners').textContent = analytics.active_learners || 0;
+        document.getElementById('completion-rate').textContent = `${(analytics.completion_rate || 0).toFixed(1)}%`;
+        
+        // Update module engagement chart
+        updateModuleEngagementChart(analytics.module_engagement);
+        
+        // We'll need to query the quiz analytics separately
+        fetchQuizAnalytics(courseData.id);
+    }
+    
+    function updateModuleEngagementChart(moduleData) {
+        // Prepare data for chart
+        const modules = Object.values(moduleData).sort((a, b) => a.title.localeCompare(b.title));
+        const labels = modules.map(m => m.title);
+        const engagementData = modules.map(m => m.engagement_count || 0);
+        const completionData = modules.map(m => m.completion_count || 0);
+        
+        // Create or update chart
+        const ctx = document.getElementById('module-engagement-chart').getContext('2d');
+        
+        if (moduleEngagementChart) {
+            moduleEngagementChart.destroy();
+        }
+        
+        moduleEngagementChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Total Views',
+                        data: engagementData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Completions',
+                        data: completionData,
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Count'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Module'
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    function fetchQuizAnalytics(courseId) {
+        fetch(`/api/courses/quizzes/?course=${courseId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch quizzes');
+                }
+                return response.json();
+            })
+            .then(quizzes => {
+                // For each quiz, fetch its analytics
+                const quizPromises = quizzes.results.map(quiz => {
+                    return fetch(`/api/courses/quiz/${quiz.id}/analytics/`)
+                        .then(response => {
+                            if (!response.ok) {
+                                return { quiz: quiz, analytics: null };
+                            }
+                            return response.json().then(analytics => ({ quiz: quiz, analytics: analytics }));
+                        });
+                });
+                
+                return Promise.all(quizPromises);
+            })
+            .then(quizzesWithAnalytics => {
+                updateQuizTable(quizzesWithAnalytics);
+            })
+            .catch(error => {
+                console.error('Error fetching quiz analytics:', error);
+            });
+    }
+    
+    function updateQuizTable(quizzesWithAnalytics) {
+        const tableBody = document.getElementById('quiz-performance-table');
+        tableBody.innerHTML = '';
+        
+        if (quizzesWithAnalytics.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="py-4 px-4 text-center text-gray-500">
+                        No quizzes found for this course.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        quizzesWithAnalytics.forEach(item => {
+            const quiz = item.quiz;
+            const analytics = item.analytics || {};
+            
+            const row = document.createElement('tr');
+            row.classList.add('border-b', 'hover:bg-gray-50');
+            
+            const passRate = analytics.passing_attempts && analytics.completed_attempts 
+                ? ((analytics.passing_attempts / analytics.completed_attempts) * 100).toFixed(1) + '%'
+                : 'N/A';
+                
+            const avgScore = analytics.avg_score 
+                ? analytics.avg_score.toFixed(1) + '%'
+                : 'N/A';
+                
+            const avgTime = analytics.avg_completion_time
+                ? formatTime(analytics.avg_completion_time)
+                : 'N/A';
+            
+            row.innerHTML = `
+                <td class="py-3 px-4">${quiz.title}</td>
+                <td class="py-3 px-4">${analytics.completed_attempts || 0}</td>
+                <td class="py-3 px-4">${passRate}</td>
+                <td class="py-3 px-4">${avgScore}</td>
+                <td class="py-3 px-4">${avgTime}</td>
+                <td class="py-3 px-4">
+                    <button class="text-blue-600 hover:underline" 
+                            onclick="viewQuizDetails(${quiz.id})">View Details</button>
+                </td>
+            `;
+            
+            tableBody.appendChild(row);
+        });
+    }
+    
+    function updateStudentTable() {
+        const tableBody = document.getElementById('student-progress-table');
+        tableBody.innerHTML = '';
+        
+        if (studentData.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="py-4 px-4 text-center text-gray-500">
+                        No student data available.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        studentData.forEach(student => {
+            const row = document.createElement('tr');
+            row.classList.add('border-b', 'hover:bg-gray-50');
+            
+            const accuracyRate = student.total_questions_answered > 0
+                ? ((student.total_correct_answers / student.total_questions_answered) * 100).toFixed(1) + '%'
+                : 'N/A';
+                
+            const avgTime = student.average_time_per_question
+                ? formatTime(student.average_time_per_question)
+                : 'N/A';
+            
+            const passRate = student.total_quizzes_taken > 0
+                ? ((student.total_quizzes_passed / student.total_quizzes_taken) * 100).toFixed(1) + '%'
+                : 'N/A';
+            
+            row.innerHTML = `
+                <td class="py-3 px-4">${student.username}</td>
+                <td class="py-3 px-4">${student.total_quizzes_taken || 0}</td>
+                <td class="py-3 px-4">${student.total_quizzes_passed || 0} (${passRate})</td>
+                <td class="py-3 px-4">${accuracyRate}</td>
+                <td class="py-3 px-4">${avgTime}</td>
+                <td class="py-3 px-4">
+                    <button class="text-blue-600 hover:underline" 
+                            onclick="viewStudentAnalytics(${student.user})">View Details</button>
+                </td>
+            `;
+            
+            tableBody.appendChild(row);
+        });
+    }
+    
+    function populateStudentSelectors(enrollments) {
+        const selector1 = document.getElementById('student-selector-1');
+        const selector2 = document.getElementById('student-selector-2');
+        
+        // Clear existing options except the first one
+        selector1.innerHTML = '<option value="">Select first student...</option>';
+        selector2.innerHTML = '<option value="">Select second student...</option>';
+        
+        // Add enrolled students to selectors
+        enrollments.forEach(enrollment => {
+            const option1 = document.createElement('option');
+            option1.value = enrollment.user;
+            option1.textContent = enrollment.user_name || `User #${enrollment.user}`;
+            
+            const option2 = option1.cloneNode(true);
+            
+            selector1.appendChild(option1);
+            selector2.appendChild(option2);
+        });
+    }
+    
+    function compareStudents() {
+        const studentId1 = document.getElementById('student-selector-1').value;
+        const studentId2 = document.getElementById('student-selector-2').value;
+        
+        if (!studentId1 || !studentId2) {
+            showError('Please select two students to compare');
+            return;
+        }
+        
+        if (studentId1 === studentId2) {
+            showError('Please select two different students');
+            return;
+        }
+        
+        // Show loading state
+        document.getElementById('loading-state').classList.remove('hidden');
+        document.getElementById('comparison-container').classList.add('hidden');
+        document.getElementById('error-state').classList.add('hidden');
+        
+        // Fetch comparison data for both students
+        Promise.all([
+            fetch(`/api/analytics/learner-analytics/${studentId1}/comparison/`).then(res => res.json()),
+            fetch(`/api/analytics/learner-analytics/${studentId2}/comparison/`).then(res => res.json())
+        ])
+        .then(([data1, data2]) => {
+            updateComparisonView(data1, data2);
+        })
+        .catch(error => {
+            console.error('Error comparing students:', error);
+            showError('Failed to load comparison data');
+        })
+        .finally(() => {
+            document.getElementById('loading-state').classList.add('hidden');
+        });
+    }
+    
+    function updateComparisonView(student1, student2) {
+        // Display container
+        document.getElementById('comparison-container').classList.remove('hidden');
+        
+        // Update student 1 data
+        const student1Container = document.getElementById('student1-data');
+        student1Container.querySelector('.student-name').textContent = student1.username;
+        student1Container.querySelector('.quizzes-taken').textContent = student1.total_quizzes_taken;
+        
+        const passRate1 = student1.total_quizzes_taken > 0
+            ? ((student1.total_quizzes_passed / student1.total_quizzes_taken) * 100).toFixed(1) + '%'
+            : 'N/A';
+        student1Container.querySelector('.pass-rate').textContent = passRate1;
+        
+        student1Container.querySelector('.accuracy').textContent = `${student1.accuracy_rate.toFixed(1)}%`;
+        student1Container.querySelector('.avg-time').textContent = formatTime(student1.average_time_per_question);
+        
+        // Update strengths and weaknesses
+        updateStrengthsWeaknesses(student1Container, student1);
+        
+        // Update student 2 data
+        const student2Container = document.getElementById('student2-data');
+        student2Container.querySelector('.student-name').textContent = student2.username;
+        student2Container.querySelector('.quizzes-taken').textContent = student2.total_quizzes_taken;
+        
+        const passRate2 = student2.total_quizzes_taken > 0
+            ? ((student2.total_quizzes_passed / student2.total_quizzes_taken) * 100).toFixed(1) + '%'
+            : 'N/A';
+        student2Container.querySelector('.pass-rate').textContent = passRate2;
+        
+        student2Container.querySelector('.accuracy').textContent = `${student2.accuracy_rate.toFixed(1)}%`;
+        student2Container.querySelector('.avg-time').textContent = formatTime(student2.average_time_per_question);
+        
+        // Update strengths and weaknesses
+        updateStrengthsWeaknesses(student2Container, student2);
+    }
+    
+    function updateStrengthsWeaknesses(container, student) {
+        // Update strengths
+        const strengthsList = container.querySelector('.strengths-list');
+        strengthsList.innerHTML = '';
+        
+        if (student.strengths && student.strengths.length > 0) {
+            student.strengths.forEach(strength => {
+                const li = document.createElement('li');
+                li.textContent = `${formatCategoryName(strength.category)}: ${strength.accuracy.toFixed(1)}% accuracy`;
+                strengthsList.appendChild(li);
+            });
+        } else {
+            const li = document.createElement('li');
+            li.textContent = 'No specific strengths identified yet';
+            strengthsList.appendChild(li);
+        }
+        
+        // Update areas for improvement
+        const improvementsList = container.querySelector('.improvements-list');
+        improvementsList.innerHTML = '';
+        
+        if (student.areas_for_improvement && student.areas_for_improvement.length > 0) {
+            student.areas_for_improvement.forEach(area => {
+                const li = document.createElement('li');
+                li.textContent = `${formatCategoryName(area.category)}: ${area.accuracy.toFixed(1)}% accuracy`;
+                improvementsList.appendChild(li);
+            });
+        } else {
+            const li = document.createElement('li');
+            li.textContent = 'No specific areas for improvement identified yet';
+            improvementsList.appendChild(li);
+        }
+    }
+    
+    function formatCategoryName(category) {
+        // Convert snake_case to Title Case
+        return category
+            .split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }
+    
+    function formatTime(seconds) {
+        if (!seconds) return 'N/A';
+        
+        seconds = Math.round(seconds);
+        if (seconds < 60) {
+            return `${seconds}s`;
+        }
+        
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes}m ${remainingSeconds}s`;
+    }
+    
+    function viewQuizDetails(quizId) {
+        // Navigate to quiz analytics page
+        window.location.href = `/courses/quiz/${quizId}/analytics/`;
+    }
+    
+    function viewStudentAnalytics(userId) {
+        // Navigate to student analytics page
+        window.location.href = `/analytics/student/${userId}/`;
+    }
+    
+    function showError(message) {
+        const errorState = document.getElementById('error-state');
+        const errorMessage = document.getElementById('error-message');
+        
+        errorMessage.textContent = message;
+        errorState.classList.remove('hidden');
+    }
+</script>
+{% endblock %}

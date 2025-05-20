@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
-from courses.models import Course, Module
+from courses.models import Course, Module, Quiz, QuizAttempt, Question
 
 class UserActivity(models.Model):
     """Tracks general user activity on the platform"""
@@ -23,6 +23,289 @@ class UserActivity(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.activity_type} - {self.timestamp}"
+
+class LearnerAnalytics(models.Model):
+    """
+    Analytics data tracking a learner's performance across quizzes and courses.
+    
+    This model aggregates information about an individual learner's performance
+    to provide insights into their progress, strengths, weaknesses, and learning patterns.
+    """
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='analytics')
+    
+    # Overall metrics
+    total_quizzes_taken = models.PositiveIntegerField(default=0)
+    total_quizzes_passed = models.PositiveIntegerField(default=0)
+    total_questions_answered = models.PositiveIntegerField(default=0)
+    total_correct_answers = models.PositiveIntegerField(default=0)
+    
+    # Time metrics
+    average_time_per_question = models.FloatField(default=0.0, help_text='Average time in seconds spent per question')
+    total_study_time = models.DurationField(default=timezone.timedelta, help_text='Total time spent on learning activities')
+    
+    # Performance insights
+    strengths = models.JSONField(default=list, blank=True, help_text='Categories or topics where the learner excels')
+    areas_for_improvement = models.JSONField(default=list, blank=True, help_text='Categories or topics where the learner struggles')
+    
+    # Learning patterns
+    learning_pattern_data = models.JSONField(default=dict, blank=True, help_text='Data about learning patterns like time of day, duration, etc.')
+    quiz_performance_history = models.JSONField(default=list, blank=True, help_text='Historical data of quiz performances')
+    
+    # Progress trends
+    progress_over_time = models.JSONField(default=dict, blank=True, help_text='Chart data for progress visualization')
+    performance_by_category = models.JSONField(default=dict, blank=True, help_text='Performance metrics grouped by question categories')
+    
+    # Course-specific metrics
+    course_completion_data = models.JSONField(default=dict, blank=True, help_text='Completion rates and performance by course')
+    
+    # Comparative metrics
+    percentile_ranking = models.JSONField(default=dict, blank=True, help_text='Percentile ranking compared to peers by category')
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Learner Analytics'
+        verbose_name_plural = 'Learner Analytics'
+    
+    def __str__(self):
+        return f"Analytics for {self.user.username}"
+    
+    def calculate_overall_metrics(self):
+        """Calculate the overall metrics from quiz attempts"""
+        from django.db.models import Count, Sum, Avg, F, Q
+        
+        # Get all completed quiz attempts for this user
+        attempts = QuizAttempt.objects.filter(
+            user=self.user,
+            status__in=['completed', 'timed_out']
+        )
+        
+        # Basic metrics
+        self.total_quizzes_taken = attempts.count()
+        self.total_quizzes_passed = attempts.filter(is_passed=True).count()
+        
+        # Question metrics
+        from courses.models import QuestionResponse
+        responses = QuestionResponse.objects.filter(attempt__user=self.user)
+        self.total_questions_answered = responses.count()
+        self.total_correct_answers = responses.filter(is_correct=True).count()
+        
+        # Time metrics
+        avg_time = responses.aggregate(avg_time=Avg('time_spent_seconds'))['avg_time']
+        self.average_time_per_question = avg_time if avg_time is not None else 0
+        
+        # Calculate total study time from module engagements
+        from analytics.models import ModuleEngagement
+        engagements = ModuleEngagement.objects.filter(user=self.user)
+        total_time = sum((e.time_spent for e in engagements), timezone.timedelta())
+        self.total_study_time = total_time
+        
+        self.save()
+        return True
+    
+    def calculate_performance_by_category(self):
+        """Calculate performance metrics grouped by question category"""
+        from django.db.models import Count, Sum, Avg, F, Q, Case, When
+        
+        # Get all responses for this user
+        from courses.models import QuestionResponse
+        responses = QuestionResponse.objects.filter(attempt__user=self.user)
+        
+        # Initialize the category performance data
+        performance_data = {}
+        
+        # Define question categories (could be based on tags, question types, etc.)
+        # For now, we'll use question types as categories
+        question_types = ['multiple_choice', 'true_false', 'essay']
+        
+        for q_type in question_types:
+            # Get responses for this question type
+            type_responses = responses.filter(question__question_type=q_type)
+            
+            if type_responses.exists():
+                correct = type_responses.filter(is_correct=True).count()
+                total = type_responses.count()
+                
+                # Calculate average points earned as percentage of available points
+                avg_points_pct = type_responses.aggregate(
+                    avg_pct=Avg(
+                        Case(
+                            When(question__points__gt=0, 
+                                 then=100 * F('points_earned') / F('question__points')),
+                            default=0
+                        )
+                    )
+                )['avg_pct'] or 0
+                
+                # Calculate average time spent
+                avg_time = type_responses.aggregate(
+                    avg_time=Avg('time_spent_seconds')
+                )['avg_time'] or 0
+                
+                performance_data[q_type] = {
+                    'correct': correct,
+                    'total': total,
+                    'accuracy': (correct / total * 100) if total > 0 else 0,
+                    'avg_score_percentage': avg_points_pct,
+                    'avg_time_seconds': avg_time
+                }
+        
+        self.performance_by_category = performance_data
+        self.save()
+        return performance_data
+    
+    def identify_strengths_and_weaknesses(self):
+        """Identify areas of strength and weakness based on performance data"""
+        # Ensure we have performance data
+        if not self.performance_by_category:
+            self.calculate_performance_by_category()
+            
+        strengths = []
+        weaknesses = []
+        
+        # Analyze performance by category
+        for category, data in self.performance_by_category.items():
+            # If accuracy is over 80%, consider it a strength
+            if data['accuracy'] >= 80:
+                strengths.append({
+                    'category': category,
+                    'accuracy': data['accuracy'],
+                    'avg_score': data['avg_score_percentage']
+                })
+            # If accuracy is under 60%, consider it a weakness
+            elif data['accuracy'] < 60:
+                weaknesses.append({
+                    'category': category,
+                    'accuracy': data['accuracy'],
+                    'avg_score': data['avg_score_percentage']
+                })
+        
+        # Sort by accuracy (descending for strengths, ascending for weaknesses)
+        strengths.sort(key=lambda x: x['accuracy'], reverse=True)
+        weaknesses.sort(key=lambda x: x['accuracy'])
+        
+        self.strengths = strengths
+        self.areas_for_improvement = weaknesses
+        self.save()
+        
+        return strengths, weaknesses
+    
+    def calculate_progress_over_time(self):
+        """Calculate progress metrics over time for visualization"""
+        from django.db.models import Count, Avg, F
+        import datetime
+        
+        # Get all completed quiz attempts for this user
+        attempts = QuizAttempt.objects.filter(
+            user=self.user,
+            status__in=['completed', 'timed_out']
+        ).order_by('completed_at')
+        
+        if not attempts.exists():
+            return {}
+            
+        # Initialize progress data
+        progress_data = {
+            'dates': [],
+            'scores': [],
+            'cumulative_avg': [],
+            'time_spent': [],
+        }
+        
+        # Track running totals for calculating cumulative average
+        total_score_pct = 0
+        count = 0
+        
+        # Process each attempt chronologically
+        for attempt in attempts:
+            if attempt.completed_at and attempt.max_score > 0:
+                # Calculate score percentage
+                score_pct = (attempt.score / attempt.max_score) * 100
+                
+                # Update running totals
+                count += 1
+                total_score_pct += score_pct
+                cumulative_avg = total_score_pct / count
+                
+                # Add data points
+                progress_data['dates'].append(attempt.completed_at.strftime('%Y-%m-%d'))
+                progress_data['scores'].append(round(score_pct, 1))
+                progress_data['cumulative_avg'].append(round(cumulative_avg, 1))
+                progress_data['time_spent'].append(attempt.time_spent_seconds)
+        
+        self.progress_over_time = progress_data
+        self.save()
+        
+        return progress_data
+    
+    def calculate_percentile_ranking(self):
+        """Calculate percentile ranking compared to peers"""
+        from django.db.models import Count, Avg, F, Window, FloatField
+        from django.db.models.functions import Rank, PercentRank
+        
+        # Initialize percentile data
+        percentile_data = {}
+        
+        # Calculate overall score percentile
+        from courses.models import QuizAttempt
+        
+        # Get this user's average score
+        user_avg_score = QuizAttempt.objects.filter(
+            user=self.user,
+            status__in=['completed', 'timed_out'],
+            max_score__gt=0
+        ).aggregate(
+            avg_score=Avg(100 * F('score') / F('max_score'))
+        )['avg_score'] or 0
+        
+        # Get all users' average scores
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        
+        # This is a complex query that would calculate percentile ranking
+        # For simplicity, we'll just get all scores and calculate manually
+        all_user_scores = []
+        
+        for user in User.objects.all():
+            avg_score = QuizAttempt.objects.filter(
+                user=user,
+                status__in=['completed', 'timed_out'],
+                max_score__gt=0
+            ).aggregate(
+                avg_score=Avg(100 * F('score') / F('max_score'))
+            )['avg_score'] or 0
+            
+            if avg_score > 0:  # Only include users who have taken quizzes
+                all_user_scores.append(avg_score)
+        
+        # Calculate percentile manually
+        if all_user_scores:
+            all_user_scores.sort()
+            rank = sum(1 for score in all_user_scores if score <= user_avg_score)
+            percentile = (rank / len(all_user_scores)) * 100
+            
+            percentile_data['overall'] = {
+                'percentile': percentile,
+                'user_score': user_avg_score,
+                'median_score': all_user_scores[len(all_user_scores) // 2] if all_user_scores else 0
+            }
+        
+        self.percentile_ranking = percentile_data
+        self.save()
+        
+        return percentile_data
+    
+    def recalculate_all(self):
+        """Recalculate all analytics data"""
+        self.calculate_overall_metrics()
+        self.calculate_performance_by_category()
+        self.identify_strengths_and_weaknesses()
+        self.calculate_progress_over_time()
+        self.calculate_percentile_ranking()
+        
+        return True
 
 class CourseAnalyticsSummary(models.Model):
     """High-level analytics for a specific course"""

@@ -741,6 +741,56 @@ class QuizResultView(LoginRequiredMixin, DetailView):
             question__question_type='essay',
             graded_at__isnull=True
         ).exists()
+        
+        # Calculate score percentage
+        score_percentage = round((attempt.score / attempt.max_score) * 100 if attempt.max_score > 0 else 0, 1)
+        
+        # Calculate average time per question
+        total_time = attempt.time_spent_seconds
+        total_questions = responses.count()
+        avg_question_time = '0s'
+        if total_questions > 0:
+            avg_seconds = total_time / total_questions
+            minutes, seconds = divmod(int(avg_seconds), 60)
+            if minutes > 0:
+                avg_question_time = f"{minutes}m {seconds}s"
+            else:
+                avg_question_time = f"{seconds}s"
+        
+        # Calculate time utilization percentage if quiz has time limit
+        time_utilization_percentage = 0
+        if quiz.time_limit_minutes:
+            # Add time extension if any
+            total_allowed_time = (quiz.time_limit_minutes + attempt.time_extension_minutes) * 60
+            time_utilization_percentage = round((total_time / total_allowed_time) * 100 if total_allowed_time > 0 else 0, 1)
+        
+        # Count correct answers
+        correct_count = sum(1 for response in responses if response.is_correct)
+        
+        # Group questions by type for performance analysis
+        question_categories = []
+        question_types = {}
+        
+        for response in responses:
+            q_type = response.question.question_type
+            if q_type not in question_types:
+                question_types[q_type] = {
+                    'correct': 0,
+                    'total': 0,
+                    'name': response.question.get_question_type_display()
+                }
+            
+            question_types[q_type]['total'] += 1
+            if response.is_correct:
+                question_types[q_type]['correct'] += 1
+        
+        # Calculate percentages for each question type
+        for q_type, data in question_types.items():
+            data['percentage'] = round((data['correct'] / data['total']) * 100 if data['total'] > 0 else 0, 1)
+            question_categories.append(data)
+        
+        # Get conditional feedback based on score
+        conditional_feedback = attempt.get_conditional_feedback()
                 
         # Add to context
         context.update({
@@ -748,11 +798,30 @@ class QuizResultView(LoginRequiredMixin, DetailView):
             'responses': responses,
             'can_retake': can_retake,
             'passing_points': passing_points,
-            'score_percentage': round((attempt.score / attempt.max_score) * 100 if attempt.max_score > 0 else 0, 1),
-            'has_pending_essays': has_pending_essays
+            'score_percentage': score_percentage,
+            'has_pending_essays': has_pending_essays,
+            'correct_count': correct_count,
+            'total_questions': total_questions,
+            'avg_question_time': avg_question_time,
+            'time_utilization_percentage': time_utilization_percentage,
+            'question_categories': question_categories,
+            'conditional_feedback': conditional_feedback,
+            'time_spent_formatted': self.format_time_spent(attempt.time_spent_seconds)
         })
         
         return context
+        
+    def format_time_spent(self, seconds):
+        """Format seconds into a human-readable time string"""
+        hours, remainder = divmod(seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        
+        if hours > 0:
+            return f"{int(hours)}h {int(minutes)}m {int(seconds)}s"
+        elif minutes > 0:
+            return f"{int(minutes)}m {int(seconds)}s"
+        else:
+            return f"{int(seconds)}s"
 
 @method_decorator(csrf_exempt, name='dispatch')
 class QuizAttemptHistoryView(LoginRequiredMixin, ListView):

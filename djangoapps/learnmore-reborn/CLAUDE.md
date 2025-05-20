@@ -118,6 +118,20 @@ python -m pytest courses/tests/test_quiz_randomization.py
 
 # Run attempt limit tests
 python -m pytest courses/tests/test_quiz_attempt_limits.py
+
+# Run essay question tests
+python -m pytest courses/tests/test_essay_questions.py
+python -m pytest courses/tests/test_essay_questions_advanced.py
+python -m pytest courses/tests/test_essay_questions_integration.py
+
+# Run enhanced feedback tests
+python -m pytest courses/tests/test_enhanced_feedback.py
+
+# Run media support tests
+python -m pytest courses/tests/test_media_support.py
+
+# Run prerequisite surveys tests
+python -m pytest courses/tests/test_prerequisite_surveys.py
 ```
 
 ## Code Architecture
@@ -140,7 +154,7 @@ The project follows a typical Django architecture with apps for different functi
    - Two parallel test systems: Django TestCase and pytest
    - pytest is preferred as it uses special test settings with authentication bypass
    - Tests are organized into categories using pytest markers: api, template, integration, unit, slow
-   - Tests should follow the same pattern, and prefer Django's test runner over pytest for better compatibility and simpler test structure
+   - To run tests successfully, use pytest with the provided run_pytest.sh script or directly with python -m pytest
 
 4. **Authentication System**:
    - JWT-based authentication using Simple JWT
@@ -217,6 +231,21 @@ Phase 6 extends the basic quiz system with these key features:
    - Mobile responsive interface
    - Accessibility improvements
 
+## Testing Notes
+
+### Important Testing Tips
+- Always run tests using pytest (`python -m pytest` or `./run_pytest.sh`) rather than Django's test runner
+- The pytest configuration uses `learnmore.test_settings.py` which bypasses authentication restrictions
+- Tests are categorized with markers (api, template, integration, unit) to allow selective testing
+- The custom test settings allow tests to pass despite authentication requirements in the code
+- When modifying or adding quiz functionality, ensure you add corresponding tests under the appropriate marker
+
+### Understanding Test Failures
+If you encounter test failures related to authentication (401 Unauthorized), you might be:
+1. Using Django's test runner instead of pytest
+2. Not using the correct pytest configuration from pytest.ini
+3. Missing authentication bypass in the test case
+
 ## Important Notes
 
 - When adding quiz functionality, refer to `PHASE_6_CHECKLIST.md` for the full requirements
@@ -225,3 +254,4 @@ Phase 6 extends the basic quiz system with these key features:
 - The current git branch is `feature/phase6-quiz-advanced`
 - Refer to `QUIZ_SYSTEM.md` for comprehensive documentation of the quiz system architecture
 - When implementing new features, always add corresponding tests under the appropriate marker category
+- Check `PHASE_6_PROGRESS.md` to understand the current implementation status of Phase 6 features
