@@ -181,6 +181,17 @@ class Quiz(models.Model):
                                           default='completion',
                                           help_text='When to show feedback to students')
     
+    # Enhanced feedback fields
+    general_feedback = models.TextField(blank=True, 
+                                       help_text='General feedback shown to all students after quiz completion')
+    
+    # Score-based conditional feedback fields, stored as JSONField
+    conditional_feedback = models.JSONField(default=dict, blank=True,
+                                          help_text='Feedback shown based on score ranges (e.g., {"0-59": "...", "60-79": "...", "80-100": "..."})')
+    
+    feedback_delay_minutes = models.PositiveIntegerField(default=0,
+                                                       help_text='Delay in minutes before feedback is shown (0 for immediate)')
+    
     # Access control
     access_code = models.CharField(max_length=50, blank=True, 
                                   help_text='Optional access code required to take this quiz')
@@ -220,9 +231,41 @@ class Quiz(models.Model):
             required_for__quiz=self
         ).order_by('module__order')
         
+    def get_survey_prerequisites(self):
+        """Return all survey prerequisite quizzes for this quiz"""
+        return Quiz.objects.filter(
+            required_for__quiz=self,
+            is_survey=True
+        ).order_by('module__order')
+        
     def has_prerequisites(self):
         """Check if this quiz has any prerequisites"""
         return self.prerequisites.exists()
+        
+    def has_survey_prerequisites(self):
+        """Check if this quiz has any survey prerequisites"""
+        return self.prerequisites.filter(prerequisite_quiz__is_survey=True).exists()
+        
+    def get_pending_survey_prerequisites(self, user):
+        """
+        Get all survey prerequisites that are not satisfied by the user.
+        
+        Args:
+            user: The user to check
+            
+        Returns:
+            QuerySet: All survey prerequisites that need to be completed
+        """
+        # Get all survey prerequisites
+        prereqs = self.prerequisites.filter(prerequisite_quiz__is_survey=True)
+        
+        # Filter out the ones that are already satisfied
+        pending_prereqs = []
+        for prereq in prereqs:
+            if not prereq.is_satisfied_by_user(user):
+                pending_prereqs.append(prereq.id)
+                
+        return QuizPrerequisite.objects.filter(id__in=pending_prereqs)
         
     def are_prerequisites_satisfied(self, user):
         """
@@ -574,6 +617,63 @@ class QuizAttempt(models.Model):
             
         return self.score, self.max_score
     
+    def get_conditional_feedback(self):
+        """
+        Get the appropriate conditional feedback based on the score percentage.
+        
+        Returns:
+            str: The conditional feedback for the current score, or empty string if none matches
+        """
+        if not self.quiz.conditional_feedback or self.max_score == 0:
+            return ""
+            
+        score_percentage = (self.score / self.max_score) * 100
+        
+        # Check each score range to find a match
+        for score_range, feedback in self.quiz.conditional_feedback.items():
+            try:
+                range_start, range_end = map(int, score_range.split('-'))
+                if range_start <= score_percentage <= range_end:
+                    return feedback
+            except (ValueError, AttributeError):
+                continue
+                
+        return ""
+    
+    def is_feedback_available(self):
+        """
+        Check if feedback should be shown to the user based on quiz settings.
+        
+        Returns:
+            bool: True if feedback should be shown, False otherwise
+        """
+        if self.status != 'completed' and self.status != 'timed_out':
+            return False
+            
+        if self.quiz.show_feedback_after == 'never':
+            return False
+            
+        # Check feedback delay
+        if self.quiz.feedback_delay_minutes > 0 and self.completed_at:
+            delay = timezone.timedelta(minutes=self.quiz.feedback_delay_minutes)
+            now = timezone.now()
+            
+            # If completed time + delay is still in the future, feedback is not available yet
+            if self.completed_at + delay > now:
+                return False
+            
+        if self.quiz.show_feedback_after == 'completion':
+            return True
+            
+        if self.quiz.show_feedback_after == 'due_date':
+            now = timezone.now()
+            if self.quiz.available_until and now > self.quiz.available_until:
+                return True
+            return False
+            
+        # For 'each_question', feedback is handled differently
+        return True
+    
     def mark_completed(self, timed_out=False):
         """Mark this attempt as completed"""
         if self.status == 'in_progress':
@@ -604,6 +704,10 @@ class QuestionResponse(models.Model):
     feedback = models.TextField(blank=True)
     time_spent_seconds = models.PositiveIntegerField(default=0)
     instructor_comment = models.TextField(blank=True, help_text='Instructor feedback for essay questions')
+    instructor_annotation = models.TextField(blank=True, help_text='Instructor annotation for any question type')
+    annotation_added_at = models.DateTimeField(null=True, blank=True, help_text='When the annotation was added')
+    annotated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, 
+                                  related_name='annotated_responses', help_text='Instructor who added the annotation')
     graded_at = models.DateTimeField(null=True, blank=True, help_text='When the essay was graded')
     graded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='graded_responses')
     created_at = models.DateTimeField(default=timezone.now)

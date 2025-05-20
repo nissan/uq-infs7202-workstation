@@ -175,14 +175,18 @@ class EssayGradingSerializer(serializers.Serializer):
 # Quiz prerequisite serializers
 class QuizPrerequisiteSerializer(serializers.ModelSerializer):
     prerequisite_title = serializers.CharField(source='prerequisite_quiz.title', read_only=True)
+    prerequisite_is_survey = serializers.BooleanField(source='prerequisite_quiz.is_survey', read_only=True)
+    prerequisite_description = serializers.CharField(source='prerequisite_quiz.description', read_only=True)
     
     class Meta:
         model = QuizPrerequisite
         fields = [
             'id', 'quiz', 'prerequisite_quiz', 'prerequisite_title',
+            'prerequisite_is_survey', 'prerequisite_description',
             'required_passing', 'bypass_for_instructors'
         ]
-        read_only_fields = ['id', 'prerequisite_title']
+        read_only_fields = ['id', 'prerequisite_title', 'prerequisite_is_survey', 
+                           'prerequisite_description']
 
 # Quiz serializers
 class QuizSerializer(serializers.ModelSerializer):
@@ -220,13 +224,17 @@ class QuizDetailSerializer(QuizListSerializer):
     questions = serializers.SerializerMethodField()
     prerequisites = serializers.SerializerMethodField()
     prerequisites_satisfied = serializers.SerializerMethodField()
+    has_survey_prerequisites = serializers.SerializerMethodField()
+    pending_surveys = serializers.SerializerMethodField()
     
     class Meta(QuizListSerializer.Meta):
         fields = QuizListSerializer.Meta.fields + [
             'instructions', 'randomize_questions', 'randomize_choices',
             'show_feedback_after', 'grace_period_minutes', 'allow_time_extension',
             'access_code', 'available_from', 'available_until',
+            'general_feedback', 'conditional_feedback', 'feedback_delay_minutes',
             'questions', 'prerequisites', 'prerequisites_satisfied',
+            'has_survey_prerequisites', 'pending_surveys',
             'created_at', 'updated_at'
         ]
     
@@ -245,6 +253,22 @@ class QuizDetailSerializer(QuizListSerializer):
             return False
             
         return obj.are_prerequisites_satisfied(request.user)
+    
+    def get_has_survey_prerequisites(self, obj):
+        # Check if quiz has survey prerequisites
+        return obj.has_survey_prerequisites()
+    
+    def get_pending_surveys(self, obj):
+        # Get pending survey prerequisites for the current user
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return []
+            
+        pending_prereqs = obj.get_pending_survey_prerequisites(request.user)
+        if not pending_prereqs.exists():
+            return []
+            
+        return QuizPrerequisiteSerializer(pending_prereqs, many=True).data
         
     def get_questions(self, obj):
         # For instructor view - include correct answers
@@ -299,17 +323,22 @@ class QuestionResponseSerializer(serializers.ModelSerializer):
     question_type = serializers.CharField(source='question.question_type', read_only=True)
     question = serializers.PrimaryKeyRelatedField(queryset=Question.objects.all())
     pending_grading = serializers.SerializerMethodField()
+    annotation_author = serializers.SerializerMethodField()
     
     class Meta:
         model = QuestionResponse
         fields = [
             'id', 'question', 'question_text', 'question_type', 'response_data',
             'is_correct', 'points_earned', 'feedback', 'time_spent_seconds',
-            'pending_grading', 'instructor_comment', 'graded_at'
+            'pending_grading', 'instructor_comment', 'graded_at',
+            'instructor_annotation', 'annotation_added_at', 'annotated_by',
+            'annotation_author'
         ]
         read_only_fields = [
             'id', 'question_text', 'question_type', 'is_correct', 'points_earned', 
-            'feedback', 'pending_grading', 'instructor_comment', 'graded_at'
+            'feedback', 'pending_grading', 'instructor_comment', 'graded_at',
+            'instructor_annotation', 'annotation_added_at', 'annotated_by',
+            'annotation_author'
         ]
     
     def get_pending_grading(self, obj):
@@ -317,33 +346,74 @@ class QuestionResponseSerializer(serializers.ModelSerializer):
         return (obj.question.question_type == 'essay' and 
                 obj.graded_at is None and 
                 'essay_text' in obj.response_data)
+    
+    def get_annotation_author(self, obj):
+        """Get the name of the instructor who added the annotation"""
+        if obj.annotated_by:
+            return obj.annotated_by.get_full_name() or obj.annotated_by.username
+        return None
 
 class QuizAttemptSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     quiz_title = serializers.CharField(source='quiz.title', read_only=True)
     score_percentage = serializers.SerializerMethodField()
+    extended_by_username = serializers.CharField(source='extended_by.username', read_only=True, required=False, allow_null=True)
+    total_time_limit = serializers.SerializerMethodField()
+    feedback_available = serializers.SerializerMethodField()
+    conditional_feedback = serializers.SerializerMethodField()
     
     class Meta:
         model = QuizAttempt
         fields = [
             'id', 'quiz', 'quiz_title', 'user', 'started_at', 'completed_at',
             'status', 'status_display', 'score', 'max_score', 'score_percentage',
-            'time_spent_seconds', 'is_passed', 'attempt_number'
+            'time_spent_seconds', 'is_passed', 'attempt_number', 
+            'time_extension_minutes', 'extended_by', 'extended_by_username', 
+            'extension_reason', 'last_activity_at', 'time_warning_sent',
+            'total_time_limit', 'feedback_available', 'conditional_feedback'
         ]
         read_only_fields = ['id', 'quiz_title', 'started_at', 'completed_at', 'status_display',
                            'score', 'max_score', 'score_percentage', 'time_spent_seconds',
-                           'is_passed', 'attempt_number']
+                           'is_passed', 'attempt_number', 'extended_by', 'extended_by_username',
+                           'total_time_limit', 'feedback_available', 'conditional_feedback']
                            
     def get_score_percentage(self, obj):
         if obj.max_score > 0:
             return round((obj.score / obj.max_score) * 100, 1)
         return 0
+        
+    def get_total_time_limit(self, obj):
+        """Calculate the total time limit including extensions"""
+        base_time = obj.quiz.time_limit_minutes or 0
+        extension_time = obj.time_extension_minutes or 0
+        return base_time + extension_time
+    
+    def get_feedback_available(self, obj):
+        """Check if feedback is available for this attempt"""
+        return obj.is_feedback_available()
+    
+    def get_conditional_feedback(self, obj):
+        """Get conditional feedback based on score range"""
+        if self.get_feedback_available(obj):
+            return obj.get_conditional_feedback()
+        return ""
 
 class QuizAttemptDetailSerializer(QuizAttemptSerializer):
     responses = QuestionResponseSerializer(many=True, read_only=True)
     
     class Meta(QuizAttemptSerializer.Meta):
         fields = QuizAttemptSerializer.Meta.fields + ['responses']
+
+class TimeExtensionSerializer(serializers.Serializer):
+    extension_minutes = serializers.IntegerField(min_value=1, required=True)
+    reason = serializers.CharField(required=True)
+    
+    def validate_extension_minutes(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("Extension minutes must be a positive number")
+        if value > 120:  # Set a reasonable upper limit
+            raise serializers.ValidationError("Maximum extension is 120 minutes")
+        return value
 
 class CourseSerializer(serializers.ModelSerializer):
     instructor_name = serializers.SerializerMethodField()

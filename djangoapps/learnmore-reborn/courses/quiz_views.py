@@ -19,7 +19,8 @@ from .serializers import (
     EssayResponseSerializer, EssayGradingSerializer,
     QuizAttemptSerializer, QuizAttemptDetailSerializer,
     QuestionResponseSerializer, QuizPrerequisiteSerializer,
-    QuestionAnalyticsSerializer, QuizAnalyticsSerializer
+    QuestionAnalyticsSerializer, QuizAnalyticsSerializer,
+    TimeExtensionSerializer
 )
 
 class QuizPrerequisiteViewSet(viewsets.ModelViewSet):
@@ -187,10 +188,29 @@ class QuizViewSet(viewsets.ModelViewSet):
                     break
                     
             if not bypass:
-                return Response(
-                    {"detail": "You must complete all prerequisites before taking this quiz."},
-                    status=status.HTTP_403_FORBIDDEN
-                )
+                # Check if there are pending survey prerequisites
+                pending_surveys = quiz.get_pending_survey_prerequisites(user)
+                
+                if pending_surveys.exists():
+                    # Return specific information about pending surveys
+                    surveys = []
+                    for prereq in pending_surveys:
+                        survey_quiz = prereq.prerequisite_quiz
+                        surveys.append({
+                            "id": survey_quiz.id,
+                            "title": survey_quiz.title,
+                            "description": survey_quiz.description
+                        })
+                        
+                    return Response({
+                        "detail": "You must complete required survey(s) before taking this quiz.",
+                        "pending_surveys": surveys
+                    }, status=status.HTTP_403_FORBIDDEN)
+                else:
+                    return Response(
+                        {"detail": "You must complete all prerequisites before taking this quiz."},
+                        status=status.HTTP_403_FORBIDDEN
+                    )
             
         # Check if user has any in-progress attempts
         existing_attempt = QuizAttempt.objects.filter(
@@ -277,6 +297,7 @@ class QuizViewSet(viewsets.ModelViewSet):
                 "id": prereq.id,
                 "prerequisite_quiz_id": prereq.prerequisite_quiz.id,
                 "prerequisite_quiz_title": prereq.prerequisite_quiz.title,
+                "prerequisite_is_survey": prereq.prerequisite_quiz.is_survey,
                 "requires_passing": prereq.required_passing,
                 "is_satisfied": is_satisfied
             })
@@ -285,6 +306,69 @@ class QuizViewSet(viewsets.ModelViewSet):
             "has_prerequisites": True,
             "all_satisfied": all_satisfied,
             "prerequisites": prereq_status
+        })
+    
+    @action(detail=False, methods=['get'])
+    def pending_surveys(self, request):
+        """
+        Get all pending survey prerequisites for the current user across all quizzes.
+        
+        This is useful for displaying a list of surveys that the user should complete
+        before taking various quizzes in the course.
+        """
+        user = request.user
+        
+        # Get course filter if provided
+        course_id = request.query_params.get('course_id')
+        course_filter = Q(module__course_id=course_id) if course_id else Q()
+        
+        # Get all quizzes with pending survey prerequisites
+        pending_surveys = []
+        
+        # Get all quizzes the user has access to
+        if hasattr(user, 'profile') and user.profile.is_instructor:
+            quizzes = Quiz.objects.filter(course_filter)
+        else:
+            # For students, only get quizzes from enrolled courses that are published
+            enrolled_courses = user.enrollments.filter(status='active').values_list('course_id', flat=True)
+            quizzes = Quiz.objects.filter(
+                course_filter,
+                module__course__id__in=enrolled_courses,
+                is_published=True
+            )
+        
+        # For each quiz, check for pending survey prerequisites
+        for quiz in quizzes:
+            if quiz.has_survey_prerequisites():
+                pending = quiz.get_pending_survey_prerequisites(user)
+                
+                if pending.exists():
+                    for prereq in pending:
+                        # Skip if this survey is already in the list
+                        if prereq.prerequisite_quiz_id in [p['survey_id'] for p in pending_surveys]:
+                            continue
+                            
+                        # Add the pending survey with details
+                        survey_quiz = prereq.prerequisite_quiz
+                        
+                        # Get quizzes blocked by this survey
+                        blocked_quizzes = Quiz.objects.filter(
+                            prerequisites__prerequisite_quiz=survey_quiz
+                        ).values('id', 'title', 'module__title')
+                        
+                        pending_surveys.append({
+                            "survey_id": survey_quiz.id,
+                            "survey_title": survey_quiz.title,
+                            "survey_description": survey_quiz.description,
+                            "module_title": survey_quiz.module.title,
+                            "course_title": survey_quiz.module.course.title,
+                            "course_id": survey_quiz.module.course.id,
+                            "blocked_quizzes": list(blocked_quizzes)
+                        })
+        
+        return Response({
+            "pending_survey_count": len(pending_surveys),
+            "pending_surveys": pending_surveys
         })
     
     @action(detail=True, methods=['get'])
@@ -738,3 +822,92 @@ class QuizAttemptViewSet(viewsets.ModelViewSet):
             
         serializer = QuizAttemptDetailSerializer(attempt)
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['post'])
+    def annotate_response(self, request):
+        """
+        Add an instructor annotation to a question response.
+        
+        This allows instructors to provide additional feedback on any question response.
+        """
+        # Check if the user is an instructor
+        if not hasattr(request.user, 'profile') or not request.user.profile.is_instructor:
+            raise PermissionDenied("Only instructors can annotate responses")
+            
+        # Get request data
+        response_id = request.data.get('response_id')
+        annotation = request.data.get('annotation')
+        
+        if not response_id or not annotation:
+            return Response(
+                {"detail": "Both response_id and annotation are required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Get the response
+        try:
+            question_response = QuestionResponse.objects.get(id=response_id)
+        except QuestionResponse.DoesNotExist:
+            return Response(
+                {"detail": "Question response not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+            
+        # Check if the instructor has permission to annotate this response
+        # (must be the instructor of the course)
+        quiz = question_response.attempt.quiz
+        if quiz.module.course.instructor != request.user:
+            raise PermissionDenied("You can only annotate responses for your own courses")
+            
+        # Add the annotation
+        question_response.instructor_annotation = annotation
+        question_response.annotation_added_at = timezone.now()
+        question_response.annotated_by = request.user
+        question_response.save()
+        
+        serializer = QuestionResponseSerializer(question_response)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'])
+    def grant_extension(self, request, pk=None):
+        """
+        Grant a time extension for this quiz attempt.
+        Only instructors can grant extensions, and only for quizzes that allow extensions.
+        """
+        attempt = get_object_or_404(QuizAttempt, id=pk)
+        
+        # Check if the current user is an instructor
+        if not hasattr(request.user, 'profile') or not request.user.profile.is_instructor:
+            raise PermissionDenied("Only instructors can grant time extensions")
+            
+        # Check if this quiz allows extensions
+        if not attempt.quiz.allow_time_extension:
+            return Response(
+                {"detail": "This quiz does not allow time extensions"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Check if the attempt is still in progress
+        if attempt.status != 'in_progress':
+            return Response(
+                {"detail": "Cannot extend time for a completed attempt"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Validate the request data
+        serializer = TimeExtensionSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        # Apply the extension
+        extension_minutes = serializer.validated_data.get('extension_minutes')
+        reason = serializer.validated_data.get('reason')
+        
+        # Update the attempt
+        attempt.time_extension_minutes += extension_minutes
+        attempt.extended_by = request.user
+        attempt.extension_reason = reason
+        attempt.save()
+        
+        # Return the updated attempt
+        result_serializer = QuizAttemptDetailSerializer(attempt)
+        return Response(result_serializer.data)

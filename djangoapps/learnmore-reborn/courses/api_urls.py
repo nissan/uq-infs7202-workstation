@@ -38,6 +38,7 @@ urlpatterns = [
     path('quizzes/<int:pk>/check-prerequisites/', QuizViewSet.as_view({'get': 'check_prerequisites'}), name='quiz-check-prerequisites'),
     path('quizzes/<int:pk>/analytics/', QuizViewSet.as_view({'get': 'analytics'}), name='quiz-analytics'),
     path('quizzes/<int:pk>/recalculate-analytics/', QuizViewSet.as_view({'post': 'recalculate_analytics'}), name='quiz-recalculate-analytics'),
+    path('quizzes/pending-surveys/', QuizViewSet.as_view({'get': 'pending_surveys'}), name='quiz-pending-surveys'),
     
     # Quiz attempt custom endpoints
     path('quiz-attempts/<int:pk>/submit-response/', QuizAttemptViewSet.as_view({'post': 'submit_response'}), name='quiz-attempt-submit-response'),
@@ -45,6 +46,8 @@ urlpatterns = [
     path('quiz-attempts/<int:pk>/timeout/', QuizAttemptViewSet.as_view({'post': 'timeout'}), name='quiz-attempt-timeout'),
     path('quiz-attempts/<int:pk>/abandon/', QuizAttemptViewSet.as_view({'post': 'abandon'}), name='quiz-attempt-abandon'),
     path('quiz-attempts/<int:pk>/result/', QuizAttemptViewSet.as_view({'get': 'result'}), name='quiz-attempt-result'),
+    path('quiz-attempts/<int:pk>/grant-extension/', QuizAttemptViewSet.as_view({'post': 'grant_extension'}), name='quiz-attempt-grant-extension'),
+    path('quiz-attempts/annotate-response/', QuizAttemptViewSet.as_view({'post': 'annotate_response'}), name='quiz-attempt-annotate-response'),
     
     # Essay question endpoints
     path('essay-questions/<int:pk>/grade/', EssayQuestionViewSet.as_view({'post': 'grade'}), name='essay-question-grade'),
