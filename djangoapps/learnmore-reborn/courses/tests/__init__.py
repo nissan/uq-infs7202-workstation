@@ -8,3 +8,4 @@ from courses.serializer_tests import (
     QuizSerializerValidationTest,
     EnrollmentSerializerValidationTest
 )
+from courses.template_tests import TemplateViewTests
