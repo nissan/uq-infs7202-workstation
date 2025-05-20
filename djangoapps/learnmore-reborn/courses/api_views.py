@@ -8,10 +8,35 @@ from django.shortcuts import get_object_or_404
 from .models import Course, Enrollment
 from .serializers import CourseSerializer, CourseDetailSerializer, EnrollmentSerializer
 
+class IsInstructorOrReadOnly(permissions.BasePermission):
+    """
+    Custom permission to only allow instructors to create, update, or delete courses.
+    Regular users can only view courses they're enrolled in.
+    """
+    def has_permission(self, request, view):
+        # Read permissions are allowed to any authenticated user
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        
+        # Only instructors can create courses
+        if hasattr(request.user, 'profile'):
+            return request.user.profile.is_instructor
+        return False
+    
+    def has_object_permission(self, request, view, obj):
+        # Read permissions are allowed to any authenticated user
+        if request.method in permissions.SAFE_METHODS:
+            # Check if user is enrolled in the course or is the instructor
+            return (obj.instructor == request.user or
+                   Enrollment.objects.filter(user=request.user, course=obj).exists())
+        
+        # Only the course instructor can edit or delete
+        return obj.instructor == request.user
+
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsInstructorOrReadOnly]
     lookup_field = 'slug'
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['title', 'description']

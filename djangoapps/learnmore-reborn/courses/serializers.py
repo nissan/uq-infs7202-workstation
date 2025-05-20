@@ -12,7 +12,14 @@ class UserSerializer(serializers.ModelSerializer):
 class ModuleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Module
-        fields = ['id', 'title', 'description', 'order']
+        fields = ['id', 'course', 'title', 'description', 'order']
+        read_only_fields = ['id']
+
+class QuizSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Quiz
+        fields = ['id', 'module', 'title', 'description', 'is_survey']
+        read_only_fields = ['id']
 
 class CourseSerializer(serializers.ModelSerializer):
     instructor_name = serializers.SerializerMethodField()
@@ -59,9 +66,21 @@ class EnrollmentSerializer(serializers.ModelSerializer):
             'status', 'progress', 'enrolled_at', 'completed_at'
         ]
         read_only_fields = ['id', 'enrolled_at', 'completed_at']
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=Enrollment.objects.all(),
+                fields=['user', 'course'],
+                message="A user can only be enrolled once in a course."
+            )
+        ]
     
     def get_user_username(self, obj):
         return obj.user.username
     
     def get_course_title(self, obj):
         return obj.course.title
+        
+    def validate_progress(self, value):
+        if value < 0:
+            raise serializers.ValidationError("Progress cannot be negative.")
+        return value
