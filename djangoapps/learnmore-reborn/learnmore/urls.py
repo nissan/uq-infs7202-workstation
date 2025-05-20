@@ -17,9 +17,29 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
+from django.http import JsonResponse
+
+def root_view(request):
+    try:
+        from courses.models import Course
+        if Course.objects.exists():
+            return RedirectView.as_view(url='/api/courses/', permanent=False)(request)
+        return JsonResponse({
+            'message': 'Welcome to LearnMore API',
+            'status': 'No courses available yet',
+            'endpoints': {
+                'courses': '/api/courses/',
+                'admin': '/admin/',
+            }
+        })
+    except Exception as e:
+        return JsonResponse({
+            'error': str(e),
+            'message': 'An error occurred while accessing the root URL'
+        }, status=500)
 
 urlpatterns = [
-    path('', RedirectView.as_view(url='/api/courses/', permanent=False), name='root-redirect'),
+    path('', root_view, name='root'),
     path('admin/', admin.site.urls),
     path('api/courses/', include('courses.api_urls')),
     path('api/progress/', include('progress.api_urls')),
