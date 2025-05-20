@@ -1,16 +1,20 @@
 from django import template
-from django.template.defaultfilters import stringfilter
 
 register = template.Library()
 
 @register.filter
 def get_item(dictionary, key):
-    """Gets an item from a dictionary safely."""
+    """Get an item from a dictionary safely.
+    
+    Usage: {{ user_quiz_attempts|get_item:quiz.id }}
+    """
+    if not dictionary:
+        return None
     return dictionary.get(key)
 
 @register.filter
 def mul(value, arg):
-    """Multiplies the value by the argument."""
+    """Multiply the value by the argument."""
     try:
         return float(value) * float(arg)
     except (ValueError, TypeError):
@@ -18,7 +22,7 @@ def mul(value, arg):
 
 @register.filter
 def div(value, arg):
-    """Divides the value by the argument."""
+    """Divide the value by the argument."""
     try:
         return float(value) / float(arg)
     except (ValueError, TypeError, ZeroDivisionError):
@@ -26,32 +30,21 @@ def div(value, arg):
 
 @register.filter
 def mod(value, arg):
-    """Returns the remainder of dividing the value by the argument."""
+    """Return the modulo of value and argument."""
     try:
         return int(value) % int(arg)
     except (ValueError, TypeError, ZeroDivisionError):
         return None
 
 @register.filter
-def mapattr(objects, attr):
-    """Maps an attribute or method across all objects in a sequence."""
-    if not objects:
-        return []
-        
-    results = []
-    for obj in objects:
-        if hasattr(obj, attr):
-            attr_value = getattr(obj, attr)
-            if callable(attr_value):
-                results.append(attr_value())
-            else:
-                results.append(attr_value)
-    return results
+def mapattr(sequence, attr):
+    """Map an attribute across a sequence of objects."""
+    return [getattr(item, attr) for item in sequence]
 
 @register.filter
-def sum(values):
-    """Sums a list of values."""
+def sum_list(sequence):
+    """Sum a list of values."""
     try:
-        return sum(float(v or 0) for v in values)
+        return sum(sequence)
     except (ValueError, TypeError):
         return None

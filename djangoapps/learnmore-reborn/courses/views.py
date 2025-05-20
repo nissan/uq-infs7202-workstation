@@ -636,7 +636,7 @@ def abandon_quiz(request, attempt_id):
 @method_decorator(csrf_exempt, name='dispatch')
 class QuizResultView(LoginRequiredMixin, DetailView):
     model = QuizAttempt
-    template_name = 'courses/quiz-result.html'
+    template_name = 'courses/quiz-results.html'
     pk_url_kwarg = 'attempt_id'
     
     def get_context_data(self, **kwargs):
