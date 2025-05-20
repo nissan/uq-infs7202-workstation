@@ -30,6 +30,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the entire project directory
 COPY . .
 
+# Make entrypoint script executable
+RUN chmod +x /app/entrypoint.sh
+
 # Set proper permissions
 RUN chown -R appuser:appuser /app && \
     chmod -R 755 /app/staticfiles
@@ -37,5 +40,5 @@ RUN chown -R appuser:appuser /app && \
 # Switch to non-root user
 USER appuser
 
-# Default command (can be overridden by railway.toml startCommand)
-CMD ["gunicorn", "learnmore.wsgi:application", "--bind", "0.0.0.0:$PORT", "--workers", "2", "--threads", "8", "--timeout", "0"] 
+# Use CMD so it can be overridden by Railway
+CMD ["/app/entrypoint.sh"] 
