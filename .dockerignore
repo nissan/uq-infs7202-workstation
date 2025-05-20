@@ -1,6 +1,7 @@
 # Git
 .git
 .gitignore
+.gitattributes
 
 # Python
 __pycache__/
@@ -14,6 +15,21 @@ venv/
 .venv
 pip-log.txt
 pip-delete-this-directory.txt
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+bin/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Django
 *.log
@@ -22,16 +38,22 @@ db.sqlite3
 db.sqlite3-journal
 media/
 staticfiles/
+static/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+*.sublime-*
+.project
+.pydevproject
+.settings/
 
 # Docker
 Dockerfile
 .dockerignore
+docker-compose*.yml
 
 # Railway
 .railway/
@@ -42,9 +64,25 @@ railway.toml
 *.bak
 *.tmp
 *.temp
+*.log
+*.pid
+*.seed
+*.pid.lock
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Exclude everything except learnmore-reborn
 /*
 !/djangoapps
 /djangoapps/*
-!/djangoapps/learnmore-reborn 
+!/djangoapps/learnmore-reborn
+
+# Exclude other project directories
+/htdocs/
+/labs/
+/learnmoreapp/
+/nodejs/
+/uwsgi/
+/dotnet/
+/html/ 
