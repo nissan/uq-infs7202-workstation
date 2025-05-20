@@ -1,0 +1,50 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Railway
+.railway/
+railway.toml
+
+# Misc
+.DS_Store
+*.bak
+*.tmp
+*.temp
+
+# Exclude everything except learnmore-reborn
+/*
+!/djangoapps
+/djangoapps/*
+!/djangoapps/learnmore-reborn 
