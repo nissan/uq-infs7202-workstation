@@ -155,6 +155,7 @@ The project follows a typical Django architecture with apps for different functi
    - pytest is preferred as it uses special test settings with authentication bypass
    - Tests are organized into categories using pytest markers: api, template, integration, unit, slow
    - To run tests successfully, use pytest with the provided run_pytest.sh script or directly with python -m pytest
+   - Tests should follow the same pattern, and prefer Django's test runner over pytest for better compatibility and simpler test structure
 
 4. **Authentication System**:
    - JWT-based authentication using Simple JWT
