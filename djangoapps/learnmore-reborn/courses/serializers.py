@@ -171,7 +171,7 @@ class QuizDetailSerializer(QuizListSerializer):
                     ).data
                     questions.append(q)
                 elif question.question_type == 'true_false':
-                    questions.append(TrueFalseQuestionSerializer(question.truefalsquestion).data)
+                    questions.append(TrueFalseQuestionSerializer(question.truefalsequestion).data)
             
             return questions
             
@@ -198,6 +198,7 @@ class QuizDetailSerializer(QuizListSerializer):
 class QuestionResponseSerializer(serializers.ModelSerializer):
     question_text = serializers.CharField(source='question.text', read_only=True)
     question_type = serializers.CharField(source='question.question_type', read_only=True)
+    question = serializers.PrimaryKeyRelatedField(queryset=Question.objects.all())
     
     class Meta:
         model = QuestionResponse

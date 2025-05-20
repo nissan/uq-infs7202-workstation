@@ -404,7 +404,11 @@ class QuestionResponse(models.Model):
     def check_answer(self):
         """Check if the answer is correct and update fields"""
         if self.question.question_type == 'multiple_choice':
-            choices = self.response_data.get('selected_choices', [])
+            # Handle both single choice and multiple choices formats
+            if 'selected_choice' in self.response_data:
+                choices = [self.response_data.get('selected_choice')]
+            else:
+                choices = self.response_data.get('selected_choices', [])
             is_correct, points, feedback = self.question.multiplechoicequestion.check_answer(choices)
         elif self.question.question_type == 'true_false':
             answer = self.response_data.get('selected_answer')

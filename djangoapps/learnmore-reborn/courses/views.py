@@ -186,7 +186,7 @@ class CourseDetailView(DetailView):
 @method_decorator(csrf_exempt, name='dispatch')
 class ModuleDetailView(LoginRequiredMixin, DetailView):
     model = Module
-    template_name = 'courses/module_detail.html'
+    template_name = 'courses/module-detail.html'
     pk_url_kwarg = 'module_id'
     
     def get(self, request, *args, **kwargs):
@@ -227,6 +227,23 @@ class ModuleDetailView(LoginRequiredMixin, DetailView):
         ).exists()
         
         context['is_enrolled'] = is_enrolled
+        
+        # Get quizzes for this module
+        quizzes = module.quizzes.filter(is_published=True)
+        context['quizzes'] = quizzes
+        
+        # Get module progress if user is enrolled
+        if is_enrolled:
+            from progress.models import Progress, ModuleProgress
+            try:
+                progress = Progress.objects.get(user=self.request.user, course=module.course)
+                module_progress, created = ModuleProgress.objects.get_or_create(
+                    progress=progress,
+                    module=module
+                )
+                context['module_progress'] = module_progress
+            except Progress.DoesNotExist:
+                context['module_progress'] = None
         return context
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -500,7 +517,11 @@ def submit_answer(request, attempt_id, question_id):
         else:
             selected_choice = request.POST.get('choice')
             selected_choice = int(selected_choice) if selected_choice and selected_choice.isdigit() else None
-            response_data = {'selected_choice': selected_choice}
+            # Store both formats to maintain backward compatibility
+            response_data = {
+                'selected_choice': selected_choice,
+                'selected_choices': [selected_choice] if selected_choice else []
+            }
             
     elif question.question_type == 'true_false':
         selected_answer = request.POST.get('answer')
