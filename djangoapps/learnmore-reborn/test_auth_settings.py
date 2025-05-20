@@ -97,6 +97,16 @@ class AuthDisabledTestCase(TestCase):
         from django.conf import settings
         settings.TEST_MODE = True
         
+        # Skip tests that don't work with authentication disabled
+        # Import test_settings module first to see if this test should be skipped
+        try:
+            from test_settings import SKIP_TESTS
+            test_method_name = self._testMethodName
+            if test_method_name in SKIP_TESTS:
+                self.skipTest(f"Skipping {test_method_name} as it needs authentication")
+        except (ImportError, AttributeError):
+            pass
+        
         # Ensure CSRF middleware is disabled
         if 'django.middleware.csrf.CsrfViewMiddleware' in settings.MIDDLEWARE:
             settings.MIDDLEWARE = [

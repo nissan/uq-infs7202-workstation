@@ -26,6 +26,7 @@ class CourseSerializer(serializers.ModelSerializer):
     enrollment_count = serializers.SerializerMethodField()
     is_full = serializers.SerializerMethodField()
     is_active = serializers.SerializerMethodField()
+    enrolled = serializers.SerializerMethodField()
     
     class Meta:
         model = Course
@@ -33,7 +34,7 @@ class CourseSerializer(serializers.ModelSerializer):
             'id', 'title', 'slug', 'description', 'status',
             'enrollment_type', 'max_students', 'start_date', 'end_date',
             'instructor', 'instructor_name', 'created_at', 'updated_at',
-            'enrollment_count', 'is_full', 'is_active'
+            'enrollment_count', 'is_full', 'is_active', 'enrolled'
         ]
         read_only_fields = ['id', 'slug', 'created_at', 'updated_at']
     
@@ -48,6 +49,12 @@ class CourseSerializer(serializers.ModelSerializer):
     
     def get_is_active(self, obj):
         return obj.is_active
+        
+    def get_enrolled(self, obj):
+        request = self.context.get('request')
+        if request and hasattr(request, 'user') and request.user and getattr(request.user, 'is_authenticated', False):
+            return obj.enrollments.filter(user=request.user, status='active').exists()
+        return False
 
 class CourseDetailSerializer(CourseSerializer):
     modules = ModuleSerializer(many=True, read_only=True)

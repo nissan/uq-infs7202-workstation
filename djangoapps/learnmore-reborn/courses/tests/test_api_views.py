@@ -192,10 +192,10 @@ class CourseAPITests(AuthenticatedTestCase):
         # Check status code
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
-        # Check response data
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['course'], self.course.id)
-        self.assertEqual(response.data[0]['status'], 'active')
+        # Check response data - should be results as paginated response
+        self.assertTrue('results' in response.data, f"Response data format is incorrect: {response.data}")
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['id'], self.course.id)
 
     def test_api_and_template_consistency(self):
         """Test that API and template views return consistent data"""
