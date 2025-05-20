@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0216)https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&f_hash=D709FA4016D71B1291AB909C19A33CDD -->
+<!-- saved from url=(0246)https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&f_hash=D709FA4016D71B1291AB909C19A33CDD -->
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><script src="chrome-extension://dlcobpjiigpikoobohmabehhmhfoodbb/inpage.js" id="argent-x-extension" data-extension-id="dlcobpjiigpikoobohmabehhmhfoodbb"></script><input type="hidden" id="__yoroi_connector_api_injected_type" value="prod"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 
@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>INFS3202/7202 Lab 3: Django and Databases</title>
+<title>INFS3202/7202 Lecture 5: Simple Django Feedback Form</title>
 <style class="anchorjs"></style><style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -3097,7 +3097,7 @@ background: purple;
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">INFS3202/7202 Lab 3: Django and Databases</h1>
+      <h1 class="title">INFS3202/7202 Lecture 5: Simple Django Feedback Form</h1>
                       </div>
   </div>
     
@@ -3118,853 +3118,236 @@ background: purple;
 
 
 
-<p>In the previous lab, you learned how to:</p>
+<section id="simple-form-handling-in-django-with-bootstrap" class="level1">
+<h1>Simple Form Handling in Django (with Bootstrap)</h1>
+<p>In this section, we’ll create a <strong>Feedback form</strong> in Django using built-in form handling features and the Django ORM. We’ll also use <strong>Bootstrap</strong> to make the form look nice and clean.</p>
+<p>By the end, you’ll know how to:</p>
 <ul>
-<li>Set up a <strong>simple Django site</strong><br>
-</li>
-<li>Use <strong>base templates</strong> to share a common layout across multiple pages<br>
-</li>
-<li>Display <strong>dynamic content</strong> using <strong>templating</strong></li>
+<li>Define a form in Django</li>
+<li>Set up routes in <code>urls.py</code></li>
+<li>Create views to handle form display and submission</li>
+<li>Render a “Thank You” page after successful form submission</li>
+<li>Extend it so one view handles both the form and thank you logic</li>
 </ul>
-<p>Now, it’s time to <strong>take things to the next level</strong> by adding <strong>databases</strong> to the mix! 🎉</p>
+<p>Let’s get started!</p>
 <hr>
-<section id="why-use-a-database" class="level2">
-<h2 class="anchored" data-anchor-id="why-use-a-database">Why Use a Database?<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#why-use-a-database" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
-<p>Right now, our site <strong>displays static information</strong>—everything is <strong>hardcoded</strong> in our views. But in real-world web applications, we want multiple users to:</p>
-<ul>
-<li><strong>Store</strong> their resumes dynamically<br>
-</li>
-<li><strong>Edit and update</strong> their information easily<br>
-</li>
-<li><strong>Retrieve</strong> stored data whenever they need it</li>
-</ul>
-<p>A <strong>database</strong> allows us to do all of this! Instead of writing data manually in the code, Django will handle database integration for us and make our app <strong>more powerful</strong>! 🚀</p>
-<hr>
-</section>
-<section id="what-youll-learn-in-this-lab" class="level2">
-<h2 class="anchored" data-anchor-id="what-youll-learn-in-this-lab">What You’ll Learn in This Lab<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#what-youll-learn-in-this-lab" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
-<p>By the end of this lab, you’ll be able to:</p>
-<ul>
-<li><strong>Set up a database</strong> on your UQCloud Zone</li>
-<li><strong>Use Django’s ORM (Object-Relational Mapping)</strong> to model and interact with the database<br>
-</li>
-<li><strong>Retrieve and display stored data dynamically</strong> in your templates</li>
-</ul>
-<p>This is an exciting step in your Django journey! You’re now learning the <strong>foundations of full-stack web development</strong>—where data, logic, and presentation come together!</p>
-<p>Let’s dive in! 🎯</p>
+<section id="step-1-set-up-your-app-structure" class="level2">
+<h2 class="anchored" data-anchor-id="step-1-set-up-your-app-structure">Step 1: Set Up Your App Structure<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#step-1-set-up-your-app-structure" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
+<p>We’ll assume you have a Django project already set up, and you’ve created an app called <code>feedback</code>.</p>
+<p>If not, you can create one with:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb1-1"></a><span class="ex">python</span> manage.py startapp feedback</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Make sure to add <code>'feedback'</code> to your <code>INSTALLED_APPS</code> in <code>settings.py</code>.</p>
+<p>Also add the following to prevent CSRF errors in <code>settings.py</code>:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb2-1"></a><span class="ex">CSRF_TRUSTED_ORIGINS</span> = [</span>
+<span id="cb2-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb2-2"></a>    <span class="st">"https://infs3202-5b6bb6c1.uqcloud.net"</span><span class="ex">,</span></span>
+<span id="cb2-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb2-3"></a><span class="ex">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <hr>
 </section>
-<section id="what-is-a-relational-database" class="level2">
-<h2 class="anchored" data-anchor-id="what-is-a-relational-database">What is a Relational Database?<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#what-is-a-relational-database" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
-<p>A <strong>relational database</strong> provides a structured way to store data. Instead of hardcoding information in your Django views, a database allows you to:</p>
+<section id="step-2-create-a-feedback-form" class="level2">
+<h2 class="anchored" data-anchor-id="step-2-create-a-feedback-form">Step 2: Create a Feedback Form<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#step-2-create-a-feedback-form" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
+<p>Inside your <code>feedback</code> app, create a file called <code>forms.py</code> and define the form:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb3-1"></a><span class="co"># feedback/forms.py</span></span>
+<span id="cb3-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb3-2"></a><span class="im">from</span> django <span class="im">import</span> forms</span>
+<span id="cb3-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb3-3"></a></span>
+<span id="cb3-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb3-4"></a><span class="kw">class</span> FeedbackForm(forms.Form):</span>
+<span id="cb3-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb3-5"></a>    name <span class="op">=</span> forms.CharField(label<span class="op">=</span><span class="st">'Your Name'</span>, max_length<span class="op">=</span><span class="dv">100</span>)</span>
+<span id="cb3-6"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb3-6"></a>    email <span class="op">=</span> forms.EmailField(label<span class="op">=</span><span class="st">'Your Email'</span>)</span>
+<span id="cb3-7"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb3-7"></a>    message <span class="op">=</span> forms.CharField(label<span class="op">=</span><span class="st">'Your Message'</span>, widget<span class="op">=</span>forms.Textarea)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>References:</p>
 <ul>
-<li><strong>Store data</strong> in organized in tables<br>
-</li>
-<li><strong>Relate different tables of data</strong> to reduce duplication<br>
-</li>
-<li><strong>Add, update, and delete</strong> records in each table</li>
-<li><strong>Query specific data</strong> instead of loading everything at once</li>
-</ul>
-<section id="understanding-tables-columns-and-rows" class="level3">
-<h3 class="anchored" data-anchor-id="understanding-tables-columns-and-rows">Understanding Tables, Columns, and Rows<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#understanding-tables-columns-and-rows" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h3>
-<p>A database consists of <strong>tables</strong>, which store data in a structured way.</p>
-<p>Each table has:</p>
-<ul>
-<li><strong>Columns</strong> → Define the type of data stored (e.g., Name, Email, Date of Birth). Can also be referred to as a field.</li>
-<li><strong>Rows</strong> → Represent individual records in the table</li>
-</ul>
-<p>Here’s an example of a simple <strong>Users</strong> table:</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>id</th>
-<th>name</th>
-<th>email</th>
-<th>date_of_birth</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>1</td>
-<td>Alice</td>
-<td>alice@example.com</td>
-<td>1998-05-10</td>
-</tr>
-<tr class="even">
-<td>2</td>
-<td>Bob</td>
-<td>bob@example.com</td>
-<td>1995-09-22</td>
-</tr>
-<tr class="odd">
-<td>3</td>
-<td>Charlie</td>
-<td>charlie@example.com</td>
-<td>2000-01-15</td>
-</tr>
-</tbody>
-</table>
-<p>🔹 The <code>id</code> column is a <strong>unique identifier</strong> for each row (this is called a <strong>primary key</strong>).<br>
-🔹 Each row represents a different <strong>user</strong>.</p>
-</section>
-<section id="tables-can-be-related" class="level3">
-<h3 class="anchored" data-anchor-id="tables-can-be-related">Tables Can Be Related<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#tables-can-be-related" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h3>
-<p>Databases allow us to <strong>connect related data</strong> across multiple tables.</p>
-<p>For example, instead of storing <strong>resume information</strong> directly in the Users table (which would create a lot of duplicate data), we create a separate <strong>WorkExperience</strong> table:</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>id</th>
-<th>user_id</th>
-<th>job_title</th>
-<th>company</th>
-<th>year</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>1</td>
-<td>1</td>
-<td>Software Engineer</td>
-<td>TechCorp</td>
-<td>2022</td>
-</tr>
-<tr class="even">
-<td>2</td>
-<td>1</td>
-<td>Data Analyst</td>
-<td>DataX</td>
-<td>2021</td>
-</tr>
-<tr class="odd">
-<td>3</td>
-<td>2</td>
-<td>Web Developer</td>
-<td>WebWorks</td>
-<td>2020</td>
-</tr>
-</tbody>
-</table>
-<p>🔹 The <code>user_id</code> column links each entry to a <strong>specific user</strong> from the Users table.<br>
-🔹 This is called a <strong>relationship</strong> between tables.<br>
-🔹 Instead of repeating user information in the Resumes table, we store it once in <strong>Users</strong> and link the resume data!</p>
-<p>By structuring our database this way, we <strong>reduce redundancy</strong> and <strong>keep our data clean</strong>—this process is called <strong>normalization</strong>.</p>
-<p><strong>🔥 Benefits of Normalization:</strong></p>
-<ul>
-<li><strong>Less duplication</strong> → No need to repeat user details in every table.<br>
-</li>
-<li><strong>Easier updates</strong> → Change user details in one place, and it applies everywhere.<br>
-</li>
-<li><strong>Faster queries</strong> → Retrieve only the data you need without unnecessary repetition.</li>
-</ul>
-</section>
-</section>
-<section id="understanding-django-models" class="level2">
-<h2 class="anchored" data-anchor-id="understanding-django-models">Understanding Django Models<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#understanding-django-models" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
-<p>Django provides models, which allow us to define database tables using Python code. Instead of manually creating tables, Django will:</p>
-<ul>
-<li>Let us define tables via Python classes</li>
-<li>Automatically generate and manage the database structure</li>
-<li>Provide a built-in way to query and manipulate data</li>
-</ul>
-<p>When you define a Django model, you’re essentially creating a Python class where each attribute represents a database field. Here’s a simple example:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb1-1"></a><span class="im">from</span> django.db <span class="im">import</span> models</span>
-<span id="cb1-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb1-2"></a></span>
-<span id="cb1-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb1-3"></a><span class="kw">class</span> Book(models.Model):</span>
-<span id="cb1-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb1-4"></a>    title <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">200</span>)</span>
-<span id="cb1-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb1-5"></a>    author <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">100</span>)</span>
-<span id="cb1-6"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb1-6"></a>    published_date <span class="op">=</span> models.DateField()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Django translates this Python class (<code>Book</code>) into a database table. Specifically:</p>
-<ul>
-<li><strong>Class Name</strong>: The class name becomes the table name by default (<code>appname_book</code>).</li>
-<li><strong>Properties</strong>: Class attributes (e.g., <code>title</code>, <code>author</code>, <code>published_date</code>) become fields in the database table.</li>
-<li><strong>Field Types</strong>: Django’s model field types (<code>CharField</code>, <code>DateField</code>, etc.) correspond to appropriate database field types. For instance, a <code>CharField</code> becomes a <code>VARCHAR</code>, and a <code>DateField</code> becomes a <code>DATE</code>.</li>
-</ul>
-<p>When you run migrations (<code>python manage.py makemigrations</code> and <code>python manage.py migrate</code>), Django generates SQL statements to create or update tables in your database according to your models. This means you don’t have to write raw SQL, and Django ensures your database schema stays consistent with your models.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>In Django, model names should be singular because each model represents a single instance of an object (e.g., <code>Book</code>, not <code>Books</code>). Django automatically generates pluralized names (e.g., <code>Books</code>) for collections in the admin interface and database tables. Using plural names (<code>Books</code>) would lead to awkward redundancy, like <code>Books.objects.all()</code>, making the code less intuitive and readable.</p>
-</div>
-</div>
-<p>🎉 <strong>Benefits</strong>:</p>
-<ul>
-<li><strong>Efficiency</strong>: Quickly create and modify database structures using Python.</li>
-<li><strong>Consistency</strong>: Ensures your database tables match your model definitions.</li>
-<li><strong>Ease of Use</strong>: Built-in methods for data manipulation (<code>Book.objects.create(...)</code>, <code>Book.objects.filter(...)</code>, etc.)</li>
+<li>https://docs.djangoproject.com/en/5.1/topics/forms/</li>
+<li>https://docs.djangoproject.com/en/5.1/ref/forms/fields/</li>
 </ul>
 <hr>
 </section>
-<section id="creating-a-mysql-database-on-your-uqcloud-zone" class="level2">
-<h2 class="anchored" data-anchor-id="creating-a-mysql-database-on-your-uqcloud-zone">🏗️ Creating a MySQL Database on your UQCloud Zone<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#creating-a-mysql-database-on-your-uqcloud-zone" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
-<p>In the lecture, you will be introduced to <strong>SQLite</strong>, which is Django’s default database for local development.</p>
-<p>In this lab, you’ll learn how to:</p>
-<ul>
-<li>Create a <strong>MySQL database</strong> on your UQCloud Zone<br>
-</li>
-<li>Configure <strong>Django</strong> to use the MySQL database<br>
-</li>
-<li><strong>Run migrations</strong> to set up Django’s default tables<br>
-</li>
-<li>View the database in <strong>phpMyAdmin</strong></li>
-</ul>
-<p>Let’s get started! 🚀</p>
-<p><strong>Step 1: Enable the MySQL Database on your UQCloud Zone</strong></p>
-<p>First, log into your UQCloud Zone via SSH:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb2-1"></a><span class="fu">ssh</span> studentusername@yourid.zones.eait.uq.edu.au</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Install the following package:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb3-1"></a><span class="fu">sudo</span> apt install libmysqlclient-dev <span class="at">-y</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>If you have not enabled the MySQL service, you can do so by running:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb4-1"></a><span class="fu">sudo</span> webprojctl enable mysql</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Enable PHP - it is needed to run PHPMyAdmin which provides a Graphical User Interface via the Browser for MySQL.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb5-1"></a><span class="fu">sudo</span> webprojctl enable php</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>You have enabled a number of services on your UQCloud Zone. Ever wondered what <code>sudo</code> does?</p>
-<p>The <code>sudo</code> command in Linux allows authorized users to execute commands with elevated privileges, typically as the superuser (root). When a user precedes a command with <code>sudo</code>, the system prompts for the user’s password and, if authenticated, temporarily grants them superuser permissions for that specific command. This helps maintain system security by providing a controlled and auditable way for trusted users to perform administrative tasks without needing to log in as the root user directly. By limiting access to the root account and granting temporary privileges only when necessary, <code>sudo</code> reduces the risk of accidental or malicious system-wide changes and enables better tracking of administrative actions through logs.</p>
-</div>
-</div>
-<p>Once connected, you need to obtain the database password assigned to your account or project. Use the following command to retrieve your MySQL database password:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb6-1"></a><span class="fu">sudo</span> mdata-get mysql_pw</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Make a note of the password displayed; you will need it to access the MySQL database and enter into the Django <code>settings.py</code> file.</p>
-<p><strong>Step 2: Create a MYSQL Database</strong></p>
-<p>To interact with MySQL, you must log in to the MySQL command-line interface. Use the following command, where <code>-u</code> is root. When prompted, enter the password you acquired in the previous step:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb7-1"></a><span class="ex">mysql</span> <span class="at">-u</span> root <span class="at">-p</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>After entering the correct password, you’ll be taken to the MySQL prompt, indicated by <code>mysql&gt;</code>.</p>
-<p>At the MySQL prompt, you can create a new database for your project with the following command. Replace <code>database_name</code> with the name you choose for your database, such as <code>resumebuilder_db</code> for our project:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource sql number-lines code-with-copy"><code class="sourceCode sql"><span id="cb8-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb8-1"></a><span class="kw">CREATE</span> <span class="kw">DATABASE</span> resumebuilder_db;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>After creating your database, you can exit the MySQL command-line interface by typing:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource sql number-lines code-with-copy"><code class="sourceCode sql"><span id="cb9-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb9-1"></a>exit;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>You’ve successfully created a database on your UQCloud Zone.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Using the MySQL command-line interface you can also run any SQL statement. Another way to create the database is via PHPMyAdmin, which can be accessed on your UQCloud via <a href="https://youruqcloudzoneurl/phpmyadmin">https://yourUQCLoudZoneURL/phpmyadmin</a>.</p>
-</div>
-</div>
-<p>Remember, for the actual table creation and schema definition, we will not use SQL directly. Instead, we’ll leverage Django Object Relational Modeling (ORM) and migrations to manage our database schema in a more controlled and versioned manner, which we will cover in upcoming sections of this Lab.</p>
-</section>
-<section id="adding-a-database-to-your-django-app" class="level2">
-<h2 class="anchored" data-anchor-id="adding-a-database-to-your-django-app">Adding a Database to your Django App<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#adding-a-database-to-your-django-app" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
-<p><strong>Step 1: Add Database Access Details to Django</strong></p>
-<p>Now, update <strong>Django’s database settings</strong>.</p>
-<p>1️⃣ Open your <strong><code>resumebuilder/settings.py</code></strong> file in VSCode.<br>
-2️⃣ Locate the <code>DATABASES</code> dictionary and replace it with the following:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-1"></a>DATABASES <span class="op">=</span> {</span>
-<span id="cb10-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-2"></a>    <span class="st">'default'</span>: {</span>
-<span id="cb10-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-3"></a>        <span class="st">'ENGINE'</span>: <span class="st">'django.db.backends.mysql'</span>,</span>
-<span id="cb10-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-4"></a>        <span class="st">'NAME'</span>: <span class="st">'resumebuilder_db'</span>,</span>
-<span id="cb10-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-5"></a>        <span class="st">'USER'</span>: <span class="st">'root'</span>,</span>
-<span id="cb10-6"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-6"></a>        <span class="st">'PASSWORD'</span>: <span class="st">'yourmysqlpassword'</span>,</span>
-<span id="cb10-7"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-7"></a>        <span class="st">'HOST'</span>: <span class="st">'localhost'</span>,</span>
-<span id="cb10-8"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-8"></a>        <span class="st">'PORT'</span>: <span class="st">'3306'</span>,</span>
-<span id="cb10-9"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-9"></a>    }</span>
-<span id="cb10-10"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-10"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>🔹 <strong>Replace</strong> <code>'yourpassword'</code> with your actual <strong>MySQL password</strong> obtained from <code>sudo mdata-get mysql_pw</code>.</p>
-<hr>
-<p><strong>Step 2: Run Database Migrations</strong></p>
-<p>Django uses <strong>migrations</strong> to create and manage database tables. Even though we have not yet created any of out own <code>Models</code> yet, Django ships with a default database structure. Before we create our own <code>Models</code>, lets first get Django to make these tables in our database.</p>
-<p>First, activate your virtual environment or if you used Screen in the previous Lab:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb11-1"></a><span class="ex">screen</span> <span class="at">-r</span> resumebuilder</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Press Ctrl+C to shut down the Django webserver.</p>
-<p>Install the MySQL Client for Python.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb12-1"></a><span class="ex">pip</span> install mysqlclient</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Then, run the <strong>initial migrations</strong> to create Django’s default tables:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb13-1"></a><span class="ex">python3.12</span> manage.py migrate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Important
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>In an earlier version of Lab 2, <code>python3.14</code> was used. This was subsequently updated to use <code>python3.12</code> as <code>python3.14</code> is not yet fully supported by Django 5. Some of the Django default Admin panel, which will be covered in future Lecture does not work with <code>python3.14</code> yet.</p>
-<p>You can easily revert to <code>python3.12</code> by deleting the virtual environment folder, recreating it using the Lab 2 instructions and re-installing Django.</p>
-</div>
-</div>
-<p>🎉 If successful, you should see output similar to:</p>
-<pre><code>Operations to perform:
-  Apply all migrations: admin, auth, contenttypes, sessions
-Running migrations:
-  Applying contenttypes.0001_initial... OK
-  Applying auth.0001_initial... OK
-  Applying admin.0001_initial... OK
-  Applying admin.0002_logentry_remove_auto_add... OK
-  Applying admin.0003_logentry_add_action_flag_choices... OK
-  Applying contenttypes.0002_remove_content_type_name... OK
-  Applying auth.0002_alter_permission_name_max_length... OK
-  Applying auth.0003_alter_user_email_max_length... OK
-  Applying auth.0004_alter_user_username_opts... OK
-  Applying auth.0005_alter_user_last_login_null... OK
-  Applying auth.0006_require_contenttypes_0002... OK
-  Applying auth.0007_alter_validators_add_error_messages... OK
-  Applying auth.0008_alter_user_username_max_length... OK
-  Applying auth.0009_alter_user_last_name_max_length... OK
-  Applying auth.0010_alter_group_name_max_length... OK
-  Applying auth.0011_update_proxy_permissions... OK
-  Applying auth.0012_alter_user_first_name_max_length... OK
-  Applying sessions.0001_initial... OK</code></pre>
-<p><strong>Step 5: View Your Database in phpMyAdmin</strong></p>
-<p>To visually inspect the database, open <strong>phpMyAdmin</strong> in your browser: https://YourZoneURL/phpmyadmin</p>
-<p>Select the <strong><code>resumebuilder_db</code></strong> database from the left panel.</p>
-<p>You should see <strong>Django’s default tables</strong>, such as:<br>
-- <code>auth_user</code> (stores user accounts)<br>
-- <code>django_migrations</code> (tracks applied migrations)<br>
-- <code>django_content_type</code> (used by Django’s ORM)</p>
-<p>🎉 <strong>Congratulations! Your Django project is now connected to a MySQL Database!</strong> 🚀</p>
+<section id="step-3-define-url-paths" class="level2">
+<h2 class="anchored" data-anchor-id="step-3-define-url-paths">Step 3: Define URL Paths<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#step-3-define-url-paths" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
+<p>Let’s create two routes: one for the form and one for the thank you page.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb4-1"></a><span class="co"># feedback/urls.py</span></span>
+<span id="cb4-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb4-2"></a><span class="im">from</span> django.urls <span class="im">import</span> path</span>
+<span id="cb4-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb4-3"></a><span class="im">from</span> . <span class="im">import</span> views</span>
+<span id="cb4-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb4-4"></a></span>
+<span id="cb4-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb4-5"></a>urlpatterns <span class="op">=</span> [</span>
+<span id="cb4-6"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb4-6"></a>    path(<span class="st">'feedback/'</span>, views.feedback_view, name<span class="op">=</span><span class="st">'feedback'</span>),</span>
+<span id="cb4-7"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb4-7"></a>    path(<span class="st">'thank-you/'</span>, views.thank_you_view, name<span class="op">=</span><span class="st">'thank_you'</span>),</span>
+<span id="cb4-8"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb4-8"></a>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Also, make sure your project-level <code>urls.py</code> includes the <code>feedback</code> app:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb5-1"></a><span class="co"># project/urls.py</span></span>
+<span id="cb5-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb5-2"></a><span class="im">from</span> django.contrib <span class="im">import</span> admin</span>
+<span id="cb5-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb5-3"></a><span class="im">from</span> django.urls <span class="im">import</span> path, include</span>
+<span id="cb5-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb5-4"></a></span>
+<span id="cb5-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb5-5"></a>urlpatterns <span class="op">=</span> [</span>
+<span id="cb5-6"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb5-6"></a>    path(<span class="st">'bookstore/admin/'</span>, admin.site.urls),</span>
+<span id="cb5-7"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb5-7"></a>    path(<span class="st">'bookstore/'</span>, include(<span class="st">'feedback.urls'</span>)),</span>
+<span id="cb5-8"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb5-8"></a>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <hr>
 </section>
-<section id="creating-models-tables-in-django" class="level2">
-<h2 class="anchored" data-anchor-id="creating-models-tables-in-django">🏗️ Creating Models (Tables) in Django<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#creating-models-tables-in-django" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
-<p>Now that our database is set up, it’s time to create <strong>our own tables</strong> to store data for the Resume Builder app! 🚀</p>
-<p>Django makes this easy by using an <strong>Object-Relational Mapper (ORM)</strong>, which allows us to define <strong>database tables as Python classes</strong>, which are known as <code>models</code>. Django then automatically creates the corresponding SQL tables for us! 🎉</p>
-<p>An <strong>Object-Relational Mapper (ORM)</strong> provides a way to interact with a database using object-oriented <strong>Python code</strong> instead of raw SQL queries.</p>
-<p><strong>🔥 Benefits of Using Django’s ORM:</strong></p>
-<ul>
-<li><strong>No need to write SQL</strong> – Define Python classes which get automatically converted to database tables.<br>
-</li>
-<li><strong>Easy to update</strong> – Modify models (e.g.&nbsp;add new attributes) and Django <strong>handles the database changes</strong>.<br>
-</li>
-<li><strong>Works across different databases</strong> – You can switch from SQLite to MySQL to PostgreSQL without rewriting queries.</li>
-</ul>
-<p><strong>Step 1: Create the <code>Qualification</code> Model</strong></p>
-<p>We will create a <code>Qualification</code> model to store a user’s <strong>education details</strong>.</p>
-<p>Open <code>resumeapp/models.py</code> and <strong>add the following code</strong>:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-1"></a><span class="im">from</span> django.db <span class="im">import</span> models</span>
-<span id="cb15-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-2"></a></span>
-<span id="cb15-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-3"></a><span class="kw">class</span> Qualification(models.Model):</span>
-<span id="cb15-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-4"></a>    title <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">200</span>)</span>
-<span id="cb15-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-5"></a>    university <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">200</span>)</span>
-<span id="cb15-6"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-6"></a>    date_completed <span class="op">=</span> models.DateField()</span>
-<span id="cb15-7"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-7"></a>    </span>
-<span id="cb15-8"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-8"></a>    <span class="kw">def</span> <span class="fu">__str__</span>(<span class="va">self</span>):</span>
-<span id="cb15-9"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-9"></a>        <span class="cf">return</span> <span class="ss">f"</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>title<span class="sc">}</span><span class="ss"> from </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>university<span class="sc">}</span><span class="ss">"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><strong>🔹 Understanding the Fields:</strong> ✅ <code>title</code> → Stores the <strong>degree name</strong> (e.g., “Bachelor of IT”).<br>
-✅ <code>university</code> → Stores the <strong>institution name</strong> (e.g., “University of Queensland”).<br>
-✅ <code>date_completed</code> → Stores the <strong>completion date</strong> (YYYY-MM-DD format).</p>
-<p>💡 The <code>__str__</code> method** defines how Django should display the model when viewed in the admin panel or shell.</p>
-<p><strong>Step 2: Create and Apply Migrations</strong></p>
-<p>Django needs to convert this Python model into an actual <strong>database table</strong>. We do this using <strong>migrations</strong>.</p>
-<p>Run the <code>makemigrations</code> command:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb16-1"></a><span class="ex">python3.12</span> manage.py makemigrations</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The following will be displayed:</p>
-<pre><code>Migrations for 'resumeapp':
-  resumeapp/migrations/0001_initial.py
-    + Create model Qualification</code></pre>
-<p>This will create a migration file inside the <code>migrations/</code> folder. Review the created file in VSCode Online. The migration file will look something like this:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-1"></a><span class="co"># Generated by Django</span></span>
-<span id="cb18-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-2"></a><span class="im">from</span> django.db <span class="im">import</span> migrations, models</span>
-<span id="cb18-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-3"></a></span>
-<span id="cb18-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-4"></a></span>
-<span id="cb18-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-5"></a><span class="kw">class</span> Migration(migrations.Migration):</span>
-<span id="cb18-6"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-6"></a></span>
-<span id="cb18-7"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-7"></a>    initial <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb18-8"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-8"></a></span>
-<span id="cb18-9"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-9"></a>    dependencies <span class="op">=</span> [</span>
-<span id="cb18-10"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-10"></a>    ]</span>
-<span id="cb18-11"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-11"></a></span>
-<span id="cb18-12"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-12"></a>    operations <span class="op">=</span> [</span>
-<span id="cb18-13"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-13"></a>        migrations.CreateModel(</span>
-<span id="cb18-14"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-14"></a>            name<span class="op">=</span><span class="st">'Qualification'</span>,</span>
-<span id="cb18-15"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-15"></a>            fields<span class="op">=</span>[</span>
-<span id="cb18-16"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-16"></a>                (<span class="st">'id'</span>, models.BigAutoField(auto_created<span class="op">=</span><span class="va">True</span>, primary_key<span class="op">=</span><span class="va">True</span>, serialize<span class="op">=</span><span class="va">False</span>, verbose_name<span class="op">=</span><span class="st">'ID'</span>)),</span>
-<span id="cb18-17"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-17"></a>                (<span class="st">'title'</span>, models.CharField(max_length<span class="op">=</span><span class="dv">200</span>)),</span>
-<span id="cb18-18"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-18"></a>                (<span class="st">'university'</span>, models.CharField(max_length<span class="op">=</span><span class="dv">200</span>)),</span>
-<span id="cb18-19"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-19"></a>                (<span class="st">'date_completed'</span>, models.DateField()),</span>
-<span id="cb18-20"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-20"></a>            ],</span>
-<span id="cb18-21"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-21"></a>        ),</span>
-<span id="cb18-22"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb18-22"></a>    ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>🔹 What’s Happening Here?</p>
-<ul>
-<li>Django <strong>automatically creates the migration file</strong> needed to generate the <code>Qualification</code> table.<br>
-</li>
-<li>It includes an <strong>auto-generated ID field</strong> (primary key). Note that we did not need to include this as an attribute in our model class.</li>
-<li>Migrations will track <strong>model changes over time</strong>.</li>
-</ul>
-<p>Apply the migration to the database:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb19-1"></a><span class="ex">python3.12</span> manage.py migrate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The following output will be displayed:</p>
-<pre><code>Operations to perform:
-  Apply all migrations: admin, auth, contenttypes, resumeapp, sessions
-Running migrations:
-  Applying resumeapp.0001_initial... OK</code></pre>
-<p>Check that the <strong>Qualification</strong> table has been created in your MySQL database! You can do this by checking https://YourZoneURL/phpmyadmin.</p>
-<p>🎉 <strong>You should see an empty table with columns for <code>title</code>, <code>university</code>, and <code>date_completed</code></strong></p>
-</section>
-<section id="creating-relationships-in-django-models" class="level2">
-<h2 class="anchored" data-anchor-id="creating-relationships-in-django-models">🔗 Creating Relationships in Django Models<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#creating-relationships-in-django-models" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
-<p>So far, we’ve created a <code>Qualification</code> model to store a user’s education details. But real-world applications need to <strong>connect related data</strong>!</p>
-<p>In this section, you’ll:</p>
-<ul>
-<li>Create a <strong>UserDetail</strong> model and relate it to <code>Qualification</code> (<strong>One-to-Many Relationship</strong>).<br>
-</li>
-<li>Add a <strong>WorkExperience</strong> model to store job history and relate it to <strong>UserDetail</strong></li>
-<li>Understand how relationships work in Django’s ORM.</li>
-</ul>
-<p>We will be building <strong>One-to-Many</strong> relationships. This allows:</p>
-<ul>
-<li><strong>One user</strong> to have <strong>many qualifications</strong>.<br>
-</li>
-<li><strong>One user</strong> to have <strong>many work experiences</strong>.</li>
-</ul>
-<p>This helps us <strong>avoid data duplication</strong> and keeps our database organized. Instead of storing the same user information in multiple places, we store it once and <strong>link related records</strong> using foreign keys.</p>
-<p><strong>Step 1: Create the <code>UserDetail</code> Model</strong></p>
-<p>This model will store <strong>basic information about a user</strong> (e.g., Firstname, Surname, email, mobile no, bio).</p>
-<p>Open <code>resumeapp/models.py</code> and add the following:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb21-1"></a><span class="im">from</span> django.contrib.auth.models <span class="im">import</span> User</span>
-<span id="cb21-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb21-2"></a><span class="im">from</span> django.db <span class="im">import</span> models</span>
-<span id="cb21-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb21-3"></a></span>
-<span id="cb21-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb21-4"></a><span class="kw">class</span> UserDetail(models.Model):</span>
-<span id="cb21-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb21-5"></a>    user <span class="op">=</span> models.OneToOneField(User, on_delete<span class="op">=</span>models.CASCADE)  <span class="co"># Link to Django's built-in User model</span></span>
-<span id="cb21-6"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb21-6"></a>    firstname <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">100</span>)</span>
-<span id="cb21-7"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb21-7"></a>    surname <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">100</span>)</span>
-<span id="cb21-8"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb21-8"></a>    mobileno <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">15</span>, blank<span class="op">=</span><span class="va">True</span>, null<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb21-9"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb21-9"></a></span>
-<span id="cb21-10"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb21-10"></a>    <span class="kw">def</span> <span class="fu">__str__</span>(<span class="va">self</span>):</span>
-<span id="cb21-11"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb21-11"></a>        <span class="cf">return</span> <span class="ss">f"Details for </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>user<span class="sc">.</span>username<span class="sc">}</span><span class="ss">"</span></span>
-<span id="cb21-12"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb21-12"></a></span>
-<span id="cb21-13"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb21-13"></a><span class="kw">class</span> Qualification(models.Model):</span>
-<span id="cb21-14"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb21-14"></a>    title <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">200</span>)</span>
-<span id="cb21-15"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb21-15"></a>    university <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">200</span>)</span>
-<span id="cb21-16"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb21-16"></a>    date_completed <span class="op">=</span> models.DateField()</span>
-<span id="cb21-17"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb21-17"></a>    created_at <span class="op">=</span> models.DateTimeField(auto_now_add<span class="op">=</span><span class="va">True</span>, null<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb21-18"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb21-18"></a>    </span>
-<span id="cb21-19"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb21-19"></a>    <span class="kw">def</span> <span class="fu">__str__</span>(<span class="va">self</span>):</span>
-<span id="cb21-20"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb21-20"></a>        <span class="cf">return</span> <span class="ss">f"</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>title<span class="sc">}</span><span class="ss"> from </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>university<span class="sc">}</span><span class="ss">"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>🔹 What’s Happening Here?</p>
-<ul>
-<li><code>user = models.OneToOneField(User, on_delete=models.CASCADE)</code> → Relates to Django’s built-in <strong>User model</strong> (which handles login details e.g username).<br>
-</li>
-<li><strong>One-to-One Relationship</strong> → Each <code>UserDetails</code> record is linked to <strong>one</strong> <code>User</code>.<br>
-</li>
-<li><code>firstname</code>, <code>surname</code> and <code>mobileno</code> fields store <strong>optional user details</strong>.</li>
-</ul>
-<p><strong>Step 2: Relate <code>Qualification</code> and <code>UserDetail</code></strong></p>
-<p>Now, update <code>Qualification</code> to relate it to <code>UserDetail</code>:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb22-1"></a><span class="kw">class</span> Qualification(models.Model):</span>
-<span id="cb22-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb22-2"></a>    user <span class="op">=</span> models.ForeignKey(UserDetail, on_delete<span class="op">=</span>models.CASCADE)  <span class="co"># One user can have many qualifications</span></span>
-<span id="cb22-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb22-3"></a>    title <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">200</span>)</span>
-<span id="cb22-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb22-4"></a>    university <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">200</span>)</span>
-<span id="cb22-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb22-5"></a>    date_completed <span class="op">=</span> models.DateField()</span>
-<span id="cb22-6"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb22-6"></a></span>
-<span id="cb22-7"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb22-7"></a>    <span class="kw">def</span> <span class="fu">__str__</span>(<span class="va">self</span>):</span>
-<span id="cb22-8"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb22-8"></a>        <span class="cf">return</span> <span class="ss">f"</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>title<span class="sc">}</span><span class="ss"> from </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>university<span class="sc">}</span><span class="ss"> (User: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>user<span class="sc">.</span>user<span class="sc">.</span>username<span class="sc">}</span><span class="ss">)"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>🔹 What’s New?</p>
-<ul>
-<li><code>user = models.ForeignKey(UserDetail, on_delete=models.CASCADE)</code> → Links each qualification to <strong>one user</strong>.<br>
-</li>
-<li><strong>One-to-Many Relationship</strong> → A single user can have <strong>multiple</strong> qualifications.<br>
-</li>
-<li><strong><code>on_delete=models.CASCADE</code></strong> means that if a user is deleted, all their qualifications will be deleted too!</li>
-</ul>
-<p><strong>Step 3: Create a <code>WorkExperience</code> Model</strong></p>
-<p>We’ll now create a <strong>WorkExperience</strong> model to store a user’s job history.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb23-1"></a><span class="kw">class</span> WorkExperience(models.Model):</span>
-<span id="cb23-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb23-2"></a>    user <span class="op">=</span> models.ForeignKey(UserDetail, on_delete<span class="op">=</span>models.CASCADE)  <span class="co"># One user can have many jobs</span></span>
-<span id="cb23-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb23-3"></a>    job_title <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">200</span>)</span>
-<span id="cb23-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb23-4"></a>    company <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">200</span>)</span>
-<span id="cb23-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb23-5"></a>    start_date <span class="op">=</span> models.DateField()</span>
-<span id="cb23-6"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb23-6"></a>    end_date <span class="op">=</span> models.DateField(blank<span class="op">=</span><span class="va">True</span>, null<span class="op">=</span><span class="va">True</span>)  <span class="co"># Can be blank for current jobs</span></span>
-<span id="cb23-7"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb23-7"></a>    description <span class="op">=</span> models.TextField(blank<span class="op">=</span><span class="va">True</span>, null<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb23-8"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb23-8"></a></span>
-<span id="cb23-9"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb23-9"></a>    <span class="kw">def</span> <span class="fu">__str__</span>(<span class="va">self</span>):</span>
-<span id="cb23-10"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb23-10"></a>        <span class="cf">return</span> <span class="ss">f"</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>job_title<span class="sc">}</span><span class="ss"> at </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>company<span class="sc">}</span><span class="ss"> (User: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>user<span class="sc">.</span>user<span class="sc">.</span>username<span class="sc">}</span><span class="ss">)"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>🔹 Breaking It Down:</p>
-<ul>
-<li><code>user = models.ForeignKey(UserDetail, on_delete=models.CASCADE)</code> → Links each work experience to <strong>one user</strong>.<br>
-</li>
-<li><strong>One-to-Many Relationship</strong> → A user can have <strong>multiple</strong> job experiences.<br>
-</li>
-<li><code>end_date</code> can be blank, allowing for <strong>current job positions</strong>.</li>
-</ul>
-<p><strong>Step 4: Create and Apply Migrations</strong></p>
-<p>Since we added <strong>new models</strong> and <strong>relationships</strong>, we need to generate and apply migrations.</p>
-<p>Generate migration files:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb24-1"></a><span class="ex">python3.12</span> manage.py makemigrations</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>You will see the following:</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb25-1"></a><span class="ex">It</span> is impossible to add a non-nullable field <span class="st">'user'</span> to qualification without specifying a default. This is because the database needs something to populate existing rows.</span>
-<span id="cb25-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb25-2"></a><span class="ex">Please</span> select a fix:</span>
-<span id="cb25-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb25-3"></a> <span class="ex">1</span><span class="er">)</span> <span class="ex">Provide</span> a one-off default now <span class="er">(</span><span class="ex">will</span> be set on all existing rows with a null value for this column<span class="kw">)</span></span>
-<span id="cb25-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb25-4"></a> <span class="ex">2</span><span class="er">)</span> <span class="ex">Quit</span> and manually define a default value in models.py.</span>
-<span id="cb25-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb25-5"></a><span class="ex">Select</span> an option: </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>This has occurred because we added a field to the <code>Qualification</code> model. Django does not know that we don’t have any rows of data in the existing table yet. Enter 1 to provide a one-off default value. Then enter 1.</p>
-<p>You will then see the following output:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb26-1"></a><span class="ex">Migrations</span> for <span class="st">'resumeapp'</span>:</span>
-<span id="cb26-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb26-2"></a>  <span class="ex">resumeapp/migrations/0002_userdetail_qualification_user_workexperience.py</span></span>
-<span id="cb26-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb26-3"></a>    <span class="ex">+</span> Create model UserDetail</span>
-<span id="cb26-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb26-4"></a>    <span class="ex">+</span> Add field user to qualification</span>
-<span id="cb26-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb26-5"></a>    <span class="ex">+</span> Create model WorkExperience</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Apply the migrations:</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb27-1"></a><span class="ex">python3.12</span> manage.py migrate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>You will then see the following output:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb28-1"></a><span class="ex">Operations</span> to perform:</span>
-<span id="cb28-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb28-2"></a>  <span class="ex">Apply</span> all migrations: admin, auth, contenttypes, resumeapp, sessions</span>
-<span id="cb28-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb28-3"></a><span class="ex">Running</span> migrations:</span>
-<span id="cb28-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb28-4"></a>  <span class="ex">Applying</span> resumeapp.0002_userdetail_qualification_user_workexperience... OK</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>🎉 Now Django has created tables for <strong>UserDetail, Qualification, and WorkExperience!</strong></p>
-<p>Open <strong>phpMyAdmin</strong> in your browser:</p>
-<pre><code>https://YourZoneURL/phpmyadmin</code></pre>
-<p>2️⃣ Select the <strong><code>resumebuilder_db</code></strong> database.<br>
-3️⃣ Look for the new tables:<br>
-- <code>resumeapp_userdetail</code><br>
-- <code>resumeapp_qualification</code><br>
-- <code>resumeapp_workexperience</code></p>
-<p>🎉 <strong>You should now see the relationships established in the database!</strong> 🚀</p>
-</section>
-<section id="django-model-field-types-relationships" class="level2">
-<h2 class="anchored" data-anchor-id="django-model-field-types-relationships">🔍 Django Model Field Types &amp; Relationships<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#django-model-field-types-relationships" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
-<p>Now that we’ve created models and established <strong>One-to-Many relationships</strong>, let’s take a closer look at <strong>field types</strong> and other <strong>types of relationships</strong> Django provides. 🚀</p>
-<hr>
-<p><strong>Common Django Model Field Types</strong></p>
-<p>Django provides different <strong>field types</strong> to store various kinds of data in your database.</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 40%">
-<col style="width: 26%">
-<col style="width: 33%">
-</colgroup>
-<thead>
-<tr class="header">
-<th><strong>Field Type</strong></th>
-<th><strong>Description</strong></th>
-<th><strong>Example Usage</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>CharField(max_length=…)</code></td>
-<td>Stores short text (e.g., names, titles)</td>
-<td><code>title = models.CharField(max_length=200)</code></td>
-</tr>
-<tr class="even">
-<td><code>TextField()</code></td>
-<td>Stores long text (e.g., descriptions)</td>
-<td><code>bio = models.TextField()</code></td>
-</tr>
-<tr class="odd">
-<td><code>IntegerField()</code></td>
-<td>Stores whole numbers</td>
-<td><code>age = models.IntegerField()</code></td>
-</tr>
-<tr class="even">
-<td><code>FloatField()</code></td>
-<td>Stores decimal numbers</td>
-<td><code>rating = models.FloatField()</code></td>
-</tr>
-<tr class="odd">
-<td><code>BooleanField()</code></td>
-<td>Stores True/False values</td>
-<td><code>is_published = models.BooleanField(default=True)</code></td>
-</tr>
-<tr class="even">
-<td><code>DateField()</code></td>
-<td>Stores dates (YYYY-MM-DD)</td>
-<td><code>date_completed = models.DateField()</code></td>
-</tr>
-<tr class="odd">
-<td><code>DateTimeField()</code></td>
-<td>Stores date &amp; time</td>
-<td><code>date_created = models.DateTimeField(auto_now_add=True)</code></td>
-</tr>
-<tr class="even">
-<td><code>EmailField()</code></td>
-<td>Stores email addresses</td>
-<td><code>email = models.EmailField()</code></td>
-</tr>
-<tr class="odd">
-<td><code>URLField()</code></td>
-<td>Stores URLs</td>
-<td><code>portfolio_link = models.URLField()</code></td>
-</tr>
-<tr class="even">
-<td><code>ImageField()</code></td>
-<td>Stores image file paths</td>
-<td><code>profile_pic = models.ImageField(upload_to='profile_pics/')</code></td>
-</tr>
-</tbody>
-</table>
-<p>These fields help define <strong>what kind of data</strong> Django should expect in each column of your database. 🎯</p>
-</section>
-<section id="adding-data-using-django-orm" class="level2">
-<h2 class="anchored" data-anchor-id="adding-data-using-django-orm">Adding Data using Django ORM<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#adding-data-using-django-orm" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
-<p>In this section, you’ll learn how to <strong>add, edit and delete data</strong> in your database using Django’s powerful ORM. Django ORM provides a simple yet powerful Python object oriented interface for interacting with your database, enabling you to perform database operations without writing raw SQL.</p>
-<p><strong>Step 1: Create a Superuser</strong></p>
-<p>Our <code>UserDetail</code> model related to a default Django <code>User</code>. Let’s first create an admin user account.</p>
-<p>Run the following command:</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb30-1"></a><span class="ex">python3.12</span> manage.py createsuperuser</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><strong>Enter the required details:</strong><br>
-- <strong>Username:</strong> <em>(Choose an admin username)</em><br>
-- <strong>Email Address:</strong> <em>(Optional)</em><br>
-- <strong>Password:</strong> <em>(Enter a secure password and confirm)</em></p>
-<p>If successful, you should see:</p>
-<pre><code>Username (leave blank to use 'studentusername'): 
-Email address: studentusername@student.uq.edu.au
-Password: 
-Password (again): 
-Superuser created successfully.</code></pre>
-<p>You should see a user added to the <code>auth_user</code> table in the database. The <code>id</code> for the user is 1.</p>
-<p><strong>Step 2: Open the Django Shell</strong></p>
-<p>Run this command in your terminal:</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb32-1"></a><span class="ex">python3.12</span> manage.py shell</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><strong>Step 3: Import Your Models</strong></p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb33-1"></a><span class="im">from</span> django.contrib.auth.models <span class="im">import</span> User</span>
-<span id="cb33-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb33-2"></a><span class="im">from</span> resumeapp.models <span class="im">import</span> UserDetail  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><strong>Step 4: Retrieve User with Hardcoded ID</strong></p>
-<p>Let’s grab the Django built-in user with <code>id=1</code>:</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb34-1"></a>user <span class="op">=</span> User.objects.get(<span class="bu">id</span><span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb34-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb34-2"></a><span class="bu">print</span>(<span class="st">"User:"</span>, user)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The following will be displayed:</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb35-1"></a><span class="ex">User:</span> admin</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><strong>Step 5: Create and Save a New UserDetail Instance</strong></p>
-<p>Now, create a new instance of <code>UserDetail</code> and save it:</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb36-1"></a>user_detail <span class="op">=</span> UserDetail(user<span class="op">=</span>user, firstname<span class="op">=</span><span class="st">"Liz"</span>, surname<span class="op">=</span><span class="st">"Chen"</span>, mobileno<span class="op">=</span><span class="st">"1234567890"</span>)</span>
-<span id="cb36-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb36-2"></a>user_detail.save()</span>
-<span id="cb36-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb36-3"></a></span>
-<span id="cb36-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb36-4"></a><span class="bu">print</span>(<span class="st">"UserDetail instance created:"</span>, user_detail)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The following will be displayed:</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb37-1"></a><span class="ex">UserDetail</span> instance created: Details for admin</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><strong>Step 6: Edit and Update the Instance</strong></p>
-<p>Let’s update the <code>mobileno</code>:</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb38-1"></a>user_detail.mobileno <span class="op">=</span> <span class="st">"0987654321"</span></span>
-<span id="cb38-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb38-2"></a>user_detail.save()</span>
-<span id="cb38-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb38-3"></a></span>
-<span id="cb38-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb38-4"></a><span class="bu">print</span>(<span class="st">"UserDetail instance updated:"</span>, user_detail.mobileno)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The following will be displayed:</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb39-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb39-1"></a><span class="ex">UserDetail</span> instance updated: 0987654321<span class="kw">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Review the <code>resumeapp_UserDetail</code> table in the database. You should see a new record with an <code>id=1</code>.</p>
-<p><strong>Step 7: Add Sample Data to the Qualification and WorkExperience Models</strong></p>
-<p>Add two sample qualifications:</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb40-1"></a><span class="im">from</span> resumeapp.models <span class="im">import</span> Qualification  </span>
-<span id="cb40-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb40-2"></a></span>
-<span id="cb40-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb40-3"></a>qual1 <span class="op">=</span> Qualification(user<span class="op">=</span>user_detail, title<span class="op">=</span><span class="st">"Bachelor of Computer Science"</span>, university<span class="op">=</span><span class="st">"The University of Queensland"</span>, date_completed<span class="op">=</span><span class="st">"2021-12-01"</span>)</span>
-<span id="cb40-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb40-4"></a>qual1.save()</span>
-<span id="cb40-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb40-5"></a></span>
-<span id="cb40-6"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb40-6"></a>qual2 <span class="op">=</span> Qualification(user<span class="op">=</span>user_detail, title<span class="op">=</span><span class="st">"Masters of Interaction Design"</span>, university<span class="op">=</span><span class="st">"The University of Queensland"</span>, date_completed<span class="op">=</span><span class="st">"2024-12-01"</span>)</span>
-<span id="cb40-7"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb40-7"></a>qual2.save()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Verify that both qualifications were added to the <code>resumeapp_qualification</code> table.</p>
-</section>
-<section id="step-6-add-work-experience" class="level2">
-<h2 class="anchored" data-anchor-id="step-6-add-work-experience">Step 6: Add Work Experience<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#step-6-add-work-experience" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
-<p>Add a sample work experience:</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-1"></a><span class="im">from</span> resumeapp.models <span class="im">import</span> WorkExperience </span>
-<span id="cb41-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-2"></a></span>
-<span id="cb41-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-3"></a>work_exp1 <span class="op">=</span> WorkExperience(</span>
-<span id="cb41-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-4"></a>    user<span class="op">=</span>user_detail,</span>
-<span id="cb41-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-5"></a>    job_title<span class="op">=</span><span class="st">"Web Developer Intern"</span>,</span>
-<span id="cb41-6"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-6"></a>    company<span class="op">=</span><span class="st">"Tech Solutions Ltd"</span>,</span>
-<span id="cb41-7"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-7"></a>    start_date<span class="op">=</span><span class="st">"2021-01-15"</span>,</span>
-<span id="cb41-8"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-8"></a>    end_date<span class="op">=</span><span class="st">"2021-07-15"</span>,</span>
-<span id="cb41-9"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-9"></a>    description<span class="op">=</span><span class="st">"Assisted with developing and maintaining web applications."</span></span>
-<span id="cb41-10"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-10"></a>)</span>
-<span id="cb41-11"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-11"></a>work_exp1.save()</span>
-<span id="cb41-12"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-12"></a></span>
-<span id="cb41-13"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-13"></a>work_exp2 <span class="op">=</span> WorkExperience(</span>
-<span id="cb41-14"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-14"></a>    user<span class="op">=</span>user_detail,</span>
-<span id="cb41-15"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-15"></a>    job_title<span class="op">=</span><span class="st">"Django Web Developer"</span>,</span>
-<span id="cb41-16"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-16"></a>    company<span class="op">=</span><span class="st">"Expert Apps"</span>,</span>
-<span id="cb41-17"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-17"></a>    start_date<span class="op">=</span><span class="st">"2023-01-15"</span>,</span>
-<span id="cb41-18"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-18"></a>    end_date<span class="op">=</span><span class="st">"2023-07-15"</span>,</span>
-<span id="cb41-19"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-19"></a>    description<span class="op">=</span><span class="st">"Full stack development with Django."</span></span>
-<span id="cb41-20"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-20"></a>)</span>
-<span id="cb41-21"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb41-21"></a>work_exp2.save()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><strong>Step 7: Retrieve All Records</strong></p>
-<p>We can also retrieve all the data using <code>.objects.all()</code>:</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb42-1"></a>all_users <span class="op">=</span> UserDetail.objects.<span class="bu">all</span>()</span>
-<span id="cb42-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb42-2"></a>all_qualifications <span class="op">=</span> Qualification.objects.<span class="bu">all</span>()</span>
-<span id="cb42-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb42-3"></a>all_work_experiences <span class="op">=</span> WorkExperience.objects.<span class="bu">all</span>()</span>
-<span id="cb42-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb42-4"></a></span>
-<span id="cb42-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb42-5"></a><span class="bu">print</span>(<span class="st">"👥 User Details:"</span>, <span class="bu">list</span>(all_users))</span>
-<span id="cb42-6"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb42-6"></a><span class="bu">print</span>(<span class="st">"🎓 Qualifications:"</span>, <span class="bu">list</span>(all_qualifications))</span>
-<span id="cb42-7"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb42-7"></a><span class="bu">print</span>(<span class="st">"💼 Work Experiences:"</span>, <span class="bu">list</span>(all_work_experiences))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Exit the shell:</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb43-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb43-1"></a><span class="fu">exit()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>You’ve successfully added, edited, and retrieved instances using Django’s ORM through the interactive shell. 🎉</p>
-</section>
-<section id="retrieving-data-in-django-views" class="level2">
-<h2 class="anchored" data-anchor-id="retrieving-data-in-django-views">Retrieving Data in Django Views<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#retrieving-data-in-django-views" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
-<p>Now that we have <strong>data stored in our database</strong>, let’s modify our <strong>views</strong> to dynamically retrieve user details, qualifications, and work experience. 🚀</p>
-<p>Instead of <strong>hardcoding</strong> data in our view, we’ll:</p>
-<ul>
-<li>Query the database for a specific user.<br>
-</li>
-<li>Fetch their <strong>userdetail</strong>, <strong>qualification</strong> and <strong>work experience</strong> data.<br>
-</li>
-<li>Pass this data to a template for rendering.</li>
-</ul>
-<p><strong>Step 1: Retrieve Data from the Database</strong></p>
-<p>Instead of using hardcoded data, let’s query the <strong>UserDetail</strong>, <strong>Qualification</strong>, and <strong>WorkExperience</strong> tables.</p>
-<p>Update <code>resumeapp/views.py</code> to Fetch Data from Models</p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb44-1"></a><span class="im">from</span> django.shortcuts <span class="im">import</span> render, get_object_or_404</span>
-<span id="cb44-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb44-2"></a><span class="im">from</span> .models <span class="im">import</span> UserDetail, Qualification, WorkExperience</span>
-<span id="cb44-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb44-3"></a></span>
-<span id="cb44-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb44-4"></a><span class="kw">def</span> index(request):</span>
-<span id="cb44-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb44-5"></a>    user_details <span class="op">=</span> get_object_or_404(UserDetail, <span class="bu">id</span><span class="op">=</span><span class="dv">1</span>) <span class="co"># Note a hardcoded user id</span></span>
-<span id="cb44-6"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb44-6"></a>    qualifications <span class="op">=</span> Qualification.objects.<span class="bu">filter</span>(user<span class="op">=</span>user_details)</span>
-<span id="cb44-7"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb44-7"></a>    work_experience <span class="op">=</span> WorkExperience.objects.<span class="bu">filter</span>(user<span class="op">=</span>user_details)</span>
-<span id="cb44-8"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb44-8"></a></span>
-<span id="cb44-9"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb44-9"></a>    context <span class="op">=</span> {</span>
-<span id="cb44-10"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb44-10"></a>        <span class="st">"name"</span>: user_details.user.username,</span>
-<span id="cb44-11"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb44-11"></a>        <span class="st">"mobileno"</span>: user_details.mobileno,</span>
-<span id="cb44-12"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb44-12"></a>        <span class="st">"qualifications"</span>: qualifications,</span>
-<span id="cb44-13"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb44-13"></a>        <span class="st">"work_experience"</span>: work_experience,</span>
-<span id="cb44-14"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb44-14"></a>    }</span>
-<span id="cb44-15"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb44-15"></a>    </span>
-<span id="cb44-16"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb44-16"></a>    <span class="cf">return</span> render(request, <span class="st">"resume.html"</span>, context)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>🔹 What’s Happening Here?</p>
-<ul>
-<li><code>get_object_or_404(UserDetails, id=1)</code> → Fetches <strong>one</strong> user by ID (or shows a 404 error if not found).<br>
-</li>
-<li><code>Qualification.objects.filter(user=user_details)</code> → Retrieves <strong>all qualifications</strong> for this user.<br>
-</li>
-<li><code>WorkExperience.objects.filter(user=user_details)</code> → Retrieves <strong>all work experience</strong> for this user.</li>
-</ul>
-<p>Data is passed to the template dynamically!</p>
-<p><strong>Step 2: Modify the Template to Display the Data</strong></p>
-<p>Now, update <strong><code>resume.html</code></strong> to display the fetched <strong>qualifications</strong> and <strong>work experience</strong>:</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode numberSource html number-lines code-with-copy"><code class="sourceCode html"><span id="cb45-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-1"></a>{% extends "base.html" %}</span>
-<span id="cb45-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-2"></a></span>
-<span id="cb45-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-3"></a>{% block title %}{{ name }}'s Resume{% endblock %}</span>
-<span id="cb45-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-4"></a></span>
-<span id="cb45-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-5"></a>{% block content %}</span>
-<span id="cb45-6"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-6"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;</span>Mobile no: {{ mobileno }}<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
-<span id="cb45-7"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-7"></a></span>
-<span id="cb45-8"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-8"></a>    <span class="dt">&lt;</span><span class="kw">h3</span><span class="dt">&gt;</span>Qualifications<span class="dt">&lt;/</span><span class="kw">h3</span><span class="dt">&gt;</span></span>
-<span id="cb45-9"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-9"></a>    <span class="dt">&lt;</span><span class="kw">ul</span><span class="dt">&gt;</span></span>
-<span id="cb45-10"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-10"></a>        {% for qualification in qualifications %}</span>
-<span id="cb45-11"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-11"></a>            <span class="dt">&lt;</span><span class="kw">li</span><span class="dt">&gt;</span>{{ qualification.title }} from {{ qualification.university }} ({{ qualification.date_completed }})<span class="dt">&lt;/</span><span class="kw">li</span><span class="dt">&gt;</span></span>
-<span id="cb45-12"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-12"></a>        {% empty %}</span>
-<span id="cb45-13"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-13"></a>            <span class="dt">&lt;</span><span class="kw">li</span><span class="dt">&gt;</span>No qualifications found.<span class="dt">&lt;/</span><span class="kw">li</span><span class="dt">&gt;</span></span>
-<span id="cb45-14"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-14"></a>        {% endfor %}</span>
-<span id="cb45-15"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-15"></a>    <span class="dt">&lt;/</span><span class="kw">ul</span><span class="dt">&gt;</span></span>
-<span id="cb45-16"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-16"></a></span>
-<span id="cb45-17"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-17"></a>    <span class="dt">&lt;</span><span class="kw">h3</span><span class="dt">&gt;</span>Work Experience<span class="dt">&lt;/</span><span class="kw">h3</span><span class="dt">&gt;</span></span>
-<span id="cb45-18"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-18"></a>    <span class="dt">&lt;</span><span class="kw">ul</span><span class="dt">&gt;</span></span>
-<span id="cb45-19"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-19"></a>        {% for job in work_experience %}</span>
-<span id="cb45-20"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-20"></a>            <span class="dt">&lt;</span><span class="kw">li</span><span class="dt">&gt;</span>{{ job.job_title }} at {{ job.company }} ({{ job.start_date }} - {{ job.end_date|default:"Present" }})<span class="dt">&lt;/</span><span class="kw">li</span><span class="dt">&gt;</span></span>
-<span id="cb45-21"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-21"></a>        {% empty %}</span>
-<span id="cb45-22"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-22"></a>            <span class="dt">&lt;</span><span class="kw">li</span><span class="dt">&gt;</span>No work experience found.<span class="dt">&lt;/</span><span class="kw">li</span><span class="dt">&gt;</span></span>
-<span id="cb45-23"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-23"></a>        {% endfor %}</span>
-<span id="cb45-24"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-24"></a>    <span class="dt">&lt;/</span><span class="kw">ul</span><span class="dt">&gt;</span></span>
-<span id="cb45-25"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb45-25"></a>{% endblock %}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>🔹 What’s Happening Here?</p>
-<ul>
-<li>The template now <strong>loops over real database records</strong> instead of using hardcoded data.<br>
-</li>
-<li><code>{% for qualification in qualifications %}</code> → Loops through and displays each qualification.<br>
-</li>
-<li><code>{% for job in work_experience %}</code> → Loops through and displays each work experience.<br>
-</li>
-<li><code>{% empty %}</code> → Displays a <strong>fallback message</strong> if no records exist.</li>
-</ul>
-<p><strong>Step 3: Run the Django Web server and Review the Dynamic Resume</strong></p>
-<p>At the start of this Lab, you turned off the Django Webserver. You now can turn it back on. You should still be in your Screen environment which will let you keep the server running. Refer back to the Lab 2 instructions if you need a refresher on Screen commands.</p>
-<div class="sourceCode" id="cb46"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb46-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb46-1"></a><span class="ex">python3.12</span> manage.py runserver 0.0.0.0:8000</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Visit the page in your browser: https://YourZoneURL/resumebuilder/</p>
-<p><strong>You should now see dynamic user details, qualifications, and work experience!</strong> 🎉</p>
+<section id="step-4-create-the-views" class="level2">
+<h2 class="anchored" data-anchor-id="step-4-create-the-views">Step 4: Create the Views<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#step-4-create-the-views" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
+<p>Create two views: one to show the form and one to show the thank-you page.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb6-1"></a><span class="co"># feedback/views.py</span></span>
+<span id="cb6-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb6-2"></a><span class="im">from</span> django.shortcuts <span class="im">import</span> render, redirect</span>
+<span id="cb6-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb6-3"></a><span class="im">from</span> .forms <span class="im">import</span> FeedbackForm</span>
+<span id="cb6-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb6-4"></a></span>
+<span id="cb6-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb6-5"></a><span class="kw">def</span> feedback_view(request):</span>
+<span id="cb6-6"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb6-6"></a>    <span class="cf">if</span> request.method <span class="op">==</span> <span class="st">'POST'</span>:</span>
+<span id="cb6-7"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb6-7"></a>        form <span class="op">=</span> FeedbackForm(request.POST)</span>
+<span id="cb6-8"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb6-8"></a>        <span class="cf">if</span> form.is_valid():</span>
+<span id="cb6-9"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb6-9"></a>            <span class="co"># Normally you'd save this to the database or send an email</span></span>
+<span id="cb6-10"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb6-10"></a>            request.session[<span class="st">'name'</span>] <span class="op">=</span> form.cleaned_data[<span class="st">'name'</span>]</span>
+<span id="cb6-11"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb6-11"></a>            <span class="cf">return</span> redirect(<span class="st">'thank_you'</span>)</span>
+<span id="cb6-12"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb6-12"></a>    <span class="cf">else</span>:</span>
+<span id="cb6-13"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb6-13"></a>        form <span class="op">=</span> FeedbackForm()</span>
+<span id="cb6-14"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb6-14"></a>    </span>
+<span id="cb6-15"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb6-15"></a>    <span class="cf">return</span> render(request, <span class="st">'feedback_form.html'</span>, {<span class="st">'form'</span>: form})</span>
+<span id="cb6-16"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb6-16"></a></span>
+<span id="cb6-17"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb6-17"></a><span class="kw">def</span> thank_you_view(request):</span>
+<span id="cb6-18"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb6-18"></a>    name <span class="op">=</span> request.session.get(<span class="st">'name'</span>, <span class="st">'Friend'</span>)</span>
+<span id="cb6-19"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb6-19"></a>    <span class="cf">return</span> render(request, <span class="st">'thank_you.html'</span>, {<span class="st">'name'</span>: name})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <hr>
 </section>
-<section id="orm-query-examples" class="level2">
-<h2 class="anchored" data-anchor-id="orm-query-examples">ORM Query Examples<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#orm-query-examples" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
-<p>Django’s ORM makes it easy to query the database without writing raw SQL. Here’s some quick examples:</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 31%">
-<col style="width: 68%">
-</colgroup>
-<thead>
-<tr class="header">
-<th><strong>Task</strong></th>
-<th><strong>Django ORM Query</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Get all users</td>
-<td><code>UserDetails.objects.all()</code></td>
-</tr>
-<tr class="even">
-<td>Get a specific user by ID</td>
-<td><code>UserDetails.objects.get(id=1)</code></td>
-</tr>
-<tr class="odd">
-<td>Get all qualifications for a user</td>
-<td><code>Qualification.objects.filter(user=user_details)</code></td>
-</tr>
-<tr class="even">
-<td>Get the latest qualification</td>
-<td><code>Qualification.objects.filter(user=user_details).order_by('-date_completed').first()</code></td>
-</tr>
-<tr class="odd">
-<td>Get all work experience ordered by start date</td>
-<td><code>WorkExperience.objects.filter(user=user_details).order_by('-start_date')</code></td>
-</tr>
-<tr class="even">
-<td>Count the number of qualifications</td>
-<td><code>Qualification.objects.filter(user=user_details).count()</code></td>
-</tr>
-</tbody>
-</table>
-<p>💡 <strong>Django ORM is powerful!</strong> You can <strong>filter</strong>, <strong>order</strong>, and <strong>aggregate</strong> data easily. 🚀</p>
-<p>Refer to the Django documentation for a comprehensive overview of creating and querying models: <a href="https://docs.djangoproject.com/en/5.1/topics/db/queries/">https://docs.djangoproject.com/en/5.1/topics/db/queries/</a>. The Lecture will cover working with databases in Django in more detail.</p>
+<section id="step-5-create-the-templates-with-bootstrap" class="level2">
+<h2 class="anchored" data-anchor-id="step-5-create-the-templates-with-bootstrap">Step 5: Create the Templates (with Bootstrap)<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#step-5-create-the-templates-with-bootstrap" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
+<p>Create a <code>templates/feedback/</code> folder in your app and add the two HTML templates.</p>
+<section id="feedback_form.html" class="level3">
+<h3 class="anchored" data-anchor-id="feedback_form.html"><code>feedback_form.html</code><a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#feedback_form.html" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource html number-lines code-with-copy"><code class="sourceCode html"><span id="cb7-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb7-1"></a><span class="co">&lt;!-- feedback/templates/feedback/feedback_form.html --&gt;</span></span>
+<span id="cb7-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb7-2"></a><span class="dt">&lt;!DOCTYPE</span> html<span class="dt">&gt;</span></span>
+<span id="cb7-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb7-3"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<span id="cb7-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb7-4"></a><span class="dt">&lt;</span><span class="kw">head</span><span class="dt">&gt;</span></span>
+<span id="cb7-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb7-5"></a>  <span class="dt">&lt;</span><span class="kw">title</span><span class="dt">&gt;</span>Feedback Form<span class="dt">&lt;/</span><span class="kw">title</span><span class="dt">&gt;</span></span>
+<span id="cb7-6"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb7-6"></a>  <span class="dt">&lt;</span><span class="kw">link</span><span class="ot"> href</span><span class="op">=</span><span class="st">"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"</span><span class="ot"> rel</span><span class="op">=</span><span class="st">"stylesheet"</span><span class="dt">&gt;</span></span>
+<span id="cb7-7"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb7-7"></a><span class="dt">&lt;/</span><span class="kw">head</span><span class="dt">&gt;</span></span>
+<span id="cb7-8"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb7-8"></a><span class="dt">&lt;</span><span class="kw">body</span><span class="ot"> class</span><span class="op">=</span><span class="st">"p-4"</span><span class="dt">&gt;</span></span>
+<span id="cb7-9"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb7-9"></a>  <span class="dt">&lt;</span><span class="kw">div</span><span class="ot"> class</span><span class="op">=</span><span class="st">"container"</span><span class="dt">&gt;</span></span>
+<span id="cb7-10"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb7-10"></a>    <span class="dt">&lt;</span><span class="kw">h2</span><span class="dt">&gt;</span>Send us your feedback<span class="dt">&lt;/</span><span class="kw">h2</span><span class="dt">&gt;</span></span>
+<span id="cb7-11"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb7-11"></a>    <span class="dt">&lt;</span><span class="kw">form</span><span class="ot"> method</span><span class="op">=</span><span class="st">"post"</span><span class="dt">&gt;</span></span>
+<span id="cb7-12"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb7-12"></a>      {% csrf_token %}</span>
+<span id="cb7-13"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb7-13"></a>      {{ form.as_p }}</span>
+<span id="cb7-14"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb7-14"></a>      <span class="dt">&lt;</span><span class="kw">button</span><span class="ot"> type</span><span class="op">=</span><span class="st">"submit"</span><span class="ot"> class</span><span class="op">=</span><span class="st">"btn btn-primary"</span><span class="dt">&gt;</span>Submit<span class="dt">&lt;/</span><span class="kw">button</span><span class="dt">&gt;</span></span>
+<span id="cb7-15"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb7-15"></a>    <span class="dt">&lt;/</span><span class="kw">form</span><span class="dt">&gt;</span></span>
+<span id="cb7-16"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb7-16"></a>  <span class="dt">&lt;/</span><span class="kw">div</span><span class="dt">&gt;</span></span>
+<span id="cb7-17"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb7-17"></a><span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb7-18"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb7-18"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>What is <code>{% csrf_token %}</code> in Django?</p>
+<p><code>{% csrf_token %}</code> is a <strong>template tag</strong> you use inside HTML <code>&lt;form&gt;</code> elements in Django templates. It helps protect your website from a specific kind of attack called <strong>Cross-Site Request Forgery (CSRF)</strong>.</p>
+<p><strong>Cross-Site Request Forgery</strong> is a security vulnerability where a malicious site tricks a user’s browser into submitting a form or request to another site where the user is already logged in — <strong>without their consent</strong>.</p>
+<p>Imagine you’re logged into a bank website in one tab. In another tab, you visit an evil site that silently submits a form to transfer money using your bank login session — scary, right? 😱</p>
+<p>Django protects you by:</p>
+<ol type="1">
+<li>Generating a <strong>unique token</strong> for each form/request for the logged-in user.</li>
+<li>Storing that token in the user’s session (server-side).</li>
+<li>Requiring that token to be sent back (in the form or header).</li>
+<li>If the token is missing or doesn’t match — <strong>Django blocks the request.</strong></li>
+</ol>
+<p>If you forget it, Django will raise an error like:</p>
+<pre><code>403 Forbidden — CSRF verification failed. Request aborted.</code></pre>
+</section>
+<section id="thank_you.html" class="level3">
+<h3 class="anchored" data-anchor-id="thank_you.html"><code>thank_you.html</code><a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#thank_you.html" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h3>
+<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource html number-lines code-with-copy"><code class="sourceCode html"><span id="cb9-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb9-1"></a><span class="co">&lt;!-- feedback/templates/feedback/thank_you.html --&gt;</span></span>
+<span id="cb9-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb9-2"></a><span class="dt">&lt;!DOCTYPE</span> html<span class="dt">&gt;</span></span>
+<span id="cb9-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb9-3"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<span id="cb9-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb9-4"></a><span class="dt">&lt;</span><span class="kw">head</span><span class="dt">&gt;</span></span>
+<span id="cb9-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb9-5"></a>  <span class="dt">&lt;</span><span class="kw">title</span><span class="dt">&gt;</span>Thank You<span class="dt">&lt;/</span><span class="kw">title</span><span class="dt">&gt;</span></span>
+<span id="cb9-6"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb9-6"></a>  <span class="dt">&lt;</span><span class="kw">link</span><span class="ot"> href</span><span class="op">=</span><span class="st">"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"</span><span class="ot"> rel</span><span class="op">=</span><span class="st">"stylesheet"</span><span class="dt">&gt;</span></span>
+<span id="cb9-7"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb9-7"></a><span class="dt">&lt;/</span><span class="kw">head</span><span class="dt">&gt;</span></span>
+<span id="cb9-8"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb9-8"></a><span class="dt">&lt;</span><span class="kw">body</span><span class="ot"> class</span><span class="op">=</span><span class="st">"p-4"</span><span class="dt">&gt;</span></span>
+<span id="cb9-9"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb9-9"></a>  <span class="dt">&lt;</span><span class="kw">div</span><span class="ot"> class</span><span class="op">=</span><span class="st">"container"</span><span class="dt">&gt;</span></span>
+<span id="cb9-10"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb9-10"></a>    <span class="dt">&lt;</span><span class="kw">h2</span><span class="dt">&gt;</span>Thank You, {{ name }}!<span class="dt">&lt;/</span><span class="kw">h2</span><span class="dt">&gt;</span></span>
+<span id="cb9-11"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb9-11"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;</span>We appreciate your feedback. 😊<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb9-12"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb9-12"></a>  <span class="dt">&lt;/</span><span class="kw">div</span><span class="dt">&gt;</span></span>
+<span id="cb9-13"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb9-13"></a><span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb9-14"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb9-14"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <hr>
 </section>
-<section id="test-your-understanding" class="level2">
-<h2 class="anchored" data-anchor-id="test-your-understanding">Test Your Understanding<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#test-your-understanding" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
-<p>Here is a task to check that you have understood this Lab and can apply what you have learnt.</p>
-<p>Using the knowledge you gained in this Lab, add a <code>bio</code> field to the <code>UserDetail</code> model. Reapply the <code>migrate</code> and <code>migrations</code> commands. Verify that the field has been added to the database. Use the shell to update the <code>UserDetail</code> with bio. Finally retrieve and display the <code>bio</code> in the <code>resume.html</code> template.</p>
+</section>
+<section id="handle-form-thank-you-in-the-same-view" class="level2">
+<h2 class="anchored" data-anchor-id="handle-form-thank-you-in-the-same-view">Handle Form + Thank You in the Same View<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#handle-form-thank-you-in-the-same-view" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
+<p>Instead of redirecting, we can keep everything in one view by rendering a different template based on the request method:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-1"></a><span class="co"># feedback/views.py</span></span>
+<span id="cb10-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-2"></a><span class="kw">def</span> feedback_combined_view(request):</span>
+<span id="cb10-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-3"></a>    submitted <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb10-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-4"></a>    name <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb10-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-5"></a></span>
+<span id="cb10-6"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-6"></a>    <span class="cf">if</span> request.method <span class="op">==</span> <span class="st">'POST'</span>:</span>
+<span id="cb10-7"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-7"></a>        form <span class="op">=</span> FeedbackForm(request.POST)</span>
+<span id="cb10-8"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-8"></a>        <span class="cf">if</span> form.is_valid():</span>
+<span id="cb10-9"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-9"></a>            name <span class="op">=</span> form.cleaned_data[<span class="st">'name'</span>]</span>
+<span id="cb10-10"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-10"></a>            submitted <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb10-11"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-11"></a>    <span class="cf">else</span>:</span>
+<span id="cb10-12"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-12"></a>        form <span class="op">=</span> FeedbackForm()</span>
+<span id="cb10-13"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-13"></a></span>
+<span id="cb10-14"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-14"></a>    <span class="cf">return</span> render(request, <span class="st">'feedback_combined.html'</span>, {</span>
+<span id="cb10-15"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-15"></a>        <span class="st">'form'</span>: form,</span>
+<span id="cb10-16"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-16"></a>        <span class="st">'submitted'</span>: submitted,</span>
+<span id="cb10-17"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-17"></a>        <span class="st">'name'</span>: name,</span>
+<span id="cb10-18"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb10-18"></a>    })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>What is <code>form.cleaned_data['name']</code>?</strong></p>
+<p>In Django, after a form is submitted and passes validation with <code>form.is_valid()</code>, Django creates a dictionary called <code>form.cleaned_data</code>.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb11-1"></a>form.cleaned_data[<span class="st">'name'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This retrieves the <strong>validated and cleaned value</strong> from the form’s <code>name</code> field.</p>
+<ul>
+<li>It’s only available <strong>after</strong> calling <code>form.is_valid()</code>.</li>
+<li>It contains <strong>Python-native, cleaned, safe</strong> values for each field.
+<ul>
+<li>e.g.&nbsp;An <code>EmailField</code> will have a valid email.</li>
+<li>A <code>CharField</code> will be stripped of leading/trailing spaces by default.</li>
+</ul></li>
+</ul>
+<p>So:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb12-1"></a>name <span class="op">=</span> form.cleaned_data[<span class="st">'name'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This gives you the user’s name <strong>after</strong> it’s been validated and cleaned.</p>
+<p><strong>What If You Want the Raw Field Value?</strong></p>
+<p>If you want to access the <strong>raw (unvalidated)</strong> value — i.e.&nbsp;what the user typed in the form — before it’s cleaned or validated, use <code>form.data</code>:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb13-1"></a>form.data[<span class="st">'name'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This gives you the raw input from the form submission (usually from <code>request.POST</code>).</p>
+<p>Update <code>urls.py</code> and add:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb14-1"></a>...</span>
+<span id="cb14-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb14-2"></a>path(<span class="st">'feedback-combined/'</span>, views.feedback_combined_view, name<span class="op">=</span><span class="st">'feedback_combined'</span>),</span>
+<span id="cb14-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb14-3"></a>...</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>And create a new template:</p>
+<section id="feedback_combined.html" class="level3">
+<h3 class="anchored" data-anchor-id="feedback_combined.html"><code>feedback_combined.html</code><a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#feedback_combined.html" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h3>
+<div class="sourceCode" id="cb15"><pre class="sourceCode numberSource html number-lines code-with-copy"><code class="sourceCode html"><span id="cb15-1"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-1"></a><span class="co">&lt;!-- feedback/templates/feedback/feedback_combined.html --&gt;</span></span>
+<span id="cb15-2"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-2"></a><span class="dt">&lt;!DOCTYPE</span> html<span class="dt">&gt;</span></span>
+<span id="cb15-3"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-3"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<span id="cb15-4"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-4"></a><span class="dt">&lt;</span><span class="kw">head</span><span class="dt">&gt;</span></span>
+<span id="cb15-5"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-5"></a>  <span class="dt">&lt;</span><span class="kw">title</span><span class="dt">&gt;</span>Feedback<span class="dt">&lt;/</span><span class="kw">title</span><span class="dt">&gt;</span></span>
+<span id="cb15-6"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-6"></a>  <span class="dt">&lt;</span><span class="kw">link</span><span class="ot"> href</span><span class="op">=</span><span class="st">"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"</span><span class="ot"> rel</span><span class="op">=</span><span class="st">"stylesheet"</span><span class="dt">&gt;</span></span>
+<span id="cb15-7"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-7"></a><span class="dt">&lt;/</span><span class="kw">head</span><span class="dt">&gt;</span></span>
+<span id="cb15-8"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-8"></a><span class="dt">&lt;</span><span class="kw">body</span><span class="ot"> class</span><span class="op">=</span><span class="st">"p-4"</span><span class="dt">&gt;</span></span>
+<span id="cb15-9"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-9"></a>  <span class="dt">&lt;</span><span class="kw">div</span><span class="ot"> class</span><span class="op">=</span><span class="st">"container"</span><span class="dt">&gt;</span></span>
+<span id="cb15-10"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-10"></a>    {% if submitted %}</span>
+<span id="cb15-11"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-11"></a>      <span class="dt">&lt;</span><span class="kw">h2</span><span class="dt">&gt;</span>Thank You, {{ name }}!<span class="dt">&lt;/</span><span class="kw">h2</span><span class="dt">&gt;</span></span>
+<span id="cb15-12"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-12"></a>      <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;</span>Your feedback means a lot to us. ❤️<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb15-13"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-13"></a>    {% else %}</span>
+<span id="cb15-14"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-14"></a>      <span class="dt">&lt;</span><span class="kw">h2</span><span class="dt">&gt;</span>Send us your feedback<span class="dt">&lt;/</span><span class="kw">h2</span><span class="dt">&gt;</span></span>
+<span id="cb15-15"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-15"></a>      <span class="dt">&lt;</span><span class="kw">form</span><span class="ot"> method</span><span class="op">=</span><span class="st">"post"</span><span class="dt">&gt;</span></span>
+<span id="cb15-16"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-16"></a>        {% csrf_token %}</span>
+<span id="cb15-17"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-17"></a>        {{ form.as_p }}</span>
+<span id="cb15-18"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-18"></a>        <span class="dt">&lt;</span><span class="kw">button</span><span class="ot"> type</span><span class="op">=</span><span class="st">"submit"</span><span class="ot"> class</span><span class="op">=</span><span class="st">"btn btn-success"</span><span class="dt">&gt;</span>Submit<span class="dt">&lt;/</span><span class="kw">button</span><span class="dt">&gt;</span></span>
+<span id="cb15-19"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-19"></a>      <span class="dt">&lt;/</span><span class="kw">form</span><span class="dt">&gt;</span></span>
+<span id="cb15-20"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-20"></a>    {% endif %}</span>
+<span id="cb15-21"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-21"></a>  <span class="dt">&lt;/</span><span class="kw">div</span><span class="dt">&gt;</span></span>
+<span id="cb15-22"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-22"></a><span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb15-23"><a href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#cb15-23"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
 </section>
 <section id="summary" class="level2">
-<h2 class="anchored" data-anchor-id="summary">🎉 Summary<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#summary" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
-<p>Great job! 🎯 In this lab, you took a major step forward in building a <strong>dynamic Django web application</strong> by integrating a <strong>database</strong> and retrieving real data for display. 🚀</p>
-<p>Here’s what you accomplished:</p>
+<h2 class="anchored" data-anchor-id="summary">Summary<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11237680-dt-content-rid-69930946_1/courses/INFS3202_7520_21297/week5lecture/simple_django_feedback_form.html?one_hash=153B375B5E10DBACC333D65BE083A4C2&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#summary" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
+<p>You’ve just built a Django feedback form using:</p>
 <ul>
-<li><strong>Set up a MySQL database</strong> on UQCloud and configured Django to use it.<br>
-</li>
-<li><strong>Created Django models</strong> for user details, qualifications, and work experience.<br>
-</li>
-<li><strong>Used migrations</strong> to apply database changes automatically.<br>
-</li>
-<li><strong>Registered models in Django Admin</strong> to easily add and manage data.<br>
-</li>
-<li><strong>Queried the database</strong> using Django’s ORM and retrieved user details dynamically.<br>
-</li>
-<li><strong>Updated the resume page</strong> to display real qualifications and work experience.</li>
+<li>Django’s <code>forms.Form</code> class</li>
+<li>Bootstrap for styling</li>
+<li>Views to handle GET/POST logic</li>
+<li><code>request.session</code> to carry data between views</li>
+<li>A bonus one-view solution for smoother UX</li>
 </ul>
-<p>By doing this, you’ve learned how <strong>Django manages data efficiently</strong>, making your web application <strong>scalable and interactive</strong>! 🎉</p>
-<p>You’re now building <strong>a real, database-driven web application</strong>—keep going! 🚀 See you in the next lab! 🎯</p>
+<p>Next up, we’ll look at using Django <strong>ModelForms</strong> and saving feedback directly to the <strong>database using the ORM</strong>.</p>
+<hr>
 </section>
-<section id="whats-next" class="level2">
-<h2 class="anchored" data-anchor-id="whats-next">What’s Next<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="https://alt-5fd17f67f4120.blackboard.com/bbcswebdav/pid-11162038-dt-content-rid-69094248_1/courses/INFS3202_7520_21297/week4/lab3.html?one_hash=E3E4D8CDFFDB4CAEEE8F71995013A6E8&amp;f_hash=D709FA4016D71B1291AB909C19A33CDD#whats-next" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
-<p>Now that we can <strong>retrieve user data dynamically</strong>, in future Labs you’ll learn to:</p>
-<ul>
-<li>Build your own CRUD (i.e.&nbsp;Create, Read, Update and Delete) admin panel</li>
-<li>Improve our <strong>resume apps layout</strong> with better styling.</li>
-</ul>
 </section>
 
 </main>
@@ -4394,7 +3777,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<script type="text/javascript" src="chrome-extension://copnnlbbmgdflldkbnemmccblmgcnlmo/js/injectedScript.js"></script><div><div id="plasmo-overlay-0" class="plasmo-csui-container" style="display: flex; position: absolute; top: 0px; left: 0px;"></div></div><div class="calendly-frame-tag" manager_id="5b0829cd-224c-4771-99c8-6c8265e620a2" id="5b0829cd-224c-4771-99c8-6c8265e620a2" style="height: 0px; width: 0px; visibility: hidden;"></div><div class="calendly-lifecycle-optibutton_singleton"><template shadowrootmode="closed"><div class="calendly-opti-root"></div></template></div><bubbles-pinned-extension-ppbfhhgcdehhbjigifndnfmcihegokbb style="z-index: 2147483647; position: fixed; left: 0px; bottom: 10%; box-sizing: border-box; display: none;"><template shadowrootmode="open">
+<script type="text/javascript" src="chrome-extension://copnnlbbmgdflldkbnemmccblmgcnlmo/js/injectedScript.js"></script><div><div id="plasmo-overlay-0" class="plasmo-csui-container" style="display: flex; position: absolute; top: 0px; left: 0px;"></div></div><div class="calendly-frame-tag" manager_id="e6d270a9-a5c3-4445-be77-3e38fa845417" id="e6d270a9-a5c3-4445-be77-3e38fa845417" style="height: 0px; width: 0px; visibility: hidden;"></div><div class="calendly-lifecycle-optibutton_singleton"><template shadowrootmode="closed"><div class="calendly-opti-root"></div></template></div><bubbles-pinned-extension-ppbfhhgcdehhbjigifndnfmcihegokbb style="z-index: 2147483647; position: fixed; left: 0px; bottom: 10%; box-sizing: border-box; display: none;"><template shadowrootmode="open">
 <style>
   .hide {
     display: none !important;
