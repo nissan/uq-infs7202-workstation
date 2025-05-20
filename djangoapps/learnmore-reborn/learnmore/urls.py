@@ -45,6 +45,7 @@ urlpatterns = [
     # Template-based URLs
     path('courses/', include('courses.urls')),
     path('users/', include('users.urls')),  # Template-based user routes
+    path('progress/', include('progress.urls')),  # Progress tracking and learning interface
     # API URLs
     path('api/courses/', include('courses.api_urls')),
     path('api/progress/', include('progress.api_urls')),

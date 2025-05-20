@@ -1,0 +1,689 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ module.title }} | {{ module.course.title }} | LearnMore{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Progress indicator styles */
+    .progress-indicator {
+        height: 0.5rem;
+        border-radius: 0.25rem;
+        background-color: #e2e8f0;
+        margin: 0.5rem 0;
+        overflow: hidden;
+    }
+    
+    .progress-bar {
+        height: 100%;
+        background-color: #3b82f6;
+        transition: width 0.5s ease;
+    }
+    
+    /* Module navigation styles */
+    .module-navigation {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .module-navigation-item {
+        flex: 1;
+        min-width: 8rem;
+        padding: 0.5rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.375rem;
+        text-align: center;
+        background-color: white;
+        position: relative;
+    }
+    
+    .module-navigation-item.active {
+        border-color: #3b82f6;
+        background-color: #eff6ff;
+    }
+    
+    .module-navigation-item.completed {
+        border-color: #10b981;
+    }
+    
+    .module-navigation-item.completed::after {
+        content: "✓";
+        position: absolute;
+        top: -0.5rem;
+        right: -0.5rem;
+        width: 1.5rem;
+        height: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #10b981;
+        color: white;
+        border-radius: 50%;
+        font-size: 0.75rem;
+    }
+    
+    .module-navigation-item.locked {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .module-content {
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .module-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #1e3a8a;
+    }
+    
+    .module-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .module-meta {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .module-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #64748b;
+        font-size: 0.875rem;
+    }
+    
+    .module-action {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .time-tracking {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background-color: #eff6ff;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.375rem;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .btn-complete {
+        background-color: #10b981;
+        color: white;
+        border: none;
+        border-radius: 0.375rem;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-complete:hover {
+        background-color: #059669;
+    }
+    
+    /* Content display styles */
+    .content-wrapper {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+    
+    .content-wrapper h1, 
+    .content-wrapper h2, 
+    .content-wrapper h3, 
+    .content-wrapper h4 {
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .content-wrapper h2 {
+        font-size: 1.5rem;
+        color: #1e40af;
+    }
+    
+    .content-wrapper h3 {
+        font-size: 1.25rem;
+        color: #1e40af;
+    }
+    
+    .content-wrapper p, 
+    .content-wrapper ul, 
+    .content-wrapper ol {
+        margin-bottom: 1rem;
+    }
+    
+    .content-wrapper ul, 
+    .content-wrapper ol {
+        padding-left: 1.5rem;
+    }
+    
+    .content-wrapper pre {
+        background-color: #f8fafc;
+        padding: 1rem;
+        border-radius: 0.375rem;
+        overflow-x: auto;
+        margin-bottom: 1rem;
+    }
+    
+    .content-wrapper img {
+        max-width: 100%;
+        height: auto;
+        margin: 1rem 0;
+        border-radius: 0.375rem;
+    }
+    
+    /* Navigation buttons */
+    .module-navigation-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+    }
+    
+    .btn-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-nav-prev {
+        background-color: white;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .btn-nav-prev:hover {
+        border-color: #cbd5e1;
+        color: #1e40af;
+    }
+    
+    .btn-nav-next {
+        background-color: #3b82f6;
+        color: white;
+        border: none;
+    }
+    
+    .btn-nav-next:hover {
+        background-color: #2563eb;
+    }
+    
+    /* Position tracker */
+    .position-tracker {
+        background-color: #f8fafc;
+        padding: 1rem;
+        border-radius: 0.375rem;
+        margin-top: 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .position-label {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: #64748b;
+    }
+    
+    .position-value {
+        font-family: monospace;
+        color: #1e40af;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+        .module-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .module-meta {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .module-navigation-buttons {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .btn-nav {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="py-3">
+            <nav class="flex" aria-label="Breadcrumb">
+                <ol class="flex items-center space-x-4">
+                    <li>
+                        <div>
+                            <a href="{% url 'course-catalog' %}" class="text-gray-500 hover:text-gray-700">Courses</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <svg class="flex-shrink-0 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            <a href="{% url 'course-detail' slug=module.course.slug %}" class="ml-4 text-gray-500 hover:text-gray-700">{{ module.course.title }}</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <svg class="flex-shrink-0 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="ml-4 text-gray-500 font-medium">{{ module.title }}</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main content area -->
+        <div class="lg:col-span-2">
+            <!-- Module content -->
+            <div class="module-content">
+                <div class="module-header">
+                    <h1 class="module-title">{{ module.title }}</h1>
+                    <div class="module-action">
+                        {% if module_progress.status == 'completed' %}
+                            <span class="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-green-100 text-green-800">
+                                <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-green-400" fill="currentColor" viewBox="0 0 8 8">
+                                    <circle cx="4" cy="4" r="3" />
+                                </svg>
+                                Completed
+                            </span>
+                        {% elif module_progress.status == 'in_progress' %}
+                            <button id="complete-module" class="btn-complete" data-module-id="{{ module.id }}" data-progress-id="{{ module_progress.id }}">
+                                Mark as Complete
+                            </button>
+                        {% else %}
+                            <button id="start-module" class="bg-blue-600 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-blue-700">
+                                Start Module
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="module-meta">
+                    <div class="module-meta-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>{{ module.estimated_time_minutes }} min</span>
+                    </div>
+                    <div class="module-meta-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+                        </svg>
+                        <span>{{ module.get_content_type_display }}</span>
+                    </div>
+                    {% if module.prerequisites.exists %}
+                    <div class="module-meta-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        <span>{{ module.prerequisites.count }} Prerequisites</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Time tracking -->
+                <div class="time-tracking" id="time-tracking">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Time spent: <span id="time-spent">{{ module_progress.duration_seconds|default:"0" }}</span> seconds</span>
+                </div>
+                
+                <!-- Progress indicator -->
+                <div class="flex justify-between text-xs text-gray-600 mb-1">
+                    <span>Module Progress</span>
+                    <span id="progress-percent">{{ progress.completion_percentage|floatformat:0 }}%</span>
+                </div>
+                <div class="progress-indicator">
+                    <div class="progress-bar" style="width: {{ progress.completion_percentage }}%"></div>
+                </div>
+                
+                <!-- Module content -->
+                <div class="content-wrapper mt-6">
+                    {% if module.content %}
+                        {{ module.content|safe|linebreaks }}
+                    {% else %}
+                        <p class="text-gray-500 italic">No content available for this module yet.</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Position tracker (for video/audio content) -->
+                {% if module.content_type == 'video' or module.content_type == 'audio' %}
+                <div class="position-tracker">
+                    <div class="position-label">Current Position:</div>
+                    <div class="position-value" id="content-position">
+                        {% if module_progress.content_position %}
+                            {{ module_progress.content_position|safe }}
+                        {% else %}
+                            Not started
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Navigation buttons -->
+                <div class="module-navigation-buttons">
+                    {% if prev_module %}
+                    <a href="{% url 'module-detail' module_id=prev_module.id %}" class="btn-nav btn-nav-prev">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Previous: {{ prev_module.title }}
+                    </a>
+                    {% else %}
+                    <div></div>
+                    {% endif %}
+                    
+                    {% if next_module %}
+                    <a href="{% url 'module-detail' module_id=next_module.id %}" class="btn-nav btn-nav-next">
+                        Next: {{ next_module.title }}
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                    {% else %}
+                    <a href="{% url 'course-detail' slug=module.course.slug %}" class="btn-nav btn-nav-next">
+                        Back to Course
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+            <!-- Module navigation card -->
+            <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-3">Module Navigation</h3>
+                
+                <div class="module-navigation">
+                    {% for course_module in course_modules %}
+                    <a href="{% url 'module-detail' module_id=course_module.id %}" 
+                       class="module-navigation-item 
+                              {% if course_module.id == module.id %}active{% endif %}
+                              {% if module_progress_map|get_item:course_module.id == 'completed' %}completed{% endif %}
+                              {% if not module_accessible_map|get_item:course_module.id %}locked{% endif %}"
+                       {% if not module_accessible_map|get_item:course_module.id %}
+                       title="Complete prerequisites first"
+                       onclick="event.preventDefault();"
+                       {% endif %}
+                    >
+                        {{ course_module.order|add:"1" }}. {{ course_module.title|truncatechars:20 }}
+                    </a>
+                    {% endfor %}
+                </div>
+                
+                <!-- Prerequisites -->
+                {% if module.prerequisites.exists %}
+                <div class="mt-4">
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">Prerequisites:</h4>
+                    <ul class="text-sm text-gray-600">
+                        {% for prereq in module.prerequisites.all %}
+                        <li class="flex items-center gap-2 mb-1">
+                            {% if module_progress_map|get_item:prereq.id == 'completed' %}
+                            <svg class="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            {% else %}
+                            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {% endif %}
+                            <a href="{% url 'module-detail' module_id=prereq.id %}" class="hover:text-blue-600">
+                                {{ prereq.title }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Course progress card -->
+            <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-3">Course Progress</h3>
+                
+                <div class="flex justify-between text-sm text-gray-600 mb-1">
+                    <span>Overall Progress</span>
+                    <span>{{ progress.completion_percentage|floatformat:0 }}%</span>
+                </div>
+                <div class="progress-indicator mb-4">
+                    <div class="progress-bar" style="width: {{ progress.completion_percentage }}%"></div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <div class="text-2xl font-bold text-blue-600">{{ progress.completed_lessons }}</div>
+                        <div class="text-xs text-gray-500">Completed</div>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <div class="text-2xl font-bold text-blue-600">{{ progress.total_lessons }}</div>
+                        <div class="text-xs text-gray-500">Total Modules</div>
+                    </div>
+                </div>
+                
+                {% if progress.total_duration_seconds > 0 %}
+                <div class="mt-4 text-center p-3 bg-blue-50 rounded-lg">
+                    <div class="text-sm text-gray-600">Total Time Spent</div>
+                    <div class="text-xl font-medium text-blue-600">{{ progress.total_duration }}</div>
+                </div>
+                {% endif %}
+                
+                <div class="mt-4">
+                    <a href="{% url 'learner-progress' course_id=module.course.id %}" class="w-full block text-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                        View Full Progress
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Continue Learning card -->
+            {% if next_incomplete_module %}
+            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg shadow-sm p-4 text-white">
+                <h3 class="text-lg font-medium mb-3">Continue Learning</h3>
+                <p class="text-sm text-blue-100 mb-4">Ready to continue your learning journey?</p>
+                
+                <div class="bg-white bg-opacity-10 p-3 rounded-lg mb-4">
+                    <div class="text-sm font-medium">Next up:</div>
+                    <div class="text-lg">{{ next_incomplete_module.title }}</div>
+                </div>
+                
+                <a href="{% url 'module-detail' module_id=next_incomplete_module.id %}" class="w-full block text-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-blue-700 bg-white hover:bg-blue-50">
+                    Start Module
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Time tracking
+        let startTime = Date.now();
+        let moduleId = "{{ module.id }}";
+        let moduleProgressId = "{{ module_progress.id }}";
+        let timeSpentElement = document.getElementById('time-spent');
+        let initialSeconds = parseInt(timeSpentElement.textContent || "0");
+        let elapsedSeconds = 0;
+        
+        // Update time every second
+        setInterval(function() {
+            elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+            timeSpentElement.textContent = initialSeconds + elapsedSeconds;
+        }, 1000);
+        
+        // Update server with time spent on page unload
+        window.addEventListener('beforeunload', function() {
+            // Send time tracking data
+            navigator.sendBeacon(
+                `/api/progress/module-progress/${moduleProgressId}/add_time/`,
+                JSON.stringify({
+                    seconds: elapsedSeconds,
+                })
+            );
+        });
+        
+        // Mark as complete button
+        const completeButton = document.getElementById('complete-module');
+        if (completeButton) {
+            completeButton.addEventListener('click', function() {
+                fetch(`/api/progress/module-progress/${moduleProgressId}/complete/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Update UI
+                    const progressBar = document.querySelector('.progress-bar');
+                    document.getElementById('progress-percent').textContent = 
+                        Math.round(data.course_completion_percentage) + '%';
+                    progressBar.style.width = data.course_completion_percentage + '%';
+                    
+                    // Replace button with completed label
+                    completeButton.parentNode.innerHTML = `
+                        <span class="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-green-100 text-green-800">
+                            <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-green-400" fill="currentColor" viewBox="0 0 8 8">
+                                <circle cx="4" cy="4" r="3" />
+                            </svg>
+                            Completed
+                        </span>
+                    `;
+                    
+                    // Add completed class to navigation item
+                    const navItem = document.querySelector('.module-navigation-item.active');
+                    if (navItem) {
+                        navItem.classList.add('completed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        }
+        
+        // Start module button
+        const startButton = document.getElementById('start-module');
+        if (startButton) {
+            startButton.addEventListener('click', function() {
+                fetch(`/api/progress/module-progress/${moduleProgressId}/update_position/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        position: { started: true }
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Replace button with mark as complete button
+                    startButton.outerHTML = `
+                        <button id="complete-module" class="btn-complete" data-module-id="${moduleId}" data-progress-id="${moduleProgressId}">
+                            Mark as Complete
+                        </button>
+                    `;
+                    
+                    // Add event listener to new button
+                    document.getElementById('complete-module').addEventListener('click', function() {
+                        // This code will be executed when the newly created button is clicked
+                        // Similar to the code for completeButton above
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        }
+        
+        // Video/audio tracking for position
+        if ("{{ module.content_type }}" === "video" || "{{ module.content_type }}" === "audio") {
+            // Find video or audio element in the content
+            const mediaElements = document.querySelectorAll('video, audio');
+            if (mediaElements.length > 0) {
+                const mediaElement = mediaElements[0];
+                
+                // Update position on timeupdate (every few seconds during playback)
+                mediaElement.addEventListener('timeupdate', function() {
+                    document.getElementById('content-position').textContent = 
+                        JSON.stringify({time: Math.floor(mediaElement.currentTime)});
+                });
+                
+                // Save position when paused
+                mediaElement.addEventListener('pause', function() {
+                    fetch(`/api/progress/module-progress/${moduleProgressId}/update_position/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: JSON.stringify({
+                            position: {time: Math.floor(mediaElement.currentTime)}
+                        })
+                    });
+                });
+            }
+        }
+        
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
+{% endblock %}
