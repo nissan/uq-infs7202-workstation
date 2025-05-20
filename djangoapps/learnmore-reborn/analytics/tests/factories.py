@@ -5,7 +5,7 @@ from ..models import (
     UserActivity, CourseAnalytics, UserAnalytics,
     QuizAnalytics, SystemAnalytics, CourseAnalyticsSummary
 )
-from courses.models import Course, Quiz
+from courses.models import Course, Module, Quiz
 
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -23,15 +23,28 @@ class CourseFactory(factory.django.DjangoModelFactory):
     title = factory.Sequence(lambda n: f'Course {n}')
     description = factory.LazyAttribute(lambda obj: f'Description for {obj.title}')
     instructor = factory.SubFactory(UserFactory)
-    is_active = True
+    status = 'active'
+    enrollment_type = 'open'
+    course_type = 'regular'
+    analytics_enabled = True
+
+class ModuleFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Module
+        
+    title = factory.Sequence(lambda n: f'Module {n}')
+    course = factory.SubFactory(CourseFactory)
+    order = factory.Sequence(lambda n: n)
 
 class QuizFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Quiz
     
     title = factory.Sequence(lambda n: f'Quiz {n}')
-    course = factory.SubFactory(CourseFactory)
-    is_active = True
+    module = factory.SubFactory(ModuleFactory)
+    is_published = True
+    time_limit_minutes = 30
+    passing_score = 70.0
 
 class UserActivityFactory(factory.django.DjangoModelFactory):
     class Meta:

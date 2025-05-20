@@ -10,7 +10,7 @@ from datetime import timedelta
 
 class UserActivity(models.Model):
     """Tracks general user activity on the platform"""
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_activities')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_activities', null=True, blank=True)
     activity_type = models.CharField(max_length=50)  # login, view_course, view_module, etc.
     timestamp = models.DateTimeField(auto_now_add=True)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
@@ -27,7 +27,8 @@ class UserActivity(models.Model):
         ]
     
     def __str__(self):
-        return f"{self.user.username} - {self.activity_type} - {self.timestamp}"
+        username = self.user.username if self.user else "Anonymous"
+        return f"{username} - {self.activity_type} - {self.timestamp}"
 
 class LearnerAnalytics(models.Model):
     """
