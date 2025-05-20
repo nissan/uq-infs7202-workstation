@@ -139,14 +139,17 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-# Add whitenoise for static files in production
+# Temporarily disable WhiteNoise to debug static files
+# if not DEBUG:
+#     MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+#     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+#     WHITENOISE_USE_FINDERS = True
+#     WHITENOISE_MANIFEST_STRICT = False
+#     WHITENOISE_ALLOW_ALL_ORIGINS = True
+
+# Add this to ensure static files are served in production
 if not DEBUG:
-    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    # Add this to ensure admin static files are served
-    WHITENOISE_USE_FINDERS = True
-    WHITENOISE_MANIFEST_STRICT = False
-    WHITENOISE_ALLOW_ALL_ORIGINS = True
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
