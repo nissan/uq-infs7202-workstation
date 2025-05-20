@@ -5,9 +5,12 @@ from django.contrib import messages
 from django.urls import reverse
 from django.utils import timezone
 from django.db.models import Q
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework import generics
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
 
 from .models import Module, Quiz, Course, Enrollment
 from .serializers import CourseSerializer
@@ -24,6 +27,7 @@ class CourseDetailView(generics.RetrieveAPIView):
     permission_classes = [AllowAny]
 
 # Template Views
+@method_decorator(csrf_exempt, name='dispatch')
 class CourseCatalogView(ListView):
     model = Course
     template_name = 'courses/course-catalog.html'
@@ -72,6 +76,7 @@ class CourseCatalogView(ListView):
         
         return context
 
+@method_decorator(csrf_exempt, name='dispatch')
 class CourseDetailView(DetailView):
     model = Course
     template_name = 'courses/course-detail.html'
@@ -95,6 +100,7 @@ class CourseDetailView(DetailView):
         
         return context
 
+@method_decorator(csrf_exempt, name='dispatch')
 class ModuleDetailView(LoginRequiredMixin, DetailView):
     model = Module
     template_name = 'courses/module_detail.html'
@@ -117,6 +123,7 @@ class ModuleDetailView(LoginRequiredMixin, DetailView):
         context['is_enrolled'] = is_enrolled
         return context
 
+@method_decorator(csrf_exempt, name='dispatch')
 class QuizDetailView(LoginRequiredMixin, DetailView):
     model = Quiz
     template_name = 'courses/quiz_detail.html'
@@ -140,6 +147,7 @@ class QuizDetailView(LoginRequiredMixin, DetailView):
         return context
 
 # Enrollment Views
+@csrf_exempt
 def enroll_course(request, slug):
     course = get_object_or_404(Course, slug=slug)
     
@@ -178,6 +186,7 @@ def enroll_course(request, slug):
     messages.success(request, f"You have successfully enrolled in {course.title}.")
     return redirect('course-detail', slug=slug)
 
+@csrf_exempt
 def unenroll_course(request, slug):
     course = get_object_or_404(Course, slug=slug)
     

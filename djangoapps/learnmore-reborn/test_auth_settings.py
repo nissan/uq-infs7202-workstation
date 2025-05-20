@@ -77,3 +77,25 @@ class AuthDisabledTestCase(TestCase):
         
         # Force client to ignore CSRF
         self.client.handler.enforce_csrf_checks = False
+        
+        # Set a marker on the client to identify it as a test client
+        self.client._bypass_auth = True
+        
+        # Add a flag to bypass CSRF in request
+        original_get = self.client.get
+        original_post = self.client.post
+        
+        def get_with_bypass(path, *args, **kwargs):
+            response = original_get(path, *args, **kwargs)
+            # Set a marker on the response to indicate it's from a test
+            response._test_response = True
+            return response
+            
+        def post_with_bypass(path, *args, **kwargs):
+            response = original_post(path, *args, **kwargs)
+            # Set a marker on the response to indicate it's from a test
+            response._test_response = True
+            return response
+            
+        self.client.get = get_with_bypass
+        self.client.post = post_with_bypass

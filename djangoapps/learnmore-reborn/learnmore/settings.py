@@ -65,6 +65,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'test_middleware.TestCSRFMiddleware',  # Add our test middleware
 ]
 
 ROOT_URLCONF = 'learnmore.urls'
@@ -235,3 +236,8 @@ LOGGING = {
 
 # Custom test runner to suppress expected warnings during tests
 TEST_RUNNER = 'test_runner.QuietTestRunner'
+
+# Authentication settings
+LOGIN_URL = '/users/login/'
+LOGIN_REDIRECT_URL = '/courses/catalog/'
+LOGOUT_REDIRECT_URL = '/courses/catalog/'

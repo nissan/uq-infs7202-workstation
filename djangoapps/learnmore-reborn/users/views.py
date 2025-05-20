@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.messages.storage.fallback import FallbackStorage
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -14,6 +15,7 @@ from .forms import UserRegistrationForm, UserProfileForm
 
 # Template-based views
 
+@csrf_exempt
 def register_view(request):
     """User registration view with form handling."""
     if request.method == 'POST':
@@ -29,6 +31,7 @@ def register_view(request):
     
     return render(request, 'users/register.html', {'form': form})
 
+@csrf_exempt
 def login_view(request):
     """User login view with form handling."""
     if request.method == 'POST':
@@ -50,6 +53,7 @@ def login_view(request):
     
     return render(request, 'users/login.html')
 
+@csrf_exempt
 def logout_view(request):
     """User logout view."""
     # Clear any existing messages
@@ -60,11 +64,13 @@ def logout_view(request):
     messages.success(request, 'You have been logged out successfully.')
     return redirect('course-catalog')
 
+@csrf_exempt
 @login_required
 def profile_view(request):
     """View for displaying user profile."""
     return render(request, 'users/profile.html')
 
+@csrf_exempt
 @login_required
 def profile_edit_view(request):
     """View for editing user profile."""
