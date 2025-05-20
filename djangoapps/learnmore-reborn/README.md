@@ -62,6 +62,10 @@ Visit: http://127.0.0.1:8000/admin/
 
 The application uses Django's built-in User model with a custom UserProfile extension for additional user information. Authentication is handled through JWT tokens.
 
+## 📚 Course Catalog & Enrollment
+
+The platform features a comprehensive course catalog with enrollment management capabilities. Users can browse courses, filter by enrollment type, search for specific courses, and enroll in courses of interest.
+
 ### Available Endpoints
 
 - `POST /api/users/register/` - Register a new user
@@ -72,6 +76,16 @@ The application uses Django's built-in User model with a custom UserProfile exte
 - `POST /api/users/google-auth/` - Google OAuth authentication
 
 For detailed API documentation, see [users/API_DOCUMENTATION.md](users/API_DOCUMENTATION.md).
+
+### Course Catalog & Enrollment Endpoints
+
+- `GET /api/courses/catalog/` - List all published courses
+- `GET /api/courses/catalog/search/` - Search for courses by title or description
+- `POST /api/courses/{slug}/enroll/` - Enroll in a course
+- `POST /api/courses/{slug}/unenroll/` - Unenroll from a course
+- `GET /api/courses/enrolled/` - List enrolled courses
+
+For detailed API documentation on course catalog and enrollment, see [courses/API_DOCUMENTATION.md](courses/API_DOCUMENTATION.md).
 
 ### User Profile Fields
 

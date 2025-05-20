@@ -23,12 +23,13 @@ def root_view(request):
     try:
         from courses.models import Course
         if Course.objects.exists():
-            return RedirectView.as_view(url='/api/courses/', permanent=False)(request)
+            return RedirectView.as_view(url='/courses/catalog/', permanent=False)(request)
         return JsonResponse({
-            'message': 'Welcome to LearnMore API',
+            'message': 'Welcome to LearnMore',
             'status': 'No courses available yet',
             'endpoints': {
-                'courses': '/api/courses/',
+                'courses': '/courses/catalog/',
+                'api/courses': '/api/courses/',
                 'admin': '/admin/',
             }
         })
@@ -41,6 +42,7 @@ def root_view(request):
 urlpatterns = [
     path('', root_view, name='root'),
     path('admin/', admin.site.urls),
+    path('courses/', include('courses.urls')),
     path('api/courses/', include('courses.api_urls')),
     path('api/progress/', include('progress.api_urls')),
     path('api/users/', include('users.api_urls')),

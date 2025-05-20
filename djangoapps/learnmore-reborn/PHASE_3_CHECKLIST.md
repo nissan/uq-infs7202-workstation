@@ -4,46 +4,46 @@ This checklist covers migrating the course catalog and enrollment features into 
 
 ## Models & Migrations
 
-- [ ] Create `Enrollment` model in `courses/models.py` to track:
-  - [ ] User enrollment status
-  - [ ] Enrollment date
-  - [ ] Course access permissions
-- [ ] Add catalog-specific fields to `Course` model:
-  - [ ] Visibility status (public/private)
-  - [ ] Enrollment type (open/restricted)
-  - [ ] Maximum enrollment capacity
-- [ ] Run `makemigrations courses` and commit migrations
+- [x] Create `Enrollment` model in `courses/models.py` to track:
+  - [x] User enrollment status
+  - [x] Enrollment date
+  - [x] Course access permissions
+- [x] Add catalog-specific fields to `Course` model:
+  - [x] Visibility status (public/private)
+  - [x] Enrollment type (open/restricted)
+  - [x] Maximum enrollment capacity
+- [x] Run `makemigrations courses` and commit migrations
 
 ## Admin
 
-- [ ] Register `Enrollment` model in Django Admin
-- [ ] Add enrollment management interface
-- [ ] Add course catalog management features:
-  - [ ] Bulk visibility updates
-  - [ ] Enrollment capacity management
-  - [ ] Enrollment status overview
+- [x] Register `Enrollment` model in Django Admin
+- [x] Add enrollment management interface
+- [x] Add course catalog management features:
+  - [x] Bulk visibility updates
+  - [x] Enrollment capacity management
+  - [x] Enrollment status overview
 
 ## API & Serializers
 
-- [ ] Create `EnrollmentSerializer` in `courses/serializers.py`
-- [ ] Update `CourseSerializer` with catalog-specific fields
-- [ ] Wire up DRF viewsets or APIViews for:
-  - [ ] `GET /api/courses/catalog/` (public course listing)
-  - [ ] `GET /api/courses/catalog/search/` (course search)
-  - [ ] `GET /api/courses/catalog/filter/` (course filtering)
-  - [ ] `POST /api/courses/{id}/enroll/` (enroll in course)
-  - [ ] `POST /api/courses/{id}/unenroll/` (unenroll from course)
-  - [ ] `GET /api/courses/enrolled/` (list enrolled courses)
-- [ ] Add URL patterns in `courses/api_urls.py`
+- [x] Create `EnrollmentSerializer` in `courses/serializers.py`
+- [x] Update `CourseSerializer` with catalog-specific fields
+- [x] Wire up DRF viewsets or APIViews for:
+  - [x] `GET /api/courses/catalog/` (public course listing)
+  - [x] `GET /api/courses/catalog/search/` (course search)
+  - [x] `GET /api/courses/catalog/filter/` (course filtering)
+  - [x] `POST /api/courses/{id}/enroll/` (enroll in course)
+  - [x] `POST /api/courses/{id}/unenroll/` (unenroll from course)
+  - [x] `GET /api/courses/enrolled/` (list enrolled courses)
+- [x] Add URL patterns in `courses/api_urls.py`
 
 ## UI Components
 
-- [ ] Create course catalog page template
-- [ ] Implement course search component
-- [ ] Add course filtering interface
-- [ ] Create enrollment management UI
-- [ ] Add course enrollment status indicators
-- [ ] Implement responsive course cards
+- [x] Create course catalog page template
+- [x] Implement course search component
+- [x] Add course filtering interface
+- [x] Create enrollment management UI
+- [x] Add course enrollment status indicators
+- [x] Implement responsive course cards
 
 ## Tests
 
@@ -63,7 +63,7 @@ This checklist covers migrating the course catalog and enrollment features into 
 
 ## Docs
 
-- [ ] Update `README.md` with course catalog and enrollment setup
-- [ ] Document API endpoints for catalog and enrollment
-- [ ] Add enrollment management guide
-- [ ] Document search and filter parameters 
+- [x] Update `README.md` with course catalog and enrollment setup
+- [x] Document API endpoints for catalog and enrollment
+- [x] Add enrollment management guide
+- [x] Document search and filter parameters 
