@@ -127,7 +127,7 @@
                         <div class="response-list space-y-3">
                             {% for response in responses %}
                             <div class="response-card p-3 border rounded-lg {% if response.id == current_response.id %}active{% endif %} hover:bg-gray-50">
-                                <a href="{% url 'grade-essay' quiz.id %}?response_id={{ response.id }}" class="block">
+                                <a href="{% url 'pending-essay-grading' quiz.id %}?response_id={{ response.id }}" class="block">
                                     <div class="flex justify-between items-center mb-2">
                                         <span class="font-medium">{{ response.attempt.user.username }}</span>
                                         <span class="text-xs px-2 py-1 rounded-full {% if response.graded_at %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">

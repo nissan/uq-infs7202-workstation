@@ -614,6 +614,9 @@ class QuizAttempt(models.Model):
             self.is_passed = percentage >= self.quiz.passing_score
         else:
             self.is_passed = True  # No questions = automatic pass
+        
+        # Save the updated scores
+        self.save()
             
         return self.score, self.max_score
     

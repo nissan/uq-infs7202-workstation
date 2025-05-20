@@ -9,6 +9,10 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponseNotAllowed, JsonResponse
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
+from django.conf import settings
+import os
 
 from rest_framework import generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -16,7 +20,7 @@ from rest_framework.decorators import api_view, permission_classes
 
 from .models import (
     Module, Quiz, Course, Enrollment,
-    Question, MultipleChoiceQuestion, TrueFalseQuestion,
+    Question, MultipleChoiceQuestion, TrueFalseQuestion, EssayQuestion,
     Choice, QuizAttempt, QuestionResponse
 )
 from .serializers import CourseSerializer
@@ -301,6 +305,21 @@ class QuizDetailView(LoginRequiredMixin, DetailView):
             is_published=True
         ).exclude(id=quiz.id)[:5]
         
+        # For instructors, check if there are essay questions that need grading
+        has_pending_essays = False
+        pending_essay_count = 0
+        if user.profile.is_instructor:
+            # Check for essay questions in this quiz
+            has_essay_questions = quiz.questions.filter(question_type='essay').exists()
+            if has_essay_questions:
+                # Check for pending responses that need grading
+                pending_essay_count = QuestionResponse.objects.filter(
+                    question__quiz=quiz,
+                    question__question_type='essay',
+                    graded_at__isnull=True
+                ).count()
+                has_pending_essays = pending_essay_count > 0
+        
         # Add all to context
         context.update({
             'is_enrolled': is_enrolled,
@@ -311,7 +330,9 @@ class QuizDetailView(LoginRequiredMixin, DetailView):
             'can_take_quiz': can_take_quiz,
             'max_attempts_reached': max_attempts_reached,
             'in_progress_attempt': in_progress_attempt,
-            'related_quizzes': related_quizzes
+            'related_quizzes': related_quizzes,
+            'has_pending_essays': has_pending_essays,
+            'pending_essay_count': pending_essay_count
         })
         
         return context
@@ -386,6 +407,24 @@ class TakeQuizView(LoginRequiredMixin, DetailView):
                 
             context.update({
                 'selected_answer': selected_answer
+            })
+        elif question.question_type == 'essay':
+            # Get essay question specific data
+            essay_question = question.essayquestion
+            
+            # Get previous response if it exists
+            response = attempt.responses.filter(question=question).first()
+            if response:
+                essay_text = response.response_data.get('essay_text', '')
+                attachments = response.response_data.get('attachments', [])
+            else:
+                essay_text = ''
+                attachments = []
+                
+            context.update({
+                'essay_question': essay_question,
+                'essay_text': essay_text,
+                'attachments': attachments
             })
         
         # Get navigation data
@@ -526,6 +565,34 @@ def submit_answer(request, attempt_id, question_id):
     elif question.question_type == 'true_false':
         selected_answer = request.POST.get('answer')
         response_data = {'selected_answer': selected_answer}
+    elif question.question_type == 'essay':
+        essay_text = request.POST.get('essay_text', '')
+        response_data = {'essay_text': essay_text}
+        
+        # Handle attachments if provided
+        attachment = request.FILES.get('attachment')
+        if attachment and question.essayquestion.allow_attachments:
+            # Save the attachment to media
+            attachment_path = f'essay_attachments/{attempt.id}_{question.id}_{attachment.name}'
+            attachment_url = settings.MEDIA_URL + attachment_path
+            
+            # Ensure directory exists
+            directory = os.path.dirname(os.path.join(settings.MEDIA_ROOT, attachment_path))
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+            
+            # Save the file
+            with open(os.path.join(settings.MEDIA_ROOT, attachment_path), 'wb+') as destination:
+                for chunk in attachment.chunks():
+                    destination.write(chunk)
+            
+            # Add attachment info to response data
+            response_data['attachments'] = [{
+                'filename': attachment.name,
+                'path': attachment_path,
+                'url': attachment_url,
+                'content_type': attachment.content_type
+            }]
     else:
         response_data = {}
     
@@ -587,8 +654,15 @@ def finish_quiz(request, attempt_id):
     # Mark attempt as completed
     is_passed = attempt.mark_completed()
     
-    # Connect to progress tracking if not a survey and passed
-    if not attempt.quiz.is_survey and is_passed:
+    # Check for essay questions that need grading
+    has_pending_essays = QuestionResponse.objects.filter(
+        attempt=attempt,
+        question__question_type='essay',
+        graded_at__isnull=True
+    ).exists()
+    
+    # Connect to progress tracking if not a survey and passed and no pending essays
+    if not attempt.quiz.is_survey and is_passed and not has_pending_essays:
         # Get or create progress for this course
         from progress.models import Progress, ModuleProgress
         progress, _ = Progress.objects.get_or_create(
@@ -660,6 +734,13 @@ class QuizResultView(LoginRequiredMixin, DetailView):
                 
         # Get passing score in points
         passing_points = quiz.passing_points()
+        
+        # Check if there are any pending essay questions that need grading
+        has_pending_essays = QuestionResponse.objects.filter(
+            attempt=attempt,
+            question__question_type='essay',
+            graded_at__isnull=True
+        ).exists()
                 
         # Add to context
         context.update({
@@ -667,7 +748,8 @@ class QuizResultView(LoginRequiredMixin, DetailView):
             'responses': responses,
             'can_retake': can_retake,
             'passing_points': passing_points,
-            'score_percentage': round((attempt.score / attempt.max_score) * 100 if attempt.max_score > 0 else 0, 1)
+            'score_percentage': round((attempt.score / attempt.max_score) * 100 if attempt.max_score > 0 else 0, 1),
+            'has_pending_essays': has_pending_essays
         })
         
         return context
@@ -707,6 +789,144 @@ class QuizAttemptHistoryView(LoginRequiredMixin, ListView):
         
         context['quiz'] = quiz
         return context
+
+# Essay Grading Views
+@login_required
+def pending_essay_grading(request, quiz_id):
+    """View to list and grade pending essay responses"""
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    
+    # Only instructors can grade essays
+    if not hasattr(request.user, 'profile') or not request.user.profile.is_instructor:
+        messages.error(request, "Only instructors can grade essays.")
+        return redirect('quiz-detail', pk=quiz_id)
+    
+    # Get filter type
+    filter_type = request.GET.get('filter', 'pending')
+    
+    # Set up base query
+    base_query = Q(question__quiz=quiz, question__question_type='essay')
+    
+    # Add filter conditions
+    if filter_type == 'pending':
+        base_query &= Q(graded_at__isnull=True)
+    elif filter_type == 'graded':
+        base_query &= Q(graded_at__isnull=False)
+    # All responses otherwise
+    
+    # Get all essay responses
+    all_responses = QuestionResponse.objects.filter(base_query).select_related(
+        'question', 'attempt', 'attempt__user'
+    )
+    
+    # Get the response ID from query string if provided
+    response_id = request.GET.get('response_id')
+    if response_id:
+        current_response = get_object_or_404(
+            QuestionResponse, 
+            id=response_id,
+            question__quiz=quiz,
+            question__question_type='essay'
+        )
+    else:
+        # Default to the first pending response if none specified
+        current_response = all_responses.filter(graded_at__isnull=True).first()
+    
+    # Paginate responses
+    paginator = Paginator(all_responses.order_by('-created_at'), 20)
+    page_number = request.GET.get('page', 1)
+    responses = paginator.get_page(page_number)
+    
+    return render(request, 'courses/essay-grading.html', {
+        'quiz': quiz,
+        'responses': responses,
+        'current_response': current_response,
+        'pending_count': all_responses.filter(graded_at__isnull=True).count(),
+        'filter_type': filter_type
+    })
+
+@login_required
+def grade_essay_response(request, response_id):
+    """Grade an essay response"""
+    response = get_object_or_404(QuestionResponse, id=response_id)
+    quiz = response.question.quiz
+    
+    # Check that this is an essay question
+    if response.question.question_type != 'essay':
+        messages.error(request, "The selected response is not an essay question.")
+        return redirect('quiz-detail', pk=quiz.id)
+    
+    # Only the course instructor can grade essays
+    if not hasattr(request.user, 'profile') or not request.user.profile.is_instructor:
+        messages.error(request, "Only instructors can grade essays.")
+        return redirect('quiz-detail', pk=quiz.id)
+    
+    # Get question
+    essay_question = response.question.essayquestion
+    
+    if request.method == 'POST':
+        # Get grading data
+        points = int(request.POST.get('points', 0))
+        feedback = request.POST.get('feedback', '')
+        
+        # Validate points
+        if points < 0:
+            points = 0
+        if points > essay_question.points:
+            points = essay_question.points
+        
+        # Grade the response
+        essay_question.grade_response(response, points, feedback, request.user)
+        
+        # Check if there are any more pending essays for this quiz
+        next_pending = QuestionResponse.objects.filter(
+            question__quiz=quiz,
+            question__question_type='essay',
+            graded_at__isnull=True
+        ).exclude(id=response_id).first()
+        
+        if next_pending:
+            return redirect(f"{reverse('pending-essay-grading', args=[quiz.id])}?response_id={next_pending.id}")
+        else:
+            messages.success(request, "Essay graded successfully. No more pending essays for this quiz.")
+            return redirect('pending-essay-grading', quiz_id=quiz.id)
+    
+    # For GET, redirect to the essay grading page with this response selected
+    return redirect(f"{reverse('pending-essay-grading', args=[quiz.id])}?response_id={response_id}")
+
+@login_required
+def annotate_essay_response(request, response_id):
+    """Add an annotation to an essay response"""
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+    
+    response = get_object_or_404(QuestionResponse, id=response_id)
+    quiz = response.question.quiz
+    
+    # Check that this is an essay question
+    if response.question.question_type != 'essay':
+        messages.error(request, "The selected response is not an essay question.")
+        return redirect('quiz-detail', pk=quiz.id)
+    
+    # Only the course instructor can annotate essays
+    if not hasattr(request.user, 'profile') or not request.user.profile.is_instructor:
+        messages.error(request, "Only instructors can annotate essays.")
+        return redirect('quiz-detail', pk=quiz.id)
+    
+    # Get annotation
+    annotation = request.POST.get('annotation', '')
+    
+    if annotation:
+        # Add the annotation
+        response.instructor_annotation = annotation
+        response.annotation_added_at = timezone.now()
+        response.annotated_by = request.user
+        response.save()
+        
+        messages.success(request, "Annotation added successfully.")
+    
+    # Redirect back to the essay grading page
+    return redirect(f"{reverse('pending-essay-grading', args=[quiz.id])}?response_id={response_id}")
 
 # Enrollment Views
 @csrf_exempt
@@ -769,3 +989,285 @@ def unenroll_course(request, slug):
     
     messages.success(request, f"You have been unenrolled from {course.title}.")
     return redirect('course-catalog')
+
+# Question Editor Views
+@login_required
+def add_question(request, quiz_id):
+    """View for adding a new question to a quiz"""
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    
+    # Only instructors can add questions
+    if not hasattr(request.user, 'profile') or not request.user.profile.is_instructor:
+        messages.error(request, "Only instructors can add quiz questions.")
+        return redirect('quiz-detail', pk=quiz.id)
+    
+    # Instructor must own the course
+    if quiz.module.course.instructor != request.user:
+        messages.error(request, "You can only add questions to your own quizzes.")
+        return redirect('quiz-detail', pk=quiz.id)
+    
+    if request.method == 'POST':
+        # Process form submission
+        question_type = request.POST.get('question_type')
+        
+        # Common fields
+        question_data = {
+            'quiz': quiz,
+            'text': request.POST.get('text', ''),
+            'points': int(request.POST.get('points', 10)),
+            'explanation': request.POST.get('explanation', ''),
+            'order': quiz.questions.count() + 1
+        }
+        
+        # Media fields
+        if 'image' in request.FILES:
+            question_data['image'] = request.FILES['image']
+        
+        question_data['image_alt_text'] = request.POST.get('image_alt_text', '')
+        question_data['external_media_url'] = request.POST.get('external_media_url', '')
+        question_data['media_caption'] = request.POST.get('media_caption', '')
+        
+        # Create question based on type
+        if question_type == 'multiple_choice':
+            # Create MultipleChoiceQuestion
+            allow_multiple = 'allow_multiple' in request.POST
+            use_partial_credit = 'use_partial_credit' in request.POST
+            minimum_score = int(request.POST.get('minimum_score', 0))
+            
+            mcq = MultipleChoiceQuestion.objects.create(
+                **question_data,
+                allow_multiple=allow_multiple,
+                use_partial_credit=use_partial_credit,
+                minimum_score=minimum_score
+            )
+            
+            # Process choices
+            choice_texts = request.POST.getlist('choice_text[]', [])
+            choice_orders = request.POST.getlist('choice_order[]', [])
+            is_correct_indices = [int(x) for x in request.POST.getlist('is_correct[]', [])]
+            is_neutral_indices = [int(x) for x in request.POST.getlist('is_neutral[]', [])]
+            points_values = request.POST.getlist('points_value[]', [])
+            
+            for i, text in enumerate(choice_texts):
+                if text.strip():  # Only create choices with non-empty text
+                    order = int(choice_orders[i]) if i < len(choice_orders) else i
+                    is_correct = i in is_correct_indices
+                    is_neutral = i in is_neutral_indices if use_partial_credit else False
+                    points_value = int(points_values[i]) if use_partial_credit and i < len(points_values) else 0
+                    
+                    Choice.objects.create(
+                        question=mcq,
+                        text=text,
+                        order=order,
+                        is_correct=is_correct,
+                        is_neutral=is_neutral,
+                        points_value=points_value
+                    )
+            
+            messages.success(request, "Multiple choice question added successfully.")
+            
+        elif question_type == 'true_false':
+            # Create TrueFalseQuestion
+            correct_answer = request.POST.get('correct_answer') == 'true'
+            
+            TrueFalseQuestion.objects.create(
+                **question_data,
+                correct_answer=correct_answer
+            )
+            
+            messages.success(request, "True/False question added successfully.")
+            
+        elif question_type == 'essay':
+            # Create EssayQuestion
+            min_word_count = int(request.POST.get('min_word_count', 0))
+            max_word_count = int(request.POST.get('max_word_count', 0))
+            rubric = request.POST.get('rubric', '')
+            example_answer = request.POST.get('example_answer', '')
+            allow_attachments = 'allow_attachments' in request.POST
+            
+            EssayQuestion.objects.create(
+                **question_data,
+                min_word_count=min_word_count,
+                max_word_count=max_word_count,
+                rubric=rubric,
+                example_answer=example_answer,
+                allow_attachments=allow_attachments
+            )
+            
+            messages.success(request, "Essay question added successfully.")
+        
+        return redirect('quiz-detail', pk=quiz.id)
+    
+    # Render empty form
+    return render(request, 'courses/question-editor.html', {
+        'quiz': quiz
+    })
+
+@login_required
+def edit_question(request, question_id):
+    """View for editing an existing question"""
+    question = get_object_or_404(Question, id=question_id)
+    quiz = question.quiz
+    
+    # Only instructors can edit questions
+    if not hasattr(request.user, 'profile') or not request.user.profile.is_instructor:
+        messages.error(request, "Only instructors can edit quiz questions.")
+        return redirect('quiz-detail', pk=quiz.id)
+    
+    # Instructor must own the course
+    if quiz.module.course.instructor != request.user:
+        messages.error(request, "You can only edit questions in your own quizzes.")
+        return redirect('quiz-detail', pk=quiz.id)
+    
+    if request.method == 'POST':
+        # Process form submission
+        question_type = question.question_type
+        
+        # Update common fields
+        question.text = request.POST.get('text', '')
+        question.points = int(request.POST.get('points', 10))
+        question.explanation = request.POST.get('explanation', '')
+        
+        # Handle media updates
+        if 'delete_image' in request.POST and question.image:
+            question.image.delete()
+            question.image = None
+        
+        if 'image' in request.FILES:
+            if question.image:
+                question.image.delete()
+            question.image = request.FILES['image']
+        
+        question.image_alt_text = request.POST.get('image_alt_text', '')
+        question.external_media_url = request.POST.get('external_media_url', '')
+        question.media_caption = request.POST.get('media_caption', '')
+        
+        # Save common question fields
+        question.save()
+        
+        # Update type-specific fields
+        if question_type == 'multiple_choice':
+            mcq = question.multiplechoicequestion
+            mcq.allow_multiple = 'allow_multiple' in request.POST
+            mcq.use_partial_credit = 'use_partial_credit' in request.POST
+            mcq.minimum_score = int(request.POST.get('minimum_score', 0))
+            mcq.save()
+            
+            # Process choices
+            choice_ids = request.POST.getlist('choice_id[]', [])
+            choice_texts = request.POST.getlist('choice_text[]', [])
+            choice_orders = request.POST.getlist('choice_order[]', [])
+            is_correct_indices = [int(x) for x in request.POST.getlist('is_correct[]', [])]
+            is_neutral_indices = [int(x) for x in request.POST.getlist('is_neutral[]', [])]
+            points_values = request.POST.getlist('points_value[]', [])
+            
+            # Keep track of processed choices
+            processed_choice_ids = []
+            
+            for i, text in enumerate(choice_texts):
+                if text.strip():  # Only create choices with non-empty text
+                    choice_id = choice_ids[i] if i < len(choice_ids) else ''
+                    order = int(choice_orders[i]) if i < len(choice_orders) else i
+                    is_correct = i in is_correct_indices
+                    is_neutral = i in is_neutral_indices if mcq.use_partial_credit else False
+                    points_value = int(points_values[i]) if mcq.use_partial_credit and i < len(points_values) else 0
+                    
+                    if choice_id and choice_id.isdigit():
+                        # Update existing choice
+                        try:
+                            choice = Choice.objects.get(id=int(choice_id), question=mcq)
+                            choice.text = text
+                            choice.order = order
+                            choice.is_correct = is_correct
+                            choice.is_neutral = is_neutral
+                            choice.points_value = points_value
+                            choice.save()
+                            processed_choice_ids.append(int(choice_id))
+                        except Choice.DoesNotExist:
+                            # Create new choice if ID doesn't exist
+                            choice = Choice.objects.create(
+                                question=mcq,
+                                text=text,
+                                order=order,
+                                is_correct=is_correct,
+                                is_neutral=is_neutral,
+                                points_value=points_value
+                            )
+                            processed_choice_ids.append(choice.id)
+                    else:
+                        # Create new choice
+                        choice = Choice.objects.create(
+                            question=mcq,
+                            text=text,
+                            order=order,
+                            is_correct=is_correct,
+                            is_neutral=is_neutral,
+                            points_value=points_value
+                        )
+                        processed_choice_ids.append(choice.id)
+            
+            # Delete choices that were removed
+            mcq.choices.exclude(id__in=processed_choice_ids).delete()
+            
+            messages.success(request, "Multiple choice question updated successfully.")
+            
+        elif question_type == 'true_false':
+            tf_question = question.truefalsequestion
+            tf_question.correct_answer = request.POST.get('correct_answer') == 'true'
+            tf_question.save()
+            
+            messages.success(request, "True/False question updated successfully.")
+            
+        elif question_type == 'essay':
+            essay_question = question.essayquestion
+            essay_question.min_word_count = int(request.POST.get('min_word_count', 0))
+            essay_question.max_word_count = int(request.POST.get('max_word_count', 0))
+            essay_question.rubric = request.POST.get('rubric', '')
+            essay_question.example_answer = request.POST.get('example_answer', '')
+            essay_question.allow_attachments = 'allow_attachments' in request.POST
+            essay_question.save()
+            
+            messages.success(request, "Essay question updated successfully.")
+        
+        return redirect('quiz-detail', pk=quiz.id)
+    
+    # Render form with question data
+    return render(request, 'courses/question-editor.html', {
+        'quiz': quiz,
+        'question': question
+    })
+
+@login_required
+def delete_question(request, question_id):
+    """View for deleting a question"""
+    question = get_object_or_404(Question, id=question_id)
+    quiz = question.quiz
+    
+    # Only instructors can delete questions
+    if not hasattr(request.user, 'profile') or not request.user.profile.is_instructor:
+        messages.error(request, "Only instructors can delete quiz questions.")
+        return redirect('quiz-detail', pk=quiz.id)
+    
+    # Instructor must own the course
+    if quiz.module.course.instructor != request.user:
+        messages.error(request, "You can only delete questions in your own quizzes.")
+        return redirect('quiz-detail', pk=quiz.id)
+    
+    if request.method == 'POST':
+        # Delete the question
+        question.delete()
+        
+        # Update order of remaining questions
+        for i, q in enumerate(quiz.questions.all().order_by('order')):
+            q.order = i + 1
+            q.save()
+        
+        messages.success(request, "Question deleted successfully.")
+        return redirect('quiz-detail', pk=quiz.id)
+    
+    # Confirm deletion
+    return render(request, 'courses/confirm-delete.html', {
+        'quiz': quiz,
+        'question': question,
+        'object_name': f"Question: {question.text[:50]}..."
+    })

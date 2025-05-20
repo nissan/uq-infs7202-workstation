@@ -22,4 +22,9 @@ urlpatterns = [
     path('quiz-attempt/<int:attempt_id>/finish/', views.finish_quiz, name='finish-quiz'),
     path('quiz-attempt/<int:attempt_id>/abandon/', views.abandon_quiz, name='abandon-quiz'),
     path('quiz-attempt/<int:attempt_id>/result/', views.QuizResultView.as_view(), name='quiz-result'),
+    
+    # Essay grading routes
+    path('quiz/<int:quiz_id>/essay-grading/', views.pending_essay_grading, name='pending-essay-grading'),
+    path('response/<int:response_id>/grade/', views.grade_essay_response, name='grade-essay-response'),
+    path('response/<int:response_id>/annotate/', views.annotate_essay_response, name='annotate-essay-response'),
 ]
