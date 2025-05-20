@@ -66,6 +66,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'analytics.middleware.AnalyticsMiddleware',  # Add analytics middleware
 ]
 
 ROOT_URLCONF = 'learnmore.urls'
@@ -245,3 +246,41 @@ TEST_RUNNER = 'test_runner.QuietTestRunner'
 LOGIN_URL = '/users/login/'
 LOGIN_REDIRECT_URL = '/courses/catalog/'
 LOGOUT_REDIRECT_URL = '/courses/catalog/'
+
+# Cache settings
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'SOCKET_CONNECT_TIMEOUT': 5,
+            'SOCKET_TIMEOUT': 5,
+            'RETRY_ON_TIMEOUT': True,
+            'MAX_CONNECTIONS': 1000,
+            'COMPRESSOR': 'django_redis.compressors.zlib.ZlibCompressor',
+        },
+        'KEY_PREFIX': 'learnmore'
+    }
+}
+
+# Analytics settings
+ANALYTICS_SETTINGS = {
+    'ENABLE_ANALYTICS': True,
+    'COLLECT_USER_ACTIVITY': True,
+    'COLLECT_SYSTEM_METRICS': True,
+    'CACHE_TIMEOUTS': {
+        'system_metrics': 300,  # 5 minutes
+        'course_analytics': 3600,  # 1 hour
+        'user_analytics': 3600,  # 1 hour
+        'quiz_analytics': 3600,  # 1 hour
+    },
+    'RECALCULATION_INTERVALS': {
+        'system_metrics': 3600,  # 1 hour
+        'course_analytics': 86400,  # 24 hours
+        'user_analytics': 86400,  # 24 hours
+        'quiz_analytics': 86400,  # 24 hours
+    },
+    'EXPORT_FORMATS': ['json', 'csv', 'xlsx'],
+    'MAX_EXPORT_RECORDS': 10000,
+}

@@ -1,0 +1,341 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}System Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">System Analytics Dashboard</h1>
+    
+    <!-- Date Range Filter -->
+    <div class="mb-8 bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold mb-4">Date Range</h2>
+        <div class="flex flex-wrap gap-4">
+            <input type="date" id="start-date" class="form-input p-2 border border-gray-300 rounded-md">
+            <input type="date" id="end-date" class="form-input p-2 border border-gray-300 rounded-md">
+            <button id="apply-date-filter" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md">
+                Apply Filter
+            </button>
+            <button id="reset-date-filter" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md">
+                Reset
+            </button>
+        </div>
+    </div>
+    
+    <!-- System Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold mb-2">Active Users</h3>
+            <p class="text-3xl font-bold text-blue-600" id="active-users">-</p>
+            <p class="text-sm text-gray-500">Current</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold mb-2">Concurrent Sessions</h3>
+            <p class="text-3xl font-bold text-green-600" id="concurrent-sessions">-</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold mb-2">Error Rate</h3>
+            <p class="text-3xl font-bold text-red-600" id="error-rate">-</p>
+            <p class="text-sm text-gray-500">Last 24 hours</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold mb-2">Response Time</h3>
+            <p class="text-3xl font-bold text-indigo-600" id="avg-response-time">-</p>
+            <p class="text-sm text-gray-500">Average (ms)</p>
+        </div>
+    </div>
+    
+    <!-- Resource Usage -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">CPU & Memory Usage</h2>
+            <div id="resource-usage-chart" class="h-80 w-full"></div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Database & Cache</h2>
+            <div id="database-cache-chart" class="h-80 w-full"></div>
+        </div>
+    </div>
+    
+    <!-- Error Tracking -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4">Error Tracking</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="py-3 px-4 text-left">Error Type</th>
+                        <th class="py-3 px-4 text-left">Count</th>
+                        <th class="py-3 px-4 text-left">Last Occurrence</th>
+                        <th class="py-3 px-4 text-left">Status</th>
+                        <th class="py-3 px-4 text-left">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="error-tracking-table">
+                    <tr>
+                        <td colspan="5" class="py-4 px-4 text-center text-gray-500">
+                            Loading error data...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Session Analytics -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4">Session Analytics</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h3 class="text-lg font-medium mb-3">Session Distribution</h3>
+                <div id="session-distribution-chart" class="h-64 w-full"></div>
+            </div>
+            <div>
+                <h3 class="text-lg font-medium mb-3">Average Session Duration</h3>
+                <div id="session-duration-chart" class="h-64 w-full"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Export Controls -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4">Export Analytics</h2>
+        <div class="flex flex-wrap gap-4">
+            <select id="export-format" class="form-select p-2 border border-gray-300 rounded-md">
+                <option value="json">JSON</option>
+                <option value="csv">CSV</option>
+                <option value="xlsx">Excel</option>
+            </select>
+            <button id="export-analytics" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md">
+                Export Data
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Initialize charts and data loading
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set default date range (last 30 days)
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30);
+        
+        document.getElementById('start-date').value = startDate.toISOString().split('T')[0];
+        document.getElementById('end-date').value = endDate.toISOString().split('T')[0];
+        
+        // Load initial data
+        loadSystemAnalytics();
+        
+        // Set up event listeners
+        document.getElementById('apply-date-filter').addEventListener('click', loadSystemAnalytics);
+        document.getElementById('reset-date-filter').addEventListener('click', resetDateFilter);
+        document.getElementById('export-analytics').addEventListener('click', exportAnalytics);
+    });
+    
+    function loadSystemAnalytics() {
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+        
+        // Show loading state
+        document.querySelectorAll('.chart-container').forEach(el => {
+            el.innerHTML = '<div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>';
+        });
+        
+        // Fetch analytics data
+        fetch(`/analytics/api/system-analytics/?start_date=${startDate}&end_date=${endDate}`)
+            .then(response => response.json())
+            .then(data => {
+                updateDashboardMetrics(data);
+                updateCharts(data);
+                updateErrorTable(data.error_counts);
+            })
+            .catch(error => {
+                console.error('Error loading system analytics:', error);
+                // Show error state
+            });
+    }
+    
+    function updateDashboardMetrics(data) {
+        document.getElementById('active-users').textContent = data.active_users;
+        document.getElementById('concurrent-sessions').textContent = data.concurrent_sessions;
+        document.getElementById('error-rate').textContent = `${(data.error_rate * 100).toFixed(2)}%`;
+        document.getElementById('avg-response-time').textContent = data.average_response_time.toFixed(0);
+    }
+    
+    function updateCharts(data) {
+        // Update resource usage chart
+        updateResourceUsageChart(data);
+        
+        // Update database and cache chart
+        updateDatabaseCacheChart(data);
+        
+        // Update session charts
+        updateSessionCharts(data);
+    }
+    
+    function updateResourceUsageChart(data) {
+        const ctx = document.getElementById('resource-usage-chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.timestamps,
+                datasets: [{
+                    label: 'CPU Usage (%)',
+                    data: data.cpu_usage,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }, {
+                    label: 'Memory Usage (%)',
+                    data: data.memory_usage,
+                    borderColor: 'rgb(255, 99, 132)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    }
+    
+    function updateDatabaseCacheChart(data) {
+        const ctx = document.getElementById('database-cache-chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.timestamps,
+                datasets: [{
+                    label: 'Database Connections',
+                    data: data.database_connections,
+                    borderColor: 'rgb(54, 162, 235)',
+                    tension: 0.1
+                }, {
+                    label: 'Cache Hit Rate (%)',
+                    data: data.cache_hit_rate.map(rate => rate * 100),
+                    borderColor: 'rgb(153, 102, 255)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+    
+    function updateSessionCharts(data) {
+        // Session distribution chart
+        const distributionCtx = document.getElementById('session-distribution-chart').getContext('2d');
+        new Chart(distributionCtx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(data.session_distribution),
+                datasets: [{
+                    label: 'Sessions',
+                    data: Object.values(data.session_distribution),
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    borderColor: 'rgb(75, 192, 192)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // Session duration chart
+        const durationCtx = document.getElementById('session-duration-chart').getContext('2d');
+        new Chart(durationCtx, {
+            type: 'line',
+            data: {
+                labels: data.timestamps,
+                datasets: [{
+                    label: 'Average Duration (minutes)',
+                    data: data.average_session_duration.map(duration => duration / 60),
+                    borderColor: 'rgb(255, 159, 64)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+    
+    function updateErrorTable(errorCounts) {
+        const tableBody = document.getElementById('error-tracking-table');
+        tableBody.innerHTML = '';
+        
+        Object.entries(errorCounts).forEach(([errorType, data]) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="py-3 px-4">${errorType}</td>
+                <td class="py-3 px-4">${data.count}</td>
+                <td class="py-3 px-4">${new Date(data.last_occurrence).toLocaleString()}</td>
+                <td class="py-3 px-4">
+                    <span class="px-2 py-1 rounded-full text-sm ${data.status === 'resolved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                        ${data.status}
+                    </span>
+                </td>
+                <td class="py-3 px-4">
+                    <button class="text-blue-600 hover:text-blue-800" onclick="viewErrorDetails('${errorType}')">
+                        View Details
+                    </button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+    
+    function resetDateFilter() {
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30);
+        
+        document.getElementById('start-date').value = startDate.toISOString().split('T')[0];
+        document.getElementById('end-date').value = endDate.toISOString().split('T')[0];
+        
+        loadSystemAnalytics();
+    }
+    
+    function exportAnalytics() {
+        const format = document.getElementById('export-format').value;
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+        
+        window.location.href = `/analytics/api/export/?format=${format}&analytics_type=system&start_date=${startDate}&end_date=${endDate}`;
+    }
+    
+    function viewErrorDetails(errorType) {
+        // Implement error details modal or page
+        console.log('View details for error:', errorType);
+    }
+</script>
+{% endblock %} 
