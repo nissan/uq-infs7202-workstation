@@ -1,19 +1,19 @@
-from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
-from django.test import override_settings
 
 from courses.models import Course, Module, Quiz, Enrollment
-from test_auth_settings import test_settings_override
+from api_test_utils import APITestCaseBase
 
 User = get_user_model()
 
-@test_settings_override
-class DjangoViewsTestCase(TestCase):
+class DjangoViewsTestCase(APITestCaseBase):
     """Tests for Django template views with DRF authentication disabled"""
     
     def setUp(self):
+        # Call parent setUp
+        super().setUp()
+        
         # Create an instructor user
         self.instructor = User.objects.create_user(
             username='instructor',
@@ -89,7 +89,7 @@ class DjangoViewsTestCase(TestCase):
     def test_course_catalog_instructor(self):
         """Test course catalog view as instructor with status filter"""
         # Login as instructor
-        self.client.login(username='instructor', password='instructorpass')
+        self.login_api(self.instructor)
         
         # Request with status filters that instructors can see
         url = reverse('course-catalog') + '?status=draft&status=published'
@@ -122,7 +122,7 @@ class DjangoViewsTestCase(TestCase):
     def test_course_detail_enrolled(self):
         """Test course detail view when user is enrolled"""
         # Login as student who is enrolled
-        self.client.login(username='student', password='studentpass')
+        self.login_api(self.student)
         
         url = reverse('course-detail', kwargs={'slug': self.published_course.slug})
         response = self.client.get(url)
@@ -148,7 +148,7 @@ class DjangoViewsTestCase(TestCase):
     def test_module_detail_instructor(self):
         """Test module detail view for instructor"""
         # Login as instructor
-        self.client.login(username='instructor', password='instructorpass')
+        self.login_api(self.instructor)
         
         url = reverse('module-detail', kwargs={'pk': self.module.pk})
         response = self.client.get(url)
@@ -162,7 +162,7 @@ class DjangoViewsTestCase(TestCase):
     def test_module_detail_enrolled_student(self):
         """Test module detail view for enrolled student"""
         # Login as student
-        self.client.login(username='student', password='studentpass')
+        self.login_api(self.student)
         
         url = reverse('module-detail', kwargs={'pk': self.module.pk})
         response = self.client.get(url)
@@ -189,7 +189,7 @@ class DjangoViewsTestCase(TestCase):
     def test_quiz_detail_instructor(self):
         """Test quiz detail view for instructor"""
         # Login as instructor
-        self.client.login(username='instructor', password='instructorpass')
+        self.login_api(self.instructor)
         
         url = reverse('quiz-detail', kwargs={'pk': self.quiz.pk})
         response = self.client.get(url)
@@ -203,7 +203,7 @@ class DjangoViewsTestCase(TestCase):
     def test_quiz_detail_enrolled_student(self):
         """Test quiz detail view for enrolled student"""
         # Login as student
-        self.client.login(username='student', password='studentpass')
+        self.login_api(self.student)
         
         url = reverse('quiz-detail', kwargs={'pk': self.quiz.pk})
         response = self.client.get(url)
@@ -336,7 +336,7 @@ class DjangoViewsTestCase(TestCase):
     def test_unenroll_not_enrolled(self):
         """Test unenrollment when student is not enrolled"""
         # Login as instructor (not enrolled)
-        self.client.login(username='instructor', password='instructorpass')
+        self.login_api(self.instructor)
         
         url = reverse('course-unenroll', kwargs={'slug': self.published_course.slug})
         response = self.client.get(url, follow=True)

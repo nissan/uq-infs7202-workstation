@@ -2,6 +2,8 @@ from django.urls import reverse
 from rest_framework import status
 from courses.models import Course, Module, Quiz, Enrollment
 from .test_case import AuthenticatedTestCase
+from test_auth_settings import AuthDisabledTestCase
+from api_test_utils import APITestCaseBase
 
 
 class CourseAPITests(AuthenticatedTestCase):

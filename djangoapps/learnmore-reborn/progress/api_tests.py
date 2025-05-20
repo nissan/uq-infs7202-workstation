@@ -6,16 +6,27 @@ from rest_framework import status
 from courses.models import Course
 from .models import Progress
 from .serializers import ProgressSerializer
+from test_auth_settings import AuthDisabledTestCase
+from api_test_utils import APITestCaseBase
 
 User = get_user_model()
 
 
-class ProgressSerializerTest(TestCase):
+class ProgressSerializerTest(APITestCaseBase):
     def setUp(self):
-        self.user = User.objects.create_user(username='proguser', password='pass')
+        # Call parent setUp
+        super().setUp()
+        
+        # Update existing user
+        self.user.username = 'proguser'
+        self.user.save()
+        
+        # Create a course
         self.course = Course.objects.create(
             title='Prog Course', description='Prog desc', instructor=self.user
         )
+        
+        # Create a progress record
         self.progress = Progress.objects.create(
             user=self.user,
             course=self.course,
@@ -33,17 +44,25 @@ class ProgressSerializerTest(TestCase):
         self.assertIn('last_accessed', data)
 
 
-class ProgressAPITest(APITestCase):
+class ProgressAPITest(APITestCaseBase):
     def setUp(self):
-        # Create instructor user
-        self.instructor = User.objects.create_user(username='instructor', password='pass')
-        self.instructor.profile.is_instructor = True
-        self.instructor.profile.save()
+        # Call the parent setUp to set up the client, etc.
+        super().setUp()
         
-        # Create student user
-        self.student = User.objects.create_user(username='student', password='pass')
+        # Update the existing user as a student
+        self.student = self.user
+        self.student.username = 'student'
+        self.student.email = 'student@example.com'
+        self.student.set_password('pass')
+        self.student.save()
         self.student.profile.is_instructor = False
         self.student.profile.save()
+        
+        # Use the existing instructor
+        self.instructor.username = 'instructor'
+        self.instructor.email = 'instructor@example.com'
+        self.instructor.set_password('pass')
+        self.instructor.save()
         
         # Create another student user
         self.other_student = User.objects.create_user(username='otherstudent', password='pass')
@@ -77,33 +96,9 @@ class ProgressAPITest(APITestCase):
         self.other_student_progress = Progress.objects.create(
             user=self.other_student, course=self.course2, completed_lessons=4, total_lessons=5
         )
-
-        # Login as instructor and get token
-        response = self.client.post('/api/users/login/', {
-            'username': 'instructor',
-            'password': 'pass'
-        })
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.instructor_token = response.data['access']
-        
-        # Login as student and get token
-        response = self.client.post('/api/users/login/', {
-            'username': 'student',
-            'password': 'pass'
-        })
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.student_token = response.data['access']
-        
-        # Login as other student and get token
-        response = self.client.post('/api/users/login/', {
-            'username': 'otherstudent',
-            'password': 'pass'
-        })
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.other_student_token = response.data['access']
         
         # Default to instructor credentials
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.instructor_token}')
+        self.login_api(self.instructor)
 
     def test_instructor_list_own_progress(self):
         """Test instructor listing their own progress"""
@@ -120,7 +115,7 @@ class ProgressAPITest(APITestCase):
     def test_student_list_own_progress(self):
         """Test student listing their own progress"""
         # Switch to student credentials
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.student_token}')
+        self.login_api(self.student)
         
         url = '/api/progress/'
         response = self.client.get(url)
@@ -131,7 +126,7 @@ class ProgressAPITest(APITestCase):
     def test_student_cannot_see_other_student_progress(self):
         """Test student cannot see another student's progress"""
         # Switch to student credentials
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.student_token}')
+        self.login_api(self.student)
         
         url = f'/api/progress/{self.other_student_progress.id}/'
         response = self.client.get(url)
@@ -218,7 +213,7 @@ class ProgressAPITest(APITestCase):
     def test_student_cannot_update_other_student_progress(self):
         """Test student cannot update another student's progress"""
         # Switch to student credentials
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.student_token}')
+        self.login_api(self.student)
         
         url = f'/api/progress/{self.other_student_progress.id}/'
         data = {
@@ -248,7 +243,7 @@ class ProgressAPITest(APITestCase):
     def test_student_cannot_delete_other_student_progress(self):
         """Test student cannot delete another student's progress"""
         # Switch to student credentials
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.student_token}')
+        self.login_api(self.student)
         
         url = f'/api/progress/{self.other_student_progress.id}/'
         response = self.client.delete(url)

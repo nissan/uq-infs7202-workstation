@@ -25,7 +25,10 @@ new_import = 'from test_auth_settings import AuthDisabledTestCase'
 api_test_pattern = r'class\s+(\w+)\s*\(\s*APITestCase\s*\)'
 
 # Replacement pattern for inheritance
-replacement = r'class \1(AuthDisabledTestCase)'
+replacement = r'class \1(APITestCaseBase)'
+
+# Add import for APITestCaseBase
+api_utils_import = 'from api_test_utils import APITestCaseBase'
 
 def update_file(file_path):
     """Update a test file to use AuthDisabledTestCase."""
@@ -49,6 +52,19 @@ def update_file(file_path):
         
         # Insert our import after the last import
         import_lines.insert(import_end + 1, new_import)
+        content = '\n'.join(import_lines)
+    
+    # Add import for APITestCaseBase if not already present
+    if 'from api_test_utils import APITestCaseBase' not in content:
+        # Find the imports section
+        import_lines = content.split('\n')
+        import_end = 0
+        for i, line in enumerate(import_lines):
+            if line.startswith('from') or line.startswith('import'):
+                import_end = i
+        
+        # Insert our import after the last import
+        import_lines.insert(import_end + 1, api_utils_import)
         content = '\n'.join(import_lines)
     
     # Replace APITestCase with AuthDisabledTestCase

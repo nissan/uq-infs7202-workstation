@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Profile - LearnMore{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="md:flex md:items-center md:justify-between mb-8">
+        <div class="flex-1 min-w-0">
+            <h2 class="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
+                Your Profile
+            </h2>
+        </div>
+        <div class="mt-4 flex md:mt-0 md:ml-4">
+            <a href="{% url 'profile-edit' %}" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                Edit Profile
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                Account Information
+            </h3>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
+                Personal details and preferences.
+            </p>
+        </div>
+        <div class="border-t border-gray-200 dark:border-gray-700">
+            <dl>
+                <div class="bg-gray-50 dark:bg-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        Full name
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                        {{ user.first_name }} {{ user.last_name }}
+                    </dd>
+                </div>
+                <div class="bg-white dark:bg-gray-800 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        Username
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                        {{ user.username }}
+                    </dd>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        Email address
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                        {{ user.email }}
+                    </dd>
+                </div>
+                <div class="bg-white dark:bg-gray-800 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        Student ID
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                        {{ user.profile.student_id|default:"Not provided" }}
+                    </dd>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        Department
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                        {{ user.profile.department|default:"Not provided" }}
+                    </dd>
+                </div>
+                <div class="bg-white dark:bg-gray-800 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        Account created
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                        {{ user.profile.created_at|date:"F j, Y" }}
+                    </dd>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        Bio
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                        {{ user.profile.bio|default:"No bio provided." }}
+                    </dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+</div>
+{% endblock %}

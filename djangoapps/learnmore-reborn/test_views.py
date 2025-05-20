@@ -1,21 +1,19 @@
-from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
 
 from courses.models import Course, Module, Quiz, Enrollment
-from test_auth_settings import test_settings_override
+from api_test_utils import APITestCaseBase
 
 User = get_user_model()
 
-@test_settings_override
-class ViewTestCase(TestCase):
+class ViewTestCase(APITestCaseBase):
     """Test case for view rendering with authentication disabled"""
 
     def setUp(self):
         """Setup test users and data"""
-        # Create a client
-        self.client = Client()
+        # Call parent setUp to initialize the client and users
+        super().setUp()
         
         # Create an instructor user
         self.instructor = User.objects.create_user(
@@ -92,7 +90,7 @@ class ViewTestCase(TestCase):
     def test_course_catalog_instructor(self):
         """Test course catalog view for instructor"""
         # Login as instructor
-        self.client.login(username='instructor', password='instructorpass')
+        self.login_api(self.instructor)
         
         # Request with status filters that instructors can see
         url = reverse('course-catalog') + '?status=draft&status=published'
@@ -103,7 +101,7 @@ class ViewTestCase(TestCase):
         self.assertEqual(len(response.context['courses']), 2)
         
         # Logout
-        self.client.logout()
+        self.logout()
     
     def test_course_detail_view(self):
         """Test course detail view"""
@@ -120,7 +118,7 @@ class ViewTestCase(TestCase):
     def test_course_detail_enrolled(self):
         """Test course detail view when student is enrolled"""
         # Login as student
-        self.client.login(username='student', password='studentpass')
+        self.login_api(self.student)
         
         url = reverse('course-detail', kwargs={'slug': self.published_course.slug})
         response = self.client.get(url)
@@ -130,7 +128,7 @@ class ViewTestCase(TestCase):
         self.assertTrue(response.context['is_enrolled'])
         
         # Logout
-        self.client.logout()
+        self.logout()
     
     def test_module_detail_unauthenticated(self):
         """Test module detail view redirects unauthenticated users to login"""
@@ -144,7 +142,7 @@ class ViewTestCase(TestCase):
     def test_module_detail_enrolled_student(self):
         """Test module detail view for enrolled student"""
         # Login as student
-        self.client.login(username='student', password='studentpass')
+        self.login_api(self.student)
         
         url = reverse('module-detail', kwargs={'pk': self.module.pk})
         response = self.client.get(url)
@@ -154,12 +152,12 @@ class ViewTestCase(TestCase):
         self.assertTrue(response.context['is_enrolled'])
         
         # Logout
-        self.client.logout()
+        self.logout()
     
     def test_module_detail_instructor(self):
         """Test module detail view for instructor (not enrolled but has access)"""
         # Login as instructor
-        self.client.login(username='instructor', password='instructorpass')
+        self.login_api(self.instructor)
         
         url = reverse('module-detail', kwargs={'pk': self.module.pk})
         response = self.client.get(url)
@@ -168,7 +166,7 @@ class ViewTestCase(TestCase):
         self.assertTemplateUsed(response, 'courses/module_detail.html')
         
         # Logout
-        self.client.logout()
+        self.logout()
     
     def test_quiz_detail_unauthenticated(self):
         """Test quiz detail view redirects unauthenticated users to login"""
@@ -182,7 +180,7 @@ class ViewTestCase(TestCase):
     def test_quiz_detail_enrolled_student(self):
         """Test quiz detail view for enrolled student"""
         # Login as student
-        self.client.login(username='student', password='studentpass')
+        self.login_api(self.student)
         
         url = reverse('quiz-detail', kwargs={'pk': self.quiz.pk})
         response = self.client.get(url)
@@ -191,7 +189,7 @@ class ViewTestCase(TestCase):
         self.assertTemplateUsed(response, 'courses/quiz_detail.html')
         
         # Logout
-        self.client.logout()
+        self.logout()
     
     def test_enroll_unauthenticated(self):
         """Test enrollment redirects unauthenticated users to login"""
@@ -212,7 +210,8 @@ class ViewTestCase(TestCase):
         )
         
         # Login as new student
-        self.client.login(username='newstudent', password='newpass')
+        # Use force_authenticate directly since this user isn't set up in the base class
+        self.client.force_authenticate(user=new_student)
         
         url = reverse('course-enroll', kwargs={'slug': self.published_course.slug})
         response = self.client.post(url, follow=True)
@@ -230,12 +229,12 @@ class ViewTestCase(TestCase):
         )
         
         # Logout
-        self.client.logout()
+        self.logout()
     
     def test_enroll_already_enrolled(self):
         """Test enrollment for user already enrolled shows message"""
         # Login as student (already enrolled)
-        self.client.login(username='student', password='studentpass')
+        self.login_api(self.student)
         
         url = reverse('course-enroll', kwargs={'slug': self.published_course.slug})
         response = self.client.post(url, follow=True)
@@ -249,12 +248,12 @@ class ViewTestCase(TestCase):
         self.assertTrue(any('already enrolled' in str(message) for message in messages))
         
         # Logout
-        self.client.logout()
+        self.logout()
     
     def test_unenroll_enrolled_student(self):
         """Test successful unenrollment for enrolled student"""
         # Login as student (enrolled)
-        self.client.login(username='student', password='studentpass')
+        self.login_api(self.student)
         
         url = reverse('course-unenroll', kwargs={'slug': self.published_course.slug})
         response = self.client.post(url, follow=True)
@@ -271,12 +270,12 @@ class ViewTestCase(TestCase):
         self.assertEqual(enrollment.status, 'dropped')
         
         # Logout
-        self.client.logout()
+        self.logout()
     
     def test_unenroll_not_enrolled(self):
         """Test unenrollment when not enrolled shows error message"""
         # Login as instructor (not enrolled)
-        self.client.login(username='instructor', password='instructorpass')
+        self.login_api(self.instructor)
         
         url = reverse('course-unenroll', kwargs={'slug': self.published_course.slug})
         response = self.client.post(url, follow=True)
@@ -286,4 +285,4 @@ class ViewTestCase(TestCase):
         self.assertTrue(any('not enrolled' in str(message) for message in messages))
         
         # Logout
-        self.client.logout()
+        self.logout()

@@ -1,10 +1,12 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from courses.models import Course, Module
+from test_auth_settings import AuthDisabledTestCase
+from api_test_utils import APITestCaseBase
 
 User = get_user_model()
 
-class ModuleModelTest(TestCase):
+class ModuleModelTest(AuthDisabledTestCase):
     """Tests for Module model CRUD operations."""
     
     def setUp(self):

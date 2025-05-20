@@ -2,10 +2,12 @@ import django
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from rest_framework.test import APIClient
+
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from courses.models import Course, Module, Quiz, Enrollment
+from test_auth_settings import AuthDisabledTestCase
+from api_test_utils import APITestCaseBase
 
 # Temporarily override the REST_FRAMEWORK settings
 TEST_REST_FRAMEWORK = {
@@ -20,7 +22,7 @@ TEST_REST_FRAMEWORK = {
 User = get_user_model()
 
 @override_settings(REST_FRAMEWORK=TEST_REST_FRAMEWORK)
-class SimpleTemplateTest(TestCase):
+class SimpleTemplateTest(AuthDisabledTestCase):
     """Test case for basic template rendering"""
     
     def setUp(self):
@@ -82,7 +84,7 @@ class SimpleTemplateTest(TestCase):
 
 
 @override_settings(REST_FRAMEWORK=TEST_REST_FRAMEWORK)
-class SimpleAPITest(TestCase):
+class SimpleAPITest(AuthDisabledTestCase):
     """Test case for basic API endpoints"""
     
     def setUp(self):
@@ -115,7 +117,7 @@ class SimpleAPITest(TestCase):
         )
         
         # Set up API client
-        self.client = APIClient()
+        self.client.handler.enforce_csrf_checks = False
         
         # Get tokens for the user
         refresh = RefreshToken.for_user(self.user)

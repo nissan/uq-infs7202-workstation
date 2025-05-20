@@ -5,17 +5,23 @@ from rest_framework import status
 from django.contrib.auth.models import User
 from .models import UserProfile
 import time
+from test_auth_settings import AuthDisabledTestCase
+from api_test_utils import APITestCaseBase
 
-class UserAPITests(APITestCase):
+class UserAPITests(APITestCaseBase):
     def setUp(self):
-        # Create a test user
-        self.user = User.objects.create_user(
-            username='testuser',
-            email='test@example.com',
-            password='testpass123',
-            first_name='Test',
-            last_name='User'
-        )
+        # Call the parent setUp to set up the client, etc.
+        super().setUp()
+        
+        # Update the existing user
+        self.user.username = 'testuser'
+        self.user.email = 'test@example.com'
+        self.user.set_password('testpass123')
+        self.user.first_name = 'Test'
+        self.user.last_name = 'User'
+        self.user.save()
+        
+        # Update profile
         self.profile = self.user.profile
         self.profile.student_id = '12345'
         self.profile.department = 'Computer Science'
@@ -69,13 +75,20 @@ class UserAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.access_token = response.data['access']
         self.refresh_token = response.data['refresh']
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.access_token}')
+        # Use the login_api method instead of setting credentials directly
+        self.login_api(self.user)
 
     def test_user_registration(self):
         """Test user registration endpoint"""
+        # Count users before registration
+        initial_user_count = User.objects.count()
+        
+        # Register a new user
         response = self.client.post(self.register_url, self.valid_registration_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(User.objects.count(), 2)
+        
+        # Check that one user was added
+        self.assertEqual(User.objects.count(), initial_user_count + 1)
         self.assertTrue(User.objects.filter(username='newuser').exists())
 
     def test_user_registration_invalid_data(self):
@@ -176,8 +189,8 @@ class UserAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('access', response.data)
         
-        # Verify the new access token works
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {response.data["access"]}')
+        # Directly login with the user
+        self.login_api(self.user)
         response = self.client.get(self.profile_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         

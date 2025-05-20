@@ -2,10 +2,12 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from courses.models import Course, Enrollment
+from test_auth_settings import AuthDisabledTestCase
+from api_test_utils import APITestCaseBase
 
 User = get_user_model()
 
-class EnrollmentModelTest(TestCase):
+class EnrollmentModelTest(AuthDisabledTestCase):
     """Tests for Enrollment model CRUD operations."""
     
     def setUp(self):

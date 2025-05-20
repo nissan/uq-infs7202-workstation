@@ -45,9 +45,10 @@ def main():
     TestRunner = get_runner(settings)
     test_runner = TestRunner(verbosity=2, interactive=True)
     
-    # Set CSRF checks to False
+    # Disable CSRF checks
     from django.test.client import Client
-    Client.handler.enforce_csrf_checks = False
+    # Don't attempt to set handler attribute which might not exist
+    # Instead, we already disabled CSRF middleware in settings above
     
     # Run tests
     failures = test_runner.run_tests(sys.argv[1:] or ['courses.tests', 'test_django_views', 'test_views'])

@@ -4,18 +4,21 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 
 from .models import Course, Module, Quiz, Enrollment
+from test_auth_settings import AuthDisabledTestCase
+from api_test_utils import APITestCaseBase
 
 User = get_user_model()
 
-class ModuleQuizAPITest(APITestCase):
+class ModuleQuizAPITest(APITestCaseBase):
     def setUp(self):
-        # Create instructor user
-        self.instructor = User.objects.create_user(username='instructor', password='pass')
-        self.instructor.profile.is_instructor = True
-        self.instructor.profile.save()
+        # Call the parent setUp which creates self.user and self.instructor
+        super().setUp()
         
-        # Create student user
-        self.student = User.objects.create_user(username='student', password='pass')
+        # Set the instructor as our main user
+        self.main_instructor = self.instructor
+        
+        # Create a student user (already exists as self.user in the parent class)
+        self.student = self.user
         self.student.profile.is_instructor = False
         self.student.profile.save()
         
@@ -28,7 +31,7 @@ class ModuleQuizAPITest(APITestCase):
         self.course1 = Course.objects.create(
             title='Course 1', 
             description='Desc 1', 
-            instructor=self.instructor,
+            instructor=self.main_instructor,
             status='published'
         )
         
@@ -76,32 +79,8 @@ class ModuleQuizAPITest(APITestCase):
             status='active'
         )
 
-        # Login instructor and get token
-        response = self.client.post('/api/users/login/', {
-            'username': 'instructor',
-            'password': 'pass'
-        })
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.instructor_token = response.data['access']
-        
-        # Login student and get token
-        response = self.client.post('/api/users/login/', {
-            'username': 'student',
-            'password': 'pass'
-        })
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.student_token = response.data['access']
-        
-        # Login other instructor and get token
-        response = self.client.post('/api/users/login/', {
-            'username': 'instructor2',
-            'password': 'pass'
-        })
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.other_instructor_token = response.data['access']
-        
         # Default to instructor credentials
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.instructor_token}')
+        self.login_api(self.main_instructor)
     
     # === MODULE TESTS ===
     
@@ -115,7 +94,7 @@ class ModuleQuizAPITest(APITestCase):
     def test_list_modules_as_student(self):
         """Test that a student can only see modules from enrolled courses"""
         # Switch to student credentials
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.student_token}')
+        self.login_api(self.student)
         
         url = '/api/courses/modules/'
         response = self.client.get(url)
@@ -191,7 +170,7 @@ class ModuleQuizAPITest(APITestCase):
     def test_student_cannot_create_module(self):
         """Test that a student cannot create modules"""
         # Switch to student credentials
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.student_token}')
+        self.login_api(self.student)
         
         url = '/api/courses/modules/'
         data = {
@@ -220,7 +199,7 @@ class ModuleQuizAPITest(APITestCase):
     def test_list_quizzes_as_student(self):
         """Test that a student can only see quizzes from enrolled courses"""
         # Switch to student credentials
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.student_token}')
+        self.login_api(self.student)
         
         url = '/api/courses/quizzes/'
         response = self.client.get(url)
@@ -297,7 +276,7 @@ class ModuleQuizAPITest(APITestCase):
     def test_student_cannot_create_quiz(self):
         """Test that a student cannot create quizzes"""
         # Switch to student credentials
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.student_token}')
+        self.login_api(self.student)
         
         url = '/api/courses/quizzes/'
         data = {

@@ -7,6 +7,8 @@ from .test_course_model import CourseModelTest
 from .test_module_model import ModuleModelTest
 from .test_quiz_model import QuizModelTest
 from .test_enrollment_model import EnrollmentModelTest
+from test_auth_settings import AuthDisabledTestCase
+from api_test_utils import APITestCaseBase
 
 # Importing all test classes ensures they run when you run:
 # python manage.py test courses.tests.test_models

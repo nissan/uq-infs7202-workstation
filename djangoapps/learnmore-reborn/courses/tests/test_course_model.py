@@ -3,10 +3,12 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
 from courses.models import Course
+from test_auth_settings import AuthDisabledTestCase
+from api_test_utils import APITestCaseBase
 
 User = get_user_model()
 
-class CourseModelTest(TestCase):
+class CourseModelTest(AuthDisabledTestCase):
     """Tests for Course model CRUD operations."""
     
     def setUp(self):

@@ -8,6 +8,8 @@ import pytest
 from django.urls import reverse
 from rest_framework import status
 import json
+from test_auth_settings import AuthDisabledTestCase
+from api_test_utils import APITestCaseBase
 
 # Mark this module as using pytest fixtures
 pytestmark = pytest.mark.django_db

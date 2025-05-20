@@ -7,15 +7,17 @@ configuration without requiring changes to the actual codebase.
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from rest_framework.test import APIClient
+
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from courses.models import Course, Module, Quiz, Enrollment
 import unittest
+from test_auth_settings import AuthDisabledTestCase
+from api_test_utils import APITestCaseBase
 
 User = get_user_model()
 
-class MinimalTemplateTests(TestCase):
+class MinimalTemplateTests(AuthDisabledTestCase):
     """
     Minimal working template tests that test individual units without relying on views.
     
@@ -128,7 +130,7 @@ class MinimalTemplateTests(TestCase):
         # Check status code
         self.assertEqual(response.status_code, 200)
 
-class MinimalAPITests(TestCase):
+class MinimalAPITests(AuthDisabledTestCase):
     """
     Minimal working API tests that test individual units without relying on views.
     

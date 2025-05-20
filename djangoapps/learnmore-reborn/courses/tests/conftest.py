@@ -6,9 +6,11 @@ test data, authentication, and other test requirements.
 """
 import pytest
 from django.contrib.auth import get_user_model
-from rest_framework.test import APIClient
+
 from rest_framework_simplejwt.tokens import RefreshToken
 from courses.models import Course, Module, Quiz, Enrollment
+from test_auth_settings import AuthDisabledTestCase
+from api_test_utils import APITestCaseBase
 
 User = get_user_model()
 
