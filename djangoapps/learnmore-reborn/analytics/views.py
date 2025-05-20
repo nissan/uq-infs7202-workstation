@@ -465,3 +465,23 @@ class AnalyticsRecalculationViewSet(viewsets.ViewSet):
         """Recalculate all analytics types"""
         # This would trigger recalculation for all analytics types
         pass
+
+class SystemAnalyticsDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+    """View for the system analytics dashboard"""
+    template_name = 'analytics/system-dashboard.html'
+    
+    def test_func(self):
+        """Only allow analytics administrators to access this view"""
+        return request.user.has_perm('analytics.analytics_admin')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get current system metrics
+        try:
+            metrics = SystemAnalytics.get_current_metrics()
+            context['current_metrics'] = metrics
+        except Exception as e:
+            context['error'] = str(e)
+        
+        return context

@@ -19,6 +19,7 @@ urlpatterns = [
     
     # Web interface URLs
     path('dashboard/', views.InstructorAnalyticsDashboardView.as_view(), name='instructor_dashboard'),
+    path('system/', views.SystemAnalyticsDashboardView.as_view(), name='system_dashboard'),
     path('my-analytics/', views.StudentAnalyticsView.as_view(), name='student_analytics'),
     path('student/<int:student_id>/', views.StudentComparisonView.as_view(), name='student_comparison'),
     
