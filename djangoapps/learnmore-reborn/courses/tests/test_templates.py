@@ -1,31 +1,13 @@
-from django.test import TestCase
 from django.urls import reverse
-from django.contrib.auth import get_user_model
 from courses.models import Course, Module, Quiz, Enrollment
+from .test_case import AuthenticatedTestCase
 
-User = get_user_model()
 
-class CourseTemplateTests(TestCase):
+class CourseTemplateTests(AuthenticatedTestCase):
     """Test case for course-related templates"""
     
     def setUp(self):
-        # Create test user
-        self.user = User.objects.create_user(
-            username='testuser',
-            email='test@example.com',
-            password='testpassword'
-        )
-        
-        # Create test instructor
-        self.instructor = User.objects.create_user(
-            username='instructor',
-            email='instructor@example.com',
-            password='instructorpass'
-        )
-        # Setup instructor profile if it exists
-        if hasattr(self.instructor, 'profile'):
-            self.instructor.profile.is_instructor = True
-            self.instructor.profile.save()
+        super().setUp()  # Call the parent setUp to set up authentication
         
         # Create test course
         self.course = Course.objects.create(
@@ -44,7 +26,7 @@ class CourseTemplateTests(TestCase):
             order=1
         )
         
-        # Create test quiz - removed time_limit field
+        # Create test quiz - without time_limit
         self.quiz = Quiz.objects.create(
             title='Test Quiz',
             module=self.module,
@@ -53,7 +35,7 @@ class CourseTemplateTests(TestCase):
 
     def test_course_catalog_renders(self):
         """Test course catalog page renders correctly"""
-        # Get the response
+        # Get the response - no need to log in for public pages
         response = self.client.get(reverse('course-catalog'))
         
         # Check status code
@@ -68,7 +50,7 @@ class CourseTemplateTests(TestCase):
 
     def test_course_detail_renders(self):
         """Test course detail page renders correctly"""
-        # Get the response
+        # Get the response - no need to log in for public pages
         response = self.client.get(
             reverse('course-detail', kwargs={'slug': self.course.slug})
         )
@@ -85,7 +67,7 @@ class CourseTemplateTests(TestCase):
 
     def test_module_detail_requires_login(self):
         """Test module detail page requires login"""
-        # Get the response
+        # Get the response without logging in
         response = self.client.get(
             reverse('module-detail', kwargs={'pk': self.module.pk})
         )
@@ -96,8 +78,8 @@ class CourseTemplateTests(TestCase):
 
     def test_module_detail_requires_enrollment(self):
         """Test module detail page requires enrollment"""
-        # Login
-        self.client.login(username='testuser', password='testpassword')
+        # Login as regular user
+        self.login()
         
         # Get the response
         response = self.client.get(
@@ -109,8 +91,8 @@ class CourseTemplateTests(TestCase):
         
     def test_module_detail_renders_when_enrolled(self):
         """Test module detail page renders when enrolled"""
-        # Login
-        self.client.login(username='testuser', password='testpassword')
+        # Login as regular user
+        self.login()
         
         # Create enrollment
         Enrollment.objects.create(
@@ -136,7 +118,7 @@ class CourseTemplateTests(TestCase):
 
     def test_quiz_detail_requires_login(self):
         """Test quiz detail page requires login"""
-        # Get the response
+        # Get the response without logging in
         response = self.client.get(
             reverse('quiz-detail', kwargs={'pk': self.quiz.pk})
         )
@@ -147,8 +129,8 @@ class CourseTemplateTests(TestCase):
 
     def test_enrollment_functionality(self):
         """Test enrollment and unenrollment functionality"""
-        # Login
-        self.client.login(username='testuser', password='testpassword')
+        # Login as regular user
+        self.login()
         
         # Test enrollment
         response = self.client.get(

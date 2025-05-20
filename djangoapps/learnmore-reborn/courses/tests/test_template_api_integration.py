@@ -1,14 +1,10 @@
-from django.test import TestCase, Client
 from django.urls import reverse
-from django.contrib.auth import get_user_model
-from rest_framework.test import APIClient
 from rest_framework import status
-import json
 from courses.models import Course, Module, Quiz, Enrollment
+from .test_case import AuthenticatedTestCase
 
-User = get_user_model()
 
-class TemplateAPIIntegrationTests(TestCase):
+class TemplateAPIIntegrationTests(AuthenticatedTestCase):
     """
     Test case for testing integration between templates and REST API.
     
@@ -18,23 +14,7 @@ class TemplateAPIIntegrationTests(TestCase):
     """
     
     def setUp(self):
-        # Create test user
-        self.user = User.objects.create_user(
-            username='testuser',
-            email='test@example.com',
-            password='testpassword'
-        )
-        
-        # Create test instructor
-        self.instructor = User.objects.create_user(
-            username='instructor',
-            email='instructor@example.com',
-            password='instructorpass'
-        )
-        # Setup instructor profile if exists
-        if hasattr(self.instructor, 'profile'):
-            self.instructor.profile.is_instructor = True
-            self.instructor.profile.save()
+        super().setUp()  # Call the parent setUp to set up authentication
         
         # Create test courses
         self.course1 = Course.objects.create(
@@ -84,10 +64,6 @@ class TemplateAPIIntegrationTests(TestCase):
             description='Test your Python basics knowledge'
         )
         
-        # Setup clients
-        self.client = Client()
-        self.api_client = APIClient()
-        
         # Create enrollment
         self.enrollment = Enrollment.objects.create(
             user=self.user,
@@ -98,8 +74,8 @@ class TemplateAPIIntegrationTests(TestCase):
     def test_course_catalog_template_vs_api(self):
         """Test that course catalog template and API return the same courses"""
         # Login
-        self.client.login(username='testuser', password='testpassword')
-        self.api_client.force_authenticate(user=self.user)
+        self.login()
+        self.login_api()
         
         # Get template response
         template_url = reverse('course-catalog')
@@ -130,8 +106,8 @@ class TemplateAPIIntegrationTests(TestCase):
     def test_course_detail_template_vs_api(self):
         """Test that course detail template and API return the same course data"""
         # Login
-        self.client.login(username='testuser', password='testpassword')
-        self.api_client.force_authenticate(user=self.user)
+        self.login()
+        self.login_api()
         
         # Get template response
         template_url = reverse('course-detail', kwargs={'slug': self.course1.slug})
@@ -165,8 +141,8 @@ class TemplateAPIIntegrationTests(TestCase):
     def test_search_functionality_template_vs_api(self):
         """Test that search works the same way in templates and API"""
         # Login
-        self.client.login(username='testuser', password='testpassword')
-        self.api_client.force_authenticate(user=self.user)
+        self.login()
+        self.login_api()
         
         # Search term that should match two published courses
         search_term = 'learn'
@@ -200,8 +176,8 @@ class TemplateAPIIntegrationTests(TestCase):
     def test_enrollment_status_reflected_in_both(self):
         """Test that enrollment status is consistently reflected in both template and API"""
         # Login
-        self.client.login(username='testuser', password='testpassword')
-        self.api_client.force_authenticate(user=self.user)
+        self.login()
+        self.login_api()
         
         # Get template responses for both courses
         template_url1 = reverse('course-detail', kwargs={'slug': self.course1.slug})
