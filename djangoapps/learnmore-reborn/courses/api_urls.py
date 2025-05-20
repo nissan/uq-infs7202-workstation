@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .api_views import CourseViewSet, EnrollmentViewSet
+from .api_views import CourseViewSet, EnrollmentViewSet, QuestionViewSet, QuestionResponseViewSet
 from .module_quiz_views import ModuleViewSet
 from .quiz_views import (
     QuizViewSet, MultipleChoiceQuestionViewSet, TrueFalseQuestionViewSet,
@@ -20,6 +20,8 @@ router.register(r'quiz-attempts', QuizAttemptViewSet, basename='quiz-attempt')
 router.register(r'quiz-prerequisites', QuizPrerequisiteViewSet, basename='quiz-prerequisite')
 router.register(r'question-analytics', QuestionAnalyticsViewSet, basename='question-analytics')
 router.register(r'quiz-analytics', QuizAnalyticsViewSet, basename='quiz-analytics')
+router.register(r'questions', QuestionViewSet, basename='question')
+router.register(r'question-responses', QuestionResponseViewSet, basename='question-response')
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -52,6 +54,8 @@ urlpatterns = [
     # Essay question endpoints
     path('essay-questions/<int:pk>/grade/', EssayQuestionViewSet.as_view({'post': 'grade'}), name='essay-question-grade'),
     path('essay-questions/pending-grading/', EssayQuestionViewSet.as_view({'get': 'pending_grading'}), name='essay-pending-grading'),
+    path('question-responses/<int:pk>/grade-essay/', QuestionResponseViewSet.as_view({'post': 'grade_essay'}), name='question-response-grade-essay'),
+    path('question-responses/pending-grading/', QuestionResponseViewSet.as_view({'get': 'pending_grading'}), name='question-response-pending-grading'),
     
     # Analytics endpoints
     path('question-analytics/<int:pk>/recalculate/', QuestionAnalyticsViewSet.as_view({'post': 'recalculate'}), name='question-analytics-recalculate'),

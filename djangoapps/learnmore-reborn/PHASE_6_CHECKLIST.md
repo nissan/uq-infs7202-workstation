@@ -5,26 +5,26 @@ This checklist outlines the advanced quiz system features to be implemented in P
 ## 1. Essay Questions
 
 ### Models
-- [ ] Create `EssayQuestion` model:
-  - [ ] Add text response field
-  - [ ] Implement manual grading support
-  - [ ] Add rubric/guidelines fields
-  - [ ] Add instructor feedback field
-  - [ ] Add relationship to `Question` model (inheritance)
+- [x] Create `EssayQuestion` model:
+  - [x] Add text response field
+  - [x] Implement manual grading support
+  - [x] Add rubric/guidelines fields
+  - [x] Add instructor feedback field
+  - [x] Add relationship to `Question` model (inheritance)
 
 ### Serializers
-- [ ] Create serializers:
-  - [ ] `EssayQuestionSerializer` for retrieving
-  - [ ] `EssayQuestionCreateSerializer` for creating/updating
-  - [ ] `EssayResponseSerializer` for student responses
-  - [ ] `EssayGradingSerializer` for instructor grading
+- [x] Create serializers:
+  - [x] `EssayQuestionSerializer` for retrieving
+  - [x] `EssayQuestionCreateSerializer` for creating/updating
+  - [x] `EssayResponseSerializer` for student responses
+  - [x] `EssayGradingSerializer` for instructor grading
 
 ### API Endpoints
-- [ ] Implement API endpoints:
-  - [ ] Create `EssayQuestionViewSet` with CRUD operations
-  - [ ] Add essay response submission to `QuizAttempt`
-  - [ ] Add `grade_essay` endpoint for instructor grading
-  - [ ] Add permissions for instructor-only grading access
+- [x] Implement API endpoints:
+  - [x] Create `EssayQuestionViewSet` with CRUD operations
+  - [x] Add essay response submission to `QuizAttempt`
+  - [x] Add `grade_essay` endpoint for instructor grading
+  - [x] Add permissions for instructor-only grading access
 
 ### Templates
 - [ ] Update templates:
@@ -168,16 +168,16 @@ This checklist outlines the advanced quiz system features to be implemented in P
 ## 6. Advanced Scoring
 
 ### Models
-- [ ] Implement partial credit:
-  - [ ] Update `Choice` model with point value
-  - [ ] Add negative point values for incorrect choices
-  - [ ] Add minimum score threshold
+- [x] Implement partial credit:
+  - [x] Update `Choice` model with point value
+  - [x] Add negative point values for incorrect choices
+  - [x] Add minimum score threshold
   - [ ] Create `ScoringRubric` model for essay questions
 
 ### Scoring Logic
-- [ ] Update scoring system:
-  - [ ] Implement partial credit calculation
-  - [ ] Create weighted scoring algorithm
+- [x] Update scoring system:
+  - [x] Implement partial credit calculation
+  - [x] Create weighted scoring algorithm
   - [ ] Implement scoring rubric application
   - [ ] Add score normalization options
 
@@ -198,16 +198,16 @@ This checklist outlines the advanced quiz system features to be implemented in P
 ## 7. Analytics Enhancements
 
 ### Models
-- [ ] Create analytics models:
-  - [ ] Add `QuestionAnalytics` model for item analysis
-  - [ ] Add `QuizAnalytics` model for quiz-level metrics
+- [x] Create analytics models:
+  - [x] Add `QuestionAnalytics` model for item analysis
+  - [x] Add `QuizAnalytics` model for quiz-level metrics
   - [ ] Add `LearnerAnalytics` model for student performance
-  - [ ] Add aggregate analytics fields
+  - [x] Add aggregate analytics fields
 
 ### API Endpoints
-- [ ] Implement analytics endpoints:
-  - [ ] Create quiz performance overview endpoint
-  - [ ] Add question effectiveness metrics endpoint
+- [x] Implement analytics endpoints:
+  - [x] Create quiz performance overview endpoint
+  - [x] Add question effectiveness metrics endpoint
   - [ ] Add student performance comparison endpoint
   - [ ] Create time analysis endpoint
 

@@ -1,12 +1,24 @@
 from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 
-from .models import Course, Enrollment
-from .serializers import CourseSerializer, CourseDetailSerializer, EnrollmentSerializer
+from .models import (
+    Course, Enrollment, Quiz, Question, 
+    MultipleChoiceQuestion, TrueFalseQuestion, EssayQuestion, 
+    Choice, QuizAttempt, QuestionResponse
+)
+from .serializers import (
+    CourseSerializer, CourseDetailSerializer, EnrollmentSerializer,
+    QuestionSerializer, MultipleChoiceQuestionSerializer, MultipleChoiceQuestionCreateSerializer,
+    TrueFalseQuestionSerializer, TrueFalseQuestionCreateSerializer,
+    EssayQuestionSerializer, EssayQuestionCreateSerializer, EssayResponseSerializer, EssayGradingSerializer,
+    ChoiceSerializer, ChoiceWithCorrectAnswerSerializer,
+    QuizAttemptSerializer, QuizAttemptDetailSerializer, QuestionResponseSerializer
+)
 
 class IsInstructorOrReadOnly(permissions.BasePermission):
     """
@@ -254,3 +266,161 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
         )
         serializer = self.get_serializer(enrollments, many=True)
         return Response(serializer.data)
+
+class QuestionViewSet(viewsets.ModelViewSet):
+    """ViewSet for viewing and editing Questions."""
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+    permission_classes = [IsInstructorOrReadOnly]
+    
+    def get_queryset(self):
+        """Return questions filtered by quiz if specified."""
+        queryset = Question.objects.all()
+        quiz_id = self.request.query_params.get('quiz', None)
+        
+        if quiz_id:
+            queryset = queryset.filter(quiz_id=quiz_id)
+            
+        return queryset
+
+class MultipleChoiceQuestionViewSet(viewsets.ModelViewSet):
+    """ViewSet for viewing and editing Multiple Choice Questions."""
+    queryset = MultipleChoiceQuestion.objects.all()
+    permission_classes = [IsInstructorOrReadOnly]
+    
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return MultipleChoiceQuestionCreateSerializer
+        return MultipleChoiceQuestionSerializer
+    
+    def get_queryset(self):
+        """Return questions filtered by quiz if specified."""
+        queryset = MultipleChoiceQuestion.objects.all()
+        quiz_id = self.request.query_params.get('quiz', None)
+        
+        if quiz_id:
+            queryset = queryset.filter(quiz_id=quiz_id)
+            
+        return queryset
+    
+    @action(detail=True, methods=['post'])
+    def add_choice(self, request, pk=None):
+        """Add a choice to a multiple choice question."""
+        question = self.get_object()
+        serializer = ChoiceSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save(question=question)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class TrueFalseQuestionViewSet(viewsets.ModelViewSet):
+    """ViewSet for viewing and editing True/False Questions."""
+    queryset = TrueFalseQuestion.objects.all()
+    permission_classes = [IsInstructorOrReadOnly]
+    
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return TrueFalseQuestionCreateSerializer
+        return TrueFalseQuestionSerializer
+    
+    def get_queryset(self):
+        """Return questions filtered by quiz if specified."""
+        queryset = TrueFalseQuestion.objects.all()
+        quiz_id = self.request.query_params.get('quiz', None)
+        
+        if quiz_id:
+            queryset = queryset.filter(quiz_id=quiz_id)
+            
+        return queryset
+
+class EssayQuestionViewSet(viewsets.ModelViewSet):
+    """ViewSet for viewing and editing Essay Questions."""
+    queryset = EssayQuestion.objects.all()
+    permission_classes = [IsInstructorOrReadOnly]
+    
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return EssayQuestionCreateSerializer
+        return EssayQuestionSerializer
+    
+    def get_queryset(self):
+        """Return questions filtered by quiz if specified."""
+        queryset = EssayQuestion.objects.all()
+        quiz_id = self.request.query_params.get('quiz', None)
+        
+        if quiz_id:
+            queryset = queryset.filter(quiz_id=quiz_id)
+            
+        return queryset
+
+class QuestionResponseViewSet(viewsets.ModelViewSet):
+    """ViewSet for viewing and editing Question Responses."""
+    queryset = QuestionResponse.objects.all()
+    serializer_class = QuestionResponseSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        """Filter responses by user and/or attempt."""
+        queryset = QuestionResponse.objects.all()
+        
+        # Students can only see their own responses
+        if not self.request.user.is_staff and not hasattr(self.request.user, 'profile') or not self.request.user.profile.is_instructor:
+            queryset = queryset.filter(attempt__user=self.request.user)
+            
+        # Filter by attempt if specified
+        attempt_id = self.request.query_params.get('attempt', None)
+        if attempt_id:
+            queryset = queryset.filter(attempt_id=attempt_id)
+            
+        return queryset
+    
+    @action(detail=True, methods=['post'], permission_classes=[IsInstructorOrReadOnly])
+    def grade_essay(self, request, pk=None):
+        """Grade an essay response."""
+        response = self.get_object()
+        
+        # Ensure this is an essay question
+        if not hasattr(response.question, 'essayquestion'):
+            return Response(
+                {"detail": "This is not an essay question response."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Validate and save the grading data
+        serializer = EssayGradingSerializer(data=request.data)
+        if serializer.is_valid():
+            points = serializer.validated_data['points_awarded']
+            feedback = serializer.validated_data['feedback']
+            
+            # Use the model's grade_response method
+            response.question.essayquestion.grade_response(
+                response, points, feedback, request.user
+            )
+            
+            # Return the updated response
+            return Response(QuestionResponseSerializer(response).data)
+            
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['get'], permission_classes=[IsInstructorOrReadOnly])
+    def pending_grading(self, request):
+        """Get essay responses that need grading."""
+        # Get essay responses that haven't been graded yet
+        pending_responses = QuestionResponse.objects.filter(
+            question__question_type='essay',
+            graded_at__isnull=True
+        ).select_related('question', 'attempt', 'attempt__user')
+        
+        # Filter by quiz if specified
+        quiz_id = request.query_params.get('quiz', None)
+        if quiz_id:
+            pending_responses = pending_responses.filter(attempt__quiz_id=quiz_id)
+            
+        # Return with serialized data
+        serializer = QuestionResponseSerializer(pending_responses, many=True)
+        return Response({
+            'count': pending_responses.count(),
+            'results': serializer.data
+        })
