@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     libpq-dev \
     gcc \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
@@ -29,6 +30,11 @@ COPY djangoapps/learnmore-reborn .
 
 # Create a non-root user
 RUN useradd -m appuser && chown -R appuser:appuser /app
+
+# Add healthcheck (before switching to non-root user)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:$PORT/admin/ || exit 1
+
 USER appuser
 
 # Run migrations, collect static files, and start server
