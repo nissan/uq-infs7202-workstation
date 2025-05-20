@@ -22,6 +22,8 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
 }
 
 # Use in-memory SQLite database for testing
@@ -47,6 +49,25 @@ logging.disable(logging.CRITICAL)
 # Set DEBUG to True for testing to see more error details
 DEBUG = True
 
-# Turn off the CSRF validation for test client
-# This makes it easier to test POST requests
-MIDDLEWARE = [m for m in MIDDLEWARE if m != 'django.middleware.csrf.CsrfViewMiddleware']
+# Remove CORS and CSRF middleware for tests
+MIDDLEWARE = [
+    m for m in MIDDLEWARE if m not in [
+        'corsheaders.middleware.CorsMiddleware', 
+        'django.middleware.csrf.CsrfViewMiddleware'
+    ]
+]
+
+# Configure CORS settings
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True  # Legacy setting
+
+# Configure authentication settings
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# Disable CSRF validation for tests
+CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_HTTPONLY = False
+SESSION_COOKIE_SECURE = False
