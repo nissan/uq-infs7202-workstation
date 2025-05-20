@@ -152,6 +152,12 @@ Key features include:
 - Time tracking for each question and overall quiz attempts
 - Support for multiple correct answers in multiple-choice questions
 
+For detailed information on the quiz system, see:
+- [docs/quiz-system.md](docs/quiz-system.md) - Overview of the quiz system
+- [docs/quiz-api.md](docs/quiz-api.md) - API documentation for quiz functionality
+- [docs/quiz-management-guide.md](docs/quiz-management-guide.md) - Guide for instructors
+- [docs/quiz-question-types.md](docs/quiz-question-types.md) - Question types and scoring rules
+
 ### Available Endpoints
 
 - `POST /api/users/register/` - Register a new user
