@@ -4,6 +4,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.contrib.auth.models import User
 from .models import UserProfile
+import time
 
 class UserAPITests(APITestCase):
     def setUp(self):
@@ -25,6 +26,7 @@ class UserAPITests(APITestCase):
         self.login_url = reverse('login')
         self.logout_url = reverse('logout')
         self.profile_url = reverse('profile')
+        self.token_refresh_url = reverse('token_refresh')
         self.google_auth_url = reverse('google-auth')
 
         # Test data
@@ -159,3 +161,28 @@ class UserAPITests(APITestCase):
         # Verify google_id was updated
         existing_user.refresh_from_db()
         self.assertEqual(existing_user.profile.google_id, '123456789')
+        
+    def test_token_refresh(self):
+        """Test refreshing the JWT token"""
+        # First login to get tokens
+        response = self.client.post(self.login_url, self.valid_login_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        # Get refresh token
+        refresh_token = response.data['refresh']
+        
+        # Refresh the access token
+        response = self.client.post(self.token_refresh_url, {'refresh': refresh_token})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('access', response.data)
+        
+        # Verify the new access token works
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {response.data["access"]}')
+        response = self.client.get(self.profile_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+    def test_token_refresh_invalid_token(self):
+        """Test refreshing with an invalid token"""
+        # Try to refresh with an invalid token
+        response = self.client.post(self.token_refresh_url, {'refresh': 'invalid-token'})
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
