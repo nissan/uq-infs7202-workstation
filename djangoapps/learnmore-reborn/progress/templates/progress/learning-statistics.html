@@ -295,6 +295,17 @@
                         My Dashboard
                     </a>
                 </div>
+                
+                {% for course in continue_courses %}
+                <div class="mt-3">
+                    <button class="w-full block text-center py-1 px-3 bg-red-50 text-red-600 rounded-md text-sm font-medium hover:bg-red-100 transition resetProgressBtn" data-course-id="{{ course.id }}" data-course-title="{{ course.title }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="inline-block h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Reset Progress
+                    </button>
+                </div>
+                {% endfor %}
             {% else %}
                 <div class="text-center py-8">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -367,6 +378,9 @@
         </div>
     </div>
 </div>
+
+<!-- Include reset confirmation modal -->
+{% include 'progress/reset-confirmation-modal.html' %}
 {% endblock %}
 
 {% block extra_js %}
@@ -429,5 +443,107 @@
             });
         }
     });
+    
+    // Reset progress button functionality
+    const resetBtns = document.querySelectorAll('.resetProgressBtn');
+    const modal = document.getElementById('resetProgressModal');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const closeModalBtn = document.getElementById('closeModal');
+    const cancelResetBtn = document.getElementById('cancelResetBtn');
+    const confirmResetBtn = document.getElementById('confirmResetBtn');
+    
+    // Show modal
+    resetBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const courseId = this.getAttribute('data-course-id');
+            const courseTitle = this.getAttribute('data-course-title');
+            
+            // Get completion information from the button's parent
+            const courseItem = this.closest('.course-item') || this.closest('.mt-3').previousElementSibling.previousElementSibling;
+            const completionText = courseItem ? courseItem.querySelector('.course-progress').textContent : 'Unknown';
+            
+            // Set course info in modal
+            document.getElementById('courseTitle').textContent = courseTitle;
+            document.getElementById('modulesCompleted').querySelector('span').textContent = "Unknown"; // We don't have this info directly on this page
+            document.getElementById('timeSpent').querySelector('span').textContent = "Unknown"; // We don't have this info directly on this page
+            document.getElementById('courseCompletion').querySelector('span').textContent = completionText.replace('% complete', '');
+            
+            // Store course ID for reset action
+            confirmResetBtn.setAttribute('data-progress-id', courseId);
+            
+            // Show modal
+            modal.classList.remove('hidden');
+        });
+    });
+    
+    // Hide modal
+    function hideModal() {
+        modal.classList.add('hidden');
+    }
+    
+    modalOverlay.addEventListener('click', hideModal);
+    closeModalBtn.addEventListener('click', hideModal);
+    cancelResetBtn.addEventListener('click', hideModal);
+    
+    // Handle reset confirmation
+    confirmResetBtn.addEventListener('click', function() {
+        const progressId = this.getAttribute('data-progress-id');
+        
+        // Show loading state
+        this.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Resetting...
+        `;
+        this.disabled = true;
+        
+        // Make API call to reset progress
+        fetch(`/api/progress/progress/${progressId}/reset/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to reset progress');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Redirect to the same page to refresh data
+            window.location.reload();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to reset progress. Please try again.');
+            
+            // Reset button state
+            this.innerHTML = 'Reset Progress';
+            this.disabled = false;
+            
+            // Hide modal
+            hideModal();
+        });
+    });
+    
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 </script>
 {% endblock %}
