@@ -1,0 +1,490 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Essay Grading - {{ quiz.title }} - LearnMore{% endblock %}
+
+{% block extra_css %}
+<style>
+    .pagination-button {
+        @apply px-3 py-2 border rounded-md text-sm font-medium;
+    }
+    
+    .pagination-button.active {
+        @apply bg-blue-600 text-white border-blue-600;
+    }
+    
+    .pagination-button.disabled {
+        @apply opacity-50 cursor-not-allowed;
+    }
+    
+    .essay-response {
+        white-space: pre-wrap;
+    }
+    
+    .grading-sidebar {
+        position: sticky;
+        top: 1rem;
+    }
+    
+    .response-list {
+        max-height: calc(100vh - 300px);
+        overflow-y: auto;
+    }
+    
+    .response-card {
+        transition: all 0.2s ease-in-out;
+    }
+    
+    .response-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .response-card.active {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-8" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{% url 'course-detail' quiz.module.course.slug %}" class="text-gray-700 hover:text-blue-600">
+                    {{ quiz.module.course.title }}
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <a href="{% url 'module-detail' quiz.module.id %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                        {{ quiz.module.title }}
+                    </a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <a href="{% url 'quiz-detail' quiz.id %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                        {{ quiz.title }}
+                    </a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="ml-1 text-blue-600 md:ml-2">Essay Grading</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-6">
+        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+            <h1 class="text-2xl font-bold text-gray-900">Essay Grading: {{ quiz.title }}</h1>
+        </div>
+        <div class="p-6">
+            <div class="mb-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-semibold">Pending Essay Responses</h2>
+                        <p class="text-sm text-gray-600">
+                            {{ pending_count }} response{{ pending_count|pluralize }} pending grading
+                        </p>
+                    </div>
+                    <div>
+                        <a href="{% url 'quiz-detail' quiz.id %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            Back to Quiz
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Response List Sidebar -->
+                <div class="lg:col-span-1">
+                    <div class="grading-sidebar bg-white shadow-md rounded-lg p-4">
+                        <h3 class="text-md font-medium mb-4">Response List</h3>
+                        
+                        <div class="mb-4">
+                            <label for="filter" class="block text-sm font-medium text-gray-700 mb-1">Filter</label>
+                            <select id="filter" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option value="pending">Pending Grading</option>
+                                <option value="all">All Responses</option>
+                                <option value="graded">Graded</option>
+                            </select>
+                        </div>
+                        
+                        <div class="response-list space-y-3">
+                            {% for response in responses %}
+                            <div class="response-card p-3 border rounded-lg {% if response.id == current_response.id %}active{% endif %} hover:bg-gray-50">
+                                <a href="{% url 'pending-essay-grading' quiz.id %}?response_id={{ response.id }}" class="block">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-medium">{{ response.attempt.user.username }}</span>
+                                        <span class="text-xs px-2 py-1 rounded-full {% if response.graded_at %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                            {% if response.graded_at %}Graded{% else %}Pending{% endif %}
+                                        </span>
+                                    </div>
+                                    <div class="text-sm text-gray-500">
+                                        <p>Question: {{ response.question.text|truncatechars:40 }}</p>
+                                        <p class="text-xs mt-1">Submitted: {{ response.created_at|date:"M d, Y H:i" }}</p>
+                                    </div>
+                                </a>
+                            </div>
+                            {% empty %}
+                            <div class="text-center p-4 border border-dashed rounded-lg">
+                                <p class="text-gray-500">No responses to grade.</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        {% if responses.paginator.num_pages > 1 %}
+                        <div class="mt-4 flex justify-center">
+                            <nav class="inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                {% if responses.has_previous %}
+                                <a href="?page={{ responses.previous_page_number }}" class="pagination-button rounded-l-md">
+                                    Previous
+                                </a>
+                                {% else %}
+                                <span class="pagination-button rounded-l-md disabled">
+                                    Previous
+                                </span>
+                                {% endif %}
+                                
+                                <span class="px-3 py-2 border-t border-b border-gray-300 bg-white">
+                                    Page {{ responses.number }} of {{ responses.paginator.num_pages }}
+                                </span>
+                                
+                                {% if responses.has_next %}
+                                <a href="?page={{ responses.next_page_number }}" class="pagination-button rounded-r-md">
+                                    Next
+                                </a>
+                                {% else %}
+                                <span class="pagination-button rounded-r-md disabled">
+                                    Next
+                                </span>
+                                {% endif %}
+                            </nav>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Grading Interface -->
+                <div class="lg:col-span-2">
+                    {% if current_response %}
+                    <div class="bg-white shadow-md rounded-lg p-6">
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold mb-2">Student Response</h3>
+                            <div class="flex justify-between items-center mb-4">
+                                <div>
+                                    <p class="text-sm text-gray-600">
+                                        Student: <span class="font-medium">{{ current_response.attempt.user.username }}</span>
+                                    </p>
+                                    <p class="text-sm text-gray-600">
+                                        Submitted: {{ current_response.created_at|date:"F d, Y H:i" }}
+                                    </p>
+                                </div>
+                                <div class="text-sm text-gray-600">
+                                    Question worth: <span class="font-medium">{{ current_response.question.points }} points</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h4 class="text-md font-medium mb-2">Question</h4>
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    {{ current_response.question.text }}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h4 class="text-md font-medium mb-2">Student's Answer</h4>
+                                <div class="p-4 bg-gray-50 rounded-lg essay-response border border-gray-200">
+                                    {{ current_response.response_data.essay_text }}
+                                </div>
+                                
+                                {% if current_response.response_data.attachment_url %}
+                                <div class="mt-2">
+                                    <a href="{{ current_response.response_data.attachment_url }}" 
+                                       class="inline-flex items-center text-blue-600 hover:text-blue-800"
+                                       target="_blank">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        View attachment
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            {% with essay_question=current_response.question.essayquestion %}
+                            {% if essay_question.rubric %}
+                            <div class="mb-6">
+                                <h4 class="text-md font-medium mb-2">Grading Rubric</h4>
+                                <div class="p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
+                                    {{ essay_question.rubric|linebreaks }}
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if essay_question.example_answer %}
+                            <div class="mb-6">
+                                <h4 class="text-md font-medium mb-2">Example Answer</h4>
+                                <div class="p-4 bg-green-50 rounded-lg border-l-4 border-green-400 essay-response">
+                                    {{ essay_question.example_answer }}
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+                        
+                        <form method="post" action="{% url 'grade-essay-response' current_response.id %}">
+                            {% csrf_token %}
+                            <div class="space-y-6">
+                                {% with essay_question=current_response.question.essayquestion %}
+                                {% if essay_question.use_detailed_rubric and essay_question.scoring_rubric %}
+                                <!-- Rubric-based Grading -->
+                                <div class="bg-white rounded-lg border border-gray-200 mb-4">
+                                    <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                                        <h3 class="text-lg font-medium text-gray-900">
+                                            Grading Rubric: {{ essay_question.scoring_rubric.name }}
+                                        </h3>
+                                        {% if essay_question.scoring_rubric.description %}
+                                        <p class="mt-1 text-sm text-gray-600">
+                                            {{ essay_question.scoring_rubric.description }}
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="divide-y divide-gray-200">
+                                        {% for criterion in essay_question.get_scoring_criteria %}
+                                        <div class="px-4 py-4">
+                                            <div class="flex justify-between items-start mb-2">
+                                                <div>
+                                                    <h4 class="text-md font-semibold text-gray-900">{{ criterion.name }}</h4>
+                                                    <p class="text-sm text-gray-600">{{ criterion.description }}</p>
+                                                </div>
+                                                <span class="text-sm font-medium text-gray-600">
+                                                    Max points: {{ criterion.max_points }}
+                                                </span>
+                                            </div>
+                                            
+                                            <!-- Performance Level Selection -->
+                                            <div class="mt-3 mb-3">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                                    Performance Level
+                                                </label>
+                                                <select
+                                                    id="criterion_{{ criterion.id }}_level"
+                                                    name="criterion_{{ criterion.id }}_level"
+                                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 performance-level-select"
+                                                    data-criterion-id="{{ criterion.id }}"
+                                                    data-max-points="{{ criterion.max_points }}"
+                                                >
+                                                    <option value="">Select a level...</option>
+                                                    {% for level, data in criterion.performance_levels.items %}
+                                                    <option value="{{ level }}" data-points="{{ data.points }}">
+                                                        {{ level }} ({{ data.points }} points)
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            
+                                            <!-- Points Input -->
+                                            <div class="mt-3 mb-3">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                                    Points (0-{{ criterion.max_points }})
+                                                </label>
+                                                <input 
+                                                    type="number"
+                                                    id="criterion_{{ criterion.id }}_points"
+                                                    name="criterion_{{ criterion.id }}_points"
+                                                    min="0"
+                                                    max="{{ criterion.max_points }}"
+                                                    value="0"
+                                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 criterion-points"
+                                                    data-criterion-id="{{ criterion.id }}"
+                                                >
+                                            </div>
+                                            
+                                            <!-- Criterion-specific Comments -->
+                                            <div class="mt-3">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                                    Comments on this criterion
+                                                </label>
+                                                <textarea
+                                                    id="criterion_{{ criterion.id }}_comments"
+                                                    name="criterion_{{ criterion.id }}_comments"
+                                                    rows="2"
+                                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                ></textarea>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    <!-- Total Score Display -->
+                                    <div class="bg-gray-50 px-4 py-3 border-t border-gray-200">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-md font-medium">Total Score:</span>
+                                            <span id="total-rubric-score" class="text-lg font-bold text-blue-600">0</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                                            <div id="score-progress" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <!-- Simple Point-Based Grading -->
+                                <div>
+                                    <label for="points" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Points (0-{{ current_response.question.points }})
+                                    </label>
+                                    <input type="number" 
+                                           id="points" 
+                                           name="points" 
+                                           min="0" 
+                                           max="{{ current_response.question.points }}" 
+                                           value="{% if current_response.graded_at %}{{ current_response.points_earned }}{% else %}0{% endif %}"
+                                           class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                                {% endif %}
+                                {% endwith %}
+                                
+                                <!-- Overall Feedback -->
+                                <div>
+                                    <label for="feedback" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Overall Feedback to Student
+                                    </label>
+                                    <textarea id="feedback" 
+                                              name="feedback" 
+                                              rows="4" 
+                                              class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{% if current_response.instructor_comment %}{{ current_response.instructor_comment }}{% endif %}</textarea>
+                                </div>
+                                
+                                <!-- Form Controls -->
+                                <div class="flex justify-between">
+                                    <button type="button" 
+                                            onclick="window.history.back()" 
+                                            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                                        Cancel
+                                    </button>
+                                    
+                                    <div>
+                                        <button type="submit" 
+                                                name="save" 
+                                                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                            Save and Grade Next
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    {% else %}
+                    <div class="bg-white shadow-md rounded-lg p-6 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">No response selected</h3>
+                        <p class="mt-1 text-sm text-gray-500">
+                            {% if pending_count > 0 %}
+                            Select a response from the list to begin grading.
+                            {% else %}
+                            There are no pending essay responses to grade at this time.
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filter functionality
+        const filterSelect = document.getElementById('filter');
+        
+        filterSelect.addEventListener('change', function() {
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('filter', this.value);
+            window.location.href = currentUrl.toString();
+        });
+        
+        // Set initial filter value from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const filterValue = urlParams.get('filter');
+        
+        if (filterValue) {
+            filterSelect.value = filterValue;
+        }
+        
+        // Rubric grading functionality
+        const performanceLevelSelects = document.querySelectorAll('.performance-level-select');
+        const criterionPointsInputs = document.querySelectorAll('.criterion-points');
+        const totalRubricScoreElement = document.getElementById('total-rubric-score');
+        const scoreProgressBar = document.getElementById('score-progress');
+        
+        // Function to update total score display
+        function updateTotalScore() {
+            // Calculate total points
+            let totalPoints = 0;
+            let maxPoints = 0;
+            
+            criterionPointsInputs.forEach(input => {
+                totalPoints += parseInt(input.value || 0);
+                maxPoints += parseInt(input.getAttribute('max') || 0);
+            });
+            
+            if (totalRubricScoreElement) {
+                totalRubricScoreElement.textContent = totalPoints;
+            }
+            
+            if (scoreProgressBar && maxPoints > 0) {
+                const percentage = (totalPoints / maxPoints) * 100;
+                scoreProgressBar.style.width = `${percentage}%`;
+            }
+        }
+        
+        // Set up event listeners for performance level selection
+        performanceLevelSelects.forEach(select => {
+            select.addEventListener('change', function() {
+                const criterionId = this.getAttribute('data-criterion-id');
+                const selectedOption = this.options[this.selectedIndex];
+                const pointsValue = selectedOption.getAttribute('data-points');
+                
+                if (pointsValue) {
+                    const pointsInput = document.getElementById(`criterion_${criterionId}_points`);
+                    if (pointsInput) {
+                        pointsInput.value = pointsValue;
+                        updateTotalScore();
+                    }
+                }
+            });
+        });
+        
+        // Set up event listeners for points inputs
+        criterionPointsInputs.forEach(input => {
+            input.addEventListener('change', updateTotalScore);
+            input.addEventListener('input', updateTotalScore);
+        });
+        
+        // Initialize total score display
+        updateTotalScore();
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

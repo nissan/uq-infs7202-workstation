@@ -2,8 +2,9 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
     Course, Module, Quiz, Enrollment,
-    Question, MultipleChoiceQuestion, TrueFalseQuestion,
-    Choice, QuizAttempt, QuestionResponse
+    Question, MultipleChoiceQuestion, TrueFalseQuestion, EssayQuestion,
+    Choice, QuizAttempt, QuestionResponse,
+    ScoringRubric, RubricCriterion, RubricFeedback
 )
 
 @admin.register(Course)
@@ -99,11 +100,49 @@ class TrueFalseQuestionAdmin(admin.ModelAdmin):
 class QuestionResponseInline(admin.TabularInline):
     model = QuestionResponse
     extra = 0
-    readonly_fields = ('question', 'response_data', 'is_correct', 'points_earned', 'feedback', 'time_spent_seconds')
+    readonly_fields = ('question', 'response_data', 'is_correct', 'points_earned', 'feedback', 
+                      'instructor_comment', 'graded_by', 'graded_at', 'time_spent_seconds')
     can_delete = False
     
     def has_add_permission(self, request, obj=None):
         return False
+
+class RubricFeedbackInline(admin.TabularInline):
+    model = RubricFeedback
+    extra = 0
+    readonly_fields = ('criterion', 'points_earned', 'comments', 'performance_level')
+    can_delete = False
+    
+    def has_add_permission(self, request, obj=None):
+        return False
+
+@admin.register(QuestionResponse)
+class QuestionResponseAdmin(admin.ModelAdmin):
+    list_display = ('id', 'question', 'attempt', 'get_student', 'is_correct', 'points_earned', 
+                   'is_graded', 'get_graded_by', 'get_essay_question')
+    list_filter = ('is_correct', 'question__quiz', 'question__question_type')
+    search_fields = ('attempt__user__username', 'question__text')
+    readonly_fields = ('attempt', 'question', 'response_data', 'is_correct', 'points_earned', 
+                      'feedback', 'time_spent_seconds', 'created_at', 'graded_at', 'graded_by')
+    inlines = [RubricFeedbackInline]
+    
+    def get_student(self, obj):
+        return obj.attempt.user.username
+    get_student.short_description = 'Student'
+    
+    def get_graded_by(self, obj):
+        return obj.graded_by.username if obj.graded_by else '-'
+    get_graded_by.short_description = 'Graded By'
+    
+    def is_graded(self, obj):
+        return obj.graded_at is not None
+    is_graded.boolean = True
+    is_graded.short_description = 'Graded'
+    
+    def get_essay_question(self, obj):
+        return obj.question.question_type == 'essay'
+    get_essay_question.boolean = True
+    get_essay_question.short_description = 'Essay'
 
 @admin.register(QuizAttempt)
 class QuizAttemptAdmin(admin.ModelAdmin):
@@ -140,3 +179,50 @@ class EnrollmentAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'course__title')
     readonly_fields = ('enrolled_at', 'completed_at')
     date_hierarchy = 'enrolled_at'
+
+@admin.register(EssayQuestion)
+class EssayQuestionAdmin(admin.ModelAdmin):
+    list_display = ('text', 'quiz', 'question_type', 'points', 'get_quiz_module', 
+                    'min_word_count', 'max_word_count', 'use_detailed_rubric')
+    list_filter = ('quiz__module__course', 'quiz', 'use_detailed_rubric')
+    search_fields = ('text', 'quiz__title')
+    
+    def get_quiz_module(self, obj):
+        return obj.quiz.module.title
+    get_quiz_module.short_description = 'Module'
+
+class RubricCriterionInline(admin.TabularInline):
+    model = RubricCriterion
+    extra = 1
+    fields = ('name', 'description', 'max_points', 'weight', 'order')
+
+@admin.register(ScoringRubric)
+class ScoringRubricAdmin(admin.ModelAdmin):
+    list_display = ('name', 'created_by', 'is_public', 'total_points', 'get_criteria_count', 'created_at')
+    list_filter = ('is_public', 'created_by')
+    search_fields = ('name', 'description')
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'description', 'created_by', 'is_public')
+        }),
+        ('Points', {
+            'fields': ('total_points',),
+            'classes': ('collapse',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    readonly_fields = ('total_points', 'created_at', 'updated_at')
+    inlines = [RubricCriterionInline]
+    
+    def get_criteria_count(self, obj):
+        return obj.criteria.count()
+    get_criteria_count.short_description = 'Criteria'
+
+@admin.register(RubricCriterion)
+class RubricCriterionAdmin(admin.ModelAdmin):
+    list_display = ('name', 'rubric', 'max_points', 'weight', 'order')
+    list_filter = ('rubric',)
+    search_fields = ('name', 'description', 'rubric__name')

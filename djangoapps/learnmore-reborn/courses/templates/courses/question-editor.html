@@ -1,0 +1,661 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if question %}Edit Question{% else %}Add Question{% endif %} - {{ quiz.title }} - LearnMore{% endblock %}
+
+{% block extra_css %}
+<style>
+    .choice-container {
+        transition: all 0.2s;
+    }
+    
+    .choice-container:hover {
+        background-color: #f0f9ff;
+    }
+    
+    .choice-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.375rem;
+    }
+    
+    .choice-row:hover {
+        background-color: #f9fafb;
+    }
+    
+    .choice-handle {
+        cursor: move;
+        padding: 0.5rem;
+        color: #9ca3af;
+    }
+    
+    .choice-handle:hover {
+        color: #6b7280;
+    }
+    
+    .points-input {
+        width: 5rem;
+    }
+    
+    .drag-ghost {
+        opacity: 0.4;
+    }
+    
+    .drag-over {
+        border: 2px dashed #3b82f6;
+        background-color: #eff6ff;
+    }
+    
+    .partial-credit-toggle {
+        padding-left: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-8" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{% url 'course-detail' quiz.module.course.slug %}" class="text-gray-700 hover:text-blue-600">
+                    {{ quiz.module.course.title }}
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <a href="{% url 'module-detail' quiz.module.id %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                        {{ quiz.module.title }}
+                    </a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <a href="{% url 'quiz-detail' quiz.id %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                        {{ quiz.title }}
+                    </a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="ml-1 text-gray-500 md:ml-2">
+                        {% if question %}Edit Question{% else %}Add Question{% endif %}
+                    </span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8">
+        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+            <h1 class="text-2xl font-bold text-gray-900">
+                {% if question %}Edit Question{% else %}Add Question{% endif %}
+            </h1>
+        </div>
+        
+        <div class="p-6">
+            <form method="post" enctype="multipart/form-data" id="question-form">
+                {% csrf_token %}
+                
+                <!-- Question Type Selection -->
+                <div class="mb-6">
+                    <label for="question_type" class="block text-sm font-medium text-gray-700 mb-1">Question Type</label>
+                    <select id="question_type" name="question_type" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" {% if question %}disabled{% endif %}>
+                        <option value="multiple_choice" {% if question and question.question_type == 'multiple_choice' %}selected{% endif %}>Multiple Choice</option>
+                        <option value="true_false" {% if question and question.question_type == 'true_false' %}selected{% endif %}>True/False</option>
+                        <option value="essay" {% if question and question.question_type == 'essay' %}selected{% endif %}>Essay</option>
+                    </select>
+                    {% if question %}
+                    <input type="hidden" name="question_type" value="{{ question.question_type }}">
+                    {% endif %}
+                </div>
+                
+                <!-- Common Question Fields -->
+                <div class="mb-6">
+                    <label for="question_text" class="block text-sm font-medium text-gray-700 mb-1">Question Text</label>
+                    <textarea id="question_text" name="text" rows="3" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>{{ question.text|default:'' }}</textarea>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="points" class="block text-sm font-medium text-gray-700 mb-1">Points</label>
+                    <input type="number" id="points" name="points" min="1" value="{{ question.points|default:'10' }}" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                
+                <div class="mb-6">
+                    <label for="explanation" class="block text-sm font-medium text-gray-700 mb-1">Explanation (Optional)</label>
+                    <textarea id="explanation" name="explanation" rows="2" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ question.explanation|default:'' }}</textarea>
+                    <p class="mt-1 text-sm text-gray-500">This explanation will be shown to students after they answer the question.</p>
+                </div>
+                
+                <!-- Media Section -->
+                <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Question Media (Optional)</h3>
+                    
+                    <div class="mb-4">
+                        <label for="image" class="block text-sm font-medium text-gray-700 mb-1">Image</label>
+                        <input type="file" id="image" name="image" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        {% if question.image %}
+                        <div class="mt-2 flex items-center">
+                            <img src="{{ question.image.url }}" alt="Current image" class="h-20 w-auto object-contain">
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-900">Current Image</p>
+                                <div class="mt-1">
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="delete_image" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                        <span class="ml-2 text-sm text-gray-700">Delete current image</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="image_alt_text" class="block text-sm font-medium text-gray-700 mb-1">Image Alt Text</label>
+                        <input type="text" id="image_alt_text" name="image_alt_text" value="{{ question.image_alt_text|default:'' }}" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="external_media_url" class="block text-sm font-medium text-gray-700 mb-1">External Media URL</label>
+                        <input type="url" id="external_media_url" name="external_media_url" value="{{ question.external_media_url|default:'' }}" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <p class="mt-1 text-sm text-gray-500">Enter a URL for external media like images, videos, or other resources.</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="media_caption" class="block text-sm font-medium text-gray-700 mb-1">Media Caption</label>
+                        <input type="text" id="media_caption" name="media_caption" value="{{ question.media_caption|default:'' }}" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                </div>
+                
+                <!-- Multiple Choice Specific Fields -->
+                <div id="multiple_choice_fields" class="question-fields mb-6 p-4 bg-gray-50 rounded-lg" {% if question and question.question_type != 'multiple_choice' %}style="display: none;"{% endif %}>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Multiple Choice Options</h3>
+                    
+                    <div class="mb-4">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" id="allow_multiple" name="allow_multiple" {% if question and question.multiplechoicequestion.allow_multiple %}checked{% endif %} class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">Allow selecting multiple answers</span>
+                        </label>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" id="use_partial_credit" name="use_partial_credit" {% if question and question.multiplechoicequestion.use_partial_credit %}checked{% endif %} class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">Use partial credit scoring</span>
+                        </label>
+                        <p class="mt-1 text-sm text-gray-500 ml-6">When enabled, students can earn partial credit for partially correct answers.</p>
+                    </div>
+                    
+                    <div id="partial_credit_config" class="mb-4 ml-6 p-4 border border-gray-200 rounded-lg bg-white" {% if not question or not question.multiplechoicequestion.use_partial_credit %}style="display: none;"{% endif %}>
+                        <div class="mb-4">
+                            <label for="minimum_score" class="block text-sm font-medium text-gray-700 mb-1">Minimum Score Percentage</label>
+                            <input type="number" id="minimum_score" name="minimum_score" min="0" max="100" value="{{ question.multiplechoicequestion.minimum_score|default:'0' }}" class="block w-40 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <p class="mt-1 text-sm text-gray-500">Minimum percentage of points a student will receive for any answer (0-100).</p>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <p class="text-sm font-medium text-gray-700">Points Value for Individual Choices</p>
+                            <p class="mt-1 text-sm text-gray-500">Set the points value for each choice. Positive values add points, negative values subtract points.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Score Normalization Section -->
+                    <div class="mb-4">
+                        <label for="normalization_method" class="block text-sm font-medium text-gray-700 mb-1">Score Normalization</label>
+                        <select id="normalization_method" name="normalization_method" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="none" {% if question and question.multiplechoicequestion.normalization_method == 'none' %}selected{% endif %}>No Normalization</option>
+                            <option value="zscore" {% if question and question.multiplechoicequestion.normalization_method == 'zscore' %}selected{% endif %}>Z-Score Normalization</option>
+                            <option value="minmax" {% if question and question.multiplechoicequestion.normalization_method == 'minmax' %}selected{% endif %}>Min-Max Scaling</option>
+                            <option value="percentile" {% if question and question.multiplechoicequestion.normalization_method == 'percentile' %}selected{% endif %}>Percentile Ranking</option>
+                            <option value="custom" {% if question and question.multiplechoicequestion.normalization_method == 'custom' %}selected{% endif %}>Custom Normalization</option>
+                        </select>
+                        <p class="mt-1 text-sm text-gray-500">Choose a method to normalize scores across different questions or attempts.</p>
+                    </div>
+                    
+                    <div id="normalization_settings" class="mb-4 ml-6 p-4 border border-gray-200 rounded-lg bg-white" {% if not question or question.multiplechoicequestion.normalization_method == 'none' %}style="display: none;"{% endif %}>
+                        <!-- Z-Score Settings -->
+                        <div id="zscore_settings" class="normalization-options" {% if not question or question.multiplechoicequestion.normalization_method != 'zscore' %}style="display: none;"{% endif %}>
+                            <div class="mb-4">
+                                <label for="norm_zscore_mean" class="block text-sm font-medium text-gray-700 mb-1">Mean</label>
+                                <input type="number" id="norm_zscore_mean" name="norm_zscore_mean" step="0.1" 
+                                       value="{{ question.multiplechoicequestion.normalization_parameters.mean|default:'' }}" 
+                                       class="block w-40 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                       placeholder="Default: points/2">
+                                <p class="mt-1 text-sm text-gray-500">The mean value for normalization (leave empty for default).</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="norm_zscore_std_dev" class="block text-sm font-medium text-gray-700 mb-1">Standard Deviation</label>
+                                <input type="number" id="norm_zscore_std_dev" name="norm_zscore_std_dev" step="0.1" 
+                                       value="{{ question.multiplechoicequestion.normalization_parameters.std_dev|default:'' }}" 
+                                       class="block w-40 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                       placeholder="Default: points/6">
+                                <p class="mt-1 text-sm text-gray-500">The standard deviation for normalization (leave empty for default).</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Min-Max Settings -->
+                        <div id="minmax_settings" class="normalization-options" {% if not question or question.multiplechoicequestion.normalization_method != 'minmax' %}style="display: none;"{% endif %}>
+                            <div class="mb-4">
+                                <label for="norm_input_min" class="block text-sm font-medium text-gray-700 mb-1">Input Minimum</label>
+                                <input type="number" id="norm_input_min" name="norm_input_min" 
+                                       value="{{ question.multiplechoicequestion.normalization_parameters.input_min|default:'0' }}" 
+                                       class="block w-40 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <p class="mt-1 text-sm text-gray-500">The minimum expected input score.</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="norm_input_max" class="block text-sm font-medium text-gray-700 mb-1">Input Maximum</label>
+                                <input type="number" id="norm_input_max" name="norm_input_max" 
+                                       value="{{ question.multiplechoicequestion.normalization_parameters.input_max|default:'' }}" 
+                                       class="block w-40 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                       placeholder="Default: points">
+                                <p class="mt-1 text-sm text-gray-500">The maximum expected input score.</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="norm_output_min" class="block text-sm font-medium text-gray-700 mb-1">Output Minimum</label>
+                                <input type="number" id="norm_output_min" name="norm_output_min" 
+                                       value="{{ question.multiplechoicequestion.normalization_parameters.output_min|default:'0' }}" 
+                                       class="block w-40 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <p class="mt-1 text-sm text-gray-500">The minimum output score after normalization.</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="norm_output_max" class="block text-sm font-medium text-gray-700 mb-1">Output Maximum</label>
+                                <input type="number" id="norm_output_max" name="norm_output_max" 
+                                       value="{{ question.multiplechoicequestion.normalization_parameters.output_max|default:'' }}" 
+                                       class="block w-40 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                       placeholder="Default: points">
+                                <p class="mt-1 text-sm text-gray-500">The maximum output score after normalization.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Percentile Settings -->
+                        <div id="percentile_settings" class="normalization-options" {% if not question or question.multiplechoicequestion.normalization_method != 'percentile' %}style="display: none;"{% endif %}>
+                            <p class="text-sm text-gray-700 mb-2">Percentile Mapping</p>
+                            <p class="text-sm text-gray-500 mb-4">The percentile ranking will be calculated automatically based on attempts when enough data is available.</p>
+                            
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Custom Percentile Bins (Optional)</label>
+                                <textarea id="percentile_bins" name="percentile_bins" rows="3" 
+                                          class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                          placeholder="Format: 25:D, 50:C, 75:B, 90:A- 100:A">{{ question.multiplechoicequestion.normalization_parameters.percentiles|default:'' }}</textarea>
+                                <p class="mt-1 text-sm text-gray-500">Define custom percentile bins in format: percentile:value, e.g., "25:60, 50:70, 75:85, 90:95"</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Custom Settings -->
+                        <div id="custom_settings" class="normalization-options" {% if not question or question.multiplechoicequestion.normalization_method != 'custom' %}style="display: none;"{% endif %}>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Custom Mapping</label>
+                                <textarea id="custom_mapping" name="custom_mapping" rows="3" 
+                                          class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                          placeholder="Format: raw_score:normalized_score, e.g., 1:2, 2:3, 3:5">{{ question.multiplechoicequestion.normalization_parameters.mapping|default:'' }}</textarea>
+                                <p class="mt-1 text-sm text-gray-500">Define custom score mapping in format: raw_score:normalized_score, e.g., "1:2, 2:3, 3:5"</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Choices</label>
+                        <div id="choices-container">
+                            {% if question and question.question_type == 'multiple_choice' %}
+                                {% for choice in question.multiplechoicequestion.choices.all %}
+                                <div class="choice-row" data-id="{{ choice.id }}">
+                                    <div class="choice-handle">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                                    </div>
+                                    <div class="flex-grow mx-2">
+                                        <input type="text" name="choice_text[]" value="{{ choice.text }}" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Choice text">
+                                        <input type="hidden" name="choice_id[]" value="{{ choice.id }}">
+                                        <input type="hidden" name="choice_order[]" value="{{ choice.order }}">
+                                    </div>
+                                    <div class="mx-2">
+                                        <label class="inline-flex items-center">
+                                            <input type="checkbox" name="is_correct[]" value="{{ forloop.counter0 }}" {% if choice.is_correct %}checked{% endif %} class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                            <span class="ml-2 text-sm text-gray-700">Correct</span>
+                                        </label>
+                                    </div>
+                                    <div class="mx-2 partial-credit-field" {% if not question.multiplechoicequestion.use_partial_credit %}style="display: none;"{% endif %}>
+                                        <label class="text-sm text-gray-700">Points:</label>
+                                        <input type="number" name="points_value[]" value="{{ choice.points_value }}" class="ml-1 points-input rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    </div>
+                                    <div class="mx-2 partial-credit-field" {% if not question.multiplechoicequestion.use_partial_credit %}style="display: none;"{% endif %}>
+                                        <label class="inline-flex items-center">
+                                            <input type="checkbox" name="is_neutral[]" value="{{ forloop.counter0 }}" {% if choice.is_neutral %}checked{% endif %} class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                            <span class="ml-2 text-sm text-gray-700">Neutral</span>
+                                        </label>
+                                    </div>
+                                    <div class="ml-2">
+                                        <button type="button" class="delete-choice text-red-600 hover:text-red-800">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Default empty choices -->
+                                {% for i in '1234'|make_list %}
+                                <div class="choice-row">
+                                    <div class="choice-handle">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                                    </div>
+                                    <div class="flex-grow mx-2">
+                                        <input type="text" name="choice_text[]" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Choice text">
+                                        <input type="hidden" name="choice_id[]" value="">
+                                        <input type="hidden" name="choice_order[]" value="{{ forloop.counter0 }}">
+                                    </div>
+                                    <div class="mx-2">
+                                        <label class="inline-flex items-center">
+                                            <input type="checkbox" name="is_correct[]" value="{{ forloop.counter0 }}" {% if forloop.first %}checked{% endif %} class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                            <span class="ml-2 text-sm text-gray-700">Correct</span>
+                                        </label>
+                                    </div>
+                                    <div class="mx-2 partial-credit-field" style="display: none;">
+                                        <label class="text-sm text-gray-700">Points:</label>
+                                        <input type="number" name="points_value[]" value="{{ choice.points_value|default:'0' }}" class="ml-1 points-input rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    </div>
+                                    <div class="mx-2 partial-credit-field" style="display: none;">
+                                        <label class="inline-flex items-center">
+                                            <input type="checkbox" name="is_neutral[]" value="{{ forloop.counter0 }}" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                            <span class="ml-2 text-sm text-gray-700">Neutral</span>
+                                        </label>
+                                    </div>
+                                    <div class="ml-2">
+                                        <button type="button" class="delete-choice text-red-600 hover:text-red-800">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button type="button" id="add-choice" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <svg class="mr-1 -ml-1 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                Add Choice
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- True/False Specific Fields -->
+                <div id="true_false_fields" class="question-fields mb-6 p-4 bg-gray-50 rounded-lg" {% if not question or question.question_type != 'true_false' %}style="display: none;"{% endif %}>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">True/False Options</h3>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Correct Answer</label>
+                        <div class="space-y-2">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="correct_answer" value="true" {% if question and question.truefalsequestion.correct_answer %}checked{% endif %} class="rounded-full border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <span class="ml-2 text-sm text-gray-700">True</span>
+                            </label>
+                            <br>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="correct_answer" value="false" {% if question and question.truefalsequestion and not question.truefalsequestion.correct_answer %}checked{% endif %} class="rounded-full border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <span class="ml-2 text-sm text-gray-700">False</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Essay Question Specific Fields -->
+                <div id="essay_fields" class="question-fields mb-6 p-4 bg-gray-50 rounded-lg" {% if not question or question.question_type != 'essay' %}style="display: none;"{% endif %}>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Essay Question Options</h3>
+                    
+                    <div class="mb-4">
+                        <label for="min_word_count" class="block text-sm font-medium text-gray-700 mb-1">Minimum Word Count</label>
+                        <input type="number" id="min_word_count" name="min_word_count" min="0" value="{{ question.essayquestion.min_word_count|default:'0' }}" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <p class="mt-1 text-sm text-gray-500">Set to 0 for no minimum.</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="max_word_count" class="block text-sm font-medium text-gray-700 mb-1">Maximum Word Count</label>
+                        <input type="number" id="max_word_count" name="max_word_count" min="0" value="{{ question.essayquestion.max_word_count|default:'0' }}" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <p class="mt-1 text-sm text-gray-500">Set to 0 for no maximum.</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="rubric" class="block text-sm font-medium text-gray-700 mb-1">Grading Rubric</label>
+                        <textarea id="rubric" name="rubric" rows="4" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ question.essayquestion.rubric|default:'' }}</textarea>
+                        <p class="mt-1 text-sm text-gray-500">Provide guidelines for how the essay will be graded. This is only visible to instructors.</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="example_answer" class="block text-sm font-medium text-gray-700 mb-1">Example Answer</label>
+                        <textarea id="example_answer" name="example_answer" rows="4" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ question.essayquestion.example_answer|default:'' }}</textarea>
+                        <p class="mt-1 text-sm text-gray-500">Provide an example of a good answer. This is only visible to instructors.</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" id="allow_attachments" name="allow_attachments" {% if question and question.essayquestion.allow_attachments %}checked{% endif %} class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">Allow students to upload file attachments</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between">
+                    <a href="{% url 'quiz-detail' quiz.id %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Cancel
+                    </a>
+                    
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        {% if question %}Save Changes{% else %}Add Question{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show/hide relevant fields based on question type
+        const questionTypeSelect = document.getElementById('question_type');
+        const questionFields = document.querySelectorAll('.question-fields');
+        
+        function updateQuestionFields() {
+            const selectedType = questionTypeSelect.value;
+            
+            // Hide all question type fields
+            questionFields.forEach(field => {
+                field.style.display = 'none';
+            });
+            
+            // Show the selected type's fields
+            document.getElementById(selectedType + '_fields').style.display = 'block';
+        }
+        
+        questionTypeSelect.addEventListener('change', updateQuestionFields);
+        
+        // Toggle partial credit configuration
+        const usePartialCreditCheckbox = document.getElementById('use_partial_credit');
+        const partialCreditConfig = document.getElementById('partial_credit_config');
+        const partialCreditFields = document.querySelectorAll('.partial-credit-field');
+        
+        function togglePartialCredit() {
+            const isChecked = usePartialCreditCheckbox.checked;
+            partialCreditConfig.style.display = isChecked ? 'block' : 'none';
+            
+            partialCreditFields.forEach(field => {
+                field.style.display = isChecked ? 'block' : 'none';
+            });
+        }
+        
+        usePartialCreditCheckbox.addEventListener('change', togglePartialCredit);
+        
+        // Toggle normalization settings
+        const normalizationMethodSelect = document.getElementById('normalization_method');
+        const normalizationSettings = document.getElementById('normalization_settings');
+        const normalizationOptions = document.querySelectorAll('.normalization-options');
+        
+        function toggleNormalizationSettings() {
+            const selectedMethod = normalizationMethodSelect.value;
+            
+            // Show/hide main normalization settings
+            normalizationSettings.style.display = selectedMethod === 'none' ? 'none' : 'block';
+            
+            // Show/hide specific settings for the selected method
+            normalizationOptions.forEach(option => {
+                option.style.display = 'none';
+            });
+            
+            if (selectedMethod !== 'none') {
+                document.getElementById(selectedMethod + '_settings').style.display = 'block';
+            }
+        }
+        
+        normalizationMethodSelect.addEventListener('change', toggleNormalizationSettings);
+        
+        // Add new choice
+        const addChoiceButton = document.getElementById('add-choice');
+        const choicesContainer = document.getElementById('choices-container');
+        
+        addChoiceButton.addEventListener('click', function() {
+            const index = choicesContainer.children.length;
+            const newChoiceRow = document.createElement('div');
+            newChoiceRow.className = 'choice-row';
+            
+            const usePartialCredit = document.getElementById('use_partial_credit').checked;
+            const partialCreditStyle = usePartialCredit ? '' : 'style="display: none;"';
+            
+            newChoiceRow.innerHTML = `
+                <div class="choice-handle">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </div>
+                <div class="flex-grow mx-2">
+                    <input type="text" name="choice_text[]" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Choice text">
+                    <input type="hidden" name="choice_id[]" value="">
+                    <input type="hidden" name="choice_order[]" value="${index}">
+                </div>
+                <div class="mx-2">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" name="is_correct[]" value="${index}" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                        <span class="ml-2 text-sm text-gray-700">Correct</span>
+                    </label>
+                </div>
+                <div class="mx-2 partial-credit-field" ${partialCreditStyle}>
+                    <label class="text-sm text-gray-700">Points:</label>
+                    <input type="number" name="points_value[]" value="0" class="ml-1 points-input rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div class="mx-2 partial-credit-field" ${partialCreditStyle}>
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" name="is_neutral[]" value="${index}" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                        <span class="ml-2 text-sm text-gray-700">Neutral</span>
+                    </label>
+                </div>
+                <div class="ml-2">
+                    <button type="button" class="delete-choice text-red-600 hover:text-red-800">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                </div>
+            `;
+            
+            choicesContainer.appendChild(newChoiceRow);
+            setupDeleteChoiceHandlers();
+        });
+        
+        // Delete choice handler
+        function setupDeleteChoiceHandlers() {
+            document.querySelectorAll('.delete-choice').forEach(button => {
+                button.addEventListener('click', function() {
+                    const row = this.closest('.choice-row');
+                    row.remove();
+                    updateChoiceOrders();
+                });
+            });
+        }
+        
+        // Update choice orders
+        function updateChoiceOrders() {
+            const choiceRows = document.querySelectorAll('.choice-row');
+            choiceRows.forEach((row, index) => {
+                row.querySelector('input[name="choice_order[]"]').value = index;
+                
+                // Update the is_correct and is_neutral checkbox values
+                const correctCheckbox = row.querySelector('input[name="is_correct[]"]');
+                const neutralCheckbox = row.querySelector('input[name="is_neutral[]"]');
+                
+                if (correctCheckbox) correctCheckbox.value = index;
+                if (neutralCheckbox) neutralCheckbox.value = index;
+            });
+        }
+        
+        // Setup drag and drop for choices
+        let draggedItem = null;
+        
+        function setupDragAndDrop() {
+            const choiceRows = document.querySelectorAll('.choice-row');
+            
+            choiceRows.forEach(row => {
+                const handle = row.querySelector('.choice-handle');
+                
+                handle.addEventListener('mousedown', function() {
+                    row.setAttribute('draggable', 'true');
+                    
+                    row.addEventListener('dragstart', function(e) {
+                        draggedItem = row;
+                        setTimeout(() => {
+                            row.classList.add('drag-ghost');
+                        }, 0);
+                    });
+                    
+                    row.addEventListener('dragend', function() {
+                        row.classList.remove('drag-ghost');
+                        row.setAttribute('draggable', 'false');
+                        updateChoiceOrders();
+                    });
+                });
+                
+                row.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('drag-over');
+                });
+                
+                row.addEventListener('dragleave', function() {
+                    this.classList.remove('drag-over');
+                });
+                
+                row.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drag-over');
+                    
+                    if (draggedItem !== this) {
+                        const container = this.parentNode;
+                        const children = Array.from(container.children);
+                        const draggedIndex = children.indexOf(draggedItem);
+                        const targetIndex = children.indexOf(this);
+                        
+                        if (draggedIndex < targetIndex) {
+                            container.insertBefore(draggedItem, this.nextSibling);
+                        } else {
+                            container.insertBefore(draggedItem, this);
+                        }
+                    }
+                });
+            });
+        }
+        
+        // Initialize
+        setupDeleteChoiceHandlers();
+        setupDragAndDrop();
+    });
+</script>
+{% endblock %}

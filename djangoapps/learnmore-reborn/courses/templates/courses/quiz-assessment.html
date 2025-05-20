@@ -43,6 +43,116 @@
         width: 100%;
         cursor: pointer;
     }
+    
+    .essay-textarea {
+        min-height: 200px;
+        border-radius: 0.375rem;
+        border-color: #d1d5db;
+        padding: 0.75rem;
+        width: 100%;
+        transition: border-color 0.2s;
+    }
+    
+    .essay-textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    
+    .word-count {
+        font-size: 0.875rem;
+        color: #6b7280;
+        text-align: right;
+        margin-top: 0.5rem;
+    }
+    
+    .word-count.warning {
+        color: #f59e0b;
+    }
+    
+    .word-count.error {
+        color: #ef4444;
+    }
+    
+    .question-media {
+        margin-bottom: 1.5rem;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+    
+    .question-media img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    .media-caption {
+        font-size: 0.875rem;
+        color: #6b7280;
+        padding: 0.5rem;
+        background-color: #f9fafb;
+        border-bottom-left-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
+    }
+    
+    .choice-media {
+        max-width: 150px;
+        margin-left: 2rem;
+        margin-top: 0.5rem;
+        border-radius: 0.25rem;
+        overflow: hidden;
+    }
+    
+    .choice-media img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    .lightbox {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    
+    .lightbox.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    
+    .lightbox-content {
+        max-width: 90%;
+        max-height: 90%;
+    }
+    
+    .lightbox-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        color: white;
+        font-size: 2rem;
+        cursor: pointer;
+    }
+    
+    .lightbox img {
+        max-width: 100%;
+        max-height: 90vh;
+        object-fit: contain;
+    }
+    
+    .media-enlargeable {
+        cursor: zoom-in;
+    }
 </style>
 {% endblock %}
 
@@ -52,9 +162,90 @@
     document.addEventListener('DOMContentLoaded', function() {
         {% if quiz.time_limit_minutes %}
         // Set up timer if there's a time limit
-        const timeLimit = {{ quiz.time_limit_minutes }} * 60; // Convert to seconds
-        let timeRemaining = timeLimit;
+        const baseTimeLimit = {{ quiz.time_limit_minutes }}; // In minutes
+        const extensionMinutes = {{ attempt.time_extension_minutes|default:0 }};
+        const totalTimeLimit = (baseTimeLimit + extensionMinutes) * 60; // Convert to seconds
+        
+        let timeRemaining = totalTimeLimit;
         let timerInterval;
+        let warningShown75 = false;
+        let warningShown50 = false;
+        let warningShown25 = false;
+        let warningShown10 = false;
+        let warningShown5 = false;
+        let autoSaveInterval;
+        
+        // Time warning thresholds (percentages)
+        const WARNING_THRESHOLDS = {
+            SEVERE: 10,   // 10% time remaining - red
+            WARNING: 25,  // 25% time remaining - orange  
+            CAUTION: 50,  // 50% time remaining - yellow
+            NOTICE: 75    // 75% time remaining - blue
+        };
+        
+        // Function to show time warning
+        function showTimeWarning(percentRemaining) {
+            let warningType, warningMessage, colorClass;
+            
+            if (percentRemaining <= WARNING_THRESHOLDS.SEVERE) {
+                warningType = "Time Almost Up!";
+                warningMessage = "Less than 10% of time remaining. Please submit your answers soon.";
+                colorClass = "bg-red-100 border-red-500 text-red-700";
+            } else if (percentRemaining <= WARNING_THRESHOLDS.WARNING) {
+                warningType = "Time Warning";
+                warningMessage = "25% of time remaining. Please finish your quiz soon.";
+                colorClass = "bg-orange-100 border-orange-500 text-orange-700";
+            } else if (percentRemaining <= WARNING_THRESHOLDS.CAUTION) {
+                warningType = "Time Notice";
+                warningMessage = "50% of time remaining.";
+                colorClass = "bg-yellow-100 border-yellow-500 text-yellow-700";
+            } else if (percentRemaining <= WARNING_THRESHOLDS.NOTICE) {
+                warningType = "Time Update";
+                warningMessage = "75% of time remaining.";
+                colorClass = "bg-blue-100 border-blue-500 text-blue-700";
+            }
+            
+            // Create warning element
+            const warningEl = document.createElement('div');
+            warningEl.className = `fixed top-4 right-4 p-4 rounded-lg border-l-4 ${colorClass} shadow-lg z-50 max-w-md`;
+            warningEl.innerHTML = `
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-8.414l2.293-2.293a1 1 0 011.414 1.414L11.414 12l3.293 3.293a1 1 0 01-1.414 1.414L10 13.414l-3.293 3.293a1 1 0 01-1.414-1.414L8.586 12 5.293 8.707a1 1 0 011.414-1.414L10 10.586l3.293-3.293a1 1 0 011.414 1.414L11.414 10z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-bold">${warningType}</p>
+                        <p>${warningMessage}</p>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(warningEl);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                warningEl.classList.add('opacity-0');
+                setTimeout(() => {
+                    document.body.removeChild(warningEl);
+                }, 300);
+            }, 5000);
+            
+            // Also auto-save responses
+            saveAllResponses();
+        }
+        
+        // Function to save all responses
+        function saveAllResponses() {
+            // Submit the form to save current answers
+            const saveButtons = document.querySelectorAll('.save-btn');
+            for (const button of saveButtons) {
+                if (button && !button.disabled) {
+                    button.click();
+                }
+            }
+        }
         
         function updateTimer() {
             const minutes = Math.floor(timeRemaining / 60);
@@ -63,20 +254,71 @@
                 `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             
             // Update progress bar
-            const percentage = Math.round((timeRemaining / timeLimit) * 100);
+            const percentage = Math.round((timeRemaining / totalTimeLimit) * 100);
             document.getElementById('timer-progress').style.width = `${percentage}%`;
             
             // Change color as time runs out
-            if (percentage < 25) {
+            if (percentage <= WARNING_THRESHOLDS.SEVERE) {
+                document.getElementById('timer-progress').classList.remove('bg-blue-600', 'bg-yellow-500', 'bg-orange-500');
                 document.getElementById('timer-progress').classList.add('bg-red-600');
+                
+                // Show time warning at 10% if not already shown
+                if (!warningShown10) {
+                    showTimeWarning(10);
+                    warningShown10 = true;
+                }
+                
+                // Show last warning at 5% if not already shown
+                if (percentage <= 5 && !warningShown5) {
+                    showTimeWarning(5);
+                    warningShown5 = true;
+                    
+                    // Start auto-saving every 30 seconds in the last 5%
+                    if (!autoSaveInterval) {
+                        autoSaveInterval = setInterval(saveAllResponses, 30000);
+                    }
+                }
+            } else if (percentage <= WARNING_THRESHOLDS.WARNING) {
+                document.getElementById('timer-progress').classList.remove('bg-blue-600', 'bg-yellow-500');
+                document.getElementById('timer-progress').classList.add('bg-orange-500');
+                
+                // Show time warning at 25% if not already shown
+                if (!warningShown25) {
+                    showTimeWarning(25);
+                    warningShown25 = true;
+                }
+            } else if (percentage <= WARNING_THRESHOLDS.CAUTION) {
                 document.getElementById('timer-progress').classList.remove('bg-blue-600');
+                document.getElementById('timer-progress').classList.add('bg-yellow-500');
+                
+                // Show time warning at 50% if not already shown
+                if (!warningShown50) {
+                    showTimeWarning(50);
+                    warningShown50 = true;
+                }
+            } else if (percentage <= WARNING_THRESHOLDS.NOTICE) {
+                // Show time warning at 75% if not already shown
+                if (!warningShown75) {
+                    showTimeWarning(75);
+                    warningShown75 = true;
+                }
             }
             
             timeRemaining--;
             
             if (timeRemaining < 0) {
                 clearInterval(timerInterval);
-                document.getElementById('timeout-form').submit();
+                if (autoSaveInterval) {
+                    clearInterval(autoSaveInterval);
+                }
+                
+                // Save all answers before timeout submission
+                saveAllResponses();
+                
+                // Small delay to allow save to complete
+                setTimeout(() => {
+                    document.getElementById('timeout-form').submit();
+                }, 1000);
             }
         }
         
@@ -164,6 +406,75 @@
                 document.getElementById('current-question').textContent = targetIndex + 1;
             });
         });
+        
+        // Word count for essay questions
+        document.querySelectorAll('.essay-textarea').forEach(textarea => {
+            const countDisplay = textarea.nextElementSibling;
+            const minCount = parseInt(textarea.dataset.minWords || 0);
+            const maxCount = parseInt(textarea.dataset.maxWords || 0);
+            
+            function updateWordCount() {
+                const text = textarea.value.trim();
+                const wordCount = text ? text.split(/\s+/).length : 0;
+                
+                countDisplay.textContent = `${wordCount} word${wordCount !== 1 ? 's' : ''}`;
+                
+                // Reset classes
+                countDisplay.classList.remove('warning', 'error');
+                
+                // Add warning/error classes based on word count limits
+                if (maxCount > 0 && wordCount > maxCount) {
+                    countDisplay.classList.add('error');
+                    countDisplay.textContent += ` (exceeds maximum of ${maxCount})`;
+                } else if (minCount > 0 && wordCount < minCount) {
+                    countDisplay.classList.add('warning');
+                    countDisplay.textContent += ` (minimum required: ${minCount})`;
+                }
+            }
+            
+            textarea.addEventListener('input', updateWordCount);
+            updateWordCount(); // Initialize on load
+        });
+        
+        // Lightbox functionality for images
+        const lightbox = document.createElement('div');
+        lightbox.className = 'lightbox';
+        lightbox.innerHTML = `
+            <div class="lightbox-close">&times;</div>
+            <div class="lightbox-content">
+                <img src="" alt="Enlarged image">
+            </div>
+        `;
+        document.body.appendChild(lightbox);
+        
+        const lightboxImg = lightbox.querySelector('img');
+        const lightboxClose = lightbox.querySelector('.lightbox-close');
+        
+        // Open lightbox when clicking on an enlargeable image
+        document.querySelectorAll('.media-enlargeable').forEach(img => {
+            img.addEventListener('click', function() {
+                lightboxImg.src = this.src;
+                lightboxImg.alt = this.alt;
+                lightbox.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
+            });
+        });
+        
+        // Close lightbox when clicking outside the image or on the close button
+        lightbox.addEventListener('click', function(e) {
+            if (e.target === lightbox || e.target === lightboxClose) {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = ''; // Re-enable scrolling
+            }
+        });
+        
+        // Close lightbox with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = ''; // Re-enable scrolling
+            }
+        });
     });
 </script>
 {% endblock %}
@@ -230,6 +541,11 @@
                     <div class="w-32 bg-gray-200 rounded-full h-2.5">
                         <div id="timer-progress" class="bg-blue-600 h-2.5 rounded-full" style="width: 100%"></div>
                     </div>
+                    {% if attempt.time_extension_minutes %}
+                    <div class="mt-1 text-xs text-green-600">
+                        <span class="font-semibold">+{{ attempt.time_extension_minutes }}m</span> extension granted
+                    </div>
+                    {% endif %}
                 </div>
                 {% endif %}
                 
@@ -301,14 +617,17 @@
             
             <!-- Main Quiz Content -->
             <div class="md:col-span-3">
-                <form id="quiz-form" method="post" action="{% url 'submit-response' attempt.id %}">
+                <form id="quiz-form" method="post" action="{% url 'submit-response' attempt.id %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     
                     {% for question in questions %}
                     <div id="question-{{ forloop.counter }}" class="question-card bg-white shadow-md rounded-lg p-6 mb-6 {% if not forloop.first %}hidden{% endif %}">
                         <div class="mb-4">
                             <span class="inline-block bg-gray-200 text-gray-800 text-xs font-semibold px-2.5 py-1 rounded-full">
-                                {% if question.question_type == 'multiple_choice' %}Multiple Choice{% else %}True/False{% endif %}
+                                {% if question.question_type == 'multiple_choice' %}Multiple Choice
+                                {% elif question.question_type == 'true_false' %}True/False
+                                {% elif question.question_type == 'essay' %}Essay
+                                {% endif %}
                             </span>
                             <span class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full ml-2">
                                 {{ question.points }} point{{ question.points|pluralize }}
@@ -316,6 +635,29 @@
                         </div>
                         
                         <h3 class="text-xl font-semibold mb-4">{{ question.text }}</h3>
+                        
+                        <!-- Question media display -->
+                        {% if question.image %}
+                        <div class="question-media">
+                            <img src="{{ question.image.url }}" alt="{{ question.image_alt_text|default:'Question image' }}" class="media-enlargeable">
+                            {% if question.media_caption %}
+                            <div class="media-caption">{{ question.media_caption }}</div>
+                            {% endif %}
+                        </div>
+                        {% elif question.external_media_url %}
+                        <div class="question-media">
+                            {% if 'youtube.com' in question.external_media_url or 'youtu.be' in question.external_media_url %}
+                            <div class="aspect-w-16 aspect-h-9">
+                                <iframe src="{{ question.external_media_url|youtube_embed_url }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                            {% else %}
+                            <img src="{{ question.external_media_url }}" alt="{{ question.media_caption|default:'Question media' }}" class="media-enlargeable">
+                            {% endif %}
+                            {% if question.media_caption %}
+                            <div class="media-caption">{{ question.media_caption }}</div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
                         
                         <input type="hidden" name="question_id" value="{{ question.id }}">
                         <input type="hidden" name="time_spent" value="0">
@@ -327,15 +669,23 @@
                             
                             <div class="space-y-3">
                                 {% for choice in question.choices %}
-                                <div class="flex items-center">
-                                    <input type="{% if question.allow_multiple %}checkbox{% else %}radio{% endif %}" 
-                                           id="choice-{{ choice.id }}" 
-                                           name="{% if question.allow_multiple %}selected_choices[]{% else %}selected_choice{% endif %}" 
-                                           value="{{ choice.id }}"
-                                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded{% if question.allow_multiple %}-sm{% endif %}">
-                                    <label for="choice-{{ choice.id }}" class="ml-3 block text-gray-700">
-                                        {{ choice.text }}
-                                    </label>
+                                <div class="flex flex-col">
+                                    <div class="flex items-center">
+                                        <input type="{% if question.allow_multiple %}checkbox{% else %}radio{% endif %}" 
+                                               id="choice-{{ choice.id }}" 
+                                               name="{% if question.allow_multiple %}selected_choices[]{% else %}selected_choice{% endif %}" 
+                                               value="{{ choice.id }}"
+                                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded{% if question.allow_multiple %}-sm{% endif %}">
+                                        <label for="choice-{{ choice.id }}" class="ml-3 block text-gray-700">
+                                            {{ choice.text }}
+                                        </label>
+                                    </div>
+                                    <!-- Choice media display -->
+                                    {% if choice.image %}
+                                    <div class="choice-media">
+                                        <img src="{{ choice.image.url }}" alt="{{ choice.image_alt_text|default:'Choice image' }}" class="media-enlargeable">
+                                    </div>
+                                    {% endif %}
                                 </div>
                                 {% endfor %}
                             </div>
@@ -355,6 +705,51 @@
                                         False
                                     </label>
                                 </div>
+                            </div>
+                        {% elif question.question_type == 'essay' %}
+                            <div class="space-y-3">
+                                {% with essay_question=question.essayquestion %}
+                                <div class="text-sm text-gray-600 mb-3">
+                                    {% if essay_question.min_word_count > 0 and essay_question.max_word_count > 0 %}
+                                        Write between {{ essay_question.min_word_count }} and {{ essay_question.max_word_count }} words
+                                    {% elif essay_question.min_word_count > 0 %}
+                                        Write at least {{ essay_question.min_word_count }} words
+                                    {% elif essay_question.max_word_count > 0 %}
+                                        Write no more than {{ essay_question.max_word_count }} words
+                                    {% else %}
+                                        Write your answer below
+                                    {% endif %}
+                                </div>
+                                
+                                <div>
+                                    <textarea id="essay-{{ question.id }}" 
+                                              name="essay_text" 
+                                              class="essay-textarea" 
+                                              placeholder="Type your answer here..."
+                                              data-min-words="{{ essay_question.min_word_count }}"
+                                              data-max-words="{{ essay_question.max_word_count }}"></textarea>
+                                    <div class="word-count">0 words</div>
+                                </div>
+                                
+                                {% if essay_question.allow_attachments %}
+                                <div class="mt-4">
+                                    <label for="attachment-{{ question.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Attachments (Optional)
+                                    </label>
+                                    <input type="file" id="attachment-{{ question.id }}" 
+                                           name="attachment" 
+                                           class="block w-full text-sm text-gray-500
+                                                  file:mr-4 file:py-2 file:px-4
+                                                  file:rounded-full file:border-0
+                                                  file:text-sm file:font-semibold
+                                                  file:bg-blue-50 file:text-blue-700
+                                                  hover:file:bg-blue-100">
+                                    <p class="mt-1 text-sm text-gray-500">
+                                        Upload a file related to your answer (optional)
+                                    </p>
+                                </div>
+                                {% endif %}
+                                {% endwith %}
                             </div>
                         {% endif %}
                         

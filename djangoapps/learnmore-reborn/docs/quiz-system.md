@@ -12,6 +12,7 @@ The LearnMore Quiz System is a comprehensive assessment framework integrated wit
 - **Customizable quiz parameters**: Time limits, passing scores, attempt limits
 - **Randomization options**: Randomize question order to prevent cheating
 - **Auto-scoring**: Automatic grading with configurable scoring rules
+- **Score normalization**: Normalize scores using Z-score, min-max scaling, and custom methods
 - **Detailed feedback**: Per-question explanations and answer feedback
 - **Attempt tracking**: Complete history of all quiz attempts
 - **Progress integration**: Quiz completion contributes to module progress
@@ -38,6 +39,7 @@ The system supports two primary quiz types:
 
 - Single or multiple correct answers
 - Configurable scoring for partially correct answers
+- Score normalization across different questions
 - Individual feedback for each choice
 - Randomizable choice order
 
