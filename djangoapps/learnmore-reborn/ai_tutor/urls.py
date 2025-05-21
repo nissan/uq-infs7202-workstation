@@ -1,9 +1,11 @@
 from django.urls import path, include
 from . import views
 
+app_name = 'ai_tutor'
+
 urlpatterns = [
     # Main views
-    path('', views.ai_tutor_dashboard, name='ai_tutor_dashboard'),
+    path('', views.ai_tutor_dashboard, name='dashboard'),
     path('sessions/create/', views.create_tutor_session, name='create_tutor_session'),
     path('sessions/<int:session_id>/', views.tutor_session_view, name='ai_tutor_session'),
     

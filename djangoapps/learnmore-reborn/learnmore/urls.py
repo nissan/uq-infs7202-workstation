@@ -20,6 +20,7 @@ from django.views.generic import RedirectView
 from django.http import JsonResponse
 from django.conf import settings
 from django.conf.urls.static import static
+from . import views  # Add this import
 
 def root_view(request):
     try:
@@ -42,7 +43,7 @@ def root_view(request):
         }, status=500)
 
 urlpatterns = [
-    path('', root_view, name='root'),
+    path('', views.landing_page, name='landing'),  # Move this to the top
     path('admin/', admin.site.urls),
     # Template-based URLs
     path('courses/', include('courses.urls')),

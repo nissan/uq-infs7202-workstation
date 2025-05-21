@@ -9,20 +9,40 @@ class AiTutorConfig(AppConfig):
     def ready(self):
         """
         Perform initialization tasks when the app is ready.
-        This could include setting up LangChain components, initializing vector stores,
-        or other necessary configurations.
+        This includes setting up LangChain components and initializing vector stores.
         """
+        # Don't run initialization during migrations
+        import sys
+        if 'makemigrations' in sys.argv or 'migrate' in sys.argv:
+            return
+            
         # Import is here to avoid circular imports
-        from . import langchain_utils
+        import logging
+        logger = logging.getLogger(__name__)
         
-        # For now, just log that we're initializing
-        # In the future, this would initialize the vector store and LangChain components
         try:
-            # This is a placeholder and won't actually do anything yet
-            # When fully implemented, this would initialize the vector store
-            langchain_utils.initialize_vector_store()
+            # Initialize LangChain service
+            from .langchain_service import tutor_langchain_service
+            
+            # Log service initialization
+            if tutor_langchain_service.api_key:
+                logger.info("LangChain service initialized successfully")
+            else:
+                logger.warning(
+                    "LangChain service initialized without API key. "
+                    "AI Tutor will use placeholder responses. "
+                    "Set OPENAI_API_KEY environment variable to enable actual LLM responses."
+                )
+                
+            # Check vector store status
+            if tutor_langchain_service.vector_store:
+                logger.info("Vector store loaded successfully")
+            else:
+                logger.info(
+                    "No vector store found. Use the initialize_vector_store or "
+                    "populate_knowledge_base management command to create one."
+                )
+                
         except Exception as e:
             # Just log the error but don't crash the app initialization
-            import logging
-            logger = logging.getLogger(__name__)
             logger.error(f"Error initializing AI Tutor components: {str(e)}")

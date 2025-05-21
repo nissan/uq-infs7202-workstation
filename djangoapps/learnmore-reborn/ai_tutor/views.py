@@ -102,11 +102,21 @@ def send_message(request, session_id):
     # This will be replaced with actual AI processing
     # For now, just create a dummy response
     
+    # Get response from LangChain service
+    from .langchain_service import tutor_langchain_service
+    
+    # Generate response using LangChain
+    response_data = tutor_langchain_service.get_tutor_response(session, message_content)
+    
     # Create tutor response message
     tutor_message = TutorMessage.objects.create(
         session=session,
         message_type='tutor',
-        content=f"This is a placeholder response to: {message_content}"
+        content=response_data["content"],
+        metadata={
+            "sources": response_data.get("sources", []),
+            **response_data.get("metadata", {})
+        }
     )
     
     # Update session

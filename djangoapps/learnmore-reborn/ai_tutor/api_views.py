@@ -46,14 +46,21 @@ class TutorSessionViewSet(viewsets.ModelViewSet):
                 message_type='user'
             )
             
-            # TODO: Implement AI processing here
-            # This will be replaced with actual LangChain integration
-            # For now, just create a placeholder response
+            # Get response from LangChain service
+            from .langchain_service import tutor_langchain_service
+            
+            # Generate response using LangChain
+            response_data = tutor_langchain_service.get_tutor_response(session, user_message.content)
+            
+            # Create tutor response message
             tutor_response = TutorMessage.objects.create(
                 session=session,
                 message_type='tutor',
-                content=f"This is a placeholder response to: {user_message.content}",
-                metadata={"placeholder": True}
+                content=response_data["content"],
+                metadata={
+                    "sources": response_data.get("sources", []),
+                    **response_data.get("metadata", {})
+                }
             )
             
             # Return both the user message and tutor response

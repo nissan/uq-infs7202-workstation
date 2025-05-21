@@ -1,9 +1,11 @@
 from django.urls import path
 from . import views
 
+app_name = 'courses'
+
 urlpatterns = [
     # Course and module routes
-    path('catalog/', views.CourseCatalogView.as_view(), name='course-catalog'),
+    path('catalog/', views.CourseCatalogView.as_view(), name='catalog'),
     path('course/<slug:slug>/', views.CourseDetailView.as_view(), name='course-detail'),
     path('module/<int:module_id>/', views.ModuleDetailView.as_view(), name='module-detail'),
     path('enroll/<slug:slug>/', views.enroll_course, name='course-enroll'),
