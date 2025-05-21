@@ -54,11 +54,13 @@ urlpatterns = [
     path('progress/', include('progress.urls')),  # Progress tracking and learning interface
     path('analytics/', include('analytics.urls')),  # Analytics dashboards and data
     path('ai-tutor/', include('ai_tutor.urls')),  # AI Tutor interface and API
+    path('qr-codes/', include('qr_codes.urls')),  # QR code generation and scanning
     # API URLs
     path('api/courses/', include('courses.api_urls')),
     path('api/progress/', include('progress.api_urls')),
     path('api/users/', include('users.api_urls')),
     path('api/analytics/', include('analytics.api_urls')),
+    path('api/qr-codes/', include('qr_codes.api_urls')),  # QR code API
 ]
 
 # Serve static and media files in development

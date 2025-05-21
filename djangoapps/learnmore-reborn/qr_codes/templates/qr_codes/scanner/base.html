@@ -1,0 +1,589 @@
+{% extends 'base.html' %}
+
+{% block title %}QR Code Scanner{% endblock %}
+
+{% block extra_head %}
+<style>
+    #scanner-container {
+        position: relative;
+        width: 100%;
+        max-width: 600px;
+        height: 450px;
+        margin: 0 auto;
+        overflow: hidden;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    #video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .scanner-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .scan-region {
+        width: 230px;
+        height: 230px;
+        border: 2px solid white;
+        border-radius: 12px;
+        box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.5);
+        }
+        50% {
+            box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.4);
+        }
+        100% {
+            box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.5);
+        }
+    }
+    
+    .scan-region::before {
+        content: "";
+        position: absolute;
+        width: 30px;
+        height: 2px;
+        background: #4CAF50;
+        animation: scanner-line 2s infinite;
+        transform: translateY(-100px);
+    }
+    
+    @keyframes scanner-line {
+        0% {
+            transform: translateY(-100px);
+        }
+        50% {
+            transform: translateY(100px);
+        }
+        100% {
+            transform: translateY(-100px);
+        }
+    }
+    
+    .corner {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border-color: #4CAF50;
+        border-width: 3px;
+    }
+    
+    .corner-top-left {
+        top: -3px;
+        left: -3px;
+        border-top-style: solid;
+        border-left-style: solid;
+        border-top-left-radius: 8px;
+    }
+    
+    .corner-top-right {
+        top: -3px;
+        right: -3px;
+        border-top-style: solid;
+        border-right-style: solid;
+        border-top-right-radius: 8px;
+    }
+    
+    .corner-bottom-left {
+        bottom: -3px;
+        left: -3px;
+        border-bottom-style: solid;
+        border-left-style: solid;
+        border-bottom-left-radius: 8px;
+    }
+    
+    .corner-bottom-right {
+        bottom: -3px;
+        right: -3px;
+        border-bottom-style: solid;
+        border-right-style: solid;
+        border-bottom-right-radius: 8px;
+    }
+    
+    .camera-controls {
+        margin-top: 20px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+    
+    .scan-result {
+        margin-top: 30px;
+        padding: 20px;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        display: none;
+    }
+    
+    .scan-result.success {
+        border-left: 4px solid #28a745;
+    }
+    
+    .scan-result.error {
+        border-left: 4px solid #dc3545;
+    }
+    
+    .scan-history {
+        margin-top: 30px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'qr_codes:home' %}">QR Codes</a></li>
+            <li class="breadcrumb-item active">Scanner</li>
+        </ol>
+    </nav>
+
+    <h1 class="mb-4">QR Code Scanner</h1>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Scan QR Code</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-4">Position the QR code within the frame to scan. Make sure the QR code is well lit and in focus.</p>
+                    
+                    <div id="scanner-container">
+                        <video id="video" playsinline></video>
+                        <div class="scanner-overlay">
+                            <div class="scan-region">
+                                <div class="corner corner-top-left"></div>
+                                <div class="corner corner-top-right"></div>
+                                <div class="corner corner-bottom-left"></div>
+                                <div class="corner corner-bottom-right"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="camera-controls">
+                        <button id="start-button" class="btn btn-primary">
+                            <i class="fas fa-camera"></i> Start Camera
+                        </button>
+                        <button id="stop-button" class="btn btn-secondary" disabled>
+                            <i class="fas fa-stop"></i> Stop Camera
+                        </button>
+                        <button id="switch-camera" class="btn btn-outline-primary">
+                            <i class="fas fa-sync"></i> Switch Camera
+                        </button>
+                    </div>
+                    
+                    <div id="scan-result" class="scan-result mt-4">
+                        <h5 id="result-title">Scan Result</h5>
+                        <div id="result-content"></div>
+                        <div id="result-actions" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Scan History</h5>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush" id="scan-history">
+                        <li class="list-group-item text-center text-muted">
+                            No recent scans
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Scanner Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><i class="fas fa-info-circle text-primary"></i> This scanner works with any QR code from this platform.</p>
+                    <p><i class="fas fa-lock text-success"></i> Your location is only used for scan tracking if you explicitly allow it.</p>
+                    <p><i class="fas fa-camera text-warning"></i> Camera access is required but no photos are stored.</p>
+                    <p><i class="fas fa-wifi text-danger"></i> An internet connection is required to process scans.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let videoElement = document.getElementById('video');
+    let startButton = document.getElementById('start-button');
+    let stopButton = document.getElementById('stop-button');
+    let switchButton = document.getElementById('switch-camera');
+    let scanResult = document.getElementById('scan-result');
+    let resultTitle = document.getElementById('result-title');
+    let resultContent = document.getElementById('result-content');
+    let resultActions = document.getElementById('result-actions');
+    let scanHistory = document.getElementById('scan-history');
+    
+    let currentStream;
+    let scanner;
+    let currentDeviceId;
+    let cameras = [];
+    let currentCameraIndex = 0;
+    
+    // Check if the browser supports the Camera API
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('Your browser does not support the Camera API needed for scanning QR codes.');
+    }
+    
+    // Function to get available cameras
+    async function getCameras() {
+        cameras = [];
+        try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const videoDevices = devices.filter(device => device.kind === 'videoinput');
+            cameras = videoDevices;
+            
+            // Enable/disable camera switch button
+            switchButton.disabled = cameras.length <= 1;
+            
+            return videoDevices;
+        } catch (error) {
+            console.error('Error getting cameras:', error);
+            return [];
+        }
+    }
+    
+    // Start camera
+    async function startCamera() {
+        try {
+            await getCameras();
+            
+            if (cameras.length === 0) {
+                alert('No cameras found on your device.');
+                return;
+            }
+            
+            // Use the first camera by default or the selected one
+            const device = cameras[currentCameraIndex] || cameras[0];
+            currentDeviceId = device.deviceId;
+            
+            const constraints = {
+                video: {
+                    deviceId: currentDeviceId ? { exact: currentDeviceId } : undefined,
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    facingMode: { ideal: 'environment' } // Prefer back camera
+                }
+            };
+            
+            if (currentStream) {
+                stopCamera();
+            }
+            
+            currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+            videoElement.srcObject = currentStream;
+            await videoElement.play();
+            
+            startButton.disabled = true;
+            stopButton.disabled = false;
+            
+            // Start scanning
+            startScanning();
+            
+        } catch (error) {
+            console.error('Error starting camera:', error);
+            alert('Error accessing camera: ' + error.message);
+        }
+    }
+    
+    // Stop camera
+    function stopCamera() {
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+            currentStream = null;
+            videoElement.srcObject = null;
+        }
+        
+        startButton.disabled = false;
+        stopButton.disabled = true;
+    }
+    
+    // Switch camera
+    async function switchCamera() {
+        if (cameras.length <= 1) return;
+        
+        currentCameraIndex = (currentCameraIndex + 1) % cameras.length;
+        await startCamera();
+    }
+    
+    // Function to process scanned QR code
+    async function processQRCode(content) {
+        try {
+            // Try to parse the QR code content as JSON
+            let qrData;
+            try {
+                qrData = JSON.parse(content);
+            } catch (e) {
+                qrData = { id: content };
+            }
+            
+            // Add location if user allows
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        qrData.latitude = position.coords.latitude;
+                        qrData.longitude = position.coords.longitude;
+                        sendScanRequest(qrData);
+                    },
+                    function(error) {
+                        // Location error or user denied - proceed without location
+                        sendScanRequest(qrData);
+                    }
+                );
+            } else {
+                sendScanRequest(qrData);
+            }
+        } catch (error) {
+            showScanError("Failed to process QR code: " + error.message);
+        }
+    }
+    
+    // Send scan request to server
+    async function sendScanRequest(data) {
+        try {
+            // Add device info
+            data.context_data = {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                screen: {
+                    width: window.screen.width,
+                    height: window.screen.height
+                }
+            };
+            
+            const response = await fetch('/qr-codes/scan-qr-code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+                showScanSuccess(result);
+            } else {
+                showScanError(result.error || "Failed to process scan");
+            }
+        } catch (error) {
+            showScanError("Network error: " + error.message);
+        }
+    }
+    
+    // Show scan success
+    function showScanSuccess(result) {
+        scanResult.classList.remove('error');
+        scanResult.classList.add('success');
+        scanResult.style.display = 'block';
+        
+        resultTitle.innerHTML = '<i class="fas fa-check-circle text-success"></i> Scan Successful';
+        
+        // Create content
+        let content = `
+            <p><strong>Target:</strong> ${result.target_type} #${result.target_id}</p>
+            <p><strong>Name:</strong> ${result.target_name || 'Not available'}</p>
+            <p><strong>Scan ID:</strong> ${result.scan_id}</p>
+        `;
+        
+        resultContent.innerHTML = content;
+        
+        // Create actions
+        let actions = '';
+        if (result.target_url) {
+            actions += `<a href="${result.target_url}" class="btn btn-primary">View ${result.target_type}</a> `;
+        }
+        actions += `<button class="btn btn-outline-secondary" onclick="clearScanResult()">Dismiss</button>`;
+        
+        resultActions.innerHTML = actions;
+        
+        // Add to scan history
+        const historyItem = document.createElement('li');
+        historyItem.className = 'list-group-item';
+        historyItem.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="badge bg-success">Success</span>
+                    ${result.target_type} #${result.target_id}
+                </div>
+                <small class="text-muted">${new Date().toLocaleTimeString()}</small>
+            </div>
+            <small class="text-truncate d-block">${result.target_name || 'Not available'}</small>
+        `;
+        
+        // Add to the beginning of the list
+        if (scanHistory.firstChild && scanHistory.firstChild.classList.contains('text-muted')) {
+            scanHistory.innerHTML = '';
+        }
+        
+        if (scanHistory.children.length >= 5) {
+            scanHistory.removeChild(scanHistory.lastChild);
+        }
+        
+        scanHistory.insertBefore(historyItem, scanHistory.firstChild);
+    }
+    
+    // Show scan error
+    function showScanError(error) {
+        scanResult.classList.remove('success');
+        scanResult.classList.add('error');
+        scanResult.style.display = 'block';
+        
+        resultTitle.innerHTML = '<i class="fas fa-exclamation-circle text-danger"></i> Scan Failed';
+        resultContent.innerHTML = `<p>${error}</p>`;
+        resultActions.innerHTML = `<button class="btn btn-outline-secondary" onclick="clearScanResult()">Dismiss</button>`;
+        
+        // Add to scan history
+        const historyItem = document.createElement('li');
+        historyItem.className = 'list-group-item';
+        historyItem.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="badge bg-danger">Failed</span>
+                    Scan error
+                </div>
+                <small class="text-muted">${new Date().toLocaleTimeString()}</small>
+            </div>
+            <small class="text-truncate d-block text-danger">${error}</small>
+        `;
+        
+        // Add to the beginning of the list
+        if (scanHistory.firstChild && scanHistory.firstChild.classList.contains('text-muted')) {
+            scanHistory.innerHTML = '';
+        }
+        
+        if (scanHistory.children.length >= 5) {
+            scanHistory.removeChild(scanHistory.lastChild);
+        }
+        
+        scanHistory.insertBefore(historyItem, scanHistory.firstChild);
+    }
+    
+    // Clear scan result
+    function clearScanResult() {
+        scanResult.style.display = 'none';
+        resultContent.innerHTML = '';
+        resultActions.innerHTML = '';
+    }
+    
+    // Setup event listeners
+    startButton.addEventListener('click', startCamera);
+    stopButton.addEventListener('click', stopCamera);
+    switchButton.addEventListener('click', switchCamera);
+    
+    // Simple QR code scanner using a canvas and the video frame
+    function startScanning() {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        
+        let isScanning = true;
+        let lastScannedCode = null;
+        let lastScanTime = 0;
+        
+        function scanQRCode() {
+            if (!isScanning || !currentStream) return;
+            
+            if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
+                // Set canvas size to match video frame
+                canvas.width = videoElement.videoWidth;
+                canvas.height = videoElement.videoHeight;
+                
+                // Draw video frame to canvas
+                context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                
+                // Get image data
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                
+                // Here would be the actual QR code detection
+                // We're simplifying for this example - in production use a real QR library
+                // For example: jsQR, zxing, etc.
+                
+                // Simulating a QR detection - replace with actual detection logic
+                const qrCode = detectQRCode(imageData);
+                
+                if (qrCode) {
+                    // Prevent multiple scans of the same code too quickly
+                    const now = Date.now();
+                    if (qrCode !== lastScannedCode || now - lastScanTime > 3000) {
+                        lastScannedCode = qrCode;
+                        lastScanTime = now;
+                        
+                        // Process the QR code
+                        processQRCode(qrCode);
+                        
+                        // Pause scanning briefly
+                        isScanning = false;
+                        setTimeout(() => {
+                            isScanning = true;
+                        }, 3000);
+                    }
+                }
+            }
+            
+            // Continue scanning
+            if (isScanning) {
+                requestAnimationFrame(scanQRCode);
+            }
+        }
+        
+        // Start the scanning process
+        scanQRCode();
+    }
+    
+    // Detect QR code from image data (simplified example)
+    // In a real implementation, use a QR code library
+    function detectQRCode(imageData) {
+        // This is a mock function - it would normally use a QR code detection library
+        // For demonstration purposes, we'll just simulate a detection
+        
+        // Uncomment to use a real library like jsQR, which would look something like:
+        // const code = jsQR(imageData.data, imageData.width, imageData.height);
+        // if (code) return code.data;
+        
+        // For simplicity in this demo, you can use the browser's debugger to test scanning:
+        // Set a breakpoint here and use the console to return a value
+        
+        // Simulating a detection - remove this in real implementation
+        // Example: return JSON.stringify({ id: "123e4567-e89b-12d3-a456-426614174000" });
+        
+        return null;
+    }
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+        }
+    });
+</script>
+{% endblock %}

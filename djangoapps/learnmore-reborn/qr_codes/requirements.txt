@@ -1,0 +1,4 @@
+qrcode==7.4.2
+Pillow==10.0.0
+pyzbar==0.1.9
+numpy==1.24.3

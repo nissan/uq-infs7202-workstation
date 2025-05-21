@@ -37,7 +37,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     # Security
     PYTHONHASHSEED=random \
     # Gunicorn
-    GUNICORN_CMD_ARGS="--workers=1 --bind=0.0.0.0:8000 --timeout=60 --access-logfile=- --error-logfile=- --capture-output --log-level=info"
+    GUNICORN_CMD_ARGS="--workers=1 --bind=0.0.0.0:${PORT:-8000} --timeout=60 --access-logfile=- --error-logfile=- --capture-output --log-level=info"
 
 # Install system dependencies
 RUN apt-get update \

@@ -20,13 +20,14 @@ sys.exit(0)
 END
 }
 
-# Wait for PostgreSQL
-until postgres_ready; do
-    >&2 echo "PostgreSQL is unavailable - sleeping"
-    sleep 1
-done
-
->&2 echo "PostgreSQL is up - executing command"
+# Wait for PostgreSQL if using PostgreSQL
+if [[ "$DATABASE_URL" == postgres* ]]; then
+    until postgres_ready; do
+        >&2 echo "PostgreSQL is unavailable - sleeping"
+        sleep 1
+    done
+    >&2 echo "PostgreSQL is up - executing command"
+fi
 
 # Apply database migrations
 echo "Applying database migrations..."
