@@ -156,7 +156,7 @@ class QRCodeScanSerializerTests(TestCase):
         
         # Check basic fields
         self.assertEqual(data['id'], str(self.scan.id))
-        self.assertEqual(data['qr_code'], str(self.qr_code.id))
+        self.assertEqual(str(data['qr_code']), str(self.qr_code.id))
         self.assertEqual(data['user'], self.user.id)
         self.assertEqual(data['ip_address'], '127.0.0.1')
         self.assertEqual(data['status'], 'success')
@@ -172,7 +172,7 @@ class QRCodeScanSerializerTests(TestCase):
         
         serializer = QRCodeScanRequestSerializer(data=data)
         self.assertTrue(serializer.is_valid())
-        # UUID objects should be equivalent
+        # Convert both to strings to ensure proper comparison (UUID objects vs string representation)
         self.assertEqual(str(serializer.validated_data['qr_code_id']), str(self.qr_code.id))
         self.assertEqual(serializer.validated_data['latitude'], 37.7749)
         self.assertEqual(serializer.validated_data['longitude'], -122.4194)
