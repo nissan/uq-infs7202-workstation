@@ -30,6 +30,7 @@ class ContentTypeField(serializers.Field):
 
 class QRCodeSerializer(serializers.ModelSerializer):
     """Serializer for retrieving QR code data."""
+    id = serializers.UUIDField(read_only=True)  # Explicitly define id field
     content_type = ContentTypeField()
     scan_count = serializers.ReadOnlyField()
     is_expired = serializers.ReadOnlyField()
@@ -149,6 +150,42 @@ class QRCodeBatchCreateSerializer(serializers.ModelSerializer):
         content_type = data.get('content_type')
         
         if target_ids and not content_type:
-            raise serializers.ValidationError("content_type is required when target_ids are provided")
+            raise serializers.ValidationError({"content_type": ["Content type is required when target IDs are provided."]})
+        
+        # Check if each target ID exists for the given content type
+        if target_ids and content_type:
+            non_existent_ids = []
+            for target_id in target_ids:
+                try:
+                    content_type.get_object_for_this_type(pk=target_id)
+                except Exception:
+                    non_existent_ids.append(target_id)
+            
+            if non_existent_ids:
+                raise serializers.ValidationError({
+                    "target_ids": [f"Objects with IDs {', '.join(map(str, non_existent_ids))} do not exist for the specified content type."]
+                })
         
         return data
+        
+    def create(self, validated_data):
+        """Create a QRCodeBatch instance and handle target_ids separately."""
+        # Extract target_ids before creating the batch (not a model field)
+        target_ids = validated_data.pop('target_ids', [])
+        
+        # Create the batch
+        batch = QRCodeBatch.objects.create(**validated_data)
+        
+        # Create QR codes if target_ids were provided
+        if target_ids and batch.content_type:
+            from .services import QRCodeService
+            QRCodeService.create_batch_codes(
+                batch=batch,
+                target_ids=target_ids,
+                content_type=batch.content_type,
+                expires_at=batch.expires_at,
+                max_scans=batch.max_scans_per_code,
+                access_level=batch.access_level
+            )
+            
+        return batch

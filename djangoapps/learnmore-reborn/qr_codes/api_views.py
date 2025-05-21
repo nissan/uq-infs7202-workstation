@@ -30,6 +30,17 @@ class QRCodeViewSet(viewsets.ModelViewSet):
         qr_code = serializer.save()
         # Generate QR code image
         QRCodeService.generate_qr_image(qr_code)
+        
+    def create(self, request, *args, **kwargs):
+        """Override create to ensure proper response format with ID."""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        # Re-serialize with QRCodeSerializer to ensure id and other fields are included
+        instance = serializer.instance
+        response_serializer = QRCodeSerializer(instance)
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     
     @action(detail=True, methods=['get'])
     def regenerate(self, request, pk=None):
@@ -99,6 +110,15 @@ class QRCodeScanViewSet(viewsets.ReadOnlyModelViewSet):
                 'status': 'exceeded',
                 'message': 'Scan limit reached'
             }, status=status.HTTP_403_FORBIDDEN)
+            
+        # Validate access level
+        is_valid, message, _ = QRCodeService.validate_scan(qr_code_id, user=request.user)
+        if not is_valid:
+            return Response({
+                'success': False,
+                'status': 'forbidden',
+                'message': message
+            }, status=status.HTTP_403_FORBIDDEN)
         
         # Create scan record
         scan = QRCodeScan.objects.create(
@@ -139,7 +159,20 @@ class QRCodeScanViewSet(viewsets.ReadOnlyModelViewSet):
         
         if target_app in url_mapping and target_model in url_mapping[target_app]:
             url_name = url_mapping[target_app][target_model]
-            target_url = reverse(url_name, kwargs={'pk': qr_code.object_id})
+            
+            # Special case for course-detail which uses slug instead of pk
+            if url_name == 'course-detail':
+                # Try to get the course by ID to get its slug
+                try:
+                    from courses.models import Course
+                    course = Course.objects.get(id=qr_code.object_id)
+                    target_url = reverse(url_name, kwargs={'slug': course.slug})
+                except:
+                    # Fallback if we can't get the course
+                    target_url = None
+            else:
+                # For other URLs that use pk
+                target_url = reverse(url_name, kwargs={'pk': qr_code.object_id})
         
         # Return scan result
         response_data = {
@@ -172,20 +205,21 @@ class QRCodeBatchViewSet(viewsets.ModelViewSet):
         return QRCodeBatchSerializer
     
     def perform_create(self, serializer):
-        # Save batch
+        # Set created_by before saving
         batch = serializer.save(created_by=self.request.user)
         
-        # Create QR codes for targets if specified
-        target_ids = serializer.validated_data.get('target_ids', [])
-        if target_ids and batch.content_type:
-            QRCodeService.create_batch_codes(
-                batch=batch,
-                target_ids=target_ids,
-                content_type=batch.content_type,
-                expires_at=batch.expires_at,
-                max_scans=batch.max_scans_per_code,
-                access_level=batch.access_level
-            )
+        # Note: target_ids are now handled directly in the serializer's create method
+    
+    def create(self, request, *args, **kwargs):
+        """Override create to ensure proper response format with ID."""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        # Re-serialize with QRCodeBatchSerializer to ensure id and other fields are included
+        instance = serializer.instance
+        response_serializer = QRCodeBatchSerializer(instance)
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     
     @action(detail=True, methods=['post'])
     def generate_codes(self, request, pk=None):
