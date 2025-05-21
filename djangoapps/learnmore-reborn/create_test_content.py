@@ -8,7 +8,7 @@ Usage:
 
 from django.contrib.auth.models import User
 from users.models import UserProfile
-from courses.models import Course, Module, Quiz, Question, MultipleChoiceQuestion, TrueFalseQuestion, Enrollment
+from courses.models import Course, Module, Quiz, Question, MultipleChoiceQuestion, TrueFalseQuestion, EssayQuestion, Enrollment
 from django.db import transaction
 from django.utils import timezone
 import os
@@ -21,11 +21,72 @@ django.setup()
 
 # Get test users
 admin_user = User.objects.get(username='admin')
-professor = User.objects.get(username='professor')
-teacher = User.objects.get(username='teacher')
+professor = User.objects.get(username='instructor1')
+teacher = User.objects.get(username='instructor2')
 student1 = User.objects.get(username='student1')
 student2 = User.objects.get(username='student2')
-student3 = User.objects.get(username='student3')
+
+# Sample quiz templates for reuse
+QUIZ_TEMPLATES = {
+    'multiple_choice': {
+        'title': 'Multiple Choice Assessment',
+        'description': 'Test your knowledge with multiple choice questions.',
+        'time_limit_minutes': 20,
+        'questions': [
+            {
+                'type': 'multiple_choice',
+                'text': 'What is the correct answer to this question?',
+                'choices': [
+                    {'text': 'Option A (Correct)', 'is_correct': True},
+                    {'text': 'Option B', 'is_correct': False},
+                    {'text': 'Option C', 'is_correct': False},
+                    {'text': 'Option D', 'is_correct': False}
+                ]
+            },
+            {
+                'type': 'multiple_choice',
+                'text': 'Select all that apply:',
+                'choices': [
+                    {'text': 'First correct option', 'is_correct': True},
+                    {'text': 'Second correct option', 'is_correct': True},
+                    {'text': 'Incorrect option', 'is_correct': False},
+                    {'text': 'Another incorrect option', 'is_correct': False}
+                ]
+            }
+        ]
+    },
+    'true_false': {
+        'title': 'True/False Assessment',
+        'description': 'Test your understanding with true/false questions.',
+        'time_limit_minutes': 15,
+        'questions': [
+            {
+                'type': 'true_false',
+                'text': 'This statement is true.',
+                'correct_answer': True
+            },
+            {
+                'type': 'true_false',
+                'text': 'This statement is false.',
+                'correct_answer': False
+            }
+        ]
+    },
+    'essay': {
+        'title': 'Essay Assessment',
+        'description': 'Demonstrate your understanding through written responses.',
+        'time_limit_minutes': 45,
+        'questions': [
+            {
+                'type': 'essay',
+                'text': 'Explain the key concepts covered in this module.',
+                'min_word_count': 200,
+                'max_word_count': 1000,
+                'rubric': 'Evaluation will be based on:\n1. Understanding of concepts (40%)\n2. Clarity of explanation (30%)\n3. Use of examples (20%)\n4. Writing quality (10%)'
+            }
+        ]
+    }
+}
 
 # Sample course data
 COURSES = [
@@ -37,49 +98,69 @@ COURSES = [
             {
                 "title": "Python Basics",
                 "description": "Introduction to Python syntax and basic concepts.",
-                "quizzes": [
-                    {
-                        "title": "Python Syntax Quiz",
-                        "description": "Test your knowledge of Python syntax.",
-                        "time_limit_minutes": 15,
-                        "questions": [
-                            {
-                                "type": "multiple_choice",
-                                "text": "Which of the following is a valid Python variable name?",
-                                "choices": [
-                                    {"text": "1variable", "is_correct": False},
-                                    {"text": "_variable", "is_correct": True},
-                                    {"text": "variable-1", "is_correct": False},
-                                    {"text": "variable@1", "is_correct": False}
-                                ]
-                            },
-                            {
-                                "type": "true_false",
-                                "text": "Python is a strongly typed language.",
-                                "is_correct": False
-                            }
-                        ]
-                    }
-                ]
+                "quizzes": [QUIZ_TEMPLATES['multiple_choice']]
             },
             {
                 "title": "Functions and Modules",
-                "description": "Learn how to create and use functions and modules in Python."
+                "description": "Learn how to create and use functions and modules in Python.",
+                "quizzes": [QUIZ_TEMPLATES['true_false']]
+            },
+            {
+                "title": "Object-Oriented Programming",
+                "description": "Understanding classes, objects, and inheritance in Python.",
+                "quizzes": [QUIZ_TEMPLATES['essay']]
+            },
+            {
+                "title": "File Handling",
+                "description": "Working with files and data persistence in Python.",
+                "quizzes": [QUIZ_TEMPLATES['multiple_choice']]
+            },
+            {
+                "title": "Error Handling",
+                "description": "Managing exceptions and errors in Python programs.",
+                "quizzes": [QUIZ_TEMPLATES['true_false']]
+            },
+            {
+                "title": "Advanced Python Concepts",
+                "description": "Exploring advanced Python features and best practices.",
+                "quizzes": [QUIZ_TEMPLATES['essay']]
             }
         ]
     },
     {
         "title": "Data Science with Python",
-        "description": "Explore data science concepts and techniques using Python libraries like NumPy, Pandas, and Matplotlib.",
+        "description": "Explore data science concepts and techniques using Python libraries.",
         "instructor": teacher,
         "modules": [
             {
                 "title": "Introduction to NumPy",
-                "description": "Learn the basics of NumPy for numerical computing."
+                "description": "Learn the basics of NumPy for numerical computing.",
+                "quizzes": [QUIZ_TEMPLATES['multiple_choice']]
             },
             {
                 "title": "Data Analysis with Pandas",
-                "description": "Explore data manipulation and analysis with Pandas."
+                "description": "Explore data manipulation and analysis with Pandas.",
+                "quizzes": [QUIZ_TEMPLATES['true_false']]
+            },
+            {
+                "title": "Data Visualization",
+                "description": "Creating effective visualizations with Matplotlib and Seaborn.",
+                "quizzes": [QUIZ_TEMPLATES['essay']]
+            },
+            {
+                "title": "Statistical Analysis",
+                "description": "Applying statistical methods to data analysis.",
+                "quizzes": [QUIZ_TEMPLATES['multiple_choice']]
+            },
+            {
+                "title": "Machine Learning Basics",
+                "description": "Introduction to machine learning concepts and algorithms.",
+                "quizzes": [QUIZ_TEMPLATES['true_false']]
+            },
+            {
+                "title": "Data Science Project",
+                "description": "Complete a comprehensive data science project.",
+                "quizzes": [QUIZ_TEMPLATES['essay']]
             }
         ]
     },
@@ -90,53 +171,71 @@ COURSES = [
         "modules": [
             {
                 "title": "HTML Basics",
-                "description": "Introduction to HTML markup and document structure."
+                "description": "Introduction to HTML markup and document structure.",
+                "quizzes": [QUIZ_TEMPLATES['multiple_choice']]
             },
             {
                 "title": "CSS Styling",
-                "description": "Learn to style web pages using CSS."
+                "description": "Learn to style web pages using CSS.",
+                "quizzes": [QUIZ_TEMPLATES['true_false']]
             },
             {
                 "title": "JavaScript Fundamentals",
-                "description": "Introduction to JavaScript programming for the web."
-            }
-        ]
-    },
-    {
-        "title": "Machine Learning Essentials",
-        "description": "An introduction to machine learning concepts, algorithms, and applications.",
-        "instructor": teacher,
-        "modules": [
-            {
-                "title": "Supervised Learning",
-                "description": "Learn about classification and regression techniques."
+                "description": "Introduction to JavaScript programming for the web.",
+                "quizzes": [QUIZ_TEMPLATES['essay']]
             },
             {
-                "title": "Unsupervised Learning",
-                "description": "Explore clustering and dimensionality reduction."
+                "title": "Responsive Design",
+                "description": "Creating websites that work on all devices.",
+                "quizzes": [QUIZ_TEMPLATES['multiple_choice']]
+            },
+            {
+                "title": "Web Accessibility",
+                "description": "Making websites accessible to all users.",
+                "quizzes": [QUIZ_TEMPLATES['true_false']]
+            },
+            {
+                "title": "Web Development Project",
+                "description": "Build a complete website from scratch.",
+                "quizzes": [QUIZ_TEMPLATES['essay']]
             }
         ]
     }
 ]
 
-created_courses = 0
-created_modules = 0
-created_quizzes = 0
-created_questions = 0
-created_enrollments = 0
+# Generate additional courses
+ADDITIONAL_COURSES = [
+    {
+        "title": f"Advanced Topic {i}",
+        "description": f"Comprehensive course on advanced topic {i} with detailed modules and assessments.",
+        "instructor": random.choice([professor, teacher]),
+        "modules": [
+            {
+                "title": f"Module {j} - {random.choice(['Introduction', 'Advanced Concepts', 'Practical Applications', 'Case Studies', 'Project Work'])}",
+                "description": f"Detailed exploration of module {j} concepts and applications.",
+                "quizzes": [random.choice(list(QUIZ_TEMPLATES.values()))]
+            } for j in range(1, 7)  # 6 modules per course
+        ]
+    } for i in range(1, 18)  # 17 additional courses
+]
 
+COURSES.extend(ADDITIONAL_COURSES)
+
+# Create test content
 with transaction.atomic():
+    created_courses = 0
+    created_modules = 0
+    created_quizzes = 0
+    created_questions = 0
+    created_enrollments = 0
+    
     for course_data in COURSES:
         # Create course
         course = Course.objects.create(
             title=course_data["title"],
             description=course_data["description"],
             instructor=course_data["instructor"],
-            start_date=timezone.now() - timedelta(days=30),
-            end_date=timezone.now() + timedelta(days=60),
-            enrollment_type="open",
-            course_type="standard",
-            analytics_enabled=True
+            status="published"
         )
         created_courses += 1
         
@@ -158,7 +257,8 @@ with transaction.atomic():
                         title=quiz_data["title"],
                         description=quiz_data["description"],
                         time_limit_minutes=quiz_data.get("time_limit_minutes", 30),
-                        passing_score=70
+                        passing_score=70,
+                        is_published=True
                     )
                     created_quizzes += 1
                     
@@ -168,7 +268,8 @@ with transaction.atomic():
                             question = MultipleChoiceQuestion.objects.create(
                                 quiz=quiz,
                                 text=question_data["text"],
-                                points=10
+                                points=10,
+                                allow_multiple=any(choice["is_correct"] for choice in question_data["choices"])
                             )
                             
                             # Create choices
@@ -184,53 +285,27 @@ with transaction.atomic():
                                 quiz=quiz,
                                 text=question_data["text"],
                                 points=5,
-                                is_correct=question_data["is_correct"]
+                                correct_answer=question_data["correct_answer"]
+                            )
+                            
+                        elif question_data["type"] == "essay":
+                            question = EssayQuestion.objects.create(
+                                quiz=quiz,
+                                text=question_data["text"],
+                                points=20,
+                                min_word_count=question_data.get("min_word_count", 200),
+                                max_word_count=question_data.get("max_word_count", 1000),
+                                rubric=question_data.get("rubric", "")
                             )
                             
                         created_questions += 1
-            
-            # Add a generic quiz if none specified
-            else:
-                quiz = Quiz.objects.create(
-                    module=module,
-                    title=f"{module_data['title']} Quiz",
-                    description=f"Test your knowledge of {module_data['title']}",
-                    time_limit_minutes=20,
-                    passing_score=70
-                )
-                created_quizzes += 1
-                
-                # Create some generic questions
-                for i in range(3):
-                    if i % 2 == 0:
-                        question = MultipleChoiceQuestion.objects.create(
-                            quiz=quiz,
-                            text=f"Sample multiple choice question {i+1} for {module_data['title']}?",
-                            points=10
-                        )
-                        
-                        # Create choices
-                        question.choices.create(text="Option A", is_correct=True, order=1)
-                        question.choices.create(text="Option B", is_correct=False, order=2)
-                        question.choices.create(text="Option C", is_correct=False, order=3)
-                        question.choices.create(text="Option D", is_correct=False, order=4)
-                    else:
-                        question = TrueFalseQuestion.objects.create(
-                            quiz=quiz,
-                            text=f"Sample true/false question {i+1} for {module_data['title']}.",
-                            points=5,
-                            is_correct=random.choice([True, False])
-                        )
-                        
-                    created_questions += 1
         
         # Enroll students in courses
-        for student in [student1, student2, student3]:
+        for student in [student1, student2]:
             Enrollment.objects.create(
                 user=student,
                 course=course,
-                status="active",
-                enrollment_date=timezone.now() - timedelta(days=random.randint(1, 20))
+                status="active"
             )
             created_enrollments += 1
 

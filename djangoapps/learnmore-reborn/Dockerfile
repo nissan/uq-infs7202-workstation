@@ -6,12 +6,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PIP_DEFAULT_TIMEOUT=100 \
-    POETRY_VERSION=1.7.1 \
-    POETRY_HOME="/opt/poetry" \
-    POETRY_VIRTUALENVS_CREATE=false \
-    POETRY_NO_INTERACTION=1 \
-    POETRY_CACHE_DIR='/var/cache/pypoetry'
+    PIP_DEFAULT_TIMEOUT=100
 
 # Install system dependencies
 RUN apt-get update \
@@ -22,18 +17,14 @@ RUN apt-get update \
         libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install poetry
-RUN curl -sSL https://install.python-poetry.org | python3 -
-ENV PATH="${POETRY_HOME}/bin:$PATH"
-
 # Set working directory
 WORKDIR /app
 
-# Copy dependency files
-COPY pyproject.toml poetry.lock* ./
+# Copy requirements file
+COPY requirements.txt .
 
 # Install dependencies
-RUN poetry install --no-dev --no-root
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Final stage
 FROM python:3.11-slim
@@ -46,7 +37,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     # Security
     PYTHONHASHSEED=random \
     # Gunicorn
-    GUNICORN_CMD_ARGS="--workers=3 --bind=0.0.0.0:8000 --timeout=60 --access-logfile=- --error-logfile=- --capture-output --log-level=info"
+    GUNICORN_CMD_ARGS="--workers=1 --bind=0.0.0.0:8000 --timeout=60 --access-logfile=- --error-logfile=- --capture-output --log-level=info"
 
 # Install system dependencies
 RUN apt-get update \
@@ -64,9 +55,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 WORKDIR /app
 
 # Copy virtual environment from builder
-COPY --from=builder /opt/venv /opt/venv
+COPY --from=builder /usr/local/lib/python3.11/site-packages /opt/venv/lib/python3.11/site-packages
 
-# Copy project files
+# Copy project files and .env file
 COPY --chown=appuser:appuser . .
 
 # Create required directories with proper permissions
