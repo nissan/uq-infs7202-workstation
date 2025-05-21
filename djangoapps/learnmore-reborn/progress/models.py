@@ -15,6 +15,9 @@ class Progress(models.Model):
     total_duration_seconds = models.PositiveIntegerField(default=0, help_text='Total time spent on course in seconds')
     completion_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
     is_completed = models.BooleanField(default=False)
+    
+    # QR code related fields
+    qr_scans = models.JSONField(default=dict, blank=True, help_text='Record of QR code scans by this user')
 
     class Meta:
         unique_together = ('user', 'course')

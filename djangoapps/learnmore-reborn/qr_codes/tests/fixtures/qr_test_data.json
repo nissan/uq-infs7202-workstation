@@ -1,0 +1,86 @@
+[
+  {
+    "model": "auth.user",
+    "pk": 1001,
+    "fields": {
+      "username": "testinstructor",
+      "password": "pbkdf2_sha256$600000$EYfDpbWvIdmEQRY6nAEMwe$UhL9JR07B/UbRuQ2JFPCJxIx70R8HdlSRz1mYTGzOkQ=",
+      "email": "instructor@test.com",
+      "is_staff": true,
+      "is_active": true,
+      "is_superuser": false,
+      "date_joined": "2025-05-20T00:00:00Z"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 1002,
+    "fields": {
+      "username": "teststudent",
+      "password": "pbkdf2_sha256$600000$EYfDpbWvIdmEQRY6nAEMwe$UhL9JR07B/UbRuQ2JFPCJxIx70R8HdlSRz1mYTGzOkQ=",
+      "email": "student@test.com",
+      "is_staff": false,
+      "is_active": true,
+      "is_superuser": false,
+      "date_joined": "2025-05-20T00:00:00Z"
+    }
+  },
+  {
+    "model": "courses.course",
+    "pk": 1001,
+    "fields": {
+      "title": "Test Course 1",
+      "description": "A test course for QR code testing",
+      "instructor": 1001,
+      "created_at": "2025-05-20T00:00:00Z",
+      "updated_at": "2025-05-20T00:00:00Z",
+      "is_published": true
+    }
+  },
+  {
+    "model": "courses.module",
+    "pk": 1001,
+    "fields": {
+      "title": "Test Module 1",
+      "description": "A test module for QR code testing",
+      "course": 1001,
+      "order": 1,
+      "created_at": "2025-05-20T00:00:00Z",
+      "updated_at": "2025-05-20T00:00:00Z"
+    }
+  },
+  {
+    "model": "courses.quiz",
+    "pk": 1001,
+    "fields": {
+      "title": "Test Quiz 1",
+      "description": "A test quiz for QR code testing",
+      "module": 1001,
+      "time_limit": 30,
+      "created_at": "2025-05-20T00:00:00Z",
+      "updated_at": "2025-05-20T00:00:00Z"
+    }
+  },
+  {
+    "model": "courses.enrollment",
+    "pk": 1001,
+    "fields": {
+      "user": 1002,
+      "course": 1001,
+      "status": "active",
+      "created_at": "2025-05-20T00:00:00Z",
+      "updated_at": "2025-05-20T00:00:00Z"
+    }
+  },
+  {
+    "model": "progress.progress",
+    "pk": 1001,
+    "fields": {
+      "user": 1002,
+      "course": 1001,
+      "status": "in_progress",
+      "created_at": "2025-05-20T00:00:00Z",
+      "updated_at": "2025-05-20T00:00:00Z"
+    }
+  }
+]
