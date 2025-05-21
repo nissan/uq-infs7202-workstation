@@ -24,6 +24,7 @@ distro==1.9.0
 dj-database-url==2.3.0
 Django==5.2.1
 django-admin-interface==0.28.0
+django-allauth==65.8.0
 django-colorfield==0.14.0
 django-cors-headers==4.7.0
 django-environ==0.12.0
