@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from .models import TutorSession, TutorMessage, TutorFeedback, TutorConfiguration
@@ -30,6 +31,7 @@ def create_tutor_session(request):
         title = request.POST.get('title', 'New Session')
         course_id = request.POST.get('course')
         module_id = request.POST.get('module')
+        design = request.POST.get('design')
         
         # Create a new session
         session = TutorSession.objects.create(
@@ -47,6 +49,9 @@ def create_tutor_session(request):
             content="Hello! I'm your AI tutor. How can I help you today?"
         )
         
+        # Redirect to the session view, with design parameter if specified
+        if design == 'new':
+            return redirect(f"{reverse('ai_tutor_session', kwargs={'session_id': session.id})}?design=new")
         return redirect('ai_tutor_session', session_id=session.id)
     
     # If GET request, redirect to dashboard
@@ -74,7 +79,12 @@ def tutor_session_view(request, session_id):
         'modules': modules,
     }
     
-    return render(request, 'ai_tutor/session.html', context)
+    # Use the new template design if a query parameter is set
+    template = 'ai_tutor/session.html'
+    if request.GET.get('design') == 'new':
+        template = 'ai_tutor/ai-tutor.html'
+    
+    return render(request, template, context)
 
 @login_required
 @require_POST
