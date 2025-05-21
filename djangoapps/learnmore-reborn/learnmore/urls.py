@@ -44,6 +44,9 @@ def root_view(request):
 
 urlpatterns = [
     path('', views.landing_page, name='landing'),  # Move this to the top
+    path('features/', views.features_page, name='features'),
+    path('how-it-works/', views.how_it_works_page, name='how-it-works'),
+    path('testimonials/', views.testimonials_page, name='testimonials'),
     path('admin/', admin.site.urls),
     # Template-based URLs
     path('courses/', include('courses.urls')),
@@ -58,6 +61,7 @@ urlpatterns = [
     path('api/analytics/', include('analytics.api_urls')),
 ]
 
-# Serve media files in development
+# Serve static and media files in development
 if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

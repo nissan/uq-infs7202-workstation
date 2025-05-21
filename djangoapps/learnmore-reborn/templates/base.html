@@ -6,156 +6,139 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}LearnMore{% endblock %}</title>
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Heroicons -->
-    <link rel="stylesheet" href="https://unpkg.com/heroicons@1.0.6/outline.min.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     {% block extra_css %}{% endblock %}
-    
-    <!-- Tailwind Config -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            '50': '#eff6ff',
-                            '100': '#dbeafe',
-                            '200': '#bfdbfe',
-                            '300': '#93c5fd',
-                            '400': '#60a5fa',
-                            '500': '#3b82f6',
-                            '600': '#2563eb',
-                            '700': '#1d4ed8',
-                            '800': '#1e40af',
-                            '900': '#1e3a8a',
-                        },
-                    }
-                }
-            }
-        }
-    </script>
 </head>
-<body class="flex flex-col min-h-screen bg-gray-50">
-    <!-- Notification Banner (for messages) -->
-    {% if messages %}
-    <div class="bg-blue-600">
-        <div class="max-w-7xl mx-auto py-3 px-3 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between flex-wrap">
-                <div class="w-0 flex-1 flex items-center">
-                    <span class="flex p-2 rounded-lg bg-blue-800">
-                        <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-                        </svg>
-                    </span>
-                    <div class="ml-3 font-medium text-white">
-                        {% for message in messages %}
-                            <p>{{ message }}</p>
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="order-2 flex-shrink-0 sm:order-3 sm:ml-3">
-                    <button type="button" class="-mr-1 flex p-2 rounded-md hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-white sm:-mr-2">
-                        <span class="sr-only">Dismiss</span>
-                        <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
+<body>
     <!-- Header -->
-    <header class="bg-white shadow">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex">
-                    <div class="flex-shrink-0 flex items-center">
-                        <a href="/" class="text-blue-600 font-bold text-2xl">LearnMore</a>
-                    </div>
-                    <nav class="ml-10 flex items-center space-x-4">
-                        <a href="{% url 'course-catalog' %}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Courses</a>
+    <header class="platform-header">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <a href="{% url 'landing' %}" class="header-logo me-4">LearnMore</a>
+                    <nav class="d-none d-md-flex">
+                        <a href="{% url 'course-catalog' %}" class="nav-link {% if request.resolver_match.url_name == 'course-catalog' %}active{% endif %}">Courses</a>
                         {% if user.is_authenticated %}
-                        <a href="{% url 'profile' %}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">My Learning</a>
+                            <a href="{% url 'profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">My Learning</a>
+                            {% if user.profile.is_instructor %}
+                                <a href="{% url 'course-creator' %}" class="nav-link {% if request.resolver_match.url_name == 'course-creator' %}active{% endif %}">Create Course</a>
+                            {% endif %}
                         {% endif %}
                     </nav>
                 </div>
-                <div class="flex items-center">
+                
+                <div class="header-actions">
                     {% if user.is_authenticated %}
-                    <div class="ml-4 relative flex-shrink-0">
-                        <div class="flex items-center space-x-3">
-                            {% if user.profile.is_instructor or user.is_staff %}
-                            <a href="{% url 'admin:index' %}" class="flex items-center text-sm text-gray-700 hover:text-blue-600">
-                                <svg class="mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                </svg>
-                                Admin
-                            </a>
+                        <div class="notification-bell me-3">
+                            <i class="bi bi-bell"></i>
+                            {% if user.notifications.unread_count > 0 %}
+                                <div class="notification-badge">{{ user.notifications.unread_count }}</div>
                             {% endif %}
-                            <a href="{% url 'profile' %}" class="flex text-sm rounded-full focus:outline-none">
-                                <span class="sr-only">View profile</span>
-                                <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
-                                    {{ user.username|first|upper }}
-                                </div>
-                            </a>
-                            <a href="{% url 'profile' %}" class="text-sm text-gray-700">{{ user.username }}</a>
-                            <form method="post" action="{% url 'logout' %}" class="inline">
-                                {% csrf_token %}
-                                <button type="submit" class="text-sm text-gray-700 hover:text-red-600">Logout</button>
-                            </form>
                         </div>
-                    </div>
+                        
+                        <div class="user-profile dropdown">
+                            <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="user-avatar">
+                                    {% if user.profile.profile_image %}
+                                        <img src="{{ user.profile.profile_image.url }}" alt="{{ user.get_full_name }}">
+                                    {% else %}
+                                        <img src="https://placehold.co/36x36/2563eb/ffffff?text={{ user.username|first|upper }}" alt="{{ user.get_full_name }}">
+                                    {% endif %}
+                                </div>
+                                <div class="user-name d-none d-md-block">{{ user.get_full_name }}</div>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="bi bi-person me-2"></i>My Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'settings' %}"><i class="bi bi-gear me-2"></i>Account Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'users:logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Sign Out</a></li>
+                            </ul>
+                        </div>
                     {% else %}
-                    <div class="flex items-center space-x-3">
-                        <a href="{% url 'login' %}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Login</a>
-                        <a href="{% url 'register' %}" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">Sign Up</a>
-                    </div>
+                        <a href="{% url 'users:login' %}" class="btn btn-outline-primary me-2">Log In</a>
+                        <a href="{% url 'users:register' %}" class="btn btn-primary">Sign Up</a>
                     {% endif %}
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Breadcrumb -->
-    {% block breadcrumb %}{% endblock %}
+    <!-- Mobile Navigation Toggle -->
+    <button class="d-md-none btn btn-link position-fixed bottom-0 end-0 m-3 p-3 bg-primary text-white rounded-circle shadow-lg" 
+            type="button" 
+            data-bs-toggle="offcanvas" 
+            data-bs-target="#mobileNav" 
+            aria-controls="mobileNav">
+        <i class="bi bi-list fs-4"></i>
+    </button>
+
+    <!-- Mobile Navigation Menu -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="mobileNavLabel">Menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <nav class="nav flex-column">
+                <a class="nav-link {% if request.resolver_match.url_name == 'course-catalog' %}active{% endif %}" href="{% url 'course-catalog' %}">Courses</a>
+                {% if user.is_authenticated %}
+                    <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' %}">My Learning</a>
+                    {% if user.profile.is_instructor %}
+                        <a class="nav-link {% if request.resolver_match.url_name == 'course-creator' %}active{% endif %}" href="{% url 'course-creator' %}">Create Course</a>
+                    {% endif %}
+                    <hr class="my-2">
+                    <a class="nav-link" href="{% url 'profile' %}">My Profile</a>
+                    <a class="nav-link" href="{% url 'settings' %}">Account Settings</a>
+                    <a class="nav-link" href="{% url 'users:logout' %}">Sign Out</a>
+                {% else %}
+                    <hr class="my-2">
+                    <a class="nav-link" href="{% url 'users:login' %}">Log In</a>
+                    <a class="nav-link" href="{% url 'users:register' %}">Sign Up</a>
+                {% endif %}
+            </nav>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
     <!-- Main Content -->
-    <main class="flex-grow">
+    <main class="main-content">
         {% block content %}{% endblock %}
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center">
-                <div class="flex flex-col">
-                    <p class="text-gray-500 text-sm">© 2023 LearnMore. All rights reserved.</p>
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="text-muted mb-0">&copy; {% now "Y" %} LearnMore. All rights reserved.</p>
                 </div>
-                <div class="flex space-x-6">
-                    <a href="#" class="text-gray-400 hover:text-gray-500">
-                        <span class="sr-only">Twitter</span>
-                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
-                        </svg>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-gray-500">
-                        <span class="sr-only">GitHub</span>
-                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
-                        </svg>
-                    </a>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-muted me-3">Privacy Policy</a>
+                    <a href="#" class="text-muted me-3">Terms of Service</a>
+                    <a href="#" class="text-muted">Contact Us</a>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- JavaScript -->
-    <script src="{% static 'js/base.js' %}"></script>
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

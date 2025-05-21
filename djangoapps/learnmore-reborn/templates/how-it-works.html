@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}How It Works - LearnMore{% endblock %}
+
+{% block content %}
+<div class="bg-white py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center mb-16">
+            <h1 class="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">How It Works</h1>
+            <p class="mt-5 max-w-xl mx-auto text-xl text-gray-500">Your journey to better learning starts here</p>
+        </div>
+
+        <!-- Steps -->
+        <div class="relative">
+            <!-- Vertical Line -->
+            <div class="hidden md:block absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-blue-200"></div>
+
+            <!-- Step 1 -->
+            <div class="relative flex items-center mb-16">
+                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xl z-10">1</div>
+                <div class="ml-8 md:ml-16 flex-1">
+                    <div class="bg-white p-8 rounded-lg shadow-lg border border-gray-100">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">Create Your Account</h3>
+                        <p class="text-gray-600 mb-4">Start by creating your personalized account. It's quick, easy, and free to get started.</p>
+                        <ul class="list-disc list-inside text-gray-600 space-y-2">
+                            <li>Sign up with your email or Google account</li>
+                            <li>Complete your learning profile</li>
+                            <li>Set your learning goals</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="relative flex items-center mb-16">
+                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xl z-10">2</div>
+                <div class="ml-8 md:ml-16 flex-1">
+                    <div class="bg-white p-8 rounded-lg shadow-lg border border-gray-100">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">Choose Your Courses</h3>
+                        <p class="text-gray-600 mb-4">Browse our extensive catalog of courses and find the perfect match for your learning goals.</p>
+                        <ul class="list-disc list-inside text-gray-600 space-y-2">
+                            <li>Explore different course categories</li>
+                            <li>Read course descriptions and reviews</li>
+                            <li>Preview course content</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="relative flex items-center mb-16">
+                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xl z-10">3</div>
+                <div class="ml-8 md:ml-16 flex-1">
+                    <div class="bg-white p-8 rounded-lg shadow-lg border border-gray-100">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">Start Learning</h3>
+                        <p class="text-gray-600 mb-4">Begin your learning journey with our interactive and engaging course content.</p>
+                        <ul class="list-disc list-inside text-gray-600 space-y-2">
+                            <li>Access course materials anytime, anywhere</li>
+                            <li>Complete interactive exercises</li>
+                            <li>Take quizzes to test your knowledge</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="relative flex items-center">
+                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xl z-10">4</div>
+                <div class="ml-8 md:ml-16 flex-1">
+                    <div class="bg-white p-8 rounded-lg shadow-lg border border-gray-100">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">Track Your Progress</h3>
+                        <p class="text-gray-600 mb-4">Monitor your learning journey and celebrate your achievements along the way.</p>
+                        <ul class="list-disc list-inside text-gray-600 space-y-2">
+                            <li>View your learning statistics</li>
+                            <li>Track completed modules</li>
+                            <li>Earn certificates and badges</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="mt-16 text-center">
+            <a href="{% url 'users:register' %}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                Get Started Now
+                <svg class="ml-2 -mr-1 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

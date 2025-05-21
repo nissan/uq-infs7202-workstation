@@ -74,6 +74,49 @@
             </div>
         </form>
 
+        <!-- Demo Users Section -->
+        <div class="mt-8 bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                    Demo Users (Password: testpass123)
+                </h3>
+            </div>
+            <div class="px-4 py-3">
+                <h4 class="text-sm font-medium text-primary-700 dark:text-primary-400 mb-2">Administrator:</h4>
+                <div class="flex items-center mb-3">
+                    <button onclick="fillCredentials('admin', 'testpass123')" class="text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-300 py-1 px-3 rounded-full mr-2">
+                        admin
+                    </button>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">Full system access</span>
+                </div>
+                
+                <h4 class="text-sm font-medium text-primary-700 dark:text-primary-400 mb-2">Instructors:</h4>
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <button onclick="fillCredentials('professor', 'testpass123')" class="text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-300 py-1 px-3 rounded-full">
+                        professor
+                    </button>
+                    <button onclick="fillCredentials('teacher', 'testpass123')" class="text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-300 py-1 px-3 rounded-full">
+                        teacher
+                    </button>
+                    <span class="text-xs text-gray-500 dark:text-gray-400 mt-1 w-full">Course management, analytics access</span>
+                </div>
+                
+                <h4 class="text-sm font-medium text-primary-700 dark:text-primary-400 mb-2">Students:</h4>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="fillCredentials('student1', 'testpass123')" class="text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-300 py-1 px-3 rounded-full">
+                        student1
+                    </button>
+                    <button onclick="fillCredentials('student2', 'testpass123')" class="text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-300 py-1 px-3 rounded-full">
+                        student2
+                    </button>
+                    <button onclick="fillCredentials('student3', 'testpass123')" class="text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-300 py-1 px-3 rounded-full">
+                        student3
+                    </button>
+                    <span class="text-xs text-gray-500 dark:text-gray-400 mt-1 w-full">For testing student features, AI tutor</span>
+                </div>
+            </div>
+        </div>
+
         <div class="mt-6">
             <div class="relative">
                 <div class="absolute inset-0 flex items-center">
@@ -99,4 +142,11 @@
         </div>
     </div>
 </div>
+
+<script>
+    function fillCredentials(username, password) {
+        document.getElementById('id_username').value = username;
+        document.getElementById('id_password').value = password;
+    }
+</script>
 {% endblock %}

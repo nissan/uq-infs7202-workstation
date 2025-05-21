@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Course Catalog - LearnMore{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'courses/css/catalog.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Filter Sidebar -->
+<aside class="filter-sidebar" id="filterSidebar">
+    <div class="filter-header">
+        <h4 class="mb-0">Filters</h4>
+        <button class="filter-close" id="filterClose">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    
+    <div class="filter-section">
+        <h5 class="filter-title">
+            Categories
+            <i class="bi bi-chevron-up toggle-icon"></i>
+        </h5>
+        <div class="filter-content">
+            {% for category in categories %}
+            <div class="filter-group">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="category{{ forloop.counter }}" name="category" value="{{ category.id }}">
+                    <label class="form-check-label" for="category{{ forloop.counter }}">
+                        {{ category.name }}
+                        <span class="category-count">{{ category.course_count }}</span>
+                    </label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="filter-section">
+        <h5 class="filter-title">
+            Difficulty Level
+            <i class="bi bi-chevron-up toggle-icon"></i>
+        </h5>
+        <div class="filter-content">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="beginnerLevel" name="difficulty" value="beginner">
+                <label class="form-check-label" for="beginnerLevel">
+                    Beginner
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="intermediateLevel" name="difficulty" value="intermediate">
+                <label class="form-check-label" for="intermediateLevel">
+                    Intermediate
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="advancedLevel" name="difficulty" value="advanced">
+                <label class="form-check-label" for="advancedLevel">
+                    Advanced
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <div class="filter-actions">
+        <button class="btn btn-outline-secondary w-50" id="resetFilters">Reset</button>
+        <button class="btn btn-primary w-50" id="applyFilters">Apply Filters</button>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="main-content">
+    <div class="catalog-header-section">
+        <h1 class="catalog-title">Course Catalog</h1>
+        <p class="catalog-subtitle">Discover thousands of courses to enhance your skills and advance your career</p>
+        
+        <div class="search-controls">
+            <div class="catalog-search">
+                <i class="bi bi-search search-icon"></i>
+                <input type="search" class="form-control" placeholder="Search for courses, topics, or skills" id="courseSearch">
+            </div>
+            
+            <div class="dropdown sort-dropdown">
+                <button class="btn dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-sort-down"></i> Sort by: Most Popular
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                    <li><a class="dropdown-item active" href="#" data-sort="popularity">Most Popular</a></li>
+                    <li><a class="dropdown-item" href="#" data-sort="newest">Newest</a></li>
+                    <li><a class="dropdown-item" href="#" data-sort="rating">Highest Rated</a></li>
+                    <li><a class="dropdown-item" href="#" data-sort="name">A-Z</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        {% for course in courses %}
+        <div class="col-md-6 col-lg-4">
+            <div class="course-card">
+                <div class="course-image">
+                    <img src="{{ course.image.url|default:'https://placehold.co/400x200/2563eb/ffffff?text=Course' }}" alt="{{ course.title }}">
+                    {% if course.is_popular %}
+                    <div class="course-badge">Popular</div>
+                    {% endif %}
+                    {% if course.institution %}
+                    <div class="institution-badge">
+                        {% if course.institution.logo %}
+                        <img src="{{ course.institution.logo.url }}" alt="{{ course.institution.name }}">
+                        {% endif %}
+                        {{ course.institution.name }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="course-content">
+                    <h3 class="course-title">{{ course.title }}</h3>
+                    <p class="course-description">{{ course.description }}</p>
+                    <div class="course-meta">
+                        <div class="instructor">
+                            <div class="instructor-avatar">
+                                {% if course.instructor.profile_image %}
+                                <img src="{{ course.instructor.profile_image.url }}" alt="{{ course.instructor.get_full_name }}">
+                                {% else %}
+                                <img src="https://placehold.co/24x24/2563eb/ffffff?text={{ course.instructor.username|first|upper }}" alt="{{ course.instructor.get_full_name }}">
+                                {% endif %}
+                            </div>
+                            <div class="instructor-name">{{ course.instructor.get_full_name }}</div>
+                        </div>
+                        <div class="difficulty-indicator">
+                            <div class="difficulty-label">
+                                <span>Difficulty</span>
+                                <span>{{ course.difficulty_level }}/10</span>
+                            </div>
+                            <div class="difficulty-bar">
+                                <div class="difficulty-level" style="width: {{ course.difficulty_level|multiply:10 }}%"></div>
+                            </div>
+                        </div>
+                        <div class="course-details">
+                            <div class="course-info">
+                                <div class="info-item">
+                                    <i class="bi bi-clock"></i> {{ course.duration }} weeks
+                                </div>
+                                <div class="info-item">
+                                    <i class="bi bi-people"></i> {{ course.enrollment_count }} enrolled
+                                </div>
+                            </div>
+                            <a href="{% url 'course-detail' course.slug %}" class="btn btn-primary btn-sm">View Course</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <h3 class="text-gray-500">No courses found</h3>
+            <p class="text-gray-400">Try adjusting your search or filters to find what you're looking for.</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if courses.has_other_pages %}
+    <div class="pagination-container">
+        <nav aria-label="Course pagination">
+            <ul class="pagination">
+                {% if courses.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ courses.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for i in courses.paginator.page_range %}
+                    {% if courses.number == i %}
+                    <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                    {% else %}
+                    <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if courses.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ courses.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'courses/js/catalog.js' %}"></script>
+{% endblock %} 

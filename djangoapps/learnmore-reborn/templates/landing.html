@@ -100,12 +100,12 @@
                 LearnMore
             </a>
             <div class="hidden md:flex space-x-4 items-center">
-                <a class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium" href="#features">Features</a>
-                <a class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium" href="#how-it-works">How It Works</a>
-                <a class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium" href="#testimonials">Testimonials</a>
-                <a class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium" href="#courses">Courses</a>
-                <a class="text-gray-600 hover:text-gray-900 border border-gray-300 rounded-full px-4 py-2 text-sm font-medium ml-2" href="{% url 'login' %}">Log In</a>
-                <a class="bg-primary-600 text-white rounded-full px-4 py-2 text-sm font-medium hover:bg-primary-700" href="{% url 'register' %}">Sign Up</a>
+                <a class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium" href="{% url 'features' %}">Features</a>
+                <a class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium" href="{% url 'how-it-works' %}">How It Works</a>
+                <a class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium" href="{% url 'testimonials' %}">Testimonials</a>
+                <a class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium" href="{% url 'course-catalog' %}">Courses</a>
+                <a class="text-gray-600 hover:text-gray-900 border border-gray-300 rounded-full px-4 py-2 text-sm font-medium ml-2" href="{% url 'users:login' %}">Log In</a>
+                <a class="bg-primary-600 text-white rounded-full px-4 py-2 text-sm font-medium hover:bg-primary-700" href="{% url 'users:register' %}">Sign Up</a>
             </div>
             <button class="md:hidden text-gray-500 focus:outline-none">
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

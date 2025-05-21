@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  learnmore:
+    build: .
+    volumes:
+      - ./data:/app/data
+      - ./media:/app/media
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=learnmore.settings
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_PASSWORD=admin123
+      - DJANGO_SUPERUSER_EMAIL=admin@example.com
+    command: ["./docker-entrypoint.sh"]

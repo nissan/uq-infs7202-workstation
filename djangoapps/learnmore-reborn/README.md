@@ -57,7 +57,72 @@ Run development server:
 
 ```bash
 python manage.py runserver
-Visit: http://127.0.0.1:8000/admin/
+```
+
+## 🚀 Demo Setup
+
+### Option 1: Docker (Recommended)
+
+The fastest way to set up a complete demo environment:
+
+```bash
+# Start the container with a fully configured demo environment
+docker-compose up
+```
+
+That's it! Visit http://localhost:8000/ to access the platform.
+
+For more details on the Docker setup, see [README_DOCKER.md](README_DOCKER.md).
+
+### Option 2: Manual Setup
+
+To quickly set up the platform with test users and content for demonstration:
+
+1. **Create test users** (admin, instructors, students):
+```bash
+python manage.py shell < create_test_users.py
+```
+
+2. **Create sample courses, modules, and quizzes**:
+```bash
+python manage.py shell < create_demo_rag_content.py
+```
+
+3. **Set up the AI Tutor RAG system**:
+```bash
+python manage.py shell < ingest_rag_content.py
+```
+
+4. **Access the platform**:
+   - Visit http://127.0.0.1:8000/
+   - Login details are displayed on the login page
+   - All demo accounts use password: `testpass123`
+
+### Demo User Roles
+
+- **Admin**: Full system access (`admin`)
+- **Instructors**: Course management, analytics (`professor`, `teacher`)
+- **Students**: Course enrollment, AI tutor access (`student1`, `student2`, `student3`)
+
+### 🤖 AI Tutor Demo
+
+The platform includes an AI Tutor system that can be accessed by:
+
+1. Login as any user (student accounts recommended)
+2. Navigate to `/ai-tutor/` to access the AI Tutor dashboard
+3. Create a new session or continue an existing one
+4. Try the modern interface by clicking "Try New Design"
+
+Key AI Tutor features:
+- Conversational learning assistant
+- Course-specific tutoring
+- Markdown support with code highlighting
+- Modern three-panel interface
+- Mobile-responsive design
+- Knowledge base integration
+- Feedback system
+
+Note: The AI system requires API keys for full functionality but provides placeholder responses in demo mode.
 
 ## 🧪 Test Suite
 
