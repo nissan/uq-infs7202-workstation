@@ -48,12 +48,18 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
+    'core',  # Theme and accessibility app
     'courses',
     'progress',
     'users',
     'ai_tutor',
     'analytics',
-    'qr_codes'
+    'qr_codes',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
 MIDDLEWARE = [
@@ -64,6 +70,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'analytics.middleware.AnalyticsMiddleware',  # Add analytics middleware
@@ -289,4 +296,28 @@ ANALYTICS_SETTINGS = {
     },
     'EXPORT_FORMATS': ['json', 'csv', 'xlsx'],
     'MAX_EXPORT_RECORDS': 10000,
+}
+
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': env('GOOGLE_OAUTH_CLIENT_ID', default=''),
+            'secret': env('GOOGLE_OAUTH_CLIENT_SECRET', default=''),
+            'key': ''
+        },
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        }
+    }
 }

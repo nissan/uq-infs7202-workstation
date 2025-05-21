@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Theme Settings - LearnMore{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/theme-settings.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="h3 mb-0">Theme Settings</h1>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-4">
+                        <h2 class="h4">Available Themes</h2>
+                        <div class="theme-gallery">
+                            {% for theme in themes %}
+                            <div class="theme-card {% if preferences.theme_mode == theme.theme_mode %}active{% endif %}">
+                                <div class="theme-preview" style="background-color: {{ theme.background_color }};">
+                                    <div class="theme-preview-header" style="background-color: {{ theme.primary_color }}; color: {{ theme.text_color }};">
+                                        {{ theme.name }}
+                                    </div>
+                                    <div class="theme-preview-content" style="color: {{ theme.text_color }};">
+                                        <div style="background-color: {{ theme.primary_color }}; border-radius: {{ theme.border_radius }};" class="theme-preview-block"></div>
+                                        <div style="background-color: {{ theme.secondary_color }}; border-radius: {{ theme.border_radius }};" class="theme-preview-block"></div>
+                                        <div style="background-color: {{ theme.success_color }}; border-radius: {{ theme.border_radius }};" class="theme-preview-block"></div>
+                                    </div>
+                                </div>
+                                <div class="theme-card-footer">
+                                    <h3 class="h6 mb-2">{{ theme.name }}</h3>
+                                    <div class="btn-group btn-group-sm w-100">
+                                        <button class="btn btn-outline-secondary" data-preview-theme="{{ theme.id }}">Preview</button>
+                                        <button class="btn btn-primary" data-apply-theme="{{ theme.id }}">Apply</button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    {% if user.is_authenticated %}
+                    <div class="mb-4">
+                        <h2 class="h4">Your Theme Preferences</h2>
+                        <form action="{% url 'core:user_preferences' %}" method="post">
+                            {% csrf_token %}
+                            
+                            <div class="form-group mb-3">
+                                <label for="theme_mode">Theme Mode</label>
+                                <select name="theme_mode" id="theme_mode" class="form-control">
+                                    <option value="light" {% if preferences.theme_mode == 'light' %}selected{% endif %}>Light</option>
+                                    <option value="dark" {% if preferences.theme_mode == 'dark' %}selected{% endif %}>Dark</option>
+                                    <option value="system" {% if preferences.theme_mode == 'system' %}selected{% endif %}>System Preference</option>
+                                </select>
+                                <small class="form-text text-muted">Select how you want the site to appear.</small>
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                <input type="checkbox" class="form-check-input" id="use_custom_colors" name="use_custom_colors" {% if preferences.use_custom_colors %}checked{% endif %}>
+                                <label class="form-check-label" for="use_custom_colors">Use custom colors</label>
+                                <small class="form-text text-muted">Override the theme colors with your own selection.</small>
+                            </div>
+                            
+                            <div id="custom-colors-section" class="mb-3" {% if not preferences.use_custom_colors %}style="display: none;"{% endif %}>
+                                <div class="form-group">
+                                    <label for="primary_color">Primary Color</label>
+                                    <input type="color" name="primary_color" id="primary_color" class="form-control" value="{{ preferences.primary_color|default:'#007bff' }}">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group text-end">
+                                <button type="button" id="reset-theme" class="btn btn-outline-secondary me-2">Reset to Default</button>
+                                <button type="submit" class="btn btn-primary">Save Preferences</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h2 class="h4">Accessibility Options</h2>
+                        <p>Customize the appearance to make content more accessible.</p>
+                        
+                        <div class="form-check mb-2">
+                            <input type="checkbox" class="form-check-input" id="high-contrast-toggle" name="high_contrast" {% if preferences.high_contrast %}checked{% endif %}>
+                            <label class="form-check-label" for="high-contrast-toggle">High contrast mode</label>
+                        </div>
+                        
+                        <div class="form-check mb-2">
+                            <input type="checkbox" class="form-check-input" id="text-spacing-toggle" name="increase_text_spacing" {% if preferences.increase_text_spacing %}checked{% endif %}>
+                            <label class="form-check-label" for="text-spacing-toggle">Increase text spacing</label>
+                        </div>
+                        
+                        <div class="form-check mb-2">
+                            <input type="checkbox" class="form-check-input" id="dyslexia-font-toggle" name="dyslexia_friendly_font" {% if preferences.dyslexia_friendly_font %}checked{% endif %}>
+                            <label class="form-check-label" for="dyslexia-font-toggle">Use dyslexia-friendly font</label>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <label class="form-label d-block">Text Size</label>
+                            <div class="btn-group" role="group" aria-label="Text size options">
+                                <input type="radio" class="btn-check" name="text_size" id="text_size_normal" value="normal" {% if preferences.text_size == 'normal' %}checked{% endif %}>
+                                <label class="btn btn-outline-secondary" for="text_size_normal">Normal</label>
+                                
+                                <input type="radio" class="btn-check" name="text_size" id="text_size_larger" value="larger" {% if preferences.text_size == 'larger' %}checked{% endif %}>
+                                <label class="btn btn-outline-secondary" for="text_size_larger">Larger</label>
+                                
+                                <input type="radio" class="btn-check" name="text_size" id="text_size_largest" value="largest" {% if preferences.text_size == 'largest' %}checked{% endif %}>
+                                <label class="btn btn-outline-secondary" for="text_size_largest">Largest</label>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <a href="{% url 'core:accessibility_settings' %}" class="btn btn-outline-primary">More Accessibility Options</a>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Log in to save your theme preferences.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'core/js/theme.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle custom colors section
+    const useCustomColors = document.getElementById('use_custom_colors');
+    const customColorsSection = document.getElementById('custom-colors-section');
+    
+    if (useCustomColors && customColorsSection) {
+        useCustomColors.addEventListener('change', function() {
+            customColorsSection.style.display = this.checked ? 'block' : 'none';
+        });
+    }
+});
+</script>
+{% endblock %}

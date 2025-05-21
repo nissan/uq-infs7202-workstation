@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Accessibility Settings - LearnMore{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/accessibility-settings.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h1 class="h3 mb-0">Accessibility Settings</h1>
+                    <a href="{% url 'core:theme_settings' %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Theme Settings
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <form action="{% url 'core:accessibility_settings' %}" method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <h2 class="h4">Visual Preferences</h2>
+                            
+                            <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" id="high_contrast" name="high_contrast" {% if preferences.high_contrast %}checked{% endif %}>
+                                <label class="form-check-label" for="high_contrast">High contrast mode</label>
+                                <small class="form-text text-muted d-block">Increases contrast for better readability.</small>
+                            </div>
+                            
+                            <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" id="increase_text_spacing" name="increase_text_spacing" {% if preferences.increase_text_spacing %}checked{% endif %}>
+                                <label class="form-check-label" for="increase_text_spacing">Increase text spacing</label>
+                                <small class="form-text text-muted d-block">Adds more space between letters, words, and lines.</small>
+                            </div>
+                            
+                            <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" id="dyslexia_friendly_font" name="dyslexia_friendly_font" {% if preferences.dyslexia_friendly_font %}checked{% endif %}>
+                                <label class="form-check-label" for="dyslexia_friendly_font">Use dyslexia-friendly font</label>
+                                <small class="form-text text-muted d-block">Uses a font designed to be easier to read for people with dyslexia.</small>
+                            </div>
+                            
+                            <div class="form-group mt-3">
+                                <label class="form-label">Text Size</label>
+                                <div class="d-flex mt-2">
+                                    <div class="form-check me-4">
+                                        <input class="form-check-input" type="radio" name="text_size" id="text_size_normal" value="normal" {% if preferences.text_size == 'normal' %}checked{% endif %}>
+                                        <label class="form-check-label" for="text_size_normal">
+                                            Normal
+                                        </label>
+                                    </div>
+                                    <div class="form-check me-4">
+                                        <input class="form-check-input" type="radio" name="text_size" id="text_size_larger" value="larger" {% if preferences.text_size == 'larger' %}checked{% endif %}>
+                                        <label class="form-check-label" for="text_size_larger">
+                                            Larger
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="text_size" id="text_size_largest" value="largest" {% if preferences.text_size == 'largest' %}checked{% endif %}>
+                                        <label class="form-check-label" for="text_size_largest">
+                                            Largest
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h2 class="h4">Motion & Animation</h2>
+                            
+                            <div class="form-group">
+                                <label for="motion_preference">Animation Preference</label>
+                                <select class="form-control" id="motion_preference" name="motion_preference">
+                                    <option value="full" {% if preferences.motion_preference == 'full' %}selected{% endif %}>Full animations</option>
+                                    <option value="reduced" {% if preferences.motion_preference == 'reduced' %}selected{% endif %}>Reduced animations</option>
+                                    <option value="none" {% if preferences.motion_preference == 'none' %}selected{% endif %}>No animations</option>
+                                </select>
+                                <small class="form-text text-muted">Control how much animation and motion you see.</small>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h2 class="h4">Assistive Technology Support</h2>
+                            
+                            <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" id="screen_reader_optimization" name="screen_reader_optimization" {% if preferences.screen_reader_optimization %}checked{% endif %}>
+                                <label class="form-check-label" for="screen_reader_optimization">Screen reader optimization</label>
+                                <small class="form-text text-muted d-block">Optimizes page structure for screen readers.</small>
+                            </div>
+                            
+                            <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" id="keyboard_navigation_optimization" name="keyboard_navigation_optimization" {% if preferences.keyboard_navigation_optimization %}checked{% endif %}>
+                                <label class="form-check-label" for="keyboard_navigation_optimization">Keyboard navigation optimization</label>
+                                <small class="form-text text-muted d-block">Enhances focus indicators and keyboard shortcuts.</small>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h2 class="h4">Navigation & Layout</h2>
+                            
+                            <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" id="simplified_navigation" name="simplified_navigation" {% if preferences.simplified_navigation %}checked{% endif %}>
+                                <label class="form-check-label" for="simplified_navigation">Simplified navigation</label>
+                                <small class="form-text text-muted d-block">Shows a simplified menu structure.</small>
+                            </div>
+                            
+                            <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" id="show_content_outlines" name="show_content_outlines" {% if preferences.show_content_outlines %}checked{% endif %}>
+                                <label class="form-check-label" for="show_content_outlines">Show content outlines</label>
+                                <small class="form-text text-muted d-block">Displays content structure outlines on pages.</small>
+                            </div>
+                        </div>
+                        
+                        <div class="text-end mt-4">
+                            <button type="submit" class="btn btn-primary">Save Settings</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h2 class="h4 mb-0">Accessibility Features</h2>
+                </div>
+                <div class="card-body">
+                    <p>LearnMore is committed to making our platform accessible to everyone. Here are some built-in accessibility features:</p>
+                    
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item d-flex">
+                            <span class="me-3"><i class="fas fa-keyboard"></i></span>
+                            <div>
+                                <strong>Keyboard Navigation</strong>
+                                <p class="mb-0">All interactive elements are accessible via keyboard.</p>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex">
+                            <span class="me-3"><i class="fas fa-universal-access"></i></span>
+                            <div>
+                                <strong>ARIA Attributes</strong>
+                                <p class="mb-0">Proper ARIA labels and roles for screen readers.</p>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex">
+                            <span class="me-3"><i class="fas fa-text-height"></i></span>
+                            <div>
+                                <strong>Responsive Text</strong>
+                                <p class="mb-0">Text resizes properly when browser zoom is used.</p>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex">
+                            <span class="me-3"><i class="fas fa-mobile-alt"></i></span>
+                            <div>
+                                <strong>Mobile Accessibility</strong>
+                                <p class="mb-0">Fully responsive design works on all devices.</p>
+                            </div>
+                        </li>
+                    </ul>
+                    
+                    <p class="mb-0">If you encounter any accessibility issues, please contact support.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'core/js/theme.js' %}"></script>
+{% endblock %}

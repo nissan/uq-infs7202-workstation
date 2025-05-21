@@ -59,7 +59,7 @@ class QRCodeIntegrationTests(TestCase):
             title='Test Quiz',
             description='A test quiz',
             module=self.module1,
-            time_limit=30
+            time_limit_minutes=30
         )
         
         # Get content types
@@ -291,7 +291,7 @@ class QRCodeWithEnrollmentTests(TestCase):
         # For testing purposes, we'll override the validate_scan method to simulate this
 
         # Mock the enrollment check
-        import mock
+        from unittest import mock
         with mock.patch('qr_codes.services.QRCodeService.validate_scan') as mock_validate:
             mock_validate.return_value = (True, "Valid", self.module_qr)
             
@@ -308,7 +308,7 @@ class QRCodeWithEnrollmentTests(TestCase):
         }
         
         # Mock the enrollment check
-        import mock
+        from unittest import mock
         with mock.patch('qr_codes.services.QRCodeService.validate_scan') as mock_validate:
             mock_validate.return_value = (False, "Enrollment required", self.module_qr)
             
@@ -363,8 +363,7 @@ class QRCodeWithProgressTests(TestCase):
         # Create progress for the student
         self.progress = Progress.objects.create(
             user=self.student,
-            course=self.course,
-            status='in_progress'
+            course=self.course
         )
         
         # Get content type for module

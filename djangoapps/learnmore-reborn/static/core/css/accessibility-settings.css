@@ -1,0 +1,149 @@
+/**
+ * Accessibility Settings CSS
+ */
+
+/* Section styling */
+.settings-section {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.settings-section:last-child {
+  border-bottom: none;
+}
+
+/* Form controls */
+.form-check {
+  padding-left: 2rem;
+  margin-bottom: 1rem;
+}
+
+.form-check-input {
+  margin-left: -2rem;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.form-check-label {
+  padding-top: 0.1rem;
+}
+
+/* List group styling */
+.list-group-item {
+  padding: 1rem;
+}
+
+.list-group-item i {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  width: 2rem;
+  text-align: center;
+}
+
+/* Radio button group */
+.radio-group {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* Feature description cards */
+.feature-card {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  transition: background-color 0.2s ease-in-out;
+}
+
+.feature-card:hover {
+  background-color: rgba(var(--primary-color-rgb), 0.05);
+}
+
+.feature-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.feature-card-header i {
+  font-size: 1.25rem;
+  color: var(--primary-color);
+  margin-right: 0.75rem;
+}
+
+.feature-card-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+/* Font size preview */
+.text-size-preview {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.text-size-preview p {
+  margin-bottom: 0.5rem;
+}
+
+.text-size-preview .size-normal {
+  font-size: 1rem;
+}
+
+.text-size-preview .size-larger {
+  font-size: 1.2rem;
+}
+
+.text-size-preview .size-largest {
+  font-size: 1.4rem;
+}
+
+/* Toggle switch styling */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: var(--primary-color);
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(26px);
+}

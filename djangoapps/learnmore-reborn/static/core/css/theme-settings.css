@@ -1,0 +1,92 @@
+/**
+ * Theme Settings CSS
+ */
+
+.theme-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.theme-card {
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.theme-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+}
+
+.theme-card.active {
+  border-color: var(--primary-color);
+}
+
+.theme-preview {
+  height: 150px;
+  overflow: hidden;
+  position: relative;
+}
+
+.theme-preview-header {
+  padding: 0.5rem;
+  font-weight: bold;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.theme-preview-content {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.theme-preview-block {
+  height: 1rem;
+  width: 100%;
+}
+
+.theme-card-footer {
+  padding: 0.75rem;
+  background-color: var(--light-color);
+  border-top: 1px solid var(--border-color);
+}
+
+.theme-card-footer h3 {
+  margin-bottom: 0.5rem;
+}
+
+/* Color picker styling */
+input[type="color"] {
+  height: 2.4rem;
+  padding: 0.2rem;
+  cursor: pointer;
+}
+
+/* Text size preview */
+.text-size-preview {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.text-size-preview p {
+  margin-bottom: 0.5rem;
+}
+
+.text-size-preview .size-normal {
+  font-size: 1rem;
+}
+
+.text-size-preview .size-larger {
+  font-size: 1.2rem;
+}
+
+.text-size-preview .size-largest {
+  font-size: 1.4rem;
+}

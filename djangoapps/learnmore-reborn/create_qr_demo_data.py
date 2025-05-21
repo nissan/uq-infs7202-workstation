@@ -152,7 +152,7 @@ def create_qr_demo_data():
                             'payload': {
                                 'title': quiz.title,
                                 'module': quiz.module.title,
-                                'time_limit': quiz.time_limit_minutes
+                                'time_limit_minutes': quiz.time_limit_minutes
                             }
                         }
                     )

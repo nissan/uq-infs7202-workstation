@@ -1,0 +1,480 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Theme Editor - LearnMore{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/theme-editor.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Left sidebar -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="h5 mb-0">Theme Selection</h3>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="theme-selector">Select Theme to Edit</label>
+                        <select id="theme-selector" class="form-control" onchange="location.href='{% url 'core:theme_editor' %}?theme_id='+this.value">
+                            {% for t in themes %}
+                            <option value="{{ t.id }}" {% if t.id == theme.id %}selected{% endif %}>{{ t.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'admin:core_themesettings_add' %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> Create New Theme
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="h5 mb-0">Preview</h3>
+                </div>
+                <div class="card-body">
+                    <div class="theme-preview">
+                        <div class="theme-preview-header" id="preview-header">
+                            {{ theme.name }}
+                        </div>
+                        <div class="theme-preview-content" id="preview-content">
+                            <h3>Sample Heading</h3>
+                            <p>This is a paragraph of text that demonstrates the typography settings.</p>
+                            <div class="color-blocks">
+                                <div class="color-block" id="preview-primary"></div>
+                                <div class="color-block" id="preview-secondary"></div>
+                                <div class="color-block" id="preview-success"></div>
+                                <div class="color-block" id="preview-danger"></div>
+                                <div class="color-block" id="preview-warning"></div>
+                                <div class="color-block" id="preview-info"></div>
+                            </div>
+                            <div class="button-preview">
+                                <button type="button" class="btn btn-preview" id="preview-button">Button</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main content -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h1 class="h3 mb-0">Theme Editor</h1>
+                    <div>
+                        <a href="{% url 'core:theme_settings' %}" class="btn btn-outline-secondary btn-sm me-2">
+                            <i class="fas fa-arrow-left"></i> Back to Theme Settings
+                        </a>
+                        <a href="{% url 'admin:core_themesettings_change' theme.id %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-cog"></i> Advanced Edit in Admin
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                    <div class="messages mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <form action="{% url 'core:theme_editor' %}" method="post" id="theme-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="theme_id" value="{{ theme.id }}">
+                        
+                        <ul class="nav nav-tabs mb-4" id="editorTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="basics-tab" data-bs-toggle="tab" data-bs-target="#basics" type="button" role="tab" aria-controls="basics" aria-selected="true">Basic Info</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="colors-tab" data-bs-toggle="tab" data-bs-target="#colors" type="button" role="tab" aria-controls="colors" aria-selected="false">Colors</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="typography-tab" data-bs-toggle="tab" data-bs-target="#typography" type="button" role="tab" aria-controls="typography" aria-selected="false">Typography</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="layout-tab" data-bs-toggle="tab" data-bs-target="#layout" type="button" role="tab" aria-controls="layout" aria-selected="false">Layout</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="accessibility-tab" data-bs-toggle="tab" data-bs-target="#accessibility" type="button" role="tab" aria-controls="accessibility" aria-selected="false">Accessibility</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="custom-tab" data-bs-toggle="tab" data-bs-target="#custom" type="button" role="tab" aria-controls="custom" aria-selected="false">Custom CSS</button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content" id="editorTabsContent">
+                            <!-- Basic Info -->
+                            <div class="tab-pane fade show active" id="basics" role="tabpanel" aria-labelledby="basics-tab">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="name">Theme Name</label>
+                                            <input type="text" class="form-control" id="name" name="name" value="{{ theme.name }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="theme_mode">Theme Mode</label>
+                                            <select class="form-control" id="theme_mode" name="theme_mode">
+                                                <option value="light" {% if theme.theme_mode == 'light' %}selected{% endif %}>Light</option>
+                                                <option value="dark" {% if theme.theme_mode == 'dark' %}selected{% endif %}>Dark</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" class="form-check-input" id="is_default" name="is_default" {% if theme.is_default %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_default">Set as default theme</label>
+                                    <small class="form-text text-muted d-block">This will be the system-wide default theme.</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Colors -->
+                            <div class="tab-pane fade" id="colors" role="tabpanel" aria-labelledby="colors-tab">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h3 class="h5 mb-3">Brand Colors</h3>
+                                        
+                                        <div class="form-group mb-3">
+                                            <label for="primary_color">Primary Color</label>
+                                            <div class="color-picker-wrapper">
+                                                <input type="color" class="form-control color-picker" id="primary_color" name="primary_color" value="{{ theme.primary_color }}">
+                                                <input type="text" class="form-control color-value" data-color-target="primary_color" value="{{ theme.primary_color }}">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group mb-3">
+                                            <label for="secondary_color">Secondary Color</label>
+                                            <div class="color-picker-wrapper">
+                                                <input type="color" class="form-control color-picker" id="secondary_color" name="secondary_color" value="{{ theme.secondary_color }}">
+                                                <input type="text" class="form-control color-value" data-color-target="secondary_color" value="{{ theme.secondary_color }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <h3 class="h5 mb-3">State Colors</h3>
+                                        
+                                        <div class="form-group mb-3">
+                                            <label for="success_color">Success Color</label>
+                                            <div class="color-picker-wrapper">
+                                                <input type="color" class="form-control color-picker" id="success_color" name="success_color" value="{{ theme.success_color }}">
+                                                <input type="text" class="form-control color-value" data-color-target="success_color" value="{{ theme.success_color }}">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group mb-3">
+                                            <label for="danger_color">Danger Color</label>
+                                            <div class="color-picker-wrapper">
+                                                <input type="color" class="form-control color-picker" id="danger_color" name="danger_color" value="{{ theme.danger_color }}">
+                                                <input type="text" class="form-control color-value" data-color-target="danger_color" value="{{ theme.danger_color }}">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group mb-3">
+                                            <label for="warning_color">Warning Color</label>
+                                            <div class="color-picker-wrapper">
+                                                <input type="color" class="form-control color-picker" id="warning_color" name="warning_color" value="{{ theme.warning_color }}">
+                                                <input type="text" class="form-control color-value" data-color-target="warning_color" value="{{ theme.warning_color }}">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group mb-3">
+                                            <label for="info_color">Info Color</label>
+                                            <div class="color-picker-wrapper">
+                                                <input type="color" class="form-control color-picker" id="info_color" name="info_color" value="{{ theme.info_color }}">
+                                                <input type="text" class="form-control color-value" data-color-target="info_color" value="{{ theme.info_color }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mt-4">
+                                    <div class="col-md-6">
+                                        <h3 class="h5 mb-3">Base Colors</h3>
+                                        
+                                        <div class="form-group mb-3">
+                                            <label for="background_color">Background Color</label>
+                                            <div class="color-picker-wrapper">
+                                                <input type="color" class="form-control color-picker" id="background_color" name="background_color" value="{{ theme.background_color }}">
+                                                <input type="text" class="form-control color-value" data-color-target="background_color" value="{{ theme.background_color }}">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group mb-3">
+                                            <label for="text_color">Text Color</label>
+                                            <div class="color-picker-wrapper">
+                                                <input type="color" class="form-control color-picker" id="text_color" name="text_color" value="{{ theme.text_color }}">
+                                                <input type="text" class="form-control color-value" data-color-target="text_color" value="{{ theme.text_color }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Typography -->
+                            <div class="tab-pane fade" id="typography" role="tabpanel" aria-labelledby="typography-tab">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="font_family">Base Font Family</label>
+                                            <select class="form-control" id="font_family" name="font_family">
+                                                <option value="system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" {% if theme.font_family == "system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" %}selected{% endif %}>System UI (Default)</option>
+                                                <option value="'Roboto', sans-serif" {% if theme.font_family == "'Roboto', sans-serif" %}selected{% endif %}>Roboto</option>
+                                                <option value="'Open Sans', sans-serif" {% if theme.font_family == "'Open Sans', sans-serif" %}selected{% endif %}>Open Sans</option>
+                                                <option value="'Lato', sans-serif" {% if theme.font_family == "'Lato', sans-serif" %}selected{% endif %}>Lato</option>
+                                                <option value="'Poppins', sans-serif" {% if theme.font_family == "'Poppins', sans-serif" %}selected{% endif %}>Poppins</option>
+                                                <option value="'Source Sans Pro', sans-serif" {% if theme.font_family == "'Source Sans Pro', sans-serif" %}selected{% endif %}>Source Sans Pro</option>
+                                                <option value="'Montserrat', sans-serif" {% if theme.font_family == "'Montserrat', sans-serif" %}selected{% endif %}>Montserrat</option>
+                                                <option value="'Nunito', sans-serif" {% if theme.font_family == "'Nunito', sans-serif" %}selected{% endif %}>Nunito</option>
+                                                <option value="'Arial', sans-serif" {% if theme.font_family == "'Arial', sans-serif" %}selected{% endif %}>Arial</option>
+                                                <option value="'Helvetica Neue', Helvetica, Arial, sans-serif" {% if theme.font_family == "'Helvetica Neue', Helvetica, Arial, sans-serif" %}selected{% endif %}>Helvetica</option>
+                                                <option value="'Georgia', serif" {% if theme.font_family == "'Georgia', serif" %}selected{% endif %}>Georgia</option>
+                                                <option value="'Times New Roman', Times, serif" {% if theme.font_family == "'Times New Roman', Times, serif" %}selected{% endif %}>Times New Roman</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="heading_font_family">Heading Font Family</label>
+                                            <select class="form-control" id="heading_font_family" name="heading_font_family">
+                                                <option value="" {% if not theme.heading_font_family %}selected{% endif %}>Same as Base Font (Default)</option>
+                                                <option value="'Roboto', sans-serif" {% if theme.heading_font_family == "'Roboto', sans-serif" %}selected{% endif %}>Roboto</option>
+                                                <option value="'Montserrat', sans-serif" {% if theme.heading_font_family == "'Montserrat', sans-serif" %}selected{% endif %}>Montserrat</option>
+                                                <option value="'Playfair Display', serif" {% if theme.heading_font_family == "'Playfair Display', serif" %}selected{% endif %}>Playfair Display</option>
+                                                <option value="'Merriweather', serif" {% if theme.heading_font_family == "'Merriweather', serif" %}selected{% endif %}>Merriweather</option>
+                                                <option value="'Ubuntu', sans-serif" {% if theme.heading_font_family == "'Ubuntu', sans-serif" %}selected{% endif %}>Ubuntu</option>
+                                                <option value="'Nunito', sans-serif" {% if theme.heading_font_family == "'Nunito', sans-serif" %}selected{% endif %}>Nunito</option>
+                                                <option value="'Georgia', serif" {% if theme.heading_font_family == "'Georgia', serif" %}selected{% endif %}>Georgia</option>
+                                                <option value="'Arial Black', Gadget, sans-serif" {% if theme.heading_font_family == "'Arial Black', Gadget, sans-serif" %}selected{% endif %}>Arial Black</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group mb-3">
+                                            <label for="base_font_size">Base Font Size</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="base_font_size" name="base_font_size" value="{{ theme.base_font_size }}">
+                                                <span class="input-group-text">px</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Layout -->
+                            <div class="tab-pane fade" id="layout" role="tabpanel" aria-labelledby="layout-tab">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group mb-3">
+                                            <label for="border_radius">Border Radius</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="border_radius" name="border_radius" value="{{ theme.border_radius }}">
+                                                <span class="input-group-text">rem</span>
+                                            </div>
+                                            <small class="form-text text-muted">Controls roundness of elements (0 = square corners)</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <div class="form-group mb-3">
+                                            <label for="spacing_unit">Spacing Unit</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="spacing_unit" name="spacing_unit" value="{{ theme.spacing_unit }}">
+                                                <span class="input-group-text">rem</span>
+                                            </div>
+                                            <small class="form-text text-muted">Base unit for margins and padding</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <div class="form-group mb-3">
+                                            <label for="container_max_width">Container Max Width</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="container_max_width" name="container_max_width" value="{{ theme.container_max_width }}">
+                                                <span class="input-group-text">px</span>
+                                            </div>
+                                            <small class="form-text text-muted">Maximum width of content containers</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Accessibility -->
+                            <div class="tab-pane fade" id="accessibility" role="tabpanel" aria-labelledby="accessibility-tab">
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" class="form-check-input" id="enable_animations" name="enable_animations" {% if theme.enable_animations %}checked{% endif %}>
+                                    <label class="form-check-label" for="enable_animations">Enable animations</label>
+                                    <small class="form-text text-muted d-block">Turn on/off animations throughout the theme</small>
+                                </div>
+                                
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" class="form-check-input" id="reduce_motion" name="reduce_motion" {% if theme.reduce_motion %}checked{% endif %}>
+                                    <label class="form-check-label" for="reduce_motion">Reduce motion</label>
+                                    <small class="form-text text-muted d-block">Minimize animations and transitions</small>
+                                </div>
+                                
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" class="form-check-input" id="high_contrast_mode" name="high_contrast_mode" {% if theme.high_contrast_mode %}checked{% endif %}>
+                                    <label class="form-check-label" for="high_contrast_mode">High contrast mode</label>
+                                    <small class="form-text text-muted d-block">Increase contrast between elements</small>
+                                </div>
+                                
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" class="form-check-input" id="increase_target_size" name="increase_target_size" {% if theme.increase_target_size %}checked{% endif %}>
+                                    <label class="form-check-label" for="increase_target_size">Increase target size</label>
+                                    <small class="form-text text-muted d-block">Make buttons and interactive elements larger</small>
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="font_scaling">Font Scaling Factor</label>
+                                    <input type="range" class="form-range" id="font_scaling" name="font_scaling" min="0.8" max="1.5" step="0.05" value="{{ theme.font_scaling }}">
+                                    <div class="d-flex justify-content-between">
+                                        <small>Smaller (0.8x)</small>
+                                        <small id="font_scaling_value">{{ theme.font_scaling }}x</small>
+                                        <small>Larger (1.5x)</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Custom CSS -->
+                            <div class="tab-pane fade" id="custom" role="tabpanel" aria-labelledby="custom-tab">
+                                <div class="form-group">
+                                    <label for="custom_css">Custom CSS</label>
+                                    <textarea class="form-control code-editor" id="custom_css" name="custom_css" rows="15">{{ theme.custom_css }}</textarea>
+                                    <small class="form-text text-muted">Add custom CSS that will be applied to the theme. Be careful with this feature.</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-end mt-4">
+                            <a href="{% url 'core:theme_settings' %}" class="btn btn-outline-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Theme</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'core/js/theme.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Live preview updates
+    const updatePreview = () => {
+        // Get values from form
+        const primaryColor = document.getElementById('primary_color').value;
+        const secondaryColor = document.getElementById('secondary_color').value;
+        const successColor = document.getElementById('success_color').value;
+        const dangerColor = document.getElementById('danger_color').value;
+        const warningColor = document.getElementById('warning_color').value;
+        const infoColor = document.getElementById('info_color').value;
+        const backgroundColor = document.getElementById('background_color').value;
+        const textColor = document.getElementById('text_color').value;
+        const borderRadius = document.getElementById('border_radius').value;
+        
+        // Update preview elements
+        const previewHeader = document.getElementById('preview-header');
+        const previewContent = document.getElementById('preview-content');
+        const previewPrimary = document.getElementById('preview-primary');
+        const previewSecondary = document.getElementById('preview-secondary');
+        const previewSuccess = document.getElementById('preview-success');
+        const previewDanger = document.getElementById('preview-danger');
+        const previewWarning = document.getElementById('preview-warning');
+        const previewInfo = document.getElementById('preview-info');
+        const previewButton = document.getElementById('preview-button');
+        
+        // Apply colors
+        previewHeader.style.backgroundColor = primaryColor;
+        previewHeader.style.color = textColor;
+        previewContent.style.backgroundColor = backgroundColor;
+        previewContent.style.color = textColor;
+        previewPrimary.style.backgroundColor = primaryColor;
+        previewSecondary.style.backgroundColor = secondaryColor;
+        previewSuccess.style.backgroundColor = successColor;
+        previewDanger.style.backgroundColor = dangerColor;
+        previewWarning.style.backgroundColor = warningColor;
+        previewInfo.style.backgroundColor = infoColor;
+        
+        // Apply styles to all color blocks
+        const colorBlocks = document.querySelectorAll('.color-block');
+        colorBlocks.forEach(block => {
+            block.style.borderRadius = borderRadius + 'rem';
+        });
+        
+        // Button styling
+        previewButton.style.backgroundColor = primaryColor;
+        previewButton.style.color = textColor;
+        previewButton.style.borderRadius = borderRadius + 'rem';
+    };
+    
+    // Update color value inputs when color picker changes
+    document.querySelectorAll('.color-picker').forEach(picker => {
+        picker.addEventListener('input', function() {
+            const target = this.id;
+            document.querySelector(`[data-color-target="${target}"]`).value = this.value;
+            updatePreview();
+        });
+    });
+    
+    // Update color picker when value input changes
+    document.querySelectorAll('.color-value').forEach(input => {
+        input.addEventListener('input', function() {
+            const target = this.getAttribute('data-color-target');
+            document.getElementById(target).value = this.value;
+            updatePreview();
+        });
+    });
+    
+    // Update font scaling value display
+    const fontScaling = document.getElementById('font_scaling');
+    const fontScalingValue = document.getElementById('font_scaling_value');
+    if (fontScaling && fontScalingValue) {
+        fontScaling.addEventListener('input', function() {
+            fontScalingValue.textContent = this.value + 'x';
+        });
+    }
+    
+    // Initialize preview
+    updatePreview();
+    
+    // Add form validation
+    const themeForm = document.getElementById('theme-form');
+    if (themeForm) {
+        themeForm.addEventListener('submit', function(event) {
+            let isValid = true;
+            
+            // Validate theme name
+            const nameInput = document.getElementById('name');
+            if (!nameInput.value.trim()) {
+                nameInput.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                nameInput.classList.remove('is-invalid');
+            }
+            
+            // Prevent form submission if invalid
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

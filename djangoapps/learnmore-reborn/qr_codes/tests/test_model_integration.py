@@ -149,7 +149,7 @@ class QRCodeModelIntegrationTests(TestCase):
         # Here we're mocking the behavior for testing purposes
         
         # Override the scanner's scan method for this test
-        import mock
+        from unittest import mock
         with mock.patch('qr_codes.services.QRCodeService.validate_scan') as mock_validate:
             # For enrolled user, validation passes
             mock_validate.return_value = (True, "Valid", self.module_enrolled_qr)

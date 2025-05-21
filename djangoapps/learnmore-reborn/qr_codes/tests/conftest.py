@@ -61,7 +61,7 @@ def test_quiz(test_module):
         title='Test Quiz',
         description='A test quiz',
         module=test_module,
-        time_limit=30
+        time_limit_minutes=30
     )
 
 
@@ -80,8 +80,7 @@ def test_progress(student_user, test_course):
     """Create a test progress."""
     return Progress.objects.create(
         user=student_user,
-        course=test_course,
-        status='in_progress'
+        course=test_course
     )
 
 

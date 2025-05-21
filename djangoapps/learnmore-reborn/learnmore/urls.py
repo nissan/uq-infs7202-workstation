@@ -49,13 +49,16 @@ urlpatterns = [
     path('testimonials/', views.testimonials_page, name='testimonials'),
     path('admin/', admin.site.urls),
     # Template-based URLs
+    path('core/', include('core.urls')),  # Core app for theme and accessibility
     path('courses/', include('courses.urls')),
     path('users/', include('users.urls')),  # Template-based user routes
     path('progress/', include('progress.urls')),  # Progress tracking and learning interface
     path('analytics/', include('analytics.urls')),  # Analytics dashboards and data
     path('ai-tutor/', include('ai_tutor.urls')),  # AI Tutor interface and API
     path('qr-codes/', include('qr_codes.urls')),  # QR code generation and scanning
+    path('accounts/', include('allauth.urls')),
     # API URLs
+    path('api/core/', include('core.api_urls')),  # Core API for themes
     path('api/courses/', include('courses.api_urls')),
     path('api/progress/', include('progress.api_urls')),
     path('api/users/', include('users.api_urls')),

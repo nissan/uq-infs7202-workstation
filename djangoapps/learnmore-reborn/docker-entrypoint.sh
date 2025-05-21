@@ -85,6 +85,7 @@ mkdir -p /app/media
 # Set proper permissions
 chmod -R 755 /app/data /app/media /app/staticfiles
 
+
 # Start Gunicorn
 echo "Starting Gunicorn..."
 exec "$@"
