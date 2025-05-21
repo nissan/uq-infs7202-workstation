@@ -76,33 +76,33 @@ For more details on the Docker setup, see [README_DOCKER.md](README_DOCKER.md).
 
 ### Option 2: Manual Setup
 
-To quickly set up the platform with test users and content for demonstration:
+To quickly set up the platform with demo accounts and content for demonstration:
 
-1. **Create test users** (admin, instructors, students):
+1. **One-step setup (recommended)**:
 ```bash
-python manage.py shell < create_test_users.py
+python manage.py setup_demo
+```
+This command creates demo accounts, sample courses, and sets up proper enrollments in one step.
+
+Or perform individual steps:
+
+2. **Create demo accounts only**:
+```bash
+python manage.py create_demo_accounts
 ```
 
-2. **Create sample courses, modules, and quizzes**:
-```bash
-python manage.py shell < create_demo_rag_content.py
-```
-
-3. **Set up the AI Tutor RAG system**:
-```bash
-python manage.py shell < ingest_rag_content.py
-```
-
-4. **Access the platform**:
+3. **Access the platform**:
    - Visit http://127.0.0.1:8000/
-   - Login details are displayed on the login page
-   - All demo accounts use password: `testpass123`
+   - Login using the demo credentials (see below)
+   - All demo accounts use password: `demopass123`
 
 ### Demo User Roles
 
-- **Admin**: Full system access (`admin`)
-- **Instructors**: Course management, analytics (`professor`, `teacher`)
-- **Students**: Course enrollment, AI tutor access (`student1`, `student2`, `student3`)
+- **Admin**: Full system access (`demo_admin`) - Password: `demopass123`
+- **Instructor**: Course management, analytics (`demo_instructor`) - Password: `demopass123`
+- **Student**: Course enrollment, AI tutor access (`demo_student`) - Password: `demopass123`
+
+For more details about demo accounts, see [users/DEMO_ACCOUNTS.md](users/DEMO_ACCOUNTS.md).
 
 ### 🤖 AI Tutor Demo
 
@@ -297,7 +297,15 @@ GOOGLE_OAUTH_CLIENT_ID=your-google-client-id
 GOOGLE_OAUTH_CLIENT_SECRET=your-google-client-secret
 ```
 
-2. For Google OAuth, set up a project in Google Cloud Console and add the credentials to your `.env` file.
+2. For Google OAuth:
+   - Follow the setup instructions in [users/GOOGLE_OAUTH_SETUP.md](users/GOOGLE_OAUTH_SETUP.md)
+   - Add the credentials to your `.env` file as shown above
+   - Run the setup command to configure site settings:
+   ```bash
+   python manage.py setup_oauth --client-id=your-client-id --client-secret=your-client-secret
+   ```
+   - Visit the login page and click "Sign in with Google" to test the integration
+   - For more detailed implementation documentation, see [users/GOOGLE_OAUTH_IMPLEMENTATION.md](users/GOOGLE_OAUTH_IMPLEMENTATION.md)
 
 ### Secret Key Management
 

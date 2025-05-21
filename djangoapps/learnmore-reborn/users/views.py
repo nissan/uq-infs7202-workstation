@@ -5,6 +5,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.views.decorators.csrf import csrf_exempt
+from django.urls import reverse
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -86,6 +89,15 @@ def profile_edit_view(request):
         form = UserProfileForm(instance=profile)
     
     return render(request, 'users/profile_edit.html', {'form': form})
+
+@csrf_exempt
+def social_login_view(request, provider):
+    """Redirects to the appropriate social auth provider login page."""
+    if provider == 'google':
+        return redirect(reverse('google_login'))
+    else:
+        messages.error(request, f"Login with {provider} is not supported.")
+        return redirect('users:login')
 
 # API Views
 

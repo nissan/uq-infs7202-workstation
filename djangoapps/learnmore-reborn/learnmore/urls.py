@@ -20,6 +20,7 @@ from django.views.generic import RedirectView
 from django.http import JsonResponse
 from django.conf import settings
 from django.conf.urls.static import static
+from allauth.socialaccount.providers.google.views import oauth2_login
 from . import views  # Add this import
 
 def root_view(request):
@@ -57,6 +58,7 @@ urlpatterns = [
     path('ai-tutor/', include('ai_tutor.urls')),  # AI Tutor interface and API
     path('qr-codes/', include('qr_codes.urls')),  # QR code generation and scanning
     path('accounts/', include('allauth.urls')),
+    path('accounts/google/login/', oauth2_login, name='google_login'),
     # API URLs
     path('api/core/', include('core.api_urls')),  # Core API for themes
     path('api/courses/', include('courses.api_urls')),

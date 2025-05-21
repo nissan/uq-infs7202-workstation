@@ -78,6 +78,76 @@ The feedback system has been expanded with multiple levels of feedback and instr
   - Parameters: `response_id` (int), `annotation` (string)
   - Permissions: Instructor only
 
+## 5. Essay Questions ✅
+
+Essay questions have been fully implemented, providing support for open-ended responses with manual grading:
+
+- **Rich Text Responses**: Students can provide formatted text answers
+- **Manual Grading**: Instructors can review and grade essay responses
+- **Rubric System**: Detailed scoring rubrics to guide assessment
+- **Partial Credit**: Ability to assign partial points based on response quality
+- **Instructor Annotations**: Detailed feedback on specific portions of a response
+
+### Implementation details:
+- Created `EssayQuestion` model as a subclass of Question
+- Added support for detailed rubrics and scoring guidelines
+- Implemented a dedicated grading interface for instructors
+- Added annotation capabilities for feedback on specific parts of responses
+- Created student-facing views with rich text editing capabilities
+
+### API Endpoints:
+- `POST /api/courses/questions/essay/` - Create a new essay question
+  - Parameters: `prompt` (string), `points` (int), `rubric` (JSON)
+  - Permissions: Instructor only
+- `POST /api/courses/quiz-attempts/{id}/grade-essay/` - Provide a grade for an essay response
+  - Parameters: `response_id` (int), `points` (float), `feedback` (string)
+  - Permissions: Instructor only
+
+## 6. Advanced Scoring ✅
+
+The quiz system now supports sophisticated scoring mechanisms:
+
+- **Partial Credit**: Points can be awarded based on the correctness of a response
+- **Weighted Questions**: Questions can have different point values based on importance
+- **Score Normalization**: Raw scores can be transformed using statistical methods
+- **Rubric-Based Scoring**: Structured evaluation criteria for complex responses
+- **Neutral Choices**: Support for survey questions with non-scored options
+
+### Implementation details:
+- Enhanced the Choice model with partial credit fields
+- Added normalization methods to standardize scores
+- Implemented scoring rubrics for complex assessment
+- Created detailed score breakdown visualizations
+- Added support for non-scored survey responses
+
+### Score Normalization Methods:
+- Z-Score Normalization
+- Min-Max Scaling
+- Percentile Ranking
+- Custom Mapping
+
+## 7. Analytics Enhancements ✅
+
+Comprehensive analytics have been added to the quiz system:
+
+- **Question Analytics**: Statistics on question performance and difficulty
+- **Quiz Analytics**: Overall quiz effectiveness metrics
+- **Student Comparison**: Comparative performance visuals
+- **Item Analysis**: Detailed breakdown of response patterns
+- **Time Analytics**: Analysis of time spent on questions
+
+### Implementation details:
+- Created `QuestionAnalytics` and `QuizAnalytics` models
+- Implemented dashboard visualizations for instructors
+- Added student-facing performance insights
+- Created exportable reports with detailed metrics
+- Implemented real-time analytics updates
+
+### API Endpoints:
+- `GET /api/courses/quizzes/{id}/analytics/` - Get analytics for a specific quiz
+- `GET /api/courses/questions/{id}/analytics/` - Get analytics for a specific question
+- `GET /api/analytics/student-comparison/{course_id}/` - Compare student performance in a course
+
 ## Testing Approach
 
 All advanced features are covered by comprehensive tests including:
@@ -85,13 +155,13 @@ All advanced features are covered by comprehensive tests including:
 - **Unit Tests**: Testing model methods and utilities
 - **API Tests**: Ensuring API endpoints function correctly with proper permissions
 - **Integration Tests**: Verifying complex workflows and interactions
+- **Performance Tests**: Ensuring analytics scale with large datasets
 
-## Future Work
+## Remaining Work
 
 Planned enhancements for the quiz system include:
 
-- Essay Questions with manual grading capabilities
-- Advanced Scoring with partial credit and weighted questions
-- Analytics Enhancements with item analysis and performance metrics
-- Security Enhancements with browser focus detection and session validation
-- UI Improvements with preview mode and additional mobile optimizations
+- **Security Enhancements**: Browser focus detection and session validation
+- **UI Improvements**: Complete mobile responsiveness and accessibility features
+- **Additional Randomization**: Question banks and block randomization
+- **Advanced Session Protection**: Focus tracking and session timeouts

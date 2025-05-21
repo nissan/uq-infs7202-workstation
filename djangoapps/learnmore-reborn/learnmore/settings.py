@@ -31,9 +31,9 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True  # Temporarily enable debug mode to see errors
+DEBUG = env('DEBUG', default=False)  # Use env variable with False as default for production
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
 
 # Application definition
@@ -63,18 +63,23 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'test_middleware.TestCSRFMiddleware',  # First, to disable CSRF before other middleware
-    'corsheaders.middleware.CorsMiddleware',  # Add this before CommonMiddleware
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add WhiteNoise for static files
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Add this before CommonMiddleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'analytics.middleware.AnalyticsMiddleware',  # Add analytics middleware
 ]
+
+# Only use the test CSRF middleware during tests
+if 'test' in sys.argv or os.environ.get('TEST_MODE'):
+    MIDDLEWARE.insert(0, 'test_middleware.TestCSRFMiddleware')
 
 ROOT_URLCONF = 'learnmore.urls'
 
@@ -114,17 +119,30 @@ DATABASES = {
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'OPTIONS': {
+            'user_attributes': ('username', 'email', 'first_name', 'last_name'),
+            'max_similarity': 0.7,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 10,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'OPTIONS': {
+            'password_list_path': None,  # Default list is fine
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# Password reset settings
+PASSWORD_RESET_TIMEOUT = 86400  # 24 hours in seconds
 
 
 # Internationalization
@@ -155,25 +173,75 @@ STATICFILES_FINDERS = [
 ]
 
 # Configure WhiteNoise for static files
-if not DEBUG:
-    # Add WhiteNoise middleware after security middleware
-    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    WHITENOISE_USE_FINDERS = True
-    WHITENOISE_MANIFEST_STRICT = False
-    WHITENOISE_ALLOW_ALL_ORIGINS = True
-else:
-    # Use ManifestStaticFilesStorage in development for consistency
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage' if not DEBUG else 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_MANIFEST_STRICT = False
+WHITENOISE_ALLOW_ALL_ORIGINS = False  # More secure setting for production
 
 # Media files (uploads)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# File Upload Settings and Security
+FILE_UPLOAD_HANDLERS = [
+    'django.core.files.uploadhandler.MemoryFileUploadHandler',
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
+]
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5 MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5 MB
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o750
+FILE_UPLOAD_PERMISSIONS = 0o640
+FILE_UPLOAD_TEMP_DIR = None  # Use system default temporary directory
+
+# Allowed file extensions for uploads
+ALLOWED_UPLOADS = {
+    'image': ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'],
+    'document': ['.pdf', '.doc', '.docx', '.txt', '.csv', '.xlsx'],
+    'media': ['.mp4', '.webm', '.mp3'],
+}
+
+# Content type validation for uploads
+CONTENT_TYPE_VALIDATORS = {
+    'image': ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'],
+    'document': ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
+                'text/plain', 'text/csv', 'application/vnd.ms-excel', 
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+    'media': ['video/mp4', 'video/webm', 'audio/mpeg', 'audio/mp3'],
+}
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Security Settings for Production
+if not DEBUG:
+    # HTTPS Settings
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    
+    # Cookie Security
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    CSRF_COOKIE_SAMESITE = 'Lax'
+    
+    # Content Security Policy
+    CSP_DEFAULT_SRC = ("'self'",)
+    CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", 'fonts.googleapis.com')
+    CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "'unsafe-eval'")
+    CSP_IMG_SRC = ("'self'", 'data:')
+    CSP_FONT_SRC = ("'self'", 'fonts.gstatic.com')
+    CSP_CONNECT_SRC = ("'self'",)
+    
+    # XSS Protection
+    SECURE_BROWSER_XSS_FILTER = True
+    X_FRAME_OPTIONS = 'DENY'
 
 # REST Framework settings
 REST_FRAMEWORK = {
@@ -184,11 +252,34 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'UNAUTHENTICATED_USER': None,  # This ensures unauthenticated requests return 401 instead of 400
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/day',  # Limit anonymous users
+        'user': '1000/day',  # Limit authenticated users
+        'login': '5/minute',  # Specific endpoint throttling
+    },
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler',
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ] if not DEBUG else [  # Only show browsable API in development
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
 }
 
 # JWT settings
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # Reduced for better security
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -196,23 +287,58 @@ SIMPLE_JWT = {
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': env('JWT_SECRET_KEY', default=SECRET_KEY),
     'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+    'JTI_CLAIM': 'jti',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'TOKEN_OBTAIN_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenObtainPairSerializer',
+    'TOKEN_REFRESH_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenRefreshSerializer',
+    'TOKEN_VERIFY_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenVerifySerializer',
+    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
+    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=30),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = False  # Always False in production
-CORS_ALLOWED_ORIGINS = [
+CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://learnmore-reborn-prod.up.railway.app",
-    "https://*.up.railway.app",
-]
+])
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+CORS_EXPOSE_HEADERS = [
+    'content-disposition',
+]
+CORS_PREFLIGHT_MAX_AGE = 86400  # 24 hours
 
 # CSRF settings
-CSRF_TRUSTED_ORIGINS = [
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[
     "https://learnmore-reborn-prod.up.railway.app",
     "https://*.up.railway.app",
-]
+])
+CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
+CSRF_USE_SESSIONS = True  # Store CSRF token in the session instead of in a cookie
 
 # Google OAuth settings (you'll need to fill these in)
 GOOGLE_OAUTH_CLIENT_ID = env('GOOGLE_OAUTH_CLIENT_ID', default='')
@@ -259,6 +385,16 @@ TEST_RUNNER = 'test_runner.QuietTestRunner'
 LOGIN_URL = '/users/login/'
 LOGIN_REDIRECT_URL = '/courses/catalog/'
 LOGOUT_REDIRECT_URL = '/courses/catalog/'
+
+# Session security settings
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Use database-backed sessions
+SESSION_COOKIE_AGE = 3600  # 1 hour in seconds
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Expire session when browser closes
+SESSION_SAVE_EVERY_REQUEST = True  # Update session on every request
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
+
+# Additionally, force-expire idle sessions after 30 minutes
+SESSION_IDLE_TIMEOUT = 1800  # 30 minutes in seconds
 
 # Cache settings
 CACHES = {
