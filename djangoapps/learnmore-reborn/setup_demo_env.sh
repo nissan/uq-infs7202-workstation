@@ -30,4 +30,7 @@ python manage.py shell < create_demo_rag_content.py
 echo "Ingesting RAG content..."
 python manage.py shell < ingest_rag_content.py
 
+echo "Creating QR code demo data..."
+python create_qr_demo_data.py
+
 echo "Demo environment setup complete!"
