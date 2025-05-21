@@ -1,9 +1,12 @@
-# Railway configuration for Python/Django deployment
-[build]
-builder = "RAILPACK"
-buildCommand = "pip install -r requirements.txt"
+# Railway configuration for Docker-based Django deployment
 
-[deploy]
-startCommand = "python manage.py collectstatic --noinput --clear --verbosity 2 && DJANGO_SETTINGS_MODULE=learnmore.settings gunicorn learnmore.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 8 --timeout 0"
-restartPolicyType = "ON_FAILURE"
-restartPolicyMaxRetries = 10 
+[service]
+internal_port = 8000
+protocol = "http"
+healthcheck_enabled = true
+
+[service.healthcheck]
+path = "/health/"
+interval = 30
+timeout = 10
+retries = 3
