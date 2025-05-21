@@ -1,0 +1,83 @@
+[
+  {
+    "model": "qr_codes.qrcode",
+    "pk": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+    "fields": {
+      "created_at": "2025-05-20T00:00:00Z",
+      "expires_at": null,
+      "content_type": ["courses", "course"],
+      "object_id": 1001,
+      "max_scans": null,
+      "current_scans": 0,
+      "is_active": true,
+      "access_level": "public",
+      "payload": {},
+      "image_data": "",
+      "batch": null
+    }
+  },
+  {
+    "model": "qr_codes.qrcode",
+    "pk": "e47ac10b-58cc-4372-a567-0e02b2c3d478",
+    "fields": {
+      "created_at": "2025-05-20T00:00:00Z",
+      "expires_at": null,
+      "content_type": ["courses", "module"],
+      "object_id": 1001,
+      "max_scans": null,
+      "current_scans": 0,
+      "is_active": true,
+      "access_level": "enrolled",
+      "payload": {},
+      "image_data": "",
+      "batch": null
+    }
+  },
+  {
+    "model": "qr_codes.qrcode",
+    "pk": "d47ac10b-58cc-4372-a567-0e02b2c3d477",
+    "fields": {
+      "created_at": "2025-05-20T00:00:00Z",
+      "expires_at": null,
+      "content_type": ["courses", "quiz"],
+      "object_id": 1001,
+      "max_scans": 50,
+      "current_scans": 0,
+      "is_active": true,
+      "access_level": "enrolled",
+      "payload": {},
+      "image_data": "",
+      "batch": null
+    }
+  },
+  {
+    "model": "qr_codes.qrcodescan",
+    "pk": "c47ac10b-58cc-4372-a567-0e02b2c3d476",
+    "fields": {
+      "qr_code": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "scanned_at": "2025-05-20T01:00:00Z",
+      "user": 1002,
+      "ip_address": "127.0.0.1",
+      "user_agent": "Mozilla/5.0 Test Browser",
+      "latitude": null,
+      "longitude": null,
+      "context_data": {},
+      "status": "success"
+    }
+  },
+  {
+    "model": "qr_codes.qrcodescan",
+    "pk": "b47ac10b-58cc-4372-a567-0e02b2c3d475",
+    "fields": {
+      "qr_code": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "scanned_at": "2025-05-20T02:00:00Z",
+      "user": 1002,
+      "ip_address": "127.0.0.1",
+      "user_agent": "Mozilla/5.0 Test Browser",
+      "latitude": 37.7749,
+      "longitude": -122.4194,
+      "context_data": {"device": "mobile"},
+      "status": "success"
+    }
+  }
+]

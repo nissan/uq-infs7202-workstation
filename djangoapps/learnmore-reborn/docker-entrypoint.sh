@@ -20,13 +20,14 @@ sys.exit(0)
 END
 }
 
-# Wait for PostgreSQL
-until postgres_ready; do
-    >&2 echo "PostgreSQL is unavailable - sleeping"
-    sleep 1
-done
-
->&2 echo "PostgreSQL is up - executing command"
+# Wait for PostgreSQL if using PostgreSQL
+if [[ "$DATABASE_URL" == postgres* ]]; then
+    until postgres_ready; do
+        >&2 echo "PostgreSQL is unavailable - sleeping"
+        sleep 1
+    done
+    >&2 echo "PostgreSQL is up - executing command"
+fi
 
 # Apply database migrations
 echo "Applying database migrations..."
@@ -69,23 +70,10 @@ from health.views import health_check
 urlpatterns += [path("health/", health_check, name="health_check"),]
 EOF
 
-# Check if test users exist, if not create them
-if ! python -c "from django.contrib.auth import get_user_model; User = get_user_model(); exit(0 if User.objects.filter(username='admin').exists() else 1)"; then
-    echo "Creating test users..."
-    python create_test_users.py
-fi
-
-# Check if courses exist, if not create them
-if ! python -c "from courses.models import Course; exit(0 if Course.objects.exists() else 1)"; then
-    echo "Creating demo course content..."
-    python create_demo_rag_content.py
-fi
-
-# Check if knowledge base exists, if not create it
-if ! python -c "from ai_tutor.models import TutorKnowledgeBase; exit(0 if TutorKnowledgeBase.objects.exists() else 1)"; then
-    echo "Ingesting content for AI Tutor RAG..."
-    python ingest_rag_content.py
-fi
+# Run the setup script to initialize the demo environment
+echo "Setting up demo environment..."
+chmod +x /app/setup_demo_env.sh
+/app/setup_demo_env.sh
 
 # Collect static files
 echo "Collecting static files..."

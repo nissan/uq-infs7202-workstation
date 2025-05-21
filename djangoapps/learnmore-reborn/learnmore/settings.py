@@ -52,8 +52,8 @@ INSTALLED_APPS = [
     'progress',
     'users',
     'ai_tutor',
-    'analytics'
-    
+    'analytics',
+    'qr_codes'
 ]
 
 MIDDLEWARE = [

@@ -45,6 +45,9 @@ class Course(models.Model):
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
     
+    # QR code related fields
+    qr_enabled = models.BooleanField(default=False, help_text='Enable QR code access for this course')
+    
     def __str__(self):
         return self.title
     
@@ -86,6 +89,14 @@ class Module(models.Model):
         ('mixed', 'Mixed Content'),
     ]
     
+    # QR access level choices
+    QR_ACCESS_CHOICES = [
+        ('disabled', 'Disabled'),
+        ('public', 'Public Access'),
+        ('enrolled', 'Enrolled Students Only'),
+        ('instructor', 'Instructors Only')
+    ]
+    
     course = models.ForeignKey('Course', related_name='modules', on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
@@ -98,6 +109,10 @@ class Module(models.Model):
     is_required = models.BooleanField(default=True, help_text='Is this module required for course completion')
     completion_criteria = models.JSONField(default=dict, blank=True, help_text='Criteria for marking as complete (e.g. {"video_watched": true, "quiz_completed": true})')
     content = models.TextField(blank=True, help_text='Module content in markdown format')
+    
+    # QR code related fields
+    qr_access = models.CharField(max_length=20, choices=QR_ACCESS_CHOICES, default='disabled', 
+                              help_text='QR code access level for this module')
     
     def __str__(self):
         return f"{self.course.title} - {self.title}"
@@ -165,6 +180,9 @@ class Quiz(models.Model):
     # Randomization settings
     randomize_questions = models.BooleanField(default=False, help_text='Randomize question order for each attempt')
     randomize_choices = models.BooleanField(default=False, help_text='Randomize choice order for multiple choice questions')
+    
+    # QR code related fields
+    qr_tracking = models.BooleanField(default=False, help_text='Track QR code scans for quiz access')
     
     # Attempt settings
     allow_multiple_attempts = models.BooleanField(default=True)

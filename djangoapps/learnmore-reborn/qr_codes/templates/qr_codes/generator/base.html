@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}QR Code Generator{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'qr_codes:home' %}">QR Codes</a></li>
+            <li class="breadcrumb-item active">Generator</li>
+        </ol>
+    </nav>
+
+    <h1 class="mb-4">QR Code Generator</h1>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Create QR Code</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="content_type" class="form-label">Content Type</label>
+                            <select id="content_type" name="content_type" class="form-select" required>
+                                <option value="">Select content type...</option>
+                                {% for ct in content_types %}
+                                <option value="{{ ct.id }}">{{ ct.app_label }}.{{ ct.model }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">Select the type of content to create a QR code for</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="object_id" class="form-label">Object ID</label>
+                            <input type="number" class="form-control" id="object_id" name="object_id" required>
+                            <div class="form-text">Enter the ID of the object (e.g., course ID, module ID)</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="access_level" class="form-label">Access Level</label>
+                            <select id="access_level" name="access_level" class="form-select">
+                                <option value="public">Public</option>
+                                <option value="enrolled">Enrolled Users Only</option>
+                                <option value="instructor">Instructors Only</option>
+                                <option value="admin">Admins Only</option>
+                            </select>
+                            <div class="form-text">Select who can access this QR code</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="expires_at" class="form-label">Expiration Date (Optional)</label>
+                            <input type="datetime-local" class="form-control" id="expires_at" name="expires_at">
+                            <div class="form-text">Set an expiration date for this QR code</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="max_scans" class="form-label">Max Scans (Optional)</label>
+                            <input type="number" class="form-control" id="max_scans" name="max_scans" min="1">
+                            <div class="form-text">Limit the number of times this QR code can be scanned</div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Generate QR Code</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            {% if qr_code %}
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Generated QR Code</h5>
+                </div>
+                <div class="card-body text-center">
+                    <h5 class="card-title">
+                        {{ qr_code.content_type.model|title }}: {{ target_object }}
+                    </h5>
+                    
+                    {% if qr_code.image_data %}
+                    <div class="qr-code-image my-3">
+                        <img src="data:image/png;base64,{{ qr_code.image_data }}" 
+                             alt="QR Code" class="img-fluid" style="max-width: 300px;">
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <input type="text" class="form-control" value="{{ qr_code.id }}" readonly id="qr-code-id">
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('qr-code-id')">
+                                Copy ID
+                            </button>
+                        </div>
+                        <div class="form-text">QR Code ID (use this for API access)</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <a href="data:image/png;base64,{{ qr_code.image_data }}" download="qrcode-{{ qr_code.id }}.png" 
+                           class="btn btn-primary">
+                            <i class="fas fa-download"></i> Download QR Code
+                        </a>
+                    </div>
+                    
+                    <div class="qr-code-info mt-3">
+                        <p><strong>Created:</strong> {{ qr_code.created_at }}</p>
+                        {% if qr_code.expires_at %}
+                        <p><strong>Expires:</strong> {{ qr_code.expires_at }}</p>
+                        {% endif %}
+                        <p><strong>Access Level:</strong> {{ qr_code.access_level }}</p>
+                        {% if qr_code.max_scans %}
+                        <p><strong>Max Scans:</strong> {{ qr_code.max_scans }}</p>
+                        {% endif %}
+                        <p><strong>Current Scans:</strong> {{ qr_code.current_scans }}</p>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">QR Code Preview</h5>
+                </div>
+                <div class="card-body text-center">
+                    <p class="text-muted">Fill out the form to generate a QR code</p>
+                    <div class="qr-code-placeholder">
+                        <i class="fas fa-qrcode fa-8x text-muted"></i>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Batch Operations</h5>
+                </div>
+                <div class="card-body">
+                    <p>Need to generate multiple QR codes at once? Use our batch generator feature.</p>
+                    <a href="#" class="btn btn-outline-primary">Create Batch</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_scripts %}
+<script>
+function copyToClipboard(elementId) {
+    const element = document.getElementById(elementId);
+    element.select();
+    document.execCommand('copy');
+    
+    // Show toast or alert
+    alert('Copied to clipboard!');
+}
+</script>
+{% endblock %}
+{% endblock %}
